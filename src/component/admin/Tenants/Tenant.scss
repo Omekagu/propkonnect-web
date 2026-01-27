@@ -1,0 +1,98 @@
+.user-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.05);
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .add-btn {
+      background: #111827;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+
+      &:hover {
+        background: #000;
+      }
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+      background: #f0f3f8;
+      text-align: left;
+      padding: 0.8rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    td {
+      padding: 0.8rem;
+      border-bottom: 1px solid #eee;
+      color: #555;
+    }
+
+    .status {
+      padding: 0.3rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+
+      &.active {
+        background: #dcfce7;
+        color: #16a34a;
+      }
+
+      &.pending {
+        background: #fef9c3;
+        color: #ca8a04;
+      }
+    }
+
+    button {
+      border: none;
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      margin-right: 0.4rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: 0.3s;
+
+      &.btn-view {
+        background: #e0f2fe;
+        color: #0369a1;
+      }
+
+      &.btn-edit {
+        background: #fef9c3;
+        color: #ca8a04;
+      }
+
+      &.btn-delete {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}

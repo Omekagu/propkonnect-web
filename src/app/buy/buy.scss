@@ -1,0 +1,209 @@
+.modern-buy-page {
+  background: #f9fafc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .hero-section {
+    width: 100%;
+    height: 320px;
+    background: url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80')
+      center/cover no-repeat;
+    position: relative;
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      h1 {
+        font-size: 2.4rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        font-size: 1.1rem;
+        font-weight: 500;
+        opacity: 0.9;
+      }
+    }
+  }
+
+  .filters {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(14px);
+    border-radius: 1rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    margin-top: -2rem;
+    z-index: 2;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    input,
+    select {
+      padding: 0.6rem 1rem;
+      border: 1px solid #dce3ea;
+      border-radius: 0.6rem;
+      font-size: 1rem;
+      font-weight: 500;
+      background: #fff;
+      transition: 0.2s ease;
+      &:focus {
+        border-color: #2f8ee5;
+        box-shadow: 0 0 0 2px rgba(47, 142, 229, 0.15);
+      }
+    }
+  }
+
+  .property-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+  }
+
+  .property-card {
+    background: #fff;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .image-container {
+      position: relative;
+      img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+      &:hover img {
+        transform: scale(1.05);
+      }
+      .status-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #00bfa6;
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.6rem;
+        &.pending {
+          background: #facc15;
+          color: #222;
+        }
+        &.sold {
+          background: #ef4444;
+        }
+      }
+    }
+
+    .details {
+      padding: 1rem 1.2rem 1.3rem;
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+      }
+      .location {
+        color: #2f8ee5;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 0.7rem;
+        font-size: 0.93rem;
+      }
+
+      .features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-bottom: 0.8rem;
+      }
+
+      .price {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #00bfa6;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        .tag {
+          background: #e8f7fa;
+          color: #2f8ee5;
+          font-weight: 600;
+          padding: 0.2rem 0.7rem;
+          border-radius: 0.5rem;
+          font-size: 0.85rem;
+        }
+      }
+
+      .rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin: 0.7rem 0;
+        font-weight: 600;
+        color: #555;
+      }
+
+      .view-btn {
+        background: linear-gradient(90deg, #00bfa6, #2f8ee5);
+        border: none;
+        border-radius: 0.6rem;
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 0.6rem 0;
+        width: 100%;
+        cursor: pointer;
+        transition: 0.2s ease;
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+    }
+  }
+
+  .no-results,
+  .loading {
+    text-align: center;
+    color: #64748b;
+    font-size: 1.1rem;
+    margin: 4rem 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .modern-buy-page {
+    .filters {
+      flex-direction: column;
+      align-items: stretch;
+      input,
+      select {
+        width: 100%;
+      }
+    }
+  }
+}

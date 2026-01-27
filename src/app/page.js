@@ -1,0 +1,14 @@
+import Homefirstsection from '@/component/Home/homefirstsection/HomeFirstSection'
+import HomeSectionTwo from '@/component/Home/homeSecondSection/HomeSectionTwo'
+import TrendingPropertyList from '@/component/Home/TrendingPropertyList/TrendingPropertyList'
+import React from 'react'
+
+export default function page () {
+  return (
+    <div>
+      <Homefirstsection />
+      <TrendingPropertyList />
+      <HomeSectionTwo />
+    </div>
+  )
+}
