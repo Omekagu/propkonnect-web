@@ -37,7 +37,7 @@ export default function Sidebar ({
     },
     {
       key: 'PropertyUpload',
-      label: 'Upload Property',
+      label: 'Property ',
       icon: <HousePlus strokeWidth={0.75} />
     },
     {

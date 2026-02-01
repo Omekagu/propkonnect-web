@@ -176,7 +176,7 @@ const initialForm = {
 
 /* -------------------- Component -------------------- */
 
-export default function UploadProperty ({ onAdded } = {}) {
+export default function UploadPropertyWizard ({ onAdded } = {}) {
   const backend = process.env.NEXT_PUBLIC_BACKEND_URL || ''
 
   // Wizard state
@@ -251,7 +251,6 @@ export default function UploadProperty ({ onAdded } = {}) {
       if (res.data?.success && Array.isArray(res.data.properties)) {
         setProperties(res.data.properties)
         setLoadingProps(false)
-        console.log('Fetched properties:', res.data.properties)
       } else {
         setProperties([])
       }
