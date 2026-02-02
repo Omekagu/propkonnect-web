@@ -80,14 +80,14 @@ export default function AdminDashboard () {
 
       switch (tab) {
         case 'users':
-          endpoint = '/api/user/all'
+          endpoint = '/api/user'
           const usersRes = await axios.get(`${API_URL}${endpoint}`, {
             headers: { Authorization: `Bearer ${token}` }
           })
           setUsers(usersRes.data.users || [])
           break
         case 'transactions':
-          endpoint = '/api/transaction'
+          endpoint = '/api/transaction/admin/all'
           const transRes = await axios.get(`${API_URL}${endpoint}`, {
             headers: { Authorization: `Bearer ${token}` }
           })
@@ -130,6 +130,10 @@ export default function AdminDashboard () {
           endpoint = '/api/properties'
           const propsRes = await axios.get(`${API_URL}${endpoint}`)
           setProperties(propsRes.data.properties || [])
+          console.log(
+            'Fetched properties:',
+            propsRes.data.properties || propsRes.data
+          )
           break
       }
     } catch (err) {
@@ -518,10 +522,10 @@ export default function AdminDashboard () {
                       <td>
                         <span
                           className={`status-badge ${
-                            u.isActive ? 'active' : 'inactive'
+                            u.status.online ? 'active' : 'inactive'
                           }`}
                         >
-                          {u.isActive ? 'Active' : 'Inactive'}
+                          {u.status.online ? 'Online' : 'Offline'}
                         </span>
                       </td>
                       <td>

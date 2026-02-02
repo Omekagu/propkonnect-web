@@ -69,7 +69,7 @@ export default function Sidebar ({
     const navigationMap = {
       // Super Admin - Full access
       'super-admin': {
-        brand: 'PROPKONNECT ADMIN',
+        brand: 'PROPNECT ADMIN',
         nav: [
           {
             key: 'Dashboard',
@@ -143,7 +143,7 @@ export default function Sidebar ({
 
       // Sub Admin
       'sub-admin': {
-        brand: 'PROPKONNECT ADMIN',
+        brand: 'PROPNECT ADMIN',
         nav: [
           {
             key: 'Dashboard',
@@ -197,7 +197,7 @@ export default function Sidebar ({
 
       // Property Owner
       'property-owner': {
-        brand: 'PROPKONNECT',
+        brand: 'PROPNECT',
         nav: [
           {
             key: 'Dashboard',
@@ -261,7 +261,7 @@ export default function Sidebar ({
 
       // Property Admin
       'property-admin': {
-        brand: 'PROPKONNECT MANAGER',
+        brand: 'PROPNECT MANAGER',
         nav: [
           {
             key: 'Dashboard',
@@ -320,7 +320,7 @@ export default function Sidebar ({
 
       // Artisan
       artisan: {
-        brand: 'PROPKONNECT',
+        brand: 'PROPNECT',
         nav: [
           {
             key: 'Dashboard',
@@ -384,7 +384,7 @@ export default function Sidebar ({
 
       // Artisan Admin
       'artisan-admin': {
-        brand: 'PROPKONNECT PRO ADMIN',
+        brand: 'PROPNECT PRO ADMIN',
         nav: [
           {
             key: 'Dashboard',
@@ -438,7 +438,7 @@ export default function Sidebar ({
 
       // Tenant
       user: {
-        brand: 'PROPKONNECT TENANT',
+        brand: 'PROPNECT TENANT',
         nav: [
           {
             key: 'Dashboard',

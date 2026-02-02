@@ -13,6 +13,7 @@ export default function AuthPage () {
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [status, setStatus] = useState('') // friendly messages
   const [resendCooldown, setResendCooldown] = useState(0) // seconds
   const cooldownSeconds = 30
@@ -172,47 +173,70 @@ export default function AuthPage () {
   }
 
   // Step 2 → Verify OTP
+  // Verify OTP
   const handleVerify = async e => {
     e.preventDefault()
-    if (code.length !== 6) {
-      setError('Please enter a valid 6-digit code')
+
+    const otpCode = code.trim()
+
+    if (otpCode.length !== 6) {
+      setError('Please enter the complete 6-digit code')
       return
     }
 
+    setError('')
+    setLoading(true)
+
     try {
-      setLoading(true)
-      setError('')
-      setStatus('')
+      console.log('Sending to API:', {
+        email,
+        otp: otpCode
+      })
 
-      const currentEmail = email || localStorage.getItem('email')
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify`,
-        { email: currentEmail, code }
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-otp`,
+        {
+          email: email.toLocaleLowerCase(),
+          otp: otpCode
+        }
       )
-      const data = res.data
-      console.log('✅ Verify response:', data)
 
+      const data = response.data
+      console.log('Response data:', data)
+
+      setSuccess(true)
+
+      // Store token if provided
       if (data.token) {
         localStorage.setItem('authToken', data.token)
       }
-      if (data.user?._id) {
-        localStorage.setItem('userId', data.user._id)
-        localStorage.setItem('authToken', data.token)
-      }
 
-      // cleanup
-      localStorage.removeItem('email')
+      setTimeout(() => {
+        // Redirect based on user role
+        const role = data.data?.role
 
-      // redirect based on role
-      if (data.user?.role === 'admin') {
-        router.push('/admin/dashboard')
-      } else {
-        router.push('/user/user-profile')
-      }
+        const adminRoles = [
+          'super-admin',
+          'sub-admin',
+          'property-admin',
+          'sub-property-admin',
+          'artisan-admin',
+          'sub-artisan-admin'
+        ]
+
+        if (adminRoles.includes(role)) {
+          router.push('/admin/dashboard')
+        } else {
+          router.push('/dashboard')
+        }
+      }, 2000)
     } catch (err) {
-      console.error('❌ Verify error:', err)
-      setError(err.response?.data?.msg || 'Invalid code. Try again.')
-      if (announceRef.current) announceRef.current.textContent = 'Invalid code.'
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.msg ||
+        err.message ||
+        'Verification failed. Please try again.'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -232,7 +256,7 @@ export default function AuthPage () {
     <div className='login-container'>
       <div className='login-box' role='main' aria-labelledby='auth-heading'>
         <h1 id='auth-heading' className='logo'>
-          PROPKONNECT
+          PROPNECT
         </h1>
 
         {/* Status / accessibility announcement */}

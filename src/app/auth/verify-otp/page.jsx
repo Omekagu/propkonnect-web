@@ -103,7 +103,7 @@ export default function VerifyOTP () {
       })
 
       const response = await axios.post(
-        'http://10.0.1.9:4001/api/auth/verify-otp',
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-otp`,
         {
           email: email.toLocaleLowerCase(),
           otp: otpCode
@@ -159,10 +159,13 @@ export default function VerifyOTP () {
     setResending(true)
 
     try {
-      await axios.post('http://10.0.1.9:4001/api/auth/resend-otp', {
-        email,
-        userId
-      })
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/resend-otp`,
+        {
+          email,
+          userId
+        }
+      )
 
       // Clear current OTP
       setOtp(['', '', '', '', '', ''])
