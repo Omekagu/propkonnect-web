@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import './admin.scss'
 import {
   ChevronsRightLeft,
@@ -28,6 +28,7 @@ import {
   ClipboardList,
   Award
 } from 'lucide-react'
+import axios from 'axios'
 
 export default function Sidebar ({
   collapsed = false,
@@ -35,9 +36,33 @@ export default function Sidebar ({
   onCloseMobile = () => {},
   onToggleCollapse = () => {},
   onRouteChange = () => {},
-  userRole = 'property-owner' // Pass user role as prop
+  userRole = '' // better default
 }) {
   const [activeKey, setActiveKey] = useState('Dashboard')
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const authToken = localStorage.getItem('authToken')
+      if (!authToken) return setLoading(false)
+
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/id`,
+          {
+            headers: { Authorization: `Bearer ${authToken}` }
+          }
+        )
+        setUser(res.data.user)
+      } catch (err) {
+        console.error('Failed to fetch user:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchUser()
+  }, [])
 
   // Define navigation items for each role
   const roleBasedNavigation = useMemo(() => {
@@ -295,7 +320,7 @@ export default function Sidebar ({
 
       // Artisan
       artisan: {
-        brand: 'PROPKONNECT PRO',
+        brand: 'PROPKONNECT',
         nav: [
           {
             key: 'Dashboard',
@@ -412,7 +437,7 @@ export default function Sidebar ({
       },
 
       // Tenant
-      tenant: {
+      user: {
         brand: 'PROPKONNECT TENANT',
         nav: [
           {
@@ -466,14 +491,18 @@ export default function Sidebar ({
       }
     }
 
-    // Return navigation for the current role, or default to property-owner
-    return navigationMap[userRole] || navigationMap['property-owner']
-  }, [userRole])
+    const roleToUse = user?.role || userRole
+
+    return navigationMap[roleToUse] || navigationMap['property-owner']
+  }, [user, userRole])
 
   const handleClick = key => {
     setActiveKey(key)
     onRouteChange(key)
     if (mobileOpen) onCloseMobile()
+  }
+  if (loading) {
+    return <div className='admin-sidebar'>Loading...</div>
   }
 
   // Get label for brand subtext

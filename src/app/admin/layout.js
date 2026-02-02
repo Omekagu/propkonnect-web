@@ -39,15 +39,70 @@ import MyHome from '@/component/tenant/Home/Home'
 import TenantPayments from '@/component/tenant/Payments/Payments'
 import TenantMaintenance from '@/component/tenant/Maintenance/Maintenance'
 import Messages from '@/component/tenant/Messages/Messages'
+import axios from 'axios'
 
-export default function AdminLayout ({ children, user = {} }) {
+export default function AdminLayout ({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [activePage, setActivePage] = useState('Dashboard')
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  // Get user role, default to 'property-owner' if not provided
-  const userRole = user?.role || 'property-owner'
+  // ✅ ALL useEffect hooks BEFORE any returns
+  useEffect(() => {
+    const fetchUser = async () => {
+      const authToken = localStorage.getItem('authToken')
+      if (!authToken) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/id`,
+          { headers: { Authorization: `Bearer ${authToken}` } }
+        )
+        setUser(res.data.user)
+      } catch (err) {
+        console.error('Failed to fetch user:', err)
+        setError('Failed to load user data')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchUser()
+  }, [])
+
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobile(window.innerWidth < 900)
+      if (window.innerWidth >= 900) setMobileSidebarOpen(false)
+    }
+    onResize()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  useEffect(() => {
+    const onKey = e => {
+      if (e.key === 'Escape') setMobileSidebarOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  // ✅ NOW do conditional returns AFTER all hooks
+  if (loading) {
+    return <div className='loading-state'>Loading...</div>
+  }
+
+  if (error || !user) {
+    return <div className='error-state'>{error || 'Please log in'}</div>
+  }
+
+  const userRole = user.role || 'property-owner'
 
   // Role-based page rendering
   const renderPage = () => {
@@ -170,7 +225,7 @@ export default function AdminLayout ({ children, user = {} }) {
     }
 
     // Tenant Pages
-    if (userRole === 'tenant') {
+    if (userRole === 'user' || userRole === 'tenant') {
       switch (activePage) {
         case 'Dashboard':
           return <TenantDashboard />
@@ -198,26 +253,6 @@ export default function AdminLayout ({ children, user = {} }) {
     // Fallback
     return <div className='page-placeholder'>Page Not Found</div>
   }
-
-  useEffect(() => {
-    const onResize = () => {
-      setIsMobile(window.innerWidth < 900)
-      // auto close overlay when switching to desktop
-      if (window.innerWidth >= 900) setMobileSidebarOpen(false)
-    }
-    onResize()
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
-  // close mobile with esc
-  useEffect(() => {
-    const onKey = e => {
-      if (e.key === 'Escape') setMobileSidebarOpen(false)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
 
   return (
     <div className='admin-shell'>
