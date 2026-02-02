@@ -56,16 +56,16 @@ export default function PropertyManagement () {
   const [notice, setNotice] = useState(null)
 
   const backend = process.env.NEXT_PUBLIC_BACKEND_URL || ''
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const authToken =
+    typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
 
   // Fetch properties
   const fetchProperties = useCallback(async () => {
-    if (!token) return
+    if (!authToken) return
     setLoading(true)
     try {
       const res = await axios.get(`${backend}/api/properties/property/mine`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${authToken}` }
       })
       if (res.data?.success) {
         setProperties(res.data.properties || [])
@@ -76,11 +76,11 @@ export default function PropertyManagement () {
     } finally {
       setLoading(false)
     }
-  }, [backend, token])
+  }, [backend, authToken])
 
   // Fetch all applications
   const fetchApplications = useCallback(async () => {
-    if (!token) return
+    if (!authToken) return
     setLoading(true)
     try {
       // Fetch applications for all user's properties
@@ -88,7 +88,7 @@ export default function PropertyManagement () {
       for (const property of properties) {
         const res = await axios.get(
           `${backend}/api/properties/property-applications/property/${property._id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${authToken}` } }
         )
         if (res.data?.success && res.data.applications) {
           applicationsData.push(
@@ -107,7 +107,7 @@ export default function PropertyManagement () {
     } finally {
       setLoading(false)
     }
-  }, [backend, token, properties])
+  }, [backend, authToken, properties])
 
   useEffect(() => {
     fetchProperties()
@@ -131,7 +131,7 @@ export default function PropertyManagement () {
 
     try {
       const res = await axios.delete(`${backend}/api/properties/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${authToken}` }
       })
       if (res.data?.success) {
         showNotice('Property deleted successfully')
@@ -148,7 +148,7 @@ export default function PropertyManagement () {
     try {
       const res = await axios.get(
         `${backend}/api/properties/property-applications/property/${propertyId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${authToken}` } }
       )
       if (res.data?.success) {
         setModalData(res.data.applications || [])
@@ -167,7 +167,7 @@ export default function PropertyManagement () {
       const res = await axios.patch(
         `${backend}/api/properties/property-applications/${appId}/status`,
         { status },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${authToken}` } }
       )
       if (res.data?.success) {
         showNotice(`Application ${status} successfully`)
@@ -192,7 +192,7 @@ export default function PropertyManagement () {
     try {
       const res = await axios.delete(
         `${backend}/api/properties/property-applications/${appId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${authToken}` } }
       )
       if (res.data?.success) {
         showNotice('Application deleted successfully')

@@ -12,13 +12,13 @@ export default function AppHeader ({
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('token')
-      if (!token) return setLoading(false)
+      const authToken = localStorage.getItem('authToken')
+      if (!authToken) return setLoading(false)
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/id`,
           {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${authToken}` }
           }
         )
         setUser(res.data.user) // ✅ properly extract the user

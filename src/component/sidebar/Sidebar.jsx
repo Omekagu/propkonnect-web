@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import './admin.scss'
 import {
   ChevronsRightLeft,
@@ -10,9 +10,23 @@ import {
   HousePlus,
   LayoutDashboard,
   MessageSquareWarning,
-  ShieldAlertIcon,
   Users,
-  WalletMinimal
+  WalletMinimal,
+  Briefcase,
+  Calendar,
+  FileText,
+  Star,
+  DollarSign,
+  CheckSquare,
+  UserCircle,
+  Home,
+  Receipt,
+  Building2,
+  Shield,
+  BarChart3,
+  Wrench,
+  ClipboardList,
+  Award
 } from 'lucide-react'
 
 export default function Sidebar ({
@@ -20,77 +34,441 @@ export default function Sidebar ({
   mobileOpen = false,
   onCloseMobile = () => {},
   onToggleCollapse = () => {},
-  onRouteChange = () => {} // new callback to parent
+  onRouteChange = () => {},
+  userRole = 'property-owner' // Pass user role as prop
 }) {
-  const [activeKey, setActiveKey] = useState('dashboard')
+  const [activeKey, setActiveKey] = useState('Dashboard')
 
-  const nav = [
-    {
-      key: 'AdminDashboard',
-      label: 'Dashboard',
-      icon: <LayoutDashboard strokeWidth={0.75} />
-    },
-    {
-      key: 'PropertyManagement',
-      label: 'Property',
-      icon: <HousePlus strokeWidth={0.75} />
-    },
-    {
-      key: 'PropertyUpload',
-      label: 'Property ',
-      icon: <HousePlus strokeWidth={0.75} />
-    },
-    {
-      key: 'Artisan Management',
-      label: 'Apply Artisan',
-      icon: <HousePlus strokeWidth={0.75} />
-    },
-    { key: 'Tenant', label: 'Tenants', icon: <Users strokeWidth={0.75} /> },
-    {
-      key: 'Finance',
-      label: 'Finances',
-      icon: <WalletMinimal strokeWidth={0.75} />
-    },
-    {
-      key: 'PaymentMethod',
-      label: 'Payment Method',
-      icon: <WalletMinimal strokeWidth={0.75} />
-    },
-    {
-      key: 'Document',
-      label: 'Documents',
-      icon: <ClipboardMinus strokeWidth={0.75} />
-    },
-    {
-      key: 'Report',
-      label: 'Reports',
-      icon: <MessageSquareWarning strokeWidth={0.75} />
-    },
-    {
-      key: 'Maintenance',
-      label: 'Maintenance',
-      icon: <Drill strokeWidth={0.75} />
-    },
-    {
-      key: 'UserManagement',
-      label: 'User Management',
-      icon: <Users strokeWidth={0.75} />
-    }
-  ]
+  // Define navigation items for each role
+  const roleBasedNavigation = useMemo(() => {
+    const navigationMap = {
+      // Super Admin - Full access
+      'super-admin': {
+        brand: 'PROPKONNECT ADMIN',
+        nav: [
+          {
+            key: 'Dashboard',
+            label: 'Dashboard',
+            icon: <LayoutDashboard strokeWidth={0.75} />
+          },
+          {
+            key: 'PropertyManagement',
+            label: 'Properties',
+            icon: <HousePlus strokeWidth={0.75} />
+          },
+          {
+            key: 'ArtisanManagement',
+            label: 'Artisans',
+            icon: <Wrench strokeWidth={0.75} />
+          },
+          {
+            key: 'UserManagement',
+            label: 'Users',
+            icon: <Users strokeWidth={0.75} />
+          },
+          {
+            key: 'TenantManagement',
+            label: 'Tenants',
+            icon: <UserCircle strokeWidth={0.75} />
+          },
+          {
+            key: 'Finance',
+            label: 'Finances',
+            icon: <WalletMinimal strokeWidth={0.75} />
+          },
+          {
+            key: 'Maintenance',
+            label: 'Maintenance',
+            icon: <Drill strokeWidth={0.75} />
+          },
+          {
+            key: 'Reports',
+            label: 'Reports',
+            icon: <BarChart3 strokeWidth={0.75} />
+          },
+          {
+            key: 'Analytics',
+            label: 'Analytics',
+            icon: <BarChart3 strokeWidth={0.75} />
+          },
+          {
+            key: 'Documents',
+            label: 'Documents',
+            icon: <ClipboardMinus strokeWidth={0.75} />
+          }
+        ],
+        account: [
+          {
+            key: 'Settings',
+            label: 'Settings',
+            icon: <Cog strokeWidth={0.75} />
+          },
+          {
+            key: 'Security',
+            label: 'Security',
+            icon: <Shield strokeWidth={0.75} />
+          },
+          {
+            key: 'Help',
+            label: 'Help & Support',
+            icon: <HeartHandshake strokeWidth={0.75} />
+          }
+        ]
+      },
 
-  const account = [
-    { key: 'Settings', label: 'Settings', icon: <Cog strokeWidth={0.75} /> },
-    {
-      key: 'Help',
-      label: 'Help & Support',
-      icon: <HeartHandshake strokeWidth={0.75} />
-    },
-    {
-      key: 'Security',
-      label: 'Backup & Security',
-      icon: <ShieldAlertIcon strokeWidth={0.75} />
+      // Sub Admin
+      'sub-admin': {
+        brand: 'PROPKONNECT ADMIN',
+        nav: [
+          {
+            key: 'Dashboard',
+            label: 'Dashboard',
+            icon: <LayoutDashboard strokeWidth={0.75} />
+          },
+          {
+            key: 'PropertyManagement',
+            label: 'Properties',
+            icon: <HousePlus strokeWidth={0.75} />
+          },
+          {
+            key: 'ArtisanManagement',
+            label: 'Artisans',
+            icon: <Wrench strokeWidth={0.75} />
+          },
+          {
+            key: 'TenantManagement',
+            label: 'Tenants',
+            icon: <UserCircle strokeWidth={0.75} />
+          },
+          {
+            key: 'Maintenance',
+            label: 'Maintenance',
+            icon: <Drill strokeWidth={0.75} />
+          },
+          {
+            key: 'Reports',
+            label: 'Reports',
+            icon: <BarChart3 strokeWidth={0.75} />
+          },
+          {
+            key: 'Documents',
+            label: 'Documents',
+            icon: <ClipboardMinus strokeWidth={0.75} />
+          }
+        ],
+        account: [
+          {
+            key: 'Settings',
+            label: 'Settings',
+            icon: <Cog strokeWidth={0.75} />
+          },
+          {
+            key: 'Help',
+            label: 'Help & Support',
+            icon: <HeartHandshake strokeWidth={0.75} />
+          }
+        ]
+      },
+
+      // Property Owner
+      'property-owner': {
+        brand: 'PROPKONNECT',
+        nav: [
+          {
+            key: 'Dashboard',
+            label: 'Dashboard',
+            icon: <LayoutDashboard strokeWidth={0.75} />
+          },
+          {
+            key: 'MyProperties',
+            label: 'My Properties',
+            icon: <HousePlus strokeWidth={0.75} />
+          },
+          {
+            key: 'Tenants',
+            label: 'Tenants',
+            icon: <Users strokeWidth={0.75} />
+          },
+          {
+            key: 'Maintenance',
+            label: 'Maintenance',
+            icon: <Drill strokeWidth={0.75} />
+          },
+          {
+            key: 'Payments',
+            label: 'Payments',
+            icon: <WalletMinimal strokeWidth={0.75} />
+          },
+          {
+            key: 'Documents',
+            label: 'Documents',
+            icon: <ClipboardMinus strokeWidth={0.75} />
+          },
+          {
+            key: 'Reports',
+            label: 'Reports',
+            icon: <MessageSquareWarning strokeWidth={0.75} />
+          },
+          {
+            key: 'FindArtisan',
+            label: 'Find Artisan',
+            icon: <Wrench strokeWidth={0.75} />
+          }
+        ],
+        account: [
+          {
+            key: 'Profile',
+            label: 'Profile',
+            icon: <UserCircle strokeWidth={0.75} />
+          },
+          {
+            key: 'Settings',
+            label: 'Settings',
+            icon: <Cog strokeWidth={0.75} />
+          },
+          {
+            key: 'Help',
+            label: 'Help & Support',
+            icon: <HeartHandshake strokeWidth={0.75} />
+          }
+        ]
+      },
+
+      // Property Admin
+      'property-admin': {
+        brand: 'PROPKONNECT MANAGER',
+        nav: [
+          {
+            key: 'Dashboard',
+            label: 'Dashboard',
+            icon: <LayoutDashboard strokeWidth={0.75} />
+          },
+          {
+            key: 'PropertyManagement',
+            label: 'Properties',
+            icon: <HousePlus strokeWidth={0.75} />
+          },
+          {
+            key: 'PropertyOwners',
+            label: 'Property Owners',
+            icon: <Building2 strokeWidth={0.75} />
+          },
+          {
+            key: 'Tenants',
+            label: 'Tenants',
+            icon: <Users strokeWidth={0.75} />
+          },
+          {
+            key: 'Maintenance',
+            label: 'Maintenance',
+            icon: <Drill strokeWidth={0.75} />
+          },
+          {
+            key: 'Finance',
+            label: 'Finances',
+            icon: <WalletMinimal strokeWidth={0.75} />
+          },
+          {
+            key: 'Documents',
+            label: 'Documents',
+            icon: <ClipboardMinus strokeWidth={0.75} />
+          },
+          {
+            key: 'Reports',
+            label: 'Reports',
+            icon: <BarChart3 strokeWidth={0.75} />
+          }
+        ],
+        account: [
+          {
+            key: 'Settings',
+            label: 'Settings',
+            icon: <Cog strokeWidth={0.75} />
+          },
+          {
+            key: 'Help',
+            label: 'Help & Support',
+            icon: <HeartHandshake strokeWidth={0.75} />
+          }
+        ]
+      },
+
+      // Artisan
+      artisan: {
+        brand: 'PROPKONNECT PRO',
+        nav: [
+          {
+            key: 'Dashboard',
+            label: 'Dashboard',
+            icon: <LayoutDashboard strokeWidth={0.75} />
+          },
+          {
+            key: 'AvailableJobs',
+            label: 'Available Jobs',
+            icon: <Briefcase strokeWidth={0.75} />
+          },
+          {
+            key: 'ActiveJobs',
+            label: 'Active Jobs',
+            icon: <CheckSquare strokeWidth={0.75} />
+          },
+          {
+            key: 'JobHistory',
+            label: 'Job History',
+            icon: <ClipboardList strokeWidth={0.75} />
+          },
+          {
+            key: 'Earnings',
+            label: 'Earnings',
+            icon: <DollarSign strokeWidth={0.75} />
+          },
+          {
+            key: 'Schedule',
+            label: 'Schedule',
+            icon: <Calendar strokeWidth={0.75} />
+          },
+          {
+            key: 'Portfolio',
+            label: 'Portfolio',
+            icon: <Star strokeWidth={0.75} />
+          },
+          {
+            key: 'Certifications',
+            label: 'Certifications',
+            icon: <Award strokeWidth={0.75} />
+          }
+        ],
+        account: [
+          {
+            key: 'Profile',
+            label: 'Profile',
+            icon: <UserCircle strokeWidth={0.75} />
+          },
+          {
+            key: 'Settings',
+            label: 'Settings',
+            icon: <Cog strokeWidth={0.75} />
+          },
+          {
+            key: 'Help',
+            label: 'Help & Support',
+            icon: <HeartHandshake strokeWidth={0.75} />
+          }
+        ]
+      },
+
+      // Artisan Admin
+      'artisan-admin': {
+        brand: 'PROPKONNECT PRO ADMIN',
+        nav: [
+          {
+            key: 'Dashboard',
+            label: 'Dashboard',
+            icon: <LayoutDashboard strokeWidth={0.75} />
+          },
+          {
+            key: 'AllArtisans',
+            label: 'All Artisans',
+            icon: <Users strokeWidth={0.75} />
+          },
+          {
+            key: 'JobManagement',
+            label: 'Job Management',
+            icon: <Briefcase strokeWidth={0.75} />
+          },
+          {
+            key: 'ActiveJobs',
+            label: 'Active Jobs',
+            icon: <CheckSquare strokeWidth={0.75} />
+          },
+          {
+            key: 'Payments',
+            label: 'Payments',
+            icon: <DollarSign strokeWidth={0.75} />
+          },
+          {
+            key: 'Reviews',
+            label: 'Reviews',
+            icon: <Star strokeWidth={0.75} />
+          },
+          {
+            key: 'Reports',
+            label: 'Reports',
+            icon: <BarChart3 strokeWidth={0.75} />
+          }
+        ],
+        account: [
+          {
+            key: 'Settings',
+            label: 'Settings',
+            icon: <Cog strokeWidth={0.75} />
+          },
+          {
+            key: 'Help',
+            label: 'Help & Support',
+            icon: <HeartHandshake strokeWidth={0.75} />
+          }
+        ]
+      },
+
+      // Tenant
+      tenant: {
+        brand: 'PROPKONNECT TENANT',
+        nav: [
+          {
+            key: 'Dashboard',
+            label: 'Dashboard',
+            icon: <LayoutDashboard strokeWidth={0.75} />
+          },
+          {
+            key: 'MyHome',
+            label: 'My Home',
+            icon: <Home strokeWidth={0.75} />
+          },
+          {
+            key: 'Payments',
+            label: 'Payments',
+            icon: <Receipt strokeWidth={0.75} />
+          },
+          {
+            key: 'Maintenance',
+            label: 'Maintenance Requests',
+            icon: <FileText strokeWidth={0.75} />
+          },
+          {
+            key: 'Documents',
+            label: 'Documents',
+            icon: <FileText strokeWidth={0.75} />
+          },
+          {
+            key: 'Messages',
+            label: 'Messages',
+            icon: <MessageSquareWarning strokeWidth={0.75} />
+          }
+        ],
+        account: [
+          {
+            key: 'Profile',
+            label: 'Profile',
+            icon: <UserCircle strokeWidth={0.75} />
+          },
+          {
+            key: 'Settings',
+            label: 'Settings',
+            icon: <Cog strokeWidth={0.75} />
+          },
+          {
+            key: 'Help',
+            label: 'Help & Support',
+            icon: <HeartHandshake strokeWidth={0.75} />
+          }
+        ]
+      }
     }
-  ]
+
+    // Return navigation for the current role, or default to property-owner
+    return navigationMap[userRole] || navigationMap['property-owner']
+  }, [userRole])
 
   const handleClick = key => {
     setActiveKey(key)
@@ -98,9 +476,11 @@ export default function Sidebar ({
     if (mobileOpen) onCloseMobile()
   }
 
-  // get label for brand subtext
+  // Get label for brand subtext
   const activeLabel =
-    [...nav, ...account].find(item => item.key === activeKey)?.label || ''
+    [...roleBasedNavigation.nav, ...roleBasedNavigation.account].find(
+      item => item.key === activeKey
+    )?.label || ''
 
   return (
     <nav
@@ -114,14 +494,13 @@ export default function Sidebar ({
       <div className='sidebar-inner'>
         {/* === Brand Section === */}
         <div className='sidebar-top'>
-          <div className='brand' title='Property Management'>
+          <div className='brand' title={roleBasedNavigation.brand}>
             <div className='brand-logo' aria-hidden='true'>
               <HousePlus strokeWidth={0.75} />
             </div>
             {!collapsed && (
               <div className='brand-text'>
-                <strong>PROPKONNECT</strong>
-                {/* <span>Homes&Properties</span> */}
+                <strong>{roleBasedNavigation.brand}</strong>
                 {activeLabel && (
                   <small className='active-tag'>/ {activeLabel}</small>
                 )}
@@ -143,7 +522,7 @@ export default function Sidebar ({
         <div className='sidebar-section'>
           <div className='section-title'>{!collapsed && 'MENU'}</div>
           <ul className='nav-list'>
-            {nav.map(item => (
+            {roleBasedNavigation.nav.map(item => (
               <li
                 key={item.key}
                 className={[
@@ -168,7 +547,7 @@ export default function Sidebar ({
         <div className='sidebar-section account'>
           <div className='section-title'>{!collapsed && 'ACCOUNT'}</div>
           <ul className='nav-list'>
-            {account.map(item => (
+            {roleBasedNavigation.account.map(item => (
               <li
                 key={item.key}
                 className={[
@@ -191,7 +570,7 @@ export default function Sidebar ({
 
         {/* === Footer === */}
         <div className='sidebar-footer'>
-          <button className='help-btn' onClick={() => handleClick('help')}>
+          <button className='help-btn' onClick={() => handleClick('Help')}>
             <svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
               <path
                 d='M12 2a10 10 0 110 20 10 10 0 010-20z'

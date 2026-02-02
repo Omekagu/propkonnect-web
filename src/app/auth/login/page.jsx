@@ -197,7 +197,7 @@ export default function AuthPage () {
       }
       if (data.user?._id) {
         localStorage.setItem('userId', data.user._id)
-        localStorage.setItem('token', data.token)
+        localStorage.setItem('authToken', data.token)
       }
 
       // cleanup

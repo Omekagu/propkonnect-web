@@ -44,7 +44,7 @@ export default function AdminDashboard () {
   const [modalType, setModalType] = useState('')
 
   const token =
-    typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
   const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL
 
   useEffect(() => {

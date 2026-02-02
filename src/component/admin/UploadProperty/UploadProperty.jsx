@@ -238,15 +238,15 @@ export default function UploadPropertyWizard ({ onAdded } = {}) {
   /* -------------------- API Functions -------------------- */
 
   const fetchMyProperties = useCallback(async () => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const authToken = localStorage.getItem('authToken')
+    if (!authToken) {
       setProperties([])
       return
     }
     setLoadingProps(true)
     try {
       const res = await axios.get(`${backend}/api/properties/property/mine`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${authToken}` }
       })
       if (res.data?.success && Array.isArray(res.data.properties)) {
         setProperties(res.data.properties)
@@ -271,15 +271,15 @@ export default function UploadPropertyWizard ({ onAdded } = {}) {
 
   const editProperty = useCallback(
     async id => {
-      const token = localStorage.getItem('token')
-      if (!token) {
+      const authToken = localStorage.getItem('authToken')
+      if (!authToken) {
         flash('Not logged in', 'error')
         return
       }
 
       try {
         const res = await axios.get(`${backend}/api/properties/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${authToken}` }
         })
 
         if (res.data?.success && res.data.property) {
@@ -372,15 +372,15 @@ export default function UploadPropertyWizard ({ onAdded } = {}) {
     async id => {
       if (!confirm('Are you sure you want to delete this property?')) return
 
-      const token = localStorage.getItem('token')
-      if (!token) {
+      const authToken = localStorage.getItem('authToken')
+      if (!authToken) {
         flash('Not logged in', 'error')
         return
       }
 
       try {
         const res = await axios.delete(`${backend}/api/properties/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${authToken}` }
         })
 
         if (res.data?.success) {
@@ -672,8 +672,8 @@ export default function UploadPropertyWizard ({ onAdded } = {}) {
       }
     }
 
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const authToken = localStorage.getItem('authToken')
+    if (!authToken) {
       flash('Not logged in', 'error')
       return
     }
@@ -778,7 +778,7 @@ export default function UploadPropertyWizard ({ onAdded } = {}) {
 
       const res = await axios[method](url, payload, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json'
         }
       })

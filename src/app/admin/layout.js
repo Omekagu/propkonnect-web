@@ -18,43 +18,185 @@ import UploadPortfolio from '@/component/admin/UploadPortfolio/UploadPortfolio'
 import AdminDashboard from '@/component/admin/Admindashboard/AdminDashboard'
 import UploadProperty from '@/component/admin/UploadProperty/UploadProperty'
 
+// Property Owner Components (create these as needed)
+import PropertyOwnerDashboard from '@/component/property-owner/Dashboard/Dashboard'
+import MyProperties from '@/component/property-owner/Properties/MyProperties'
+import FindArtisan from '@/component/property-owner/Artisan/FindArtisan'
+
+// Artisan Components (create these as needed)
+import ArtisanDashboard from '@/component/artisan/Dashboard/Dashboard'
+import AvailableJobs from '@/component/artisan/Jobs/AvailableJobs/AvailableJobs'
+import ActiveJobs from '@/component/artisan/Jobs/ActiveJobs/ActiveJobs'
+import JobHistory from '@/component/artisan/Jobs/JobHistory/JobHistory'
+import Earnings from '@/component/artisan/Earnings/Earnings'
+import Schedule from '@/component/artisan/Schedule/Schedule'
+import Portfolio from '@/component/artisan/Portfolio/Portfolio'
+import Certifications from '@/component/artisan/Certifications/Certifications'
+
+// Tenant Components (create these as needed)
+import TenantDashboard from '@/component/tenant/Dashboard/Dashboard'
+import MyHome from '@/component/tenant/Home/Home'
+import TenantPayments from '@/component/tenant/Payments/Payments'
+import TenantMaintenance from '@/component/tenant/Maintenance/Maintenance'
+import Messages from '@/component/tenant/Messages/Messages'
+
 export default function AdminLayout ({ children, user = {} }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [activePage, setActivePage] = useState('AdminDashboard')
+  const [activePage, setActivePage] = useState('Dashboard')
 
+  // Get user role, default to 'property-owner' if not provided
+  const userRole = user?.role || 'property-owner'
+
+  // Role-based page rendering
   const renderPage = () => {
-    switch (activePage) {
-      case 'AdminDashboard':
-        return <AdminDashboard />
-      case 'PropertyManagement':
-        return <AddProperty />
-      case 'PropertyUpload':
-        return <UploadProperty />
-      case 'Artisan Management':
-        return <UploadPortfolio />
-      case 'Tenant':
-        return <Tenant />
-      case 'Finance':
-        return <Finance />
-      case 'PaymentMethod':
-        return <PaymentMethod />
-      case 'Document':
-        return <Document />
-      case 'Report':
-        return <Report />
-      case 'Maintenance':
-        return <Maintenance />
-      case 'UserManagement':
-        return <UserManagement />
-      case 'Settings':
-        return <Settings />
-      case 'Help':
-        return <Help />
-      default:
-        return <div className='page-placeholder'>Page Not Found</div>
+    // Admin Pages (super-admin, sub-admin, property-admin, artisan-admin)
+    const adminRoles = [
+      'super-admin',
+      'sub-admin',
+      'property-admin',
+      'artisan-admin'
+    ]
+
+    if (adminRoles.includes(userRole)) {
+      switch (activePage) {
+        case 'Dashboard':
+          return <AdminDashboard />
+        case 'PropertyManagement':
+          return <AddProperty />
+        case 'PropertyUpload':
+          return <UploadProperty />
+        case 'ArtisanManagement':
+          return <UploadPortfolio />
+        case 'AllArtisans':
+          return <UploadPortfolio />
+        case 'JobManagement':
+          return <Maintenance />
+        case 'PropertyOwners':
+          return <UserManagement />
+        case 'Tenants':
+        case 'TenantManagement':
+          return <Tenant />
+        case 'Finance':
+        case 'Payments':
+          return <Finance />
+        case 'PaymentMethod':
+          return <PaymentMethod />
+        case 'Documents':
+        case 'Document':
+          return <Document />
+        case 'Reports':
+        case 'Report':
+          return <Report />
+        case 'Maintenance':
+        case 'ActiveJobs':
+          return <ActiveJobs />
+        case 'UserManagement':
+          return <UserManagement />
+        case 'Analytics':
+          return <Report />
+        case 'Reviews':
+          return <Report />
+        case 'Settings':
+          return <Settings />
+        case 'Security':
+          return <Settings />
+        case 'Help':
+          return <Help />
+        default:
+          return <AdminDashboard />
+      }
     }
+
+    // Property Owner Pages
+    if (userRole === 'property-owner') {
+      switch (activePage) {
+        case 'Dashboard':
+          return <PropertyOwnerDashboard />
+        case 'MyProperties':
+          return <MyProperties />
+        case 'Tenants':
+          return <Tenant />
+        case 'Maintenance':
+          return <Maintenance />
+        case 'Payments':
+          return <Finance />
+        case 'Documents':
+          return <Document />
+        case 'Reports':
+          return <Report />
+        case 'FindArtisan':
+          return <FindArtisan />
+        case 'Profile':
+          return <Settings />
+        case 'Settings':
+          return <Settings />
+        case 'Help':
+          return <Help />
+        default:
+          return <PropertyOwnerDashboard />
+      }
+    }
+
+    // Artisan Pages
+    if (userRole === 'artisan') {
+      switch (activePage) {
+        case 'Dashboard':
+          return <ArtisanDashboard />
+        case 'AvailableJobs':
+          return <AvailableJobs />
+        case 'ActiveJobs':
+          return <ActiveJobs />
+        case 'JobHistory':
+          return <JobHistory />
+        case 'Earnings':
+          return <Earnings />
+        case 'Schedule':
+          return <Schedule />
+        case 'Portfolio':
+          return <Portfolio />
+        case 'Certifications':
+          return <Certifications />
+        case 'Profile':
+          return <Settings />
+        case 'Settings':
+          return <Settings />
+        case 'Help':
+          return <Help />
+        default:
+          return <ArtisanDashboard />
+      }
+    }
+
+    // Tenant Pages
+    if (userRole === 'tenant') {
+      switch (activePage) {
+        case 'Dashboard':
+          return <TenantDashboard />
+        case 'MyHome':
+          return <MyHome />
+        case 'Payments':
+          return <TenantPayments />
+        case 'Maintenance':
+          return <TenantMaintenance />
+        case 'Documents':
+          return <Document />
+        case 'Messages':
+          return <Messages />
+        case 'Profile':
+          return <Settings />
+        case 'Settings':
+          return <Settings />
+        case 'Help':
+          return <Help />
+        default:
+          return <TenantDashboard />
+      }
+    }
+
+    // Fallback
+    return <div className='page-placeholder'>Page Not Found</div>
   }
 
   useEffect(() => {
@@ -80,6 +222,7 @@ export default function AdminLayout ({ children, user = {} }) {
   return (
     <div className='admin-shell'>
       <Sidebar
+        userRole={userRole}
         collapsed={sidebarCollapsed}
         mobileOpen={mobileSidebarOpen}
         onRouteChange={setActivePage}

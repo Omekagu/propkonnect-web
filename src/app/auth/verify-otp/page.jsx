@@ -122,16 +122,19 @@ export default function VerifyOTP () {
 
       setTimeout(() => {
         // Redirect based on user role
-        if (
-          data.user?.role === 'artisan' ||
-          data.user?.role === 'artisan-admin'
-        ) {
-          router.push(`/admin/dashboard`)
-        } else if (
-          data.user?.role === 'property-owner' ||
-          data.user?.role === 'property-admin'
-        ) {
-          router.push(`/admin/dashboard`)
+        const role = data.data?.role
+
+        const adminRoles = [
+          'super-admin',
+          'sub-admin',
+          'property-admin',
+          'sub-property-admin',
+          'artisan-admin',
+          'sub-artisan-admin'
+        ]
+
+        if (adminRoles.includes(role)) {
+          router.push('/admin/dashboard')
         } else {
           router.push('/dashboard')
         }

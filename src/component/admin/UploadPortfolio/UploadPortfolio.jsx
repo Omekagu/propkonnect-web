@@ -21,8 +21,8 @@ const ArtisanPortfolio = () => {
 
   // Check authentication on mount
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const authToken = localStorage.getItem('authToken')
+    if (!authToken) {
       setIsAuthenticated(false)
       setMessage({
         type: 'error',
@@ -66,8 +66,8 @@ const ArtisanPortfolio = () => {
     e.preventDefault()
 
     // Check authentication again before submit
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const authToken = localStorage.getItem('authToken')
+    if (!authToken) {
       setMessage({
         type: 'error',
         text: 'Please log in to create your artisan portfolio'
@@ -115,7 +115,7 @@ const ArtisanPortfolio = () => {
         submitData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${authToken}`,
             'Content-Type': 'application/json'
           }
         }
@@ -162,7 +162,7 @@ const ArtisanPortfolio = () => {
             'You already have an artisan profile. Please update it instead.'
         } else if (error.response.status === 401) {
           errorMessage = 'Authentication failed. Please log in again.'
-          localStorage.removeItem('token')
+          localStorage.removeItem('authToken')
           setTimeout(() => router.replace('/login'), 2000)
         }
       } else if (error.request) {
