@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 // import usePropertyManagement from './usePropertyManagement/usePropertyManagement'
 import './PropertyManagementDashboard.scss'
-import usePropertyManagement from './usePropertyManagement/UsePropertyManagement'
+import usePropertyManagement from '../../../hooks/UsePropertyManagement'
 
 /**
  * Main dashboard component for property and application management
@@ -124,7 +124,7 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
 
       {/* Header */}
       <div className='dashboard-header'>
-        <h1>Property Management Dashboard</h1>
+        <h1>Property Management</h1>
         <div className='view-toggle'>
           <button
             className={`btn ${

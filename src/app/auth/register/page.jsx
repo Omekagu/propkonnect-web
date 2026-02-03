@@ -188,8 +188,8 @@ export default function Register () {
     try {
       const endpoint =
         userType === 'property-owner'
-          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}api/auth/register/property-owner`
-          : `${process.env.NEXT_PUBLIC_BACKEND_URL}api/auth/register/artisan`
+          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register/property-owner`
+          : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register/artisan`
 
       const payload =
         userType === 'property-owner'

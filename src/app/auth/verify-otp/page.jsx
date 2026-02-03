@@ -128,8 +128,10 @@ export default function VerifyOTP () {
           'super-admin',
           'sub-admin',
           'property-admin',
+          'property-owner',
           'sub-property-admin',
           'artisan-admin',
+          'artisan',
           'sub-artisan-admin'
         ]
 

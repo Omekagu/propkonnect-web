@@ -41,6 +41,7 @@ import TenantMaintenance from '@/component/tenant/Maintenance/Maintenance'
 import Messages from '@/component/tenant/Messages/Messages'
 import axios from 'axios'
 import PropertyManagementDashboard from '@/component/admin/PropertyManagementDashboard/PropertyManagementDashboard'
+import Artisan from '@/component/admin/Artisan/Artisan'
 
 export default function AdminLayout ({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -125,7 +126,7 @@ export default function AdminLayout ({ children }) {
         case 'PropertyUpload':
           return <UploadProperty />
         case 'ArtisanManagement':
-          return <UploadPortfolio />
+          return <Artisan />
         case 'AllArtisans':
           return <UploadPortfolio />
         case 'JobManagement':
@@ -231,6 +232,10 @@ export default function AdminLayout ({ children }) {
       switch (activePage) {
         case 'Dashboard':
           return <TenantDashboard />
+        case 'MyLease':
+          return <MyLease />
+        case 'FindArtisan':
+          return <FindArtisan />
         case 'MyHome':
           return <MyHome />
         case 'Payments':

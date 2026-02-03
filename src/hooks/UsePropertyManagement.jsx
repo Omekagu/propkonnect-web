@@ -1,11 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import axios from 'axios'
 
-/**
- * Custom hook for complete property and application management
- * Handles fetching, filtering, updating, and deleting properties and applications
- */
-export const usePropertyManagement = authToken => {
+export const usePropertyManagement = () => {
   // State management
   const [properties, setProperties] = useState([])
   const [applications, setApplications] = useState([])
@@ -24,6 +20,7 @@ export const usePropertyManagement = authToken => {
   const [activeView, setActiveView] = useState('properties')
 
   const backend = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
+  const authToken = localStorage.getItem('authToken')
 
   /**
    * Show temporary notification
@@ -33,15 +30,8 @@ export const usePropertyManagement = authToken => {
     setTimeout(() => setNotice(null), 3500)
   }, [])
 
-  /**
-   * Fetch all properties for the current user
-   * FIXED: Handles both response formats:
-   * 1. { success: true, properties: [...] }
-   * 2. Direct array [...]
-   */
   const fetchProperties = useCallback(async () => {
-    const token = localStorage.getItem('authToken')
-    if (!token) {
+    if (!authToken) {
       setError('No authentication token')
       return
     }
@@ -51,7 +41,7 @@ export const usePropertyManagement = authToken => {
 
     try {
       const res = await axios.get(`${backend}/api/properties/all`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${authToken}` }
       })
 
       // Handle both response formats
@@ -91,10 +81,6 @@ export const usePropertyManagement = authToken => {
     }
   }, [backend, showNotice])
 
-  /**
-   * Fetch all applications for user's properties
-   * Optimized: Uses batch endpoint if available, falls back to individual property fetches
-   */
   const fetchApplications = useCallback(async () => {
     if (!authToken || properties.length === 0) return
 
@@ -176,7 +162,7 @@ export const usePropertyManagement = authToken => {
 
       try {
         const res = await axios.delete(
-          `${backend}/api/properties/${propertyId}`,
+          `${backend}/api/properties/property-applications/${propertyId}`,
           { headers: { Authorization: `Bearer ${authToken}` } }
         )
 

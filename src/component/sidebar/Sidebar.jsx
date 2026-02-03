@@ -77,6 +77,11 @@ export default function Sidebar ({
             icon: <LayoutDashboard strokeWidth={0.75} />
           },
           {
+            key: 'UserManagement',
+            label: 'Users',
+            icon: <Users strokeWidth={0.75} />
+          },
+          {
             key: 'PropertyManagement',
             label: 'Properties',
             icon: <HousePlus strokeWidth={0.75} />
@@ -86,11 +91,7 @@ export default function Sidebar ({
             label: 'Artisans',
             icon: <Wrench strokeWidth={0.75} />
           },
-          {
-            key: 'UserManagement',
-            label: 'Users',
-            icon: <Users strokeWidth={0.75} />
-          },
+
           {
             key: 'TenantManagement',
             label: 'Tenants',
@@ -412,8 +413,8 @@ export default function Sidebar ({
             icon: <DollarSign strokeWidth={0.75} />
           },
           {
-            key: 'Reviews',
-            label: 'Reviews',
+            key: 'History',
+            label: 'History',
             icon: <Star strokeWidth={0.75} />
           },
           {
@@ -446,6 +447,16 @@ export default function Sidebar ({
             icon: <LayoutDashboard strokeWidth={0.75} />
           },
           {
+            key: 'MyLease',
+            label: 'My Lease',
+            icon: <ClipboardMinus strokeWidth={0.75} />
+          },
+          {
+            key: 'findArtisan',
+            label: 'Find Artisan',
+            icon: <Search strokeWidth={0.75} />
+          },
+          {
             key: 'MyHome',
             label: 'My Home',
             icon: <Home strokeWidth={0.75} />
@@ -469,6 +480,11 @@ export default function Sidebar ({
             key: 'Messages',
             label: 'Messages',
             icon: <MessageSquareWarning strokeWidth={0.75} />
+          },
+          {
+            key: 'History',
+            label: 'History',
+            icon: <Star strokeWidth={0.75} />
           }
         ],
         account: [
