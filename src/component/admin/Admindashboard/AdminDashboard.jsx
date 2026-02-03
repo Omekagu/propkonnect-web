@@ -63,6 +63,7 @@ export default function AdminDashboard () {
       const res = await axios.get(`${API_URL}/api/user/id`, {
         headers: { Authorization: `Bearer ${token}` }
       })
+      console.log('Dashboard data response:', res.data)
       setUser(res.data.user)
       setStats(res.data.stats)
       setProperties(res.data.user?.properties || [])
@@ -92,16 +93,18 @@ export default function AdminDashboard () {
             headers: { Authorization: `Bearer ${token}` }
           })
           setTransactions(transRes.data.transactions || [])
+          console.log('Transactions data:', transRes.data.transactions || [])
           break
         case 'notifications':
-          endpoint = '/api/notifications'
+          endpoint = '/api/notifications/all'
           const notifsRes = await axios.get(`${API_URL}${endpoint}`, {
             headers: { Authorization: `Bearer ${token}` }
           })
-          setNotifications(notifsRes.data.notifications || [])
+          setNotifications(notifsRes.data.notification || [])
+          console.log('Notifications data:', notifsRes.data.notification || [])
           break
         case 'messages':
-          endpoint = '/api/messages'
+          endpoint = '/api/messages/messages'
           const msgsRes = await axios.get(`${API_URL}${endpoint}`, {
             headers: { Authorization: `Bearer ${token}` }
           })
@@ -111,6 +114,7 @@ export default function AdminDashboard () {
           endpoint = '/api/artisan'
           const artRes = await axios.get(`${API_URL}${endpoint}`)
           setArtisans(artRes.data.artisans || [])
+          console.log('Artisans data:', artRes.data.artisans || [])
           break
         case 'services':
           endpoint = '/api/service-requests'
@@ -118,6 +122,10 @@ export default function AdminDashboard () {
             headers: { Authorization: `Bearer ${token}` }
           })
           setServiceRequests(servRes.data.requests || [])
+          console.log(
+            'Service requests data:',
+            servRes.data.servicerequest || []
+          )
           break
         case 'bids':
           endpoint = '/api/bids'
@@ -125,6 +133,7 @@ export default function AdminDashboard () {
             headers: { Authorization: `Bearer ${token}` }
           })
           setBids(bidsRes.data.bids || [])
+          console.log('Bids data:', bidsRes.data.bids || [])
           break
         case 'properties':
           endpoint = '/api/properties'
@@ -806,9 +815,11 @@ export default function AdminDashboard () {
                 <div className='message-card' key={i}>
                   <div className='message-header'>
                     <div className='message-sender'>
-                      <div className='sender-avatar'>{msg.senderName?.[0]}</div>
+                      <div className='sender-avatar'>
+                        {msg.conversationId?.[0]}
+                      </div>
                       <div>
-                        <h4>{msg.senderName}</h4>
+                        <h4>{msg.text}</h4>
                         <p>{new Date(msg.createdAt).toLocaleString()}</p>
                       </div>
                     </div>

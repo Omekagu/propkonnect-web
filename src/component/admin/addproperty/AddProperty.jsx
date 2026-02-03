@@ -64,11 +64,12 @@ export default function PropertyManagement () {
     if (!authToken) return
     setLoading(true)
     try {
-      const res = await axios.get(`${backend}/api/properties/property/mine`, {
+      const res = await axios.get(`${backend}/api/properties`, {
         headers: { Authorization: `Bearer ${authToken}` }
       })
       if (res.data?.success) {
         setProperties(res.data.properties || [])
+        console.log('Fetched properties:', res.data.properties || none)
       }
     } catch (err) {
       console.error('Error fetching properties:', err)

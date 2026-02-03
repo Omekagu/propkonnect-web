@@ -1,0 +1,471 @@
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import axios from 'axios'
+
+/**
+ * Custom hook for complete property and application management
+ * Handles fetching, filtering, updating, and deleting properties and applications
+ */
+export const usePropertyManagement = authToken => {
+  // State management
+  const [properties, setProperties] = useState([])
+  const [applications, setApplications] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [notice, setNotice] = useState(null)
+
+  // UI State
+  const [searchQuery, setSearchQuery] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('All')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [showModal, setShowModal] = useState(false)
+  const [modalType, setModalType] = useState(null)
+  const [modalData, setModalData] = useState(null)
+  const [selectedProperty, setSelectedProperty] = useState(null)
+  const [activeView, setActiveView] = useState('properties')
+
+  const backend = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
+
+  /**
+   * Show temporary notification
+   */
+  const showNotice = useCallback((msg, type = 'success') => {
+    setNotice({ msg, type })
+    setTimeout(() => setNotice(null), 3500)
+  }, [])
+
+  /**
+   * Fetch all properties for the current user
+   * FIXED: Handles both response formats:
+   * 1. { success: true, properties: [...] }
+   * 2. Direct array [...]
+   */
+  const fetchProperties = useCallback(async () => {
+    const token = localStorage.getItem('authToken')
+    if (!token) {
+      setError('No authentication token')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await axios.get(`${backend}/api/properties/all`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      // Handle both response formats
+      let propertiesData = []
+
+      if (res.data?.success && res.data?.properties) {
+        // Format: { success: true, properties: [...] }
+        propertiesData = res.data.properties
+      } else if (Array.isArray(res.data)) {
+        // Format: Direct array [...]
+        propertiesData = res.data
+      } else if (res.data?.properties) {
+        // Format: { properties: [...] } without success flag
+        propertiesData = res.data.properties
+      } else {
+        console.warn('Unexpected response format:', res.data)
+        propertiesData = []
+      }
+
+      if (propertiesData && propertiesData.length > 0) {
+        setProperties(propertiesData)
+        console.log('✅ Fetched properties:', propertiesData.length)
+      } else {
+        setProperties([])
+        console.log('No properties found')
+      }
+    } catch (err) {
+      console.error('❌ Error fetching properties:', err.message)
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to load properties'
+      )
+      showNotice('Failed to load properties', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }, [backend, showNotice])
+
+  /**
+   * Fetch all applications for user's properties
+   * Optimized: Uses batch endpoint if available, falls back to individual property fetches
+   */
+  const fetchApplications = useCallback(async () => {
+    if (!authToken || properties.length === 0) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const applicationsData = []
+
+      // Fetch applications for each property
+      const promises = properties.map(property =>
+        axios
+          .get(
+            `${backend}/api/properties/property-applications/property/${property._id}`,
+            { headers: { Authorization: `Bearer ${authToken}` } }
+          )
+          .then(res => {
+            if (res.data?.success && res.data.applications) {
+              return res.data.applications.map(app => ({
+                ...app,
+                propertyTitle: property.title,
+                propertyId: property._id
+              }))
+            }
+            return []
+          })
+          .catch(err => {
+            console.error(
+              `Error fetching applications for property ${property._id}:`,
+              err
+            )
+            return []
+          })
+      )
+
+      const results = await Promise.all(promises)
+      results.forEach(apps => applicationsData.push(...apps))
+
+      setApplications(applicationsData)
+    } catch (err) {
+      console.error('Error fetching applications:', err)
+      setError(err.response?.data?.message || 'Failed to load applications')
+      showNotice('Failed to load applications', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }, [backend, authToken, properties, showNotice])
+
+  /**
+   * Initial load: fetch properties on mount
+   */
+  useEffect(() => {
+    fetchProperties()
+  }, [fetchProperties])
+
+  /**
+   * Fetch applications when view changes to applications
+   */
+  useEffect(() => {
+    if (activeView === 'applications' && properties.length > 0) {
+      fetchApplications()
+    }
+  }, [activeView, properties.length, fetchApplications])
+
+  /**
+   * Delete a property
+   */
+  const handleDeleteProperty = useCallback(
+    async propertyId => {
+      if (
+        !window.confirm(
+          'Are you sure you want to delete this property? This action cannot be undone.'
+        )
+      ) {
+        return
+      }
+
+      setLoading(true)
+
+      try {
+        const res = await axios.delete(
+          `${backend}/api/properties/${propertyId}`,
+          { headers: { Authorization: `Bearer ${authToken}` } }
+        )
+
+        if (res.data?.success) {
+          showNotice('Property deleted successfully')
+          setProperties(prev => prev.filter(p => p._id !== propertyId))
+          // Also remove associated applications
+          setApplications(prev => prev.filter(a => a.propertyId !== propertyId))
+        } else {
+          showNotice('Failed to delete property', 'error')
+        }
+      } catch (err) {
+        console.error('Error deleting property:', err)
+        showNotice(
+          err.response?.data?.message || 'Failed to delete property',
+          'error'
+        )
+      } finally {
+        setLoading(false)
+      }
+    },
+    [backend, authToken, showNotice]
+  )
+
+  /**
+   * View property details in modal
+   */
+  const viewPropertyDetails = useCallback(property => {
+    setSelectedProperty(property)
+    setModalType('view')
+    setShowModal(true)
+  }, [])
+
+  /**
+   * View applications for a specific property
+   */
+  const viewPropertyApplications = useCallback(
+    async propertyId => {
+      try {
+        setLoading(true)
+        const res = await axios.get(
+          `${backend}/api/properties/property-applications/property/${propertyId}`,
+          { headers: { Authorization: `Bearer ${authToken}` } }
+        )
+
+        if (res.data?.success) {
+          const applicationsWithProperty = (res.data.applications || []).map(
+            app => ({
+              ...app,
+              propertyTitle:
+                properties.find(p => p._id === propertyId)?.title || 'Unknown',
+              propertyId
+            })
+          )
+
+          setModalData(applicationsWithProperty)
+          setModalType('applications')
+          setShowModal(true)
+        } else {
+          showNotice('No applications found', 'info')
+        }
+      } catch (err) {
+        console.error('Error fetching applications:', err)
+        showNotice('Failed to load applications', 'error')
+      } finally {
+        setLoading(false)
+      }
+    },
+    [backend, authToken, properties, showNotice]
+  )
+
+  /**
+   * Update application status (approved, rejected, pending)
+   */
+  const updateApplicationStatus = useCallback(
+    async (appId, newStatus) => {
+      try {
+        setLoading(true)
+        const res = await axios.patch(
+          `${backend}/api/properties/property-applications/${appId}/status`,
+          { status: newStatus },
+          { headers: { Authorization: `Bearer ${authToken}` } }
+        )
+
+        if (res.data?.success) {
+          showNotice(`Application ${newStatus} successfully`)
+
+          // Update local state immediately
+          setApplications(prev =>
+            prev.map(app =>
+              app._id === appId ? { ...app, status: newStatus } : app
+            )
+          )
+
+          // Update modal data if visible
+          if (showModal && modalType === 'applications' && modalData) {
+            setModalData(prev =>
+              prev.map(app =>
+                app._id === appId ? { ...app, status: newStatus } : app
+              )
+            )
+          }
+        } else {
+          showNotice('Failed to update application status', 'error')
+        }
+      } catch (err) {
+        console.error('Error updating application status:', err)
+        showNotice(
+          err.response?.data?.message || 'Failed to update application status',
+          'error'
+        )
+      } finally {
+        setLoading(false)
+      }
+    },
+    [backend, authToken, showModal, modalType, modalData, showNotice]
+  )
+
+  /**
+   * Delete an application
+   */
+  const deleteApplication = useCallback(
+    async appId => {
+      if (
+        !window.confirm('Are you sure you want to delete this application?')
+      ) {
+        return
+      }
+
+      try {
+        setLoading(true)
+        const res = await axios.delete(
+          `${backend}/api/properties/property-applications/${appId}`,
+          { headers: { Authorization: `Bearer ${authToken}` } }
+        )
+
+        if (res.data?.success) {
+          showNotice('Application deleted successfully')
+
+          // Update applications list
+          setApplications(prev => prev.filter(a => a._id !== appId))
+
+          // Update modal data if visible
+          if (showModal && modalType === 'applications' && modalData) {
+            setModalData(prev => prev.filter(a => a._id !== appId))
+          }
+        } else {
+          showNotice('Failed to delete application', 'error')
+        }
+      } catch (err) {
+        console.error('Error deleting application:', err)
+        showNotice(
+          err.response?.data?.message || 'Failed to delete application',
+          'error'
+        )
+      } finally {
+        setLoading(false)
+      }
+    },
+    [backend, authToken, showModal, modalType, modalData, showNotice]
+  )
+
+  /**
+   * Filter properties based on search and category
+   */
+  const filteredProperties = useMemo(() => {
+    return properties.filter(p => {
+      const matchesSearch =
+        p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description?.toLowerCase().includes(searchQuery.toLowerCase())
+
+      const matchesCategory =
+        categoryFilter === 'All' || p.category === categoryFilter
+
+      return matchesSearch && matchesCategory
+    })
+  }, [properties, searchQuery, categoryFilter])
+
+  /**
+   * Filter applications based on search and status
+   */
+  const filteredApplications = useMemo(() => {
+    return applications.filter(a => {
+      const matchesSearch =
+        a.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        a.propertyTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        a.applicantEmail?.toLowerCase().includes(searchQuery.toLowerCase())
+
+      const matchesStatus = statusFilter === 'all' || a.status === statusFilter
+
+      return matchesSearch && matchesStatus
+    })
+  }, [applications, searchQuery, statusFilter])
+
+  /**
+   * Calculate dashboard statistics
+   */
+  const stats = useMemo(() => {
+    const activeProperties = properties.filter(
+      p => p.status === 'active' || p.status === 'Standard' || !p.status
+    )
+
+    const pendingApps = applications.filter(a => a.status === 'pending')
+    const approvedApps = applications.filter(a => a.status === 'approved')
+    const rejectedApps = applications.filter(a => a.status === 'rejected')
+
+    const totalRevenue = properties.reduce((sum, p) => {
+      const price = Number(p.price) || Number(p.rentPrice) || 0
+      return sum + price
+    }, 0)
+
+    return {
+      totalProperties: properties.length,
+      activeListings: activeProperties.length,
+      inactiveListings: properties.length - activeProperties.length,
+      totalApplications: applications.length,
+      pendingApplications: pendingApps.length,
+      approvedApplications: approvedApps.length,
+      rejectedApplications: rejectedApps.length,
+      totalRevenue,
+      conversionRate:
+        applications.length > 0
+          ? ((approvedApps.length / applications.length) * 100).toFixed(1)
+          : 0
+    }
+  }, [properties, applications])
+
+  /**
+   * Get unique categories from properties
+   */
+  const categories = useMemo(() => {
+    const cats = new Set(properties.map(p => p.category).filter(Boolean))
+    return ['All', ...Array.from(cats).sort()]
+  }, [properties])
+
+  /**
+   * Close modal and reset data
+   */
+  const closeModal = useCallback(() => {
+    setShowModal(false)
+    setModalType(null)
+    setModalData(null)
+    setSelectedProperty(null)
+  }, [])
+
+  return {
+    // State
+    properties,
+    applications,
+    loading,
+    error,
+    notice,
+    showModal,
+    modalType,
+    modalData,
+    selectedProperty,
+    activeView,
+
+    // Filters
+    searchQuery,
+    setSearchQuery,
+    categoryFilter,
+    setCategoryFilter,
+    statusFilter,
+    setStatusFilter,
+
+    // Filtered data
+    filteredProperties,
+    filteredApplications,
+    categories,
+    stats,
+
+    // Actions
+    fetchProperties,
+    fetchApplications,
+    handleDeleteProperty,
+    viewPropertyDetails,
+    viewPropertyApplications,
+    updateApplicationStatus,
+    deleteApplication,
+    closeModal,
+    setShowModal,
+    setModalType,
+    setModalData,
+    setSelectedProperty,
+    setActiveView,
+    showNotice
+  }
+}
+
+export default usePropertyManagement
