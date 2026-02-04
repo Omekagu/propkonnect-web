@@ -188,6 +188,8 @@ export default function AuthPage () {
           'super-admin',
           'sub-admin',
           'property-admin',
+          'property-owner',
+          'artisan',
           'sub-property-admin',
           'artisan-admin',
           'sub-artisan-admin'
