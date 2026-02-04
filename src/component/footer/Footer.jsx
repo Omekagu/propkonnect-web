@@ -17,10 +17,10 @@ export default function Footer () {
       <div className='lux-footer__content'>
         <div className='lux-footer__branding'>
           <h1 className='logo'>
-            <span className='accent'>Pro</span> Hunters
+            <span className='accent'>Prop</span>nect
           </h1>
           <p>
-            Elevating luxury living — Pro Hunters redefines real estate with
+            Elevating luxury living — Propnect redefines real estate with
             elegance, comfort, and innovation.
           </p>
         </div>
@@ -78,7 +78,7 @@ export default function Footer () {
       </div>
 
       <div className='lux-footer__bottom'>
-        <p>© {new Date().getFullYear()} Pro Hunters. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Propnect. All rights reserved.</p>
       </div>
 
       <a

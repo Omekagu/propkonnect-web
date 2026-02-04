@@ -67,7 +67,6 @@
 }
 
 .upload-property-wizard {
-  font-family: var(--font-primary);
   background: var(--page-bg);
   min-height: 100vh;
   padding: 2rem;
@@ -543,7 +542,6 @@
     color: var(--gray-900);
     background: white;
     transition: all var(--transition);
-    font-family: var(--font-primary);
 
     &::placeholder {
       color: var(--gray-400);

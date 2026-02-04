@@ -15,7 +15,7 @@ export default function HeaderLayout ({ children }) {
 
   return (
     <>
-      {!hideLayout && <Header />}
+      {/* {!hideLayout && <Header />} */}
       <main>{children}</main>
       {!hideLayout && <Footer />}
     </>

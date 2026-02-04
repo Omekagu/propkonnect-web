@@ -115,7 +115,6 @@
 }
 
 body {
-  font-family: var(--font-sans);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
   color: var(--color-text-primary);
@@ -125,7 +124,6 @@ body {
 }
 
 button {
-  font-family: inherit;
   cursor: pointer;
   user-select: none;
 }
@@ -582,7 +580,6 @@ button {
     outline: none;
     font-size: var(--font-size-sm);
     color: var(--color-text-primary);
-    font-family: var(--font-sans);
 
     &::placeholder {
       color: var(--color-text-muted);

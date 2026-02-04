@@ -1,6 +1,7 @@
 .lux-footer {
   position: relative;
-  background: linear-gradient(135deg, #0b0b0b 0%, #1b1b1b 40%, #0d0d0d 100%);
+  // background: linear-gradient(135deg, #0b0b0b 0%, #1b1b1b 40%, #0d0d0d 100%);
+  background: #0a0e27;
   color: #fff;
   padding: 4rem 5% 2rem;
   overflow: hidden;
@@ -35,7 +36,7 @@
       margin-bottom: 1rem;
 
       .accent {
-        background: linear-gradient(90deg, #1c7166, #00bfa6);
+        background: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
@@ -55,7 +56,7 @@
       font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: #00bfa6;
+      color: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
       margin-bottom: 1rem;
     }
 
@@ -73,7 +74,7 @@
           transition: 0.3s;
 
           &:hover {
-            color: #00bfa6;
+            color: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
             transform: translateX(4px);
           }
         }
@@ -83,7 +84,7 @@
 
   &__newsletter {
     h4 {
-      color: #00bfa6;
+      color: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
       margin-bottom: 1rem;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -112,7 +113,7 @@
       }
 
       button {
-        background: linear-gradient(90deg, #1c7166, #00bfa6);
+        background: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
         border: none;
         border-radius: 6px;
         color: #fff;
@@ -131,7 +132,7 @@
 
   &__socials {
     h4 {
-      color: #00bfa6;
+      color: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
       margin-bottom: 1rem;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -150,7 +151,7 @@
         transition: all 0.3s ease;
 
         &:hover {
-          background: linear-gradient(90deg, #1c7166, #00bfa6);
+          background: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
           transform: scale(1.15);
         }
       }

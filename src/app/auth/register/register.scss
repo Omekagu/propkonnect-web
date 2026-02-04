@@ -118,8 +118,6 @@
     var(--bg-lighter) 100%
   );
   overflow: hidden;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', sans-serif;
 }
 
 .register-container::before {
@@ -241,7 +239,6 @@
   cursor: pointer;
   transition: var(--transition);
   text-align: center;
-  font-family: inherit;
   overflow: hidden;
   font-size: inherit;
 }
@@ -434,7 +431,6 @@
   background: white;
   color: var(--text-dark);
   transition: var(--transition);
-  font-family: inherit;
 }
 
 .form-group input:focus,
@@ -583,7 +579,6 @@
   font-weight: 500;
   color: var(--text-dark);
   transition: var(--transition);
-  font-family: inherit;
 }
 
 .specialization-chip:hover {
@@ -728,7 +723,6 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-md);
-  font-family: inherit;
   flex: 1;
 }
 
