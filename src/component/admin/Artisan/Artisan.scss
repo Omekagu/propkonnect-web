@@ -1,5 +1,5 @@
 /* ========================================
-   ARTISAN PAGE - COMPLETE STYLING
+   ADMIN ARTISAN MANAGEMENT - STYLING
    ======================================== */
 
 // Variables
@@ -31,11 +31,10 @@ $shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 $shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
 
 $transition: all 0.3s ease;
-$transition-fast: all 0.15s ease;
 
 /* ========== MAIN CONTAINER ========== */
 
-.artisan-container {
+.admin-artisans-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: $spacing-lg;
@@ -53,9 +52,6 @@ $transition-fast: all 0.15s ease;
   padding: $spacing-md $spacing-lg;
   margin-bottom: $spacing-xl;
   border-radius: $border-radius;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   animation: slideDown 0.3s ease-in-out;
 
   &.alert-danger {
@@ -88,40 +84,32 @@ $transition-fast: all 0.15s ease;
 
 /* ========== HEADER ========== */
 
-.artisan-header {
-  background: linear-gradient(135deg, $primary-color 0%, #0056b3 100%);
+.admin-header {
+  // background: linear-gradient(135deg, $primary-color 0%, #0056b3 100%);
   color: $white;
-  padding: $spacing-xxl $spacing-lg;
+  padding: $spacing-xl $spacing-lg;
   border-radius: $border-radius-lg;
   margin-bottom: $spacing-xxl;
-  text-align: center;
 
-  .header-content {
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin: 0 0 $spacing-md 0;
+  h1 {
+    font-size: 2rem;
+    margin: 0 0 $spacing-sm 0;
+    font-weight: 700;
+  }
 
-      @media (max-width: 768px) {
-        font-size: 1.8rem;
-      }
-    }
-
-    p {
-      font-size: 1.1rem;
-      margin: 0;
-      opacity: 0.95;
-    }
+  p {
+    margin: 0;
+    opacity: 0.95;
   }
 }
 
-/* ========== STATS CONTAINER ========== */
+/* ========== STATS GRID ========== */
 
-.stats-container {
+.stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: $spacing-lg;
-  margin-bottom: $spacing-xxl;
+  margin-bottom: $spacing-xl;
 
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
@@ -131,11 +119,12 @@ $transition-fast: all 0.15s ease;
 
 .stat-card {
   background: $white;
-  padding: $spacing-xl;
+  padding: $spacing-lg;
   border-radius: $border-radius;
-  text-align: center;
   box-shadow: $shadow-sm;
-  border-left: 4px solid $primary-color;
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
   transition: $transition;
 
   &:hover {
@@ -143,42 +132,62 @@ $transition-fast: all 0.15s ease;
     box-shadow: $shadow-md;
   }
 
+  .stat-icon {
+    font-size: 2.5rem;
+  }
+
+  .stat-content {
+    flex: 1;
+  }
+
   .stat-number {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: $text-dark;
-    margin-bottom: $spacing-sm;
+    margin-bottom: $spacing-xs;
   }
 
   .stat-label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: $text-muted;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
+    font-weight: 500;
   }
 }
 
-/* ========== FILTERS SECTION ========== */
+/* ========== CONTROLS SECTION ========== */
 
-.filters-section {
+.controls-section {
   background: $white;
   padding: $spacing-xl;
   border-radius: $border-radius;
   margin-bottom: $spacing-xl;
   box-shadow: $shadow-sm;
 
+  .search-and-filters {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .search-box {
     position: relative;
-    margin-bottom: $spacing-lg;
 
     .search-input {
       width: 100%;
-      padding: $spacing-md $spacing-lg;
+      padding: $spacing-md;
       padding-right: 2.5rem;
       border: 1px solid $border-color;
       border-radius: $border-radius;
-      font-size: 1rem;
+      font-size: 0.95rem;
       transition: $transition;
 
       &:focus {
@@ -190,22 +199,11 @@ $transition-fast: all 0.15s ease;
 
     .search-icon {
       position: absolute;
-      right: $spacing-lg;
+      right: $spacing-md;
       top: 50%;
       transform: translateY(-50%);
       color: $text-muted;
       pointer-events: none;
-    }
-  }
-
-  .filter-controls {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: $spacing-md;
-    margin-bottom: $spacing-lg;
-
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
     }
   }
 
@@ -223,15 +221,36 @@ $transition-fast: all 0.15s ease;
       border-color: $primary-color;
       box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
     }
+  }
 
-    &:hover {
-      border-color: $primary-color;
+  .bulk-actions {
+    background-color: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    padding: $spacing-lg;
+    border-radius: $border-radius;
+    margin-bottom: $spacing-lg;
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .selected-count {
+      font-weight: 600;
+      color: $primary-color;
+    }
+
+    .btn {
+      margin: 0;
     }
   }
 
-  .results-count {
+  .results-info {
     color: $text-muted;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
 
     strong {
       color: $text-dark;
@@ -261,7 +280,6 @@ $transition-fast: all 0.15s ease;
 
   p {
     color: $text-muted;
-    font-size: 1rem;
   }
 }
 
@@ -274,194 +292,132 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-/* ========== ARTISANS GRID ========== */
+/* ========== TABLE ========== */
 
-.artisans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: $spacing-xl;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: $spacing-lg;
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: $spacing-md;
-  }
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ========== ARTISAN CARD ========== */
-
-.artisan-card {
+.artisans-table-container {
   background: $white;
-  border-radius: $border-radius-lg;
+  border-radius: $border-radius;
   overflow: hidden;
   box-shadow: $shadow-sm;
-  transition: $transition;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  overflow-x: auto;
+}
 
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: $shadow-lg;
+.artisans-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
 
-    .card-image img {
-      transform: scale(1.05);
+  thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid $border-color;
+
+    th {
+      padding: $spacing-lg;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
   }
 
-  .card-image {
-    position: relative;
-    width: 100%;
-    height: 200px;
-    background-color: $light-bg;
-    overflow: hidden;
+  tbody {
+    tr {
+      border-bottom: 1px solid $border-color;
+      transition: $transition;
+
+      &:hover {
+        background-color: $light-bg;
+      }
+
+      &.selected {
+        background-color: #e7f3ff;
+      }
+
+      td {
+        padding: $spacing-lg;
+        color: $text-dark;
+        font-size: 0.95rem;
+      }
+    }
+  }
+
+  .checkbox {
+    cursor: pointer;
+  }
+
+  .artisan-name {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: $spacing-md;
+    font-weight: 600;
 
-    img {
-      width: 100%;
-      height: 100%;
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       object-fit: cover;
-      transition: $transition;
-    }
-
-    .avatar-placeholder {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, $primary-color 0%, #0056b3 100%);
-      color: $white;
-      font-size: 3rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .verified-badge {
-      position: absolute;
-      top: $spacing-md;
-      right: $spacing-md;
-      background: $success-color;
-      color: $white;
-      padding: $spacing-sm $spacing-md;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      box-shadow: $shadow-md;
     }
   }
 
-  .card-content {
-    padding: $spacing-lg;
-    flex: 1;
+  .category-badge {
+    display: inline-block;
+    background-color: $light-bg;
+    color: $primary-color;
+    padding: $spacing-xs $spacing-md;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: $spacing-xs $spacing-md;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    &.verified {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    &.unverified {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+  }
+
+  .stars-display {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
 
-    .artisan-name {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: $text-dark;
-      margin: 0 0 $spacing-sm 0;
+    .star {
+      color: #ddd;
+      font-size: 1rem;
+
+      &.filled {
+        color: $warning-color;
+      }
     }
 
-    .category-badge {
-      display: inline-block;
-      background-color: $light-bg;
-      color: $primary-color;
-      padding: $spacing-xs $spacing-md;
-      border-radius: 20px;
-      font-size: 0.8rem;
+    .rating-value {
       font-weight: 600;
-      margin-bottom: $spacing-md;
-      width: fit-content;
-    }
-
-    .specialization {
-      color: $text-muted;
+      color: $text-dark;
       font-size: 0.9rem;
-      margin: $spacing-sm 0;
     }
+  }
 
-    .location {
-      color: $text-muted;
+  .action-buttons {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+
+    .btn {
+      padding: $spacing-sm $spacing-md;
       font-size: 0.85rem;
-      margin: $spacing-sm 0;
-    }
-
-    .rating-section {
-      display: flex;
-      align-items: center;
-      gap: $spacing-sm;
-      margin: $spacing-md 0;
-
-      .rating-text {
-        font-weight: 600;
-        color: $text-dark;
-      }
-
-      .review-count {
-        color: $text-muted;
-        font-size: 0.85rem;
-      }
-    }
-
-    .price-info {
-      margin: $spacing-md 0;
-      padding: $spacing-md;
-      background-color: $light-bg;
-      border-radius: $border-radius;
-      text-align: center;
-
-      .price {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: $success-color;
-      }
-    }
-
-    .bio {
-      color: $text-muted;
-      font-size: 0.85rem;
-      line-height: 1.5;
-      margin: $spacing-md 0;
-      flex: 1;
-    }
-
-    .skills-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: $spacing-sm;
-      margin: $spacing-md 0;
-
-      .skill-tag {
-        background-color: #e9ecef;
-        color: $text-dark;
-        padding: $spacing-xs $spacing-md;
-        border-radius: 15px;
-        font-size: 0.75rem;
-        font-weight: 500;
-      }
-    }
-
-    .card-actions {
-      display: flex;
-      gap: $spacing-sm;
-      margin-top: $spacing-md;
-
-      .btn {
-        flex: 1;
-        padding: $spacing-md;
-        font-size: 0.9rem;
-      }
     }
   }
 }
@@ -469,9 +425,8 @@ $transition-fast: all 0.15s ease;
 /* ========== EMPTY STATE ========== */
 
 .empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
   padding: $spacing-xxl;
+  text-align: center;
   color: $text-muted;
 
   .empty-icon {
@@ -489,35 +444,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-/* ========== STARS ========== */
-
-.stars {
-  display: inline-flex;
-  gap: 2px;
-
-  &.stars-sm .star {
-    font-size: 0.8rem;
-  }
-
-  &.stars-md .star {
-    font-size: 1rem;
-  }
-
-  &.stars-lg .star {
-    font-size: 1.5rem;
-  }
-
-  .star {
-    color: #ddd;
-    cursor: default;
-    transition: $transition-fast;
-
-    &.filled {
-      color: $warning-color;
-    }
-  }
-}
-
 /* ========== BUTTONS ========== */
 
 .btn {
@@ -529,24 +455,18 @@ $transition-fast: all 0.15s ease;
   font-weight: 600;
   transition: $transition;
   white-space: nowrap;
-  text-align: center;
 
-  &.btn-primary {
-    background-color: $primary-color;
-    color: $white;
-
-    &:hover {
-      background-color: #0056b3;
-      box-shadow: $shadow-md;
-    }
+  &.btn-sm {
+    padding: $spacing-xs $spacing-md;
+    font-size: 0.85rem;
   }
 
-  &.btn-secondary {
-    background-color: $secondary-color;
+  &.btn-info {
+    background-color: $info-color;
     color: $white;
 
     &:hover {
-      background-color: #5a6268;
+      background-color: #138496;
     }
   }
 
@@ -559,14 +479,30 @@ $transition-fast: all 0.15s ease;
     }
   }
 
-  &.btn-outline {
-    background-color: transparent;
-    color: $primary-color;
-    border: 1px solid $primary-color;
+  &.btn-warning {
+    background-color: $warning-color;
+    color: $text-dark;
 
     &:hover {
-      background-color: $primary-color;
-      color: $white;
+      background-color: #e0a800;
+    }
+  }
+
+  &.btn-danger {
+    background-color: $danger-color;
+    color: $white;
+
+    &:hover {
+      background-color: #c82333;
+    }
+  }
+
+  &.btn-secondary {
+    background-color: $secondary-color;
+    color: $white;
+
+    &:hover {
+      background-color: #5a6268;
     }
   }
 }
@@ -644,11 +580,15 @@ $transition-fast: all 0.15s ease;
 }
 
 .modal-header {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-lg;
   padding: $spacing-xl;
   border-bottom: 1px solid $border-color;
+  display: flex;
+  gap: $spacing-lg;
+  align-items: flex-start;
+
+  .modal-avatar-section {
+    flex-shrink: 0;
+  }
 
   .modal-avatar,
   .modal-avatar-placeholder {
@@ -656,7 +596,6 @@ $transition-fast: all 0.15s ease;
     height: 120px;
     border-radius: $border-radius-lg;
     object-fit: cover;
-    flex-shrink: 0;
   }
 
   .modal-avatar-placeholder {
@@ -669,7 +608,7 @@ $transition-fast: all 0.15s ease;
     justify-content: center;
   }
 
-  .modal-title {
+  .modal-header-info {
     flex: 1;
 
     h2 {
@@ -678,14 +617,19 @@ $transition-fast: all 0.15s ease;
       font-size: 1.8rem;
     }
 
-    .verified-badge {
-      display: inline-block;
-      background-color: $success-color;
-      color: $white;
-      padding: $spacing-sm $spacing-md;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
+    p {
+      margin: 0 0 $spacing-md 0;
+      color: $text-muted;
+    }
+
+    .modal-badges {
+      display: flex;
+      gap: $spacing-sm;
+
+      .status-badge,
+      .category-badge {
+        display: inline-block;
+      }
     }
   }
 }
@@ -705,114 +649,59 @@ $transition-fast: all 0.15s ease;
       padding-bottom: $spacing-md;
     }
   }
-}
 
-/* ========== MODAL SECTIONS ========== */
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: $spacing-lg;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-
-  .label {
-    font-size: 0.85rem;
-    color: $text-muted;
-    font-weight: 600;
-    text-transform: uppercase;
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-lg;
   }
 
-  .value {
-    font-size: 1rem;
-    color: $text-dark;
-    font-weight: 500;
-
+  .info-item {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: $spacing-sm;
-  }
-}
 
-.bio-section p {
-  color: $text-muted;
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-
-.skills-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-md;
-}
-
-.skill-badge {
-  background-color: $light-bg;
-  color: $primary-color;
-  padding: $spacing-sm $spacing-lg;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  border: 1px solid $border-color;
-}
-
-/* ========== RATING FORM ========== */
-
-.rating-form {
-  background-color: $light-bg;
-  padding: $spacing-lg;
-  border-radius: $border-radius;
-
-  .form-group {
-    margin-bottom: $spacing-lg;
-
-    label {
-      display: block;
+    .label {
+      font-size: 0.85rem;
+      color: $text-muted;
       font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .value {
+      font-size: 1rem;
       color: $text-dark;
-      margin-bottom: $spacing-sm;
-      font-size: 0.95rem;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: $spacing-md;
-      border: 1px solid $border-color;
-      border-radius: $border-radius;
-      font-size: 0.95rem;
-      font-family: inherit;
-      transition: $transition;
-
-      &:focus {
-        outline: none;
-        border-color: $primary-color;
-        box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-      }
-    }
-
-    textarea.form-control {
-      resize: vertical;
-      min-height: 100px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
     }
   }
 
-  .form-actions {
-    display: flex;
-    gap: $spacing-md;
-    justify-content: flex-end;
+  .bio-section p {
+    color: $text-muted;
+    line-height: 1.6;
+  }
 
-    @media (max-width: 480px) {
-      flex-direction: column;
+  .skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+
+    .skill-badge {
+      background-color: $light-bg;
+      color: $primary-color;
+      padding: $spacing-sm $spacing-lg;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: 1px solid $border-color;
     }
   }
 }
 
 .modal-footer {
-  padding: $spacing-xl;
+  padding: $spacing-lg;
   border-top: 1px solid $border-color;
   display: flex;
   gap: $spacing-md;
@@ -823,110 +712,75 @@ $transition-fast: all 0.15s ease;
 
     .btn {
       width: 100%;
+      margin: 0;
     }
   }
 }
 
-/* ========== RESPONSIVE DESIGN ========== */
+/* ========== RESPONSIVE ========== */
 
 @media (max-width: 768px) {
-  .artisan-header {
-    padding: $spacing-xl $spacing-md;
-
-    .header-content h1 {
+  .admin-header {
+    h1 {
       font-size: 1.5rem;
     }
   }
 
-  .filters-section {
-    padding: $spacing-lg;
-
-    .filter-controls {
-      grid-template-columns: 1fr;
-    }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .artisans-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: $spacing-md;
-  }
+  .artisans-table {
+    font-size: 0.9rem;
 
-  .artisan-card {
-    .card-image {
-      height: 150px;
-    }
-
-    .card-content {
+    thead th,
+    tbody td {
       padding: $spacing-md;
+    }
 
-      .artisan-name {
-        font-size: 1rem;
-      }
+    .action-buttons {
+      flex-direction: column;
 
-      .card-actions {
-        flex-direction: column;
-
-        .btn {
-          padding: $spacing-sm;
-          font-size: 0.85rem;
-        }
+      .btn {
+        width: 100%;
       }
     }
   }
 }
 
 @media (max-width: 480px) {
-  .artisan-container {
+  .admin-artisans-container {
     padding: $spacing-md;
   }
 
-  .stats-container {
-    grid-template-columns: repeat(2, 1fr);
-    gap: $spacing-sm;
-  }
-
-  .stat-card {
-    padding: $spacing-lg;
-
-    .stat-number {
-      font-size: 1.5rem;
-    }
-  }
-
-  .artisans-grid {
+  .stats-grid {
     grid-template-columns: 1fr;
   }
 
-  .modal-header {
+  .stat-card {
     flex-direction: column;
-    gap: $spacing-md;
+    text-align: center;
+  }
 
-    .modal-avatar,
-    .modal-avatar-placeholder {
-      width: 100px;
-      height: 100px;
+  .artisans-table-container {
+    overflow-x: auto;
+  }
+
+  .artisans-table {
+    font-size: 0.8rem;
+
+    thead th,
+    tbody td {
+      padding: $spacing-sm;
     }
 
-    .modal-title h2 {
-      font-size: 1.3rem;
+    .artisan-name {
+      flex-direction: column;
+
+      .avatar {
+        width: 32px;
+        height: 32px;
+      }
     }
   }
-}
-
-/* ========== UTILITY CLASSES ========== */
-
-.text-center {
-  text-align: center;
-}
-
-.mt-lg {
-  margin-top: $spacing-lg;
-}
-
-.mb-lg {
-  margin-bottom: $spacing-lg;
-}
-
-.p-lg {
-  padding: $spacing-lg;
 }

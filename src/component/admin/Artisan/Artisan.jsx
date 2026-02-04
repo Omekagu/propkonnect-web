@@ -1,19 +1,20 @@
 import React, { useState } from 'react'
 
 import './Artisan.scss'
-import useArtisanManagement from '@/hooks/useArtisanManagement'
+import { useAdminArtisans } from '@/hooks/useArtisanManagement'
 
 /**
- * Main Artisan Management Page Component
- * Displays, filters, searches, and manages artisans
+ * Admin Artisan Management Component
+ * Allows admins to view, filter, verify, and manage all artisans
  */
-const ArtisanPage = () => {
+const AdminArtisans = () => {
   const {
     // State
     artisans,
     loading,
     error,
     notice,
+    stats,
     showModal,
     modalType,
     selectedArtisan,
@@ -23,62 +24,88 @@ const ArtisanPage = () => {
     setSearchQuery,
     categoryFilter,
     setCategoryFilter,
-    ratingFilter,
-    setRatingFilter,
+    verificationFilter,
+    setVerificationFilter,
     sortBy,
     setSortBy,
 
+    // Selection
+    selectedArtisans,
+    toggleArtisanSelection,
+    toggleSelectAll,
+
     // Data
-    sortedArtisans,
+    filteredAndSortedArtisans,
     categories,
-    stats,
 
     // Actions
+    toggleVerification,
     deleteArtisan,
-    rateArtisan,
+    updateArtisan,
+    bulkUpdate,
     viewArtisanDetails,
-    closeModal
-  } = useArtisanManagement()
+    closeModal,
+    showNotice
+  } = useAdminArtisans()
 
-  const [showRatingForm, setShowRatingForm] = useState(false)
-  const [formData, setFormData] = useState({ rating: 5, review: '' })
+  const [showBulkActions, setShowBulkActions] = useState(false)
+  const [editFormData, setEditFormData] = useState({})
 
   /**
-   * Handle rating submission
+   * Handle bulk verify
    */
-  const handleRateSubmit = async e => {
-    e.preventDefault()
-    const success = await rateArtisan(
-      selectedArtisan._id,
-      formData.rating,
-      formData.review
-    )
+  const handleBulkVerify = async () => {
+    const success = await bulkUpdate({ verified: true })
     if (success) {
-      setShowRatingForm(false)
-      setFormData({ rating: 5, review: '' })
+      setShowBulkActions(false)
+    }
+  }
+
+  /**
+   * Handle bulk unverify
+   */
+  const handleBulkUnverify = async () => {
+    const success = await bulkUpdate({ verified: false })
+    if (success) {
+      setShowBulkActions(false)
     }
   }
 
   /**
    * Render star rating
    */
-  const renderStars = (rating, size = 'sm') => {
+  const renderStars = rating => {
     return (
-      <div className={`stars stars-${size}`}>
+      <div className='stars-display'>
         {[1, 2, 3, 4, 5].map(star => (
           <span
             key={star}
-            className={`star ${star <= Math.round(rating) ? 'filled' : ''}`}
+            className={`star ${
+              star <= Math.round(rating || 0) ? 'filled' : ''
+            }`}
           >
             ★
           </span>
         ))}
+        <span className='rating-value'>{(rating || 0).toFixed(1)}</span>
       </div>
     )
   }
 
+  /**
+   * Handle edit submit
+   */
+  const handleEditSubmit = async e => {
+    e.preventDefault()
+    const success = await updateArtisan(selectedArtisan._id, editFormData)
+    if (success) {
+      setEditFormData({})
+      closeModal()
+    }
+  }
+
   return (
-    <div className='artisan-container'>
+    <div className='admin-artisans-container'>
       {/* Error Banner */}
       {error && (
         <div className='alert alert-danger'>
@@ -98,47 +125,61 @@ const ArtisanPage = () => {
       )}
 
       {/* Header */}
-      <div className='artisan-header'>
-        <div className='header-content'>
-          <h1>Artisan Directory</h1>
-          <p>Find skilled professionals for your projects</p>
-        </div>
+      <div className='admin-header'>
+        <h1>Artisan Management</h1>
+        <p>Manage all artisan accounts and verify professionals</p>
       </div>
 
       {/* Stats Cards */}
-      <div className='stats-container'>
-        <div className='stat-card'>
-          <div className='stat-number'>{stats.totalArtisans}</div>
-          <div className='stat-label'>Total Artisans</div>
+      {stats && (
+        <div className='stats-grid'>
+          <div className='stat-card'>
+            <div className='stat-icon'>👥</div>
+            <div className='stat-content'>
+              <div className='stat-number'>{stats.totalArtisans}</div>
+              <div className='stat-label'>Total Artisans</div>
+            </div>
+          </div>
+          <div className='stat-card'>
+            <div className='stat-icon'>✓</div>
+            <div className='stat-content'>
+              <div className='stat-number'>{stats.verifiedArtisans}</div>
+              <div className='stat-label'>
+                Verified ({stats.verificationRate}%)
+              </div>
+            </div>
+          </div>
+          <div className='stat-card'>
+            <div className='stat-icon'>⏳</div>
+            <div className='stat-content'>
+              <div className='stat-number'>{stats.unverifiedArtisans}</div>
+              <div className='stat-label'>Pending Verification</div>
+            </div>
+          </div>
+          <div className='stat-card'>
+            <div className='stat-icon'>⭐</div>
+            <div className='stat-content'>
+              <div className='stat-number'>{stats.topRated?.length || 0}</div>
+              <div className='stat-label'>Top Rated (4.5+)</div>
+            </div>
+          </div>
         </div>
-        <div className='stat-card'>
-          <div className='stat-number'>{stats.averageRating}★</div>
-          <div className='stat-label'>Average Rating</div>
-        </div>
-        <div className='stat-card'>
-          <div className='stat-number'>{stats.topRated}</div>
-          <div className='stat-label'>Top Rated (4.5+)</div>
-        </div>
-        <div className='stat-card'>
-          <div className='stat-number'>{stats.totalReviews}</div>
-          <div className='stat-label'>Total Reviews</div>
-        </div>
-      </div>
+      )}
 
-      {/* Filters Section */}
-      <div className='filters-section'>
-        <div className='search-box'>
-          <input
-            type='text'
-            placeholder='Search artisans by name, skill, location...'
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className='search-input'
-          />
-          <span className='search-icon'>🔍</span>
-        </div>
+      {/* Filters and Controls */}
+      <div className='controls-section'>
+        <div className='search-and-filters'>
+          <div className='search-box'>
+            <input
+              type='text'
+              placeholder='Search by name, email, or phone...'
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className='search-input'
+            />
+            <span className='search-icon'>🔍</span>
+          </div>
 
-        <div className='filter-controls'>
           <select
             value={categoryFilter}
             onChange={e => setCategoryFilter(e.target.value)}
@@ -152,16 +193,13 @@ const ArtisanPage = () => {
           </select>
 
           <select
-            value={ratingFilter}
-            onChange={e => setRatingFilter(Number(e.target.value))}
+            value={verificationFilter}
+            onChange={e => setVerificationFilter(e.target.value)}
             className='filter-select'
           >
-            <option value={0}>All Ratings</option>
-            <option value={3}>3+ Stars</option>
-            <option value={3.5}>3.5+ Stars</option>
-            <option value={4}>4+ Stars</option>
-            <option value={4.5}>4.5+ Stars</option>
-            <option value={5}>5 Stars Only</option>
+            <option value='all'>All Status</option>
+            <option value='verified'>Verified</option>
+            <option value='unverified'>Unverified</option>
           </select>
 
           <select
@@ -170,15 +208,37 @@ const ArtisanPage = () => {
             className='filter-select'
           >
             <option value='recent'>Most Recent</option>
-            <option value='rating_high'>Highest Rated</option>
-            <option value='rating_low'>Lowest Rated</option>
             <option value='name_asc'>Name: A-Z</option>
             <option value='name_desc'>Name: Z-A</option>
+            <option value='rating_high'>Highest Rated</option>
+            <option value='rating_low'>Lowest Rated</option>
           </select>
         </div>
 
-        <div className='results-count'>
-          Showing <strong>{sortedArtisans.length}</strong> artisans
+        {/* Bulk Actions */}
+        {selectedArtisans.length > 0 && (
+          <div className='bulk-actions'>
+            <span className='selected-count'>
+              {selectedArtisans.length} selected
+            </span>
+            <button
+              className='btn btn-sm btn-success'
+              onClick={handleBulkVerify}
+            >
+              Verify Selected
+            </button>
+            <button
+              className='btn btn-sm btn-warning'
+              onClick={handleBulkUnverify}
+            >
+              Unverify Selected
+            </button>
+          </div>
+        )}
+
+        <div className='results-info'>
+          Showing <strong>{filteredAndSortedArtisans.length}</strong> of{' '}
+          <strong>{artisans.length}</strong> artisans
         </div>
       </div>
 
@@ -190,108 +250,118 @@ const ArtisanPage = () => {
         </div>
       )}
 
-      {/* Artisans Grid */}
+      {/* Artisans Table */}
       {!loading && (
-        <div className='artisans-grid'>
-          {sortedArtisans.length === 0 ? (
+        <div className='artisans-table-container'>
+          {filteredAndSortedArtisans.length === 0 ? (
             <div className='empty-state'>
               <div className='empty-icon'>🔍</div>
               <h3>No Artisans Found</h3>
               <p>Try adjusting your filters or search terms</p>
             </div>
           ) : (
-            sortedArtisans.map(artisan => (
-              <div key={artisan._id} className='artisan-card'>
-                {/* Card Image */}
-                <div className='card-image'>
-                  {artisan.avatar ? (
-                    <img src={artisan.avatar} alt={artisan.name} />
-                  ) : (
-                    <div className='avatar-placeholder'>
-                      {artisan.name?.charAt(0) || 'A'}
-                    </div>
-                  )}
-                  {artisan.verified && (
-                    <div className='verified-badge'>✓ Verified</div>
-                  )}
-                </div>
-
-                {/* Card Content */}
-                <div className='card-content'>
-                  <h3 className='artisan-name'>{artisan.name}</h3>
-
-                  <p className='category-badge'>{artisan.category}</p>
-
-                  {artisan.specialization && (
-                    <p className='specialization'>{artisan.specialization}</p>
-                  )}
-
-                  {artisan.location && (
-                    <p className='location'>📍 {artisan.location}</p>
-                  )}
-
-                  {/* Rating */}
-                  <div className='rating-section'>
-                    {renderStars(artisan.rating || 0)}
-                    <span className='rating-text'>
-                      {artisan.rating ? artisan.rating.toFixed(1) : 'N/A'}
-                    </span>
-                    {artisan.reviewCount > 0 && (
-                      <span className='review-count'>
-                        ({artisan.reviewCount} reviews)
+            <table className='artisans-table'>
+              <thead>
+                <tr>
+                  <th>
+                    <input
+                      type='checkbox'
+                      checked={
+                        selectedArtisans.length ===
+                          filteredAndSortedArtisans.length &&
+                        filteredAndSortedArtisans.length > 0
+                      }
+                      onChange={toggleSelectAll}
+                      className='checkbox'
+                    />
+                  </th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Category</th>
+                  <th>Rating</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAndSortedArtisans.map(artisan => (
+                  <tr
+                    key={artisan._id}
+                    className={
+                      selectedArtisans.includes(artisan._id) ? 'selected' : ''
+                    }
+                  >
+                    <td>
+                      <input
+                        type='checkbox'
+                        checked={selectedArtisans.includes(artisan._id)}
+                        onChange={() => toggleArtisanSelection(artisan._id)}
+                        className='checkbox'
+                      />
+                    </td>
+                    <td>
+                      <div className='artisan-name'>
+                        {artisan.avatar && (
+                          <img
+                            src={artisan.avatar}
+                            alt={artisan.name}
+                            className='avatar'
+                          />
+                        )}
+                        <span>{artisan.name}</span>
+                      </div>
+                    </td>
+                    <td>{artisan.email}</td>
+                    <td>
+                      <span className='category-badge'>{artisan.category}</span>
+                    </td>
+                    <td>{renderStars(artisan.rating)}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${
+                          artisan.verified ? 'verified' : 'unverified'
+                        }`}
+                      >
+                        {artisan.verified ? '✓ Verified' : 'Pending'}
                       </span>
-                    )}
-                  </div>
-
-                  {/* Price Info */}
-                  {artisan.hourlyRate && (
-                    <div className='price-info'>
-                      <span className='price'>${artisan.hourlyRate}/hr</span>
-                    </div>
-                  )}
-
-                  {/* Description */}
-                  {artisan.bio && <p className='bio'>{artisan.bio}</p>}
-
-                  {/* Skills */}
-                  {artisan.skills && artisan.skills.length > 0 && (
-                    <div className='skills-container'>
-                      {artisan.skills.slice(0, 3).map((skill, idx) => (
-                        <span key={idx} className='skill-tag'>
-                          {skill}
-                        </span>
-                      ))}
-                      {artisan.skills.length > 3 && (
-                        <span className='skill-tag'>
-                          +{artisan.skills.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className='card-actions'>
-                    <button
-                      className='btn btn-primary'
-                      onClick={() => viewArtisanDetails(artisan)}
-                    >
-                      View Profile
-                    </button>
-                    <button
-                      className='btn btn-secondary'
-                      onClick={() => viewArtisanDetails(artisan)}
-                    >
-                      Contact
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
+                    </td>
+                    <td>{new Date(artisan.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div className='action-buttons'>
+                        <button
+                          className='btn btn-sm btn-info'
+                          onClick={() => viewArtisanDetails(artisan)}
+                        >
+                          View
+                        </button>
+                        <button
+                          className={`btn btn-sm ${
+                            artisan.verified ? 'btn-warning' : 'btn-success'
+                          }`}
+                          onClick={() =>
+                            toggleVerification(artisan._id, artisan.verified)
+                          }
+                        >
+                          {artisan.verified ? 'Unverify' : 'Verify'}
+                        </button>
+                        <button
+                          className='btn btn-sm btn-danger'
+                          onClick={() => deleteArtisan(artisan._id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal - View/Edit Details */}
       {showModal && modalType === 'details' && selectedArtisan && (
         <div className='modal-overlay' onClick={closeModal}>
           <div className='modal-content' onClick={e => e.stopPropagation()}>
@@ -300,85 +370,83 @@ const ArtisanPage = () => {
             </button>
 
             <div className='modal-header'>
-              {selectedArtisan.avatar ? (
-                <img
-                  src={selectedArtisan.avatar}
-                  alt={selectedArtisan.name}
-                  className='modal-avatar'
-                />
-              ) : (
-                <div className='modal-avatar-placeholder'>
-                  {selectedArtisan.name?.charAt(0) || 'A'}
-                </div>
-              )}
-              <div className='modal-title'>
-                <h2>{selectedArtisan.name}</h2>
-                {selectedArtisan.verified && (
-                  <span className='verified-badge'>
-                    ✓ Verified Professional
-                  </span>
+              <div className='modal-avatar-section'>
+                {selectedArtisan.avatar ? (
+                  <img
+                    src={selectedArtisan.avatar}
+                    alt={selectedArtisan.name}
+                    className='modal-avatar'
+                  />
+                ) : (
+                  <div className='modal-avatar-placeholder'>
+                    {selectedArtisan.name?.charAt(0) || 'A'}
+                  </div>
                 )}
+              </div>
+              <div className='modal-header-info'>
+                <h2>{selectedArtisan.name}</h2>
+                <p>{selectedArtisan.email}</p>
+                <div className='modal-badges'>
+                  <span
+                    className={`status-badge ${
+                      selectedArtisan.verified ? 'verified' : 'unverified'
+                    }`}
+                  >
+                    {selectedArtisan.verified ? '✓ Verified' : 'Pending'}
+                  </span>
+                  <span className='category-badge'>
+                    {selectedArtisan.category}
+                  </span>
+                </div>
               </div>
             </div>
 
             <div className='modal-body'>
-              {/* Info Section */}
               <section className='info-section'>
                 <h3>Professional Information</h3>
                 <div className='info-grid'>
                   <div className='info-item'>
+                    <span className='label'>Email</span>
+                    <span className='value'>{selectedArtisan.email}</span>
+                  </div>
+                  <div className='info-item'>
+                    <span className='label'>Phone</span>
+                    <span className='value'>
+                      {selectedArtisan.phone || 'Not provided'}
+                    </span>
+                  </div>
+                  <div className='info-item'>
                     <span className='label'>Category</span>
                     <span className='value'>{selectedArtisan.category}</span>
                   </div>
-                  {selectedArtisan.specialization && (
-                    <div className='info-item'>
-                      <span className='label'>Specialization</span>
-                      <span className='value'>
-                        {selectedArtisan.specialization}
-                      </span>
-                    </div>
-                  )}
-                  {selectedArtisan.experience && (
-                    <div className='info-item'>
-                      <span className='label'>Experience</span>
-                      <span className='value'>
-                        {selectedArtisan.experience} years
-                      </span>
-                    </div>
-                  )}
-                  {selectedArtisan.hourlyRate && (
-                    <div className='info-item'>
-                      <span className='label'>Hourly Rate</span>
-                      <span className='value'>
-                        ${selectedArtisan.hourlyRate}/hr
-                      </span>
-                    </div>
-                  )}
-                  {selectedArtisan.location && (
-                    <div className='info-item'>
-                      <span className='label'>Location</span>
-                      <span className='value'>{selectedArtisan.location}</span>
-                    </div>
-                  )}
+                  <div className='info-item'>
+                    <span className='label'>Experience</span>
+                    <span className='value'>
+                      {selectedArtisan.experience || 'N/A'} years
+                    </span>
+                  </div>
                   <div className='info-item'>
                     <span className='label'>Rating</span>
-                    <div className='value'>
-                      {renderStars(selectedArtisan.rating || 0)}
-                      <span>{selectedArtisan.rating?.toFixed(1) || 'N/A'}</span>
-                    </div>
+                    <span className='value'>
+                      {renderStars(selectedArtisan.rating)}
+                    </span>
+                  </div>
+                  <div className='info-item'>
+                    <span className='label'>Reviews</span>
+                    <span className='value'>
+                      {selectedArtisan.reviewCount || 0}
+                    </span>
                   </div>
                 </div>
               </section>
 
-              {/* Bio Section */}
               {selectedArtisan.bio && (
                 <section className='bio-section'>
-                  <h3>About</h3>
+                  <h3>Bio</h3>
                   <p>{selectedArtisan.bio}</p>
                 </section>
               )}
 
-              {/* Skills Section */}
               {selectedArtisan.skills && selectedArtisan.skills.length > 0 && (
                 <section className='skills-section'>
                   <h3>Skills</h3>
@@ -391,81 +459,31 @@ const ArtisanPage = () => {
                   </div>
                 </section>
               )}
-
-              {/* Rating Form */}
-              <section className='rating-section'>
-                <h3>Rate This Artisan</h3>
-                {!showRatingForm ? (
-                  <button
-                    className='btn btn-outline'
-                    onClick={() => setShowRatingForm(true)}
-                  >
-                    Write a Review
-                  </button>
-                ) : (
-                  <form onSubmit={handleRateSubmit} className='rating-form'>
-                    <div className='form-group'>
-                      <label htmlFor='rating'>Rating</label>
-                      <select
-                        id='rating'
-                        value={formData.rating}
-                        onChange={e =>
-                          setFormData({
-                            ...formData,
-                            rating: Number(e.target.value)
-                          })
-                        }
-                        className='form-control'
-                      >
-                        <option value={1}>1 - Poor</option>
-                        <option value={2}>2 - Fair</option>
-                        <option value={3}>3 - Good</option>
-                        <option value={4}>4 - Very Good</option>
-                        <option value={5}>5 - Excellent</option>
-                      </select>
-                    </div>
-
-                    <div className='form-group'>
-                      <label htmlFor='review'>Review (Optional)</label>
-                      <textarea
-                        id='review'
-                        value={formData.review}
-                        onChange={e =>
-                          setFormData({ ...formData, review: e.target.value })
-                        }
-                        placeholder='Share your experience with this artisan...'
-                        className='form-control'
-                        rows={4}
-                      />
-                    </div>
-
-                    <div className='form-actions'>
-                      <button
-                        type='button'
-                        className='btn btn-secondary'
-                        onClick={() => setShowRatingForm(false)}
-                      >
-                        Cancel
-                      </button>
-                      <button type='submit' className='btn btn-primary'>
-                        Submit Review
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </section>
             </div>
 
             <div className='modal-footer'>
               <button
-                className='btn btn-success'
+                className={`btn ${
+                  selectedArtisan.verified ? 'btn-warning' : 'btn-success'
+                }`}
                 onClick={() => {
-                  // Handle contact/hire
-                  console.log('Hiring artisan:', selectedArtisan._id)
+                  toggleVerification(
+                    selectedArtisan._id,
+                    selectedArtisan.verified
+                  )
                   closeModal()
                 }}
               >
-                Hire Now
+                {selectedArtisan.verified ? 'Unverify' : 'Verify'}
+              </button>
+              <button
+                className='btn btn-danger'
+                onClick={() => {
+                  deleteArtisan(selectedArtisan._id)
+                  closeModal()
+                }}
+              >
+                Delete
               </button>
               <button className='btn btn-secondary' onClick={closeModal}>
                 Close
@@ -478,4 +496,4 @@ const ArtisanPage = () => {
   )
 }
 
-export default ArtisanPage
+export default AdminArtisans
