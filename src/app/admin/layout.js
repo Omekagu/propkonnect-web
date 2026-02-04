@@ -42,6 +42,7 @@ import Messages from '@/component/tenant/Messages/Messages'
 import axios from 'axios'
 import PropertyManagementDashboard from '@/component/admin/PropertyManagementDashboard/PropertyManagementDashboard'
 import Artisan from '@/component/admin/Artisan/Artisan'
+import FinanceDashboard from '@/component/tenant/Finance/Finance'
 
 export default function AdminLayout ({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -234,6 +235,8 @@ export default function AdminLayout ({ children }) {
           return <TenantDashboard />
         case 'MyLease':
           return <MyLease />
+        case 'Finance':
+          return <FinanceDashboard />
         case 'FindArtisan':
           return <FindArtisan />
         case 'MyHome':
