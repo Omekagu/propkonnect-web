@@ -9,6 +9,7 @@ export default function HeaderLayout ({ children }) {
 
   const hideLayout =
     pathname?.startsWith('/user') ||
+    pathname?.startsWith('/docs') ||
     pathname?.startsWith('/admin') ||
     pathname?.startsWith('/auth')
 

@@ -2,6 +2,7 @@ import HeaderLayout from './HeaderLayout'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './index.scss'
 import Script from 'next/script'
+import { ReviewsProvider } from '@/context/ReviewsProvider'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,7 +32,9 @@ export default function RootLayout ({ children }) {
       </head>
 
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <HeaderLayout>{children}</HeaderLayout>
+        <ReviewsProvider>
+          <HeaderLayout>{children}</HeaderLayout>
+        </ReviewsProvider>
       </body>
     </html>
   )
