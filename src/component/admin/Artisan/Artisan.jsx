@@ -125,10 +125,10 @@ const AdminArtisans = () => {
       )}
 
       {/* Header */}
-      <div className='admin-header'>
+      {/* <div className='admin-header'>
         <h1>Artisan Management</h1>
         <p>Manage all artisan accounts and verify professionals</p>
-      </div>
+      </div> */}
 
       {/* Stats Cards */}
       {stats && (

@@ -542,7 +542,7 @@ export default function Sidebar ({
         <div className='sidebar-top'>
           <div className='brand' title={roleBasedNavigation.brand}>
             <div className='brand-logo' aria-hidden='true'>
-              <HousePlus strokeWidth={0.75} />
+              <HousePlus strokeWidth={0.75} onClick={onToggleCollapse} />
             </div>
             {!collapsed && (
               <div className='brand-text'>
@@ -616,7 +616,7 @@ export default function Sidebar ({
 
         {/* === Footer === */}
         <div className='sidebar-footer'>
-          <button className='help-btn' onClick={() => handleClick('Help')}>
+          {/* <button className='help-btn' onClick={() => handleClick('Help')}>
             <svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
               <path
                 d='M12 2a10 10 0 110 20 10 10 0 010-20z'
@@ -625,7 +625,7 @@ export default function Sidebar ({
               />
             </svg>
             {!collapsed && <span>Help & Support</span>}
-          </button>
+          </button> */}
         </div>
       </div>
 

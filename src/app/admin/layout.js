@@ -18,12 +18,12 @@ import UploadPortfolio from '@/component/admin/UploadPortfolio/UploadPortfolio'
 import AdminDashboard from '@/component/admin/Admindashboard/AdminDashboard'
 import UploadProperty from '@/component/admin/UploadProperty/UploadProperty'
 
-// Property Owner Components (create these as needed)
+// Property Owner Components
 import PropertyOwnerDashboard from '@/component/property-owner/Dashboard/Dashboard'
 import MyProperties from '@/component/property-owner/Properties/MyProperties'
 import FindArtisan from '@/component/property-owner/Artisan/FindArtisan'
 
-// Artisan Components (create these as needed)
+// Artisan Components
 import ArtisanDashboard from '@/component/artisan/Dashboard/Dashboard'
 import AvailableJobs from '@/component/artisan/Jobs/AvailableJobs/AvailableJobs'
 import ActiveJobs from '@/component/artisan/Jobs/ActiveJobs/ActiveJobs'
@@ -33,7 +33,7 @@ import Schedule from '@/component/artisan/Schedule/Schedule'
 import Portfolio from '@/component/artisan/Portfolio/Portfolio'
 import Certifications from '@/component/artisan/Certifications/Certifications'
 
-// Tenant Components (create these as needed)
+// Tenant Components
 import TenantDashboard from '@/component/tenant/Dashboard/Dashboard'
 import MyHome from '@/component/tenant/Home/Home'
 import TenantPayments from '@/component/tenant/Payments/Payments'
@@ -44,42 +44,120 @@ import PropertyManagementDashboard from '@/component/admin/PropertyManagementDas
 import Artisan from '@/component/admin/Artisan/Artisan'
 import FinanceDashboard from '@/component/tenant/Finance/Finance'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
+import './layout.scss'
 
 export default function AdminLayout ({ children }) {
+  const router = useRouter()
+  const { isLoggedIn, isLoading, user, logout, checkAuth } = useAuth()
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [activePage, setActivePage] = useState('Dashboard')
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const router = useRouter()
+  const [sessionWarning, setSessionWarning] = useState(false)
+  const [sessionTimeoutWarning, setSessionTimeoutWarning] = useState(false)
 
-  // ✅ ALL useEffect hooks BEFORE any returns
+  // Session timeout timer reference
+  const sessionTimeoutRef = React.useRef(null)
+  const warningTimeoutRef = React.useRef(null)
+  const inactivityTimeoutRef = React.useRef(null)
+
+  // Session management constants
+  const SESSION_WARNING_TIME = 14 * 60 * 1000 // 14 minutes
+  const SESSION_TIMEOUT = 15 * 60 * 1000 // 15 minutes
+  const INACTIVITY_CHECK = 1 * 60 * 1000 // Check every 1 minute
+
+  // ✅ Auth protection - redirect if not logged in
   useEffect(() => {
-    const fetchUser = async () => {
-      const authToken = localStorage.getItem('authToken')
-      if (!authToken) {
-        setLoading(false)
-        return
-      }
+    if (!isLoading && !isLoggedIn) {
+      router.push('/auth/login')
+    }
+  }, [isLoggedIn, isLoading, router])
 
-      try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/id`,
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        )
-        setUser(res.data.user)
-      } catch (err) {
-        console.error('Failed to fetch user:', err)
-        setError('Failed to load user data')
-      } finally {
-        setLoading(false)
+  // ✅ Session timeout setup
+  useEffect(() => {
+    if (!isLoggedIn) return
+
+    const resetSessionTimer = () => {
+      // Clear existing timers
+      if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current)
+      if (warningTimeoutRef.current) clearTimeout(warningTimeoutRef.current)
+
+      // Set warning timeout
+      warningTimeoutRef.current = setTimeout(() => {
+        setSessionWarning(true)
+        setSessionTimeoutWarning(true)
+      }, SESSION_WARNING_TIME)
+
+      // Set logout timeout
+      sessionTimeoutRef.current = setTimeout(() => {
+        handleSessionTimeout()
+      }, SESSION_TIMEOUT)
+    }
+
+    // Reset timer on user activity
+    const activityEvents = [
+      'mousedown',
+      'keydown',
+      'scroll',
+      'touchstart',
+      'click'
+    ]
+
+    const handleActivity = () => {
+      setSessionWarning(false)
+      resetSessionTimer()
+    }
+
+    // Initial timer
+    resetSessionTimer()
+
+    // Add activity listeners
+    activityEvents.forEach(event => {
+      window.addEventListener(event, handleActivity)
+    })
+
+    return () => {
+      // Cleanup
+      if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current)
+      if (warningTimeoutRef.current) clearTimeout(warningTimeoutRef.current)
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, handleActivity)
+      })
+    }
+  }, [isLoggedIn])
+
+  // ✅ Cross-tab sync listener
+  useEffect(() => {
+    const handleAuthChange = event => {
+      const { detail } = event
+
+      if (detail.status === 'logout') {
+        // Another tab logged out
+        setError('You have been logged out in another tab.')
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 2000)
+      } else if (detail.status === 'device-logout') {
+        // Logged in from different device
+        setError('You logged in from a different device.')
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 2000)
+      } else if (detail.status === 'login') {
+        // Another tab logged in
+        checkAuth()
       }
     }
-    fetchUser()
-  }, [])
 
+    window.addEventListener('authStatusChanged', handleAuthChange)
+    return () =>
+      window.removeEventListener('authStatusChanged', handleAuthChange)
+  }, [router, checkAuth])
+
+  // ✅ Responsive design
   useEffect(() => {
     const onResize = () => {
       setIsMobile(window.innerWidth < 900)
@@ -90,6 +168,7 @@ export default function AdminLayout ({ children }) {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
+  // ✅ Escape key handler
   useEffect(() => {
     const onKey = e => {
       if (e.key === 'Escape') setMobileSidebarOpen(false)
@@ -98,16 +177,43 @@ export default function AdminLayout ({ children }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // ✅ NOW do conditional returns AFTER all hooks
-  if (loading) {
-    return <div className='loading-state'>Loading...</div>
+  // Session timeout handler
+  const handleSessionTimeout = () => {
+    logout()
+    setError('Your session has expired. Please log in again.')
+    setSessionWarning(false)
   }
 
-  if (error || !user) {
-    return router.push('/auth/login')
+  // Session warning handler
+  const handleExtendSession = () => {
+    setSessionWarning(false)
+    setSessionTimeoutWarning(false)
+    // Reset timer by dispatching activity event
+    window.dispatchEvent(new Event('mousedown'))
   }
 
-  const userRole = user.role || 'property-owner'
+  // ✅ Loading state
+  if (isLoading) {
+    return (
+      <div className='loading-state'>
+        <div className='loading-spinner'>
+          <div className='spinner'></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ✅ Not authenticated
+  if (!isLoggedIn) {
+    return (
+      <div className='auth-error-state'>
+        <p>Redirecting to login...</p>
+      </div>
+    )
+  }
+
+  const userRole = user?.role || 'property-owner'
 
   // Role-based page rendering
   const renderPage = () => {
@@ -116,7 +222,10 @@ export default function AdminLayout ({ children }) {
       'super-admin',
       'sub-admin',
       'property-admin',
-      'artisan-admin'
+      'artisan-admin',
+      'sub-property-admin',
+      'property-owner',
+      'sub-artisan-admin'
     ]
 
     if (adminRoles.includes(userRole)) {
@@ -125,7 +234,6 @@ export default function AdminLayout ({ children }) {
           return <AdminDashboard />
         case 'PropertyManagement':
           return <PropertyManagementDashboard />
-        // return <AddProperty />
         case 'PropertyUpload':
           return <UploadProperty />
         case 'ArtisanManagement':
@@ -235,8 +343,6 @@ export default function AdminLayout ({ children }) {
       switch (activePage) {
         case 'Dashboard':
           return <TenantDashboard />
-        case 'MyLease':
-          return <MyLease />
         case 'Finance':
           return <FinanceDashboard />
         case 'FindArtisan':
@@ -268,6 +374,44 @@ export default function AdminLayout ({ children }) {
 
   return (
     <div className='admin-shell'>
+      {/* Session Warning Modal */}
+      {sessionWarning && (
+        <div className='session-warning-overlay'>
+          <div className='session-warning-modal'>
+            <div className='warning-icon'>⏰</div>
+            <h3>Session Timeout Warning</h3>
+            <p>Your session will expire in 1 minute due to inactivity.</p>
+            <div className='warning-actions'>
+              <button className='btn btn-primary' onClick={handleExtendSession}>
+                Continue Session
+              </button>
+              <button
+                className='btn btn-secondary'
+                onClick={handleSessionTimeout}
+              >
+                Logout Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Alert */}
+      {error && (
+        <div className='alert-banner alert-error'>
+          <div className='alert-content'>
+            <svg width='20' height='20' viewBox='0 0 20 20' fill='currentColor'>
+              <path
+                fillRule='evenodd'
+                d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                clipRule='evenodd'
+              />
+            </svg>
+            <span>{error}</span>
+          </div>
+        </div>
+      )}
+
       <Sidebar
         userRole={userRole}
         collapsed={sidebarCollapsed}
@@ -282,6 +426,7 @@ export default function AdminLayout ({ children }) {
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
           onToggleTheme={() => alert('Toggle theme (wire up)')}
           user={user}
+          onLogout={logout}
         />
 
         <main className='admin-content' role='main'>

@@ -513,7 +513,7 @@ button {
 .admin-header {
   height: var(--header-height);
   background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border-light);
+  // border-bottom: 1px solid var(--color-border-light);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -555,54 +555,512 @@ button {
   }
 }
 
-// === Search Bar ===
-.header-search {
+// component/sidebar/app-header.scss
+
+.app-header {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-sm) var(--space-lg);
-  transition: all var(--transition-fast);
-  min-width: 320px;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: width var(--transition-base), transform var(--transition-base);
 
-  &:focus-within {
-    border-color: var(--color-primary);
-    background: var(--color-surface);
-    box-shadow: 0 0 0 3px var(--color-primary-subtle);
+  @media (max-width: 900px) {
+    padding: 12px 16px;
   }
+}
 
-  input {
-    flex: 1;
+// ============================================================
+// Header Left (Menu Toggle)
+// ============================================================
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .menu-toggle {
+    display: none;
+    background: none;
     border: none;
-    background: transparent;
-    outline: none;
-    font-size: var(--font-size-sm);
-    color: var(--color-text-primary);
+    cursor: pointer;
+    padding: 8px;
+    color: #4a5568;
+    border-radius: 6px;
+    transition: all 0.2s ease;
 
-    &::placeholder {
-      color: var(--color-text-muted);
+    @media (max-width: 900px) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: #f7fafc;
+        color: #2d3748;
+      }
+    }
+
+    svg {
+      width: 24px;
+      height: 24px;
     }
   }
+}
 
-  .search-btn {
-    background: transparent;
-    border: none;
-    padding: var(--space-sm);
-    color: var(--color-text-muted);
+// ============================================================
+// Header Center (Search Bar)
+// ============================================================
+
+.header-center {
+  flex: 1;
+  max-width: 400px;
+  margin: 0 24px;
+
+  @media (max-width: 1200px) {
+    max-width: 300px;
+    margin: 0 16px;
+  }
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-light);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &:focus-within {
+      background: var(--color-text-inverse);
+      border-color: #3182ce;
+      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+    }
+
+    svg {
+      color: #a0aec0;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      flex: 1;
+      border: 1px solid var(--color-border-light);
+      background: transparent;
+      outline: 1px solid var(--color-border-light);
+      font-size: 14px;
+      color: var(--color-text-primary);
+
+      &::placeholder {
+        color: var(--color-text-secondary);
+      }
+    }
+  }
+}
+
+// ============================================================
+// Header Right (Actions & User Menu)
+// ============================================================
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+// ============================================================
+// Header Icon Button
+// ============================================================
+
+.header-icon-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: #4a5568;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f7fafc;
+    color: #2d3748;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color var(--transition-fast);
+    width: 18px;
+    height: 18px;
+    background: #f56565;
+    color: var(--color-text-inverse);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 600;
+  }
+}
 
-    &:hover {
-      color: var(--color-primary);
+// ============================================================
+// User Menu
+// ============================================================
+
+.user-menu-container {
+  position: relative;
+}
+
+.user-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-border-hover);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: var(--color-text-inverse);
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
+  }
+
+  .user-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d3748;
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  .chevron {
+    width: 16px;
+    height: 16px;
+    color: #a0aec0;
+    transition: transform 0.2s ease;
+
+    &.open {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+// ============================================================
+// User Dropdown Menu
+// ============================================================
+
+.user-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .user-info {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: var(--color-surface);
+
+    .user-avatar-large {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: var(--color-text-inverse);
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 600;
+      flex-shrink: 0;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .user-details {
+      flex: 1;
+      min-width: 0;
+
+      .user-fullname {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .user-email {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--color-text-inverse);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .user-role {
+        margin: 4px 0 0;
+        font-size: 11px;
+        color: #a0aec0;
+        text-transform: capitalize;
+      }
+    }
+  }
+
+  .menu-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 0;
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #2d3748;
+    font-size: 14px;
+    text-align: left;
+    transition: all 0.2s ease;
 
     svg {
       width: 18px;
       height: 18px;
+      color: #a0aec0;
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: #f7fafc;
+      color: #3182ce;
+
+      svg {
+        color: #3182ce;
+      }
+    }
+
+    &.menu-item-danger {
+      color: #e53e3e;
+
+      svg {
+        color: #e53e3e;
+      }
+
+      &:hover {
+        background: #fff5f5;
+        color: #c53030;
+
+        svg {
+          color: #c53030;
+        }
+      }
+    }
+  }
+}
+
+// ============================================================
+// Logout Confirmation Modal
+// ============================================================
+
+.logout-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+.logout-confirm-modal {
+  background: var(--color-surface);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: slideUp 0.3s ease;
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .confirm-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  p {
+    margin: 0 0 24px;
+    font-size: 14px;
+    color: var(--color-text-inverse);
+    line-height: 1.6;
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: 12px;
+
+    .btn {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      &.btn-secondary {
+        background: #e2e8f0;
+        color: #2d3748;
+
+        &:hover {
+          background: #cbd5e0;
+        }
+      }
+
+      &.btn-danger {
+        background: #f56565;
+        color: white;
+
+        &:hover {
+          background: #e53e3e;
+        }
+      }
+    }
+  }
+}
+
+// ============================================================
+// Responsive Design
+// ============================================================
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 12px 12px;
+    gap: 8px;
+  }
+
+  .user-menu-dropdown {
+    position: fixed;
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    min-width: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .header-icon-btn {
+    padding: 6px;
+  }
+
+  .user-menu-btn {
+    padding: 4px 8px;
+    border-radius: 6px;
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      font-size: 12px;
     }
   }
 }

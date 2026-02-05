@@ -20,22 +20,101 @@ export default function AuthPage () {
   const maxResendAttempts = 5
   const cooldownTimerRef = useRef(null)
   const announceRef = useRef(null)
+  const storageListenerRef = useRef(null)
 
   // Focus tracking for animations
   const [emailFocused, setEmailFocused] = useState(false)
   const [codeFocused, setCodeFocused] = useState(false)
 
+  // Check if user is already logged in
   useEffect(() => {
-    const saved = localStorage.getItem('email')
-    if (saved) {
-      setEmail(saved)
-      setStep('otp')
+    const checkAuthStatus = () => {
+      const authToken = localStorage.getItem('authToken')
+      const deviceId = localStorage.getItem('deviceId')
+      const currentDeviceId = getOrCreateDeviceId()
+
+      // If there's a token but it's from a different device, clear it
+      if (authToken && deviceId && deviceId !== currentDeviceId) {
+        handleLogoutFromDifferentDevice()
+        return
+      }
+
+      // If user is already logged in on this device, redirect
+      if (authToken && deviceId === currentDeviceId) {
+        redirectBasedOnRole()
+      }
     }
+
+    checkAuthStatus()
+  }, [])
+
+  // Generate or retrieve a unique device ID
+  const getOrCreateDeviceId = () => {
+    let deviceId = localStorage.getItem('deviceId')
+    if (!deviceId) {
+      deviceId = generateDeviceId()
+      localStorage.setItem('deviceId', deviceId)
+    }
+    return deviceId
+  }
+
+  // Generate unique device ID based on browser fingerprint
+  const generateDeviceId = () => {
+    const fingerprint = `${navigator.userAgent}-${
+      navigator.language
+    }-${new Date().getTimezoneOffset()}`
+    return btoa(fingerprint) + '-' + Date.now()
+  }
+
+  // Handle logout from different device
+  const handleLogoutFromDifferentDevice = () => {
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('email')
+    localStorage.removeItem('userId')
+    setError('You logged in from a different device. Please log in again.')
+    setStep('email')
+    setEmail('')
+    setCode('')
+  }
+
+  // Listen for auth changes across tabs
+  useEffect(() => {
+    const handleStorageChange = event => {
+      if (event.key === 'authToken') {
+        if (event.newValue && event.newValue !== event.oldValue) {
+          // Auth token was set in another tab
+          redirectBasedOnRole()
+        } else if (!event.newValue && event.oldValue) {
+          // Auth token was cleared in another tab
+          handleLogout()
+        }
+      }
+
+      // Handle logout from different device across tabs
+      if (event.key === 'deviceId' && event.newValue !== event.oldValue) {
+        const currentDeviceId = localStorage.getItem('deviceId')
+        if (currentDeviceId && currentDeviceId !== event.newValue) {
+          handleLogoutFromDifferentDevice()
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    storageListenerRef.current = handleStorageChange
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
+
+  // Cleanup cooldown timer on unmount
+  useEffect(() => {
     return () => {
       if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current)
     }
   }, [])
 
+  // Handle resend cooldown timer
   useEffect(() => {
     if (resendCooldown <= 0) {
       if (cooldownTimerRef.current) {
@@ -66,6 +145,36 @@ export default function AuthPage () {
     return mm > 0
       ? `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`
       : `${ss}s`
+  }
+
+  const redirectBasedOnRole = async () => {
+    try {
+      const token = localStorage.getItem('authToken')
+      const userData = localStorage.getItem('userData')
+
+      if (userData) {
+        const data = JSON.parse(userData)
+        const role = data?.role
+        const adminRoles = [
+          'super-admin',
+          'sub-admin',
+          'property-admin',
+          'property-owner',
+          'artisan',
+          'sub-property-admin',
+          'artisan-admin',
+          'sub-artisan-admin'
+        ]
+
+        if (adminRoles.includes(role)) {
+          router.push('/admin/dashboard')
+        } else {
+          router.push('/user/dashboard')
+        }
+      }
+    } catch (err) {
+      console.error('Error redirecting:', err)
+    }
   }
 
   const handleContinue = async () => {
@@ -178,28 +287,27 @@ export default function AuthPage () {
       const data = response.data
       setSuccess(true)
 
+      // Get current device ID
+      const deviceId = getOrCreateDeviceId()
+
       if (data.token) {
         localStorage.setItem('authToken', data.token)
+        localStorage.setItem('deviceId', deviceId)
       }
 
-      setTimeout(() => {
-        const role = data.data?.role
-        const adminRoles = [
-          'super-admin',
-          'sub-admin',
-          'property-admin',
-          'property-owner',
-          'artisan',
-          'sub-property-admin',
-          'artisan-admin',
-          'sub-artisan-admin'
-        ]
+      // Store user data for role-based redirect
+      if (data.data) {
+        localStorage.setItem('userData', JSON.stringify(data.data))
+      }
 
-        if (adminRoles.includes(role)) {
-          router.push('/admin/dashboard')
-        } else {
-          router.push('/dashboard')
-        }
+      // Broadcast to other tabs that login happened
+      const event = new CustomEvent('authStatusChanged', {
+        detail: { status: 'login', token: data.token, deviceId }
+      })
+      window.dispatchEvent(event)
+
+      setTimeout(() => {
+        redirectBasedOnRole()
       }, 2000)
     } catch (err) {
       const errorMessage =
@@ -218,6 +326,24 @@ export default function AuthPage () {
     setCode('')
     setStatus('')
     setError('')
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('deviceId')
+    localStorage.removeItem('email')
+    localStorage.removeItem('userId')
+    localStorage.removeItem('userData')
+
+    setStep('email')
+    setEmail('')
+    setCode('')
+    setError('')
+    setSuccess(false)
+
+    if (announceRef.current) {
+      announceRef.current.textContent = 'You have been logged out.'
+    }
   }
 
   return (
