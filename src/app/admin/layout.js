@@ -43,6 +43,7 @@ import axios from 'axios'
 import PropertyManagementDashboard from '@/component/admin/PropertyManagementDashboard/PropertyManagementDashboard'
 import Artisan from '@/component/admin/Artisan/Artisan'
 import FinanceDashboard from '@/component/tenant/Finance/Finance'
+import { useRouter } from 'next/navigation'
 
 export default function AdminLayout ({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -52,6 +53,7 @@ export default function AdminLayout ({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const router = useRouter()
 
   // ✅ ALL useEffect hooks BEFORE any returns
   useEffect(() => {
@@ -102,7 +104,7 @@ export default function AdminLayout ({ children }) {
   }
 
   if (error || !user) {
-    return <div className='error-state'>{error || 'Please log in'}</div>
+    return router.push('/auth/login')
   }
 
   const userRole = user.role || 'property-owner'
