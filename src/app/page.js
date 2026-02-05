@@ -195,7 +195,6 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-
       {/* Features Section */}
       <section id='features' className='features'>
         <div className='section-header'>

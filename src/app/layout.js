@@ -23,7 +23,7 @@ export const metadata = {
   },
 
   description:
-    'Find your dream home with Pro pnect. Trusted real estate platform for buying, selling, renting properties and connecting you to artisans with ease.',
+    'Find your dream home with Propnect. Trusted real estate platform for buying, selling, renting properties and connecting you to artisans with ease.',
 
   keywords: [
     'real estate',
@@ -87,7 +87,6 @@ export const metadata = {
 export default function RootLayout ({ children }) {
   return (
     <html lang='en'>
-      ;
       <head>
         <Script
           src='https://sdk.monnify.com/plugin/monnify.js'
