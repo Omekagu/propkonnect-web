@@ -2,23 +2,18 @@
 import React, { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
 import {
-  FiTrendingUp,
   FiUsers,
   FiHome,
   FiDollarSign,
   FiTool,
   FiDownload,
   FiPlus,
-  Fix,
   FiSettings,
   FiEye,
   FiEyeOff,
   FiTrash2,
-  FiRefreshCw,
-  FiChevronDown,
   FiPieChart,
   FiActivity,
-  FiMap,
   FiMessageSquare,
   FiBell,
   FiX
