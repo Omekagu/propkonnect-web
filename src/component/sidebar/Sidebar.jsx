@@ -92,12 +92,6 @@ export default function Sidebar ({
             label: 'Artisans',
             icon: <Wrench strokeWidth={0.75} />
           },
-
-          {
-            key: 'TenantManagement',
-            label: 'Tenants',
-            icon: <UserCircle strokeWidth={0.75} />
-          },
           {
             key: 'Finance',
             label: 'Finances',
