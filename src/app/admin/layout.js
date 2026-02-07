@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import '@/component/sidebar/admin.scss'
 import Sidebar from '@/component/sidebar/Sidebar'
 import AppHeader from '@/component/sidebar/AppHeader'
-import AddProperty from '@/component/admin/addproperty/AddProperty'
 import Tenant from '@/component/admin/Tenants/Tenant'
 import Finance from '@/component/admin/Finances/Finance'
 import Document from '@/component/admin/Documents/Document'
@@ -12,7 +11,6 @@ import Report from '@/component/admin/Reports/Report'
 import Maintenance from '@/component/admin/Maintenance/Maintenance'
 import UserManagement from '@/component/admin/UserManagement/UserManagement'
 import Settings from '@/component/admin/Settings/Settings'
-import Help from '@/component/admin/Help/Help'
 import PaymentMethod from '@/component/admin/paymentMethod/PaymentMethod'
 import UploadPortfolio from '@/component/admin/UploadPortfolio/UploadPortfolio'
 import AdminDashboard from '@/component/admin/Admindashboard/AdminDashboard'
@@ -39,7 +37,12 @@ import MyHome from '@/component/tenant/Home/Home'
 import TenantPayments from '@/component/tenant/Payments/Payments'
 import TenantMaintenance from '@/component/tenant/Maintenance/Maintenance'
 import Messages from '@/component/tenant/Messages/Messages'
-import axios from 'axios'
+
+// Support Ticket Components
+import SupportTicketForm from '@/component/user/SupportTicketForm/SupportTicketForm'
+import SupportTicketAdmin from '@/component/user/SupportTicketAdmin/SupportTicketAdmin'
+import SupportTicketList from '@/component/user/SupportTicketList/SupportTicketList'
+
 import PropertyManagementDashboard from '@/component/admin/PropertyManagementDashboard/PropertyManagementDashboard'
 import Artisan from '@/component/admin/Artisan/Artisan'
 import FinanceDashboard from '@/component/tenant/Finance/Finance'
@@ -58,6 +61,7 @@ export default function AdminLayout ({ children }) {
   const [error, setError] = useState(null)
   const [sessionWarning, setSessionWarning] = useState(false)
   const [sessionTimeoutWarning, setSessionTimeoutWarning] = useState(false)
+  const [supportTicketCount, setSupportTicketCount] = useState(0)
 
   // Session timeout timer reference
   const sessionTimeoutRef = React.useRef(null)
@@ -75,6 +79,35 @@ export default function AdminLayout ({ children }) {
       router.push('/auth/login')
     }
   }, [isLoggedIn, isLoading, router])
+
+  // ✅ Fetch support ticket count
+  useEffect(() => {
+    if (!isLoggedIn || !user) return
+
+    const fetchTicketCount = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tickets/count`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('authToken')}`
+            }
+          }
+        )
+        if (response.ok) {
+          const data = await response.json()
+          setSupportTicketCount(data.count || 0)
+        }
+      } catch (error) {
+        console.error('Error fetching ticket count:', error)
+      }
+    }
+
+    fetchTicketCount()
+    const interval = setInterval(fetchTicketCount, 5 * 60 * 1000) // Refresh every 5 minutes
+
+    return () => clearInterval(interval)
+  }, [isLoggedIn, user])
 
   // ✅ Session timeout setup
   useEffect(() => {
@@ -215,25 +248,62 @@ export default function AdminLayout ({ children }) {
 
   const userRole = user?.role || 'property-owner'
 
-  // Role-based page rendering
+  // ✅ Role-based page rendering with proper support ticket routing
   const renderPage = () => {
-    // Admin Pages (super-admin, sub-admin, property-admin, artisan-admin)
+    // Admin Roles (for main dashboard access)
     const adminRoles = [
       'super-admin',
       'sub-admin',
       'property-admin',
       'artisan-admin',
       'sub-property-admin',
-      'property-owner',
       'sub-artisan-admin'
     ]
 
-    if (adminRoles.includes(userRole)) {
+    // Support ticket admin roles (ONLY these can access SupportTicketAdmin)
+    const supportAdminRoles = ['super-admin', 'support-admin']
+
+    const isAdmin = adminRoles.includes(userRole)
+    const isSupportAdmin = supportAdminRoles.includes(userRole)
+
+    // Support Tickets Pages - Available to all roles
+    if (activePage === 'SupportTickets') {
+      // Only support admins can access the admin dashboard
+      if (isSupportAdmin) {
+        return <SupportTicketAdmin userRole={userRole} />
+      } else {
+        // All other users see their own tickets list
+        return <SupportTicketList userRole={userRole} />
+      }
+    }
+
+    // Help page - super-admin should see admin dashboard, not form
+    if (activePage === 'Help') {
+      if (isSupportAdmin) {
+        return <SupportTicketAdmin userRole={userRole} />
+      } else {
+        return <SupportTicketForm userEmail={user?.email} />
+      }
+    }
+
+    // Create Ticket - super-admin should see admin dashboard, not form
+    if (activePage === 'CreateTicket') {
+      if (isSupportAdmin) {
+        return <SupportTicketAdmin userRole={userRole} />
+      } else {
+        return <SupportTicketForm userEmail={user?.email} />
+      }
+    }
+
+    // Admin-only pages
+    if (isAdmin) {
       switch (activePage) {
         case 'Dashboard':
           return <AdminDashboard />
         case 'PropertyManagement':
           return <PropertyManagementDashboard />
+        case 'MyProperties':
+          return <MyProperties />
         case 'PropertyUpload':
           return <UploadProperty />
         case 'ArtisanManagement':
@@ -271,8 +341,6 @@ export default function AdminLayout ({ children }) {
           return <Settings />
         case 'Security':
           return <Settings />
-        case 'Help':
-          return <Help />
         default:
           return <AdminDashboard />
       }
@@ -285,6 +353,8 @@ export default function AdminLayout ({ children }) {
           return <PropertyOwnerDashboard />
         case 'MyProperties':
           return <MyProperties />
+        case 'PropertyUpload':
+          return <UploadProperty />
         case 'Tenants':
           return <Tenant />
         case 'Maintenance':
@@ -301,8 +371,6 @@ export default function AdminLayout ({ children }) {
           return <Settings />
         case 'Settings':
           return <Settings />
-        case 'Help':
-          return <Help />
         default:
           return <PropertyOwnerDashboard />
       }
@@ -331,8 +399,6 @@ export default function AdminLayout ({ children }) {
           return <Settings />
         case 'Settings':
           return <Settings />
-        case 'Help':
-          return <Help />
         default:
           return <ArtisanDashboard />
       }
@@ -361,8 +427,6 @@ export default function AdminLayout ({ children }) {
           return <Settings />
         case 'Settings':
           return <Settings />
-        case 'Help':
-          return <Help />
         default:
           return <TenantDashboard />
       }
@@ -419,6 +483,7 @@ export default function AdminLayout ({ children }) {
         onRouteChange={setActivePage}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         onToggleCollapse={() => setSidebarCollapsed(s => !s)}
+        supportTicketCount={supportTicketCount}
       />
 
       <div className='main-column'>
@@ -427,6 +492,7 @@ export default function AdminLayout ({ children }) {
           onToggleTheme={() => alert('Toggle theme (wire up)')}
           user={user}
           onLogout={logout}
+          supportTicketCount={supportTicketCount}
         />
 
         <main className='admin-content' role='main'>

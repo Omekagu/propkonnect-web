@@ -1,0 +1,607 @@
+// Color scheme
+$primary: #3b82f6;
+$secondary: #1e293b;
+$accent: #f59e0b;
+$success: #10b981;
+$danger: #ef4444;
+$warning: #f59e0b;
+
+$bg-primary: #f8fafc;
+$bg-secondary: #ffffff;
+$border-color: #e2e8f0;
+$text-primary: #1e293b;
+$text-secondary: #64748b;
+$text-light: #94a3b8;
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-2xl: 3rem;
+
+// Transitions
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: all 0.15s ease-out;
+
+// Breakpoints
+$mobile: 640px;
+$tablet: 768px;
+$desktop: 1024px;
+
+.support-admin-container {
+  min-height: 100vh;
+  background: $bg-primary;
+  color: $text-primary;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+// Header
+.admin-header {
+  background: $bg-secondary;
+  border-bottom: 1px solid $border-color;
+  padding: $spacing-2xl;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  .header-content {
+    margin-bottom: $spacing-xl;
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 $spacing-sm 0;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: $text-secondary;
+      margin: 0;
+      font-size: 0.95rem;
+    }
+  }
+
+  .ticket-stats {
+    // display: grid;
+    // grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    display: flex;
+    gap: $spacing-lg;
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+
+      .stat-number {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: $primary;
+        line-height: 1;
+        margin-bottom: $spacing-sm;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+        color: $text-secondary;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+}
+
+// Main content layout
+.admin-content {
+  //   display: flex;
+  //   flex: 1;
+  //   overflow: hidden;
+  //   height: calc(100vh - 200px);
+
+  @media (max-width: $tablet) {
+    flex-direction: column;
+    height: auto;
+  }
+}
+
+// Sidebar
+.tickets-sidebar {
+  //   width: 380px;
+  //   background: $bg-secondary;
+  //   border-right: 1px solid $border-color;
+  //   display: flex;
+  //   flex-direction: column;
+  //   overflow: hidden;
+
+  @media (max-width: $tablet) {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid $border-color;
+    max-height: 400px;
+  }
+
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-lg;
+    border-bottom: 1px solid $border-color;
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid $border-color;
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: $transition;
+      color: $text-secondary;
+
+      &:hover:not(:disabled) {
+        background: $bg-primary;
+        color: $primary;
+        border-color: $primary;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .search-box {
+    padding: $spacing-lg;
+    border-bottom: 1px solid $border-color;
+
+    .search-input {
+      width: 100%;
+      padding: $spacing-md;
+      border: 1px solid $border-color;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: $bg-primary;
+      color: $text-primary;
+      transition: $transition;
+
+      &:focus {
+        outline: none;
+        border-color: $primary;
+        background: $bg-secondary;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      &::placeholder {
+        color: $text-light;
+      }
+    }
+  }
+
+  .filter-tabs {
+    display: flex;
+    gap: $spacing-sm;
+    padding: $spacing-md $spacing-lg;
+    border-bottom: 1px solid $border-color;
+    overflow-x: auto;
+
+    .filter-tab {
+      background: none;
+      border: 1px solid $border-color;
+      padding: $spacing-sm $spacing-md;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: $text-secondary;
+      white-space: nowrap;
+      transition: $transition;
+      text-transform: capitalize;
+
+      &:hover {
+        border-color: $primary;
+        color: $primary;
+      }
+
+      &.active {
+        background: $primary;
+        color: white;
+        border-color: $primary;
+      }
+    }
+  }
+
+  .tickets-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: $spacing-md;
+
+    .loading,
+    .empty {
+      padding: $spacing-xl $spacing-md;
+      text-align: center;
+      color: $text-secondary;
+      font-size: 0.95rem;
+    }
+
+    .ticket-item {
+      padding: $spacing-md;
+      margin-bottom: $spacing-sm;
+      background: $bg-primary;
+      border: 1px solid $border-color;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: $transition;
+
+      &:hover {
+        background: $bg-secondary;
+        border-color: $primary;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+      }
+
+      &.active {
+        background: $bg-secondary;
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .ticket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: $spacing-md;
+        margin-bottom: $spacing-sm;
+
+        h3 {
+          margin: 0;
+          font-size: 0.95rem;
+          font-weight: 600;
+          flex: 1;
+          line-height: 1.3;
+          color: $text-primary;
+        }
+      }
+
+      .ticket-email {
+        font-size: 0.85rem;
+        color: $text-secondary;
+        margin: $spacing-sm 0;
+      }
+
+      .ticket-date {
+        font-size: 0.8rem;
+        color: $text-light;
+        margin: $spacing-sm 0 $spacing-md 0;
+      }
+
+      .ticket-priority {
+        display: flex;
+        gap: $spacing-sm;
+      }
+    }
+  }
+}
+
+// Main detail area
+.ticket-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: $bg-secondary;
+  overflow: hidden;
+
+  @media (max-width: $tablet) {
+    flex: none;
+    height: auto;
+    max-height: none;
+  }
+
+  .detail-header {
+    padding: $spacing-2xl;
+    border-bottom: 1px solid $border-color;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $spacing-xl;
+
+    @media (max-width: $tablet) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    h2 {
+      margin: 0 0 $spacing-sm 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .detail-email {
+      color: $text-secondary;
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .detail-badges {
+      display: flex;
+      gap: $spacing-md;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+
+      @media (max-width: $tablet) {
+        justify-content: flex-start;
+      }
+    }
+  }
+
+  .detail-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-lg;
+    padding: $spacing-lg $spacing-2xl;
+    background: $bg-primary;
+    border-bottom: 1px solid $border-color;
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+
+      .label {
+        font-size: 0.8rem;
+        color: $text-light;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: $spacing-xs;
+      }
+
+      .value {
+        font-size: 0.95rem;
+        color: $text-primary;
+        font-weight: 500;
+        font-family: 'Monaco', 'Courier New', monospace;
+      }
+    }
+  }
+
+  .conversation {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: $spacing-2xl;
+
+    h3 {
+      margin: 0 0 $spacing-lg 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-lg;
+      padding-bottom: $spacing-lg;
+
+      .message {
+        padding: $spacing-md;
+        border-radius: 8px;
+        max-width: 80%;
+
+        &.user-message {
+          align-self: flex-start;
+          background: $bg-primary;
+          border-left: 3px solid $primary;
+        }
+
+        &.admin-message {
+          align-self: flex-end;
+          background: #f0f4ff;
+          border-left: 3px solid $success;
+        }
+
+        .message-header {
+          display: flex;
+          justify-content: space-between;
+          gap: $spacing-md;
+          margin-bottom: $spacing-sm;
+          font-size: 0.85rem;
+
+          .sender {
+            font-weight: 600;
+            color: $text-primary;
+          }
+
+          .timestamp {
+            color: $text-light;
+          }
+        }
+
+        .message-content {
+          margin: 0;
+          color: $text-primary;
+          line-height: 1.6;
+          word-wrap: break-word;
+        }
+      }
+    }
+  }
+
+  .response-box {
+    padding: $spacing-2xl;
+    border-top: 1px solid $border-color;
+    background: $bg-primary;
+
+    .response-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: $spacing-md;
+      border: 1px solid $border-color;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: $text-primary;
+      resize: vertical;
+      transition: $transition;
+
+      &:focus {
+        outline: none;
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      &::placeholder {
+        color: $text-light;
+      }
+
+      &:disabled {
+        background: $border-color;
+        color: $text-light;
+        cursor: not-allowed;
+      }
+    }
+
+    .response-actions {
+      display: flex;
+      gap: $spacing-md;
+      margin-top: $spacing-lg;
+
+      @media (max-width: $mobile) {
+        flex-direction: column;
+      }
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: $spacing-2xl;
+    text-align: center;
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: $spacing-lg;
+      opacity: 0.6;
+    }
+
+    h3 {
+      margin: 0 0 $spacing-md 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $text-secondary;
+    }
+
+    p {
+      margin: 0;
+      color: $text-light;
+      font-size: 0.95rem;
+    }
+  }
+}
+
+// Buttons
+.btn {
+  padding: $spacing-md $spacing-lg;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.btn-primary {
+    background: $primary;
+    color: white;
+    border-color: $primary;
+
+    &:hover:not(:disabled) {
+      background: darken(#3b82f6, 10%);
+      border-color: darken(#3b82f6, 10%);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  &.btn-secondary {
+    background: $bg-primary;
+    color: $primary;
+    border-color: $border-color;
+
+    &:hover:not(:disabled) {
+      background: $bg-secondary;
+      border-color: $primary;
+      color: darken(#3b82f6, 10%);
+    }
+  }
+}
+
+// Badge styles
+.status-badge {
+  display: inline-block;
+  padding: 0.375rem $spacing-md;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.priority-badge {
+  display: inline-block;
+  padding: 0.375rem $spacing-md;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+// Scrollbar styling
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $border-color;
+  border-radius: 4px;
+
+  &:hover {
+    background: darken($border-color, 10%);
+  }
+}

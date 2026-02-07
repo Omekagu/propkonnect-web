@@ -137,60 +137,6 @@ export default function Sidebar ({
         ]
       },
 
-      // Sub Admin
-      'sub-admin': {
-        brand: 'PROPNECT ADMIN',
-        nav: [
-          {
-            key: 'Dashboard',
-            label: 'Dashboard',
-            icon: <LayoutDashboard strokeWidth={0.75} />
-          },
-          {
-            key: 'PropertyManagement',
-            label: 'Properties',
-            icon: <HousePlus strokeWidth={0.75} />
-          },
-          {
-            key: 'ArtisanManagement',
-            label: 'Artisans',
-            icon: <Wrench strokeWidth={0.75} />
-          },
-          {
-            key: 'TenantManagement',
-            label: 'Tenants',
-            icon: <UserCircle strokeWidth={0.75} />
-          },
-          {
-            key: 'Maintenance',
-            label: 'Maintenance',
-            icon: <Drill strokeWidth={0.75} />
-          },
-          {
-            key: 'Reports',
-            label: 'Reports',
-            icon: <BarChart3 strokeWidth={0.75} />
-          },
-          {
-            key: 'Documents',
-            label: 'Documents',
-            icon: <ClipboardMinus strokeWidth={0.75} />
-          }
-        ],
-        account: [
-          {
-            key: 'Settings',
-            label: 'Settings',
-            icon: <Cog strokeWidth={0.75} />
-          },
-          {
-            key: 'Help',
-            label: 'Help & Support',
-            icon: <HeartHandshake strokeWidth={0.75} />
-          }
-        ]
-      },
-
       // Property Owner
       'property-owner': {
         brand: 'PROPNECT',
