@@ -748,7 +748,7 @@ button {
     justify-content: center;
     width: 32px;
     height: 32px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #c9a96e 0%, #a87842 100%);
     color: var(--color-text-inverse);
     border-radius: 50%;
     font-size: 14px;
@@ -823,7 +823,7 @@ button {
       justify-content: center;
       width: 50px;
       height: 50px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #c9a96e 0%, #a87842 100%);
       color: var(--color-text-inverse);
       border-radius: 50%;
       font-size: 18px;
@@ -1373,22 +1373,22 @@ button {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: #0f172a;
-    --color-surface: #1e293b;
-    --color-surface-hover: #334155;
-    --color-border: #334155;
-    --color-border-light: #1e293b;
-    --color-text-primary: #f1f5f9;
-    --color-text-secondary: #cbd5e1;
-    --color-text-muted: #64748b;
+    --color-background: #0e0f13;
+    --color-surface: #15171d;
+    --color-surface-hover: #1c1f28;
+    --color-border: rgba(255, 255, 255, 0.07);
+    --color-border-light: rgba(255, 255, 255, 0.04);
+    --color-text-primary: #e8eaf0;
+    --color-text-secondary: #8890a8;
+    --color-text-muted: #4e5470;
   }
 
   .admin-header {
-    background: rgba(30, 41, 59, 0.95);
+    background: rgba(14, 15, 19, 0.95);
   }
 
   .brand-logo {
-    box-shadow: 0 0 20px rgba(0, 191, 166, 0.3);
+    box-shadow: 0 0 20px rgba(201, 169, 110, 0.3);
   }
 }
 

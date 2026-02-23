@@ -80,7 +80,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #00bfa6;
+        background: #c9a96e;
         color: #fff;
         width: 70px;
         height: 70px;
@@ -110,16 +110,16 @@
 
       &:hover {
         transform: translateY(-8px);
-        background: #00bfa6;
+        background: #c9a96e;
         color: #fff;
 
         &::before {
-          background: #00bfa6;
+          background: #c9a96e;
         }
 
         .icon-wrapper {
           background: #fff;
-          color: #00bfa6;
+          color: #c9a96e;
         }
 
         h3,

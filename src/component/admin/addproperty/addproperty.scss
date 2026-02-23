@@ -22,7 +22,7 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 
     &.toast-success {
-      background: #10b981;
+      background: #5bcfb0;
       color: white;
     }
 
@@ -64,7 +64,7 @@
         margin: 0;
         font-size: 2rem;
         font-weight: 800;
-        color: #0f172a;
+        color: #e8eaf0;
         letter-spacing: -0.025em;
       }
 
@@ -120,15 +120,15 @@
       }
 
       &.card-blue .stat-icon {
-        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        background: linear-gradient(135deg, #c9a96e 0%, #e2c89a 100%);
       }
 
       &.card-green .stat-icon {
-        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        background: linear-gradient(135deg, #5bcfb0 0%, #82dfc9 100%);
       }
 
       &.card-purple .stat-icon {
-        background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+        background: linear-gradient(135deg, #a87842 0%, #a78bfa 100%);
       }
 
       &.card-orange .stat-icon {
@@ -141,7 +141,7 @@
         h3 {
           font-size: 1.875rem;
           font-weight: 800;
-          color: #0f172a;
+          color: #e8eaf0;
           margin: 0 0 0.25rem 0;
           line-height: 1;
         }
@@ -162,7 +162,7 @@
           color: #64748b;
 
           &.positive {
-            color: #10b981;
+            color: #5bcfb0;
           }
         }
       }
@@ -193,12 +193,12 @@
       margin-bottom: -2px;
 
       &:hover {
-        color: #0f172a;
+        color: #e8eaf0;
       }
 
       &.active {
-        color: #3b82f6;
-        border-bottom-color: #3b82f6;
+        color: #c9a96e;
+        border-bottom-color: #c9a96e;
       }
     }
   }
@@ -234,7 +234,7 @@
 
         &:focus {
           outline: none;
-          border-color: #3b82f6;
+          border-color: #c9a96e;
           box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
       }
@@ -258,7 +258,7 @@
         background: transparent;
         font-size: 0.9375rem;
         font-weight: 600;
-        color: #0f172a;
+        color: #e8eaf0;
         cursor: pointer;
 
         &:focus {
@@ -283,7 +283,7 @@
         width: 48px;
         height: 48px;
         border: 4px solid #e2e8f0;
-        border-top-color: #3b82f6;
+        border-top-color: #c9a96e;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
       }
@@ -321,7 +321,7 @@
         margin: 0 0 0.5rem 0;
         font-size: 1.25rem;
         font-weight: 700;
-        color: #0f172a;
+        color: #e8eaf0;
       }
 
       p {
@@ -354,7 +354,7 @@
     &:hover {
       transform: translateY(-6px);
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-      border-color: #dbeafe;
+      border-color: rgba(201, 169, 110, 0.1);
     }
 
     .property-image {
@@ -425,7 +425,7 @@
           margin: 0;
           font-size: 1.125rem;
           font-weight: 700;
-          color: #0f172a;
+          color: #e8eaf0;
           line-height: 1.4;
           flex: 1;
         }
@@ -445,7 +445,7 @@
 
           &:hover {
             background: #e2e8f0;
-            color: #0f172a;
+            color: #e8eaf0;
           }
         }
 
@@ -469,7 +469,7 @@
             padding: 0.875rem 1rem;
             border: none;
             background: transparent;
-            color: #0f172a;
+            color: #e8eaf0;
             font-size: 0.9375rem;
             font-weight: 500;
             cursor: pointer;
@@ -523,7 +523,7 @@
           .price {
             font-size: 1.5rem;
             font-weight: 800;
-            color: #3b82f6;
+            color: #c9a96e;
             line-height: 1;
           }
 
@@ -542,7 +542,7 @@
 
           &.active {
             background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
+            color: #5bcfb0;
           }
 
           &.pending {
@@ -571,7 +571,7 @@
       border-collapse: collapse;
 
       thead {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        background: linear-gradient(135deg, #0e0f13 0%, #1c1f28 100%);
 
         tr th {
           padding: 1.25rem;
@@ -599,7 +599,7 @@
 
           td {
             padding: 1.25rem;
-            color: #0f172a;
+            color: #e8eaf0;
             font-size: 0.9375rem;
 
             .applicant-info {
@@ -611,7 +611,7 @@
                 width: 40px;
                 height: 40px;
                 border-radius: 50%;
-                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                background: linear-gradient(135deg, #c9a96e 0%, #a87842 100%);
                 color: white;
                 display: flex;
                 align-items: center;
@@ -628,7 +628,7 @@
 
               .applicant-name {
                 font-weight: 600;
-                color: #0f172a;
+                color: #e8eaf0;
               }
 
               .applicant-email {
@@ -640,7 +640,7 @@
             .property-info {
               .property-name {
                 font-weight: 600;
-                color: #0f172a;
+                color: #e8eaf0;
                 margin-bottom: 0.25rem;
               }
 
@@ -673,8 +673,8 @@
               }
 
               &.status-approved {
-                border-color: #10b981;
-                color: #10b981;
+                border-color: #5bcfb0;
+                color: #5bcfb0;
                 background: rgba(16, 185, 129, 0.05);
               }
 
@@ -685,8 +685,8 @@
               }
 
               &.status-viewing {
-                border-color: #3b82f6;
-                color: #3b82f6;
+                border-color: #c9a96e;
+                color: #c9a96e;
                 background: rgba(59, 130, 246, 0.05);
               }
 
@@ -715,7 +715,7 @@
 
                 &:hover {
                   background: #f1f5f9;
-                  color: #0f172a;
+                  color: #e8eaf0;
                   transform: translateY(-2px);
                 }
 
@@ -792,7 +792,7 @@
         h3 {
           font-size: 1.5rem;
           font-weight: 700;
-          color: #0f172a;
+          color: #e8eaf0;
           margin: 0;
         }
 
@@ -811,7 +811,7 @@
 
           &:hover {
             background: #e2e8f0;
-            color: #0f172a;
+            color: #e8eaf0;
           }
         }
       }
@@ -865,7 +865,7 @@
                 h4 {
                   margin: 0 0 0.25rem 0;
                   font-weight: 600;
-                  color: #0f172a;
+                  color: #e8eaf0;
                 }
 
                 p {
@@ -889,7 +889,7 @@
 
                 &.status-approved {
                   background: rgba(16, 185, 129, 0.1);
-                  color: #10b981;
+                  color: #5bcfb0;
                 }
 
                 &.status-rejected {
@@ -920,7 +920,7 @@
                 strong {
                   display: block;
                   margin-bottom: 0.5rem;
-                  color: #0f172a;
+                  color: #e8eaf0;
                 }
 
                 p {
@@ -949,7 +949,7 @@
                 transition: all 0.2s ease;
 
                 &.btn-approve {
-                  background: #10b981;
+                  background: #5bcfb0;
                   color: white;
 
                   &:hover {
@@ -1024,7 +1024,7 @@
           margin: 0 0 1rem 0;
           font-size: 1.125rem;
           font-weight: 700;
-          color: #0f172a;
+          color: #e8eaf0;
           padding-bottom: 0.75rem;
           border-bottom: 2px solid #e2e8f0;
         }
@@ -1046,7 +1046,7 @@
 
             .value {
               font-weight: 600;
-              color: #0f172a;
+              color: #e8eaf0;
             }
           }
         }
@@ -1061,8 +1061,8 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.75rem 1rem;
-            background: #dbeafe;
-            color: #3b82f6;
+            background: rgba(201, 169, 110, 0.1);
+            color: #c9a96e;
             border-radius: 8px;
             font-size: 0.875rem;
             font-weight: 600;
@@ -1094,7 +1094,7 @@
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #c9a96e 0%, #a87842 100%);
     color: white;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
 
@@ -1106,7 +1106,7 @@
 
   .btn-secondary {
     background: white;
-    color: #0f172a;
+    color: #e8eaf0;
     border: 2px solid #e2e8f0;
 
     &:hover {

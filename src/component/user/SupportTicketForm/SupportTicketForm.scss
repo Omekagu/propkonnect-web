@@ -295,7 +295,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .btn-send {
   width: 100%;
   padding: $spacing-lg;
-  background: linear-gradient(135deg, $primary 0%, #2563eb 100%);
+  background: linear-gradient(135deg, $primary 0%, #a87842 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -602,7 +602,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         &.priority-low {
-          color: #3b82f6;
+          color: #4facfe;
         }
         &.priority-medium {
           color: $warning;
