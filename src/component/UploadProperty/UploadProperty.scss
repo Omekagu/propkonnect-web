@@ -8,33 +8,33 @@
 
 /* ── CSS VARIABLES (mirror mp- system, wizard-scoped) ──────────────────── */
 .upload-property-wizard {
-  --wz-canvas: #fafaf7;
-  --wz-surface: #f4f3ee;
-  --wz-surface-2: #edede6;
-  --wz-white: #ffffff;
-  --wz-border: rgba(30, 28, 22, 0.1);
-  --wz-border-soft: rgba(30, 28, 22, 0.06);
-  --wz-border-focus: rgba(30, 28, 22, 0.2);
+  --wz-canvas: #0e0f13;
+  --wz-surface: #15171d;
+  --wz-surface-2: #1c1f28;
+  --wz-white: #222639;
+  --wz-border: rgba(255, 255, 255, 0.07);
+  --wz-border-soft: rgba(255, 255, 255, 0.04);
+  --wz-border-focus: rgba(201, 169, 110, 0.3);
 
-  --wz-slate: #1e1c16;
-  --wz-slate-2: #2d2b23;
-  --wz-slate-3: #4a4840;
-  --wz-muted: #8a8780;
-  --wz-muted-2: #b5b3ac;
+  --wz-slate: #e8eaf0;
+  --wz-slate-2: #c8cad6;
+  --wz-slate-3: #8890a8;
+  --wz-muted: #6a7290;
+  --wz-muted-2: #4e5470;
 
-  --wz-amber: #c9853a;
-  --wz-amber-light: #e09a4f;
-  --wz-amber-soft: rgba(201, 133, 58, 0.1);
-  --wz-amber-glow: rgba(201, 133, 58, 0.2);
-  --wz-amber-deep: #a06828;
+  --wz-amber: #c9a96e;
+  --wz-amber-light: #e2c89a;
+  --wz-amber-soft: rgba(201, 169, 110, 0.1);
+  --wz-amber-glow: rgba(201, 169, 110, 0.2);
+  --wz-amber-deep: #a87842;
 
-  --wz-green: #2d7a4f;
-  --wz-green-soft: rgba(45, 122, 79, 0.1);
-  --wz-green-mid: rgba(45, 122, 79, 0.2);
-  --wz-red: #c0392b;
-  --wz-red-soft: rgba(192, 57, 43, 0.08);
-  --wz-blue: #2563eb;
-  --wz-blue-soft: rgba(37, 99, 235, 0.1);
+  --wz-green: #5bcfb0;
+  --wz-green-soft: rgba(91, 207, 176, 0.1);
+  --wz-green-mid: rgba(91, 207, 176, 0.2);
+  --wz-red: #e05b5b;
+  --wz-red-soft: rgba(224, 91, 91, 0.1);
+  --wz-blue: #4facfe;
+  --wz-blue-soft: rgba(79, 172, 254, 0.1);
 
   --wz-radius: 16px;
   --wz-radius-sm: 10px;
@@ -47,12 +47,12 @@
   --wz-mid: 250ms;
   --wz-slow: 360ms;
 
-  --wz-shadow: 0 2px 16px rgba(30, 28, 22, 0.06),
-    0 1px 4px rgba(30, 28, 22, 0.04);
-  --wz-shadow-lg: 0 12px 48px rgba(30, 28, 22, 0.1),
-    0 4px 16px rgba(30, 28, 22, 0.06);
-  --wz-shadow-amber: 0 8px 24px rgba(201, 133, 58, 0.22);
-  --wz-shadow-inset: inset 0 1px 3px rgba(30, 28, 22, 0.06);
+  --wz-shadow: 0 2px 16px rgba(0, 0, 0, 0.35),
+    0 1px 4px rgba(0, 0, 0, 0.25);
+  --wz-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.5),
+    0 4px 16px rgba(0, 0, 0, 0.35);
+  --wz-shadow-amber: 0 8px 24px rgba(201, 169, 110, 0.22);
+  --wz-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.3);
 
   // Aliases matching the old --primary / --danger / --success names
   // so wizard JSX classes (btn-primary, error, etc.) still work

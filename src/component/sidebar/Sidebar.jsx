@@ -183,11 +183,11 @@ export default function Sidebar ({
           }
         ],
         account: [
-          {
-            key: 'Profile',
-            label: 'Profile',
-            icon: <UserCircle strokeWidth={0.75} />
-          },
+          // {
+          //   key: 'Profile',
+          //   label: 'Profile',
+          //   icon: <UserCircle strokeWidth={0.75} />
+          // },
           {
             key: 'Settings',
             label: 'Settings',

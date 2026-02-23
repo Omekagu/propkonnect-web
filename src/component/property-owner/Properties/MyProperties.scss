@@ -8,32 +8,32 @@
 
 /* ── CSS VARIABLES ─────────────────────────────────────────────────────── */
 :root {
-  --mp-canvas: #fafaf7;
-  --mp-surface: #f4f3ee;
-  --mp-surface-2: #edede6;
-  --mp-white: #ffffff;
-  --mp-border: rgba(30, 28, 22, 0.1);
-  --mp-border-soft: rgba(30, 28, 22, 0.06);
+  --mp-canvas: #0e0f13;
+  --mp-surface: #15171d;
+  --mp-surface-2: #1c1f28;
+  --mp-white: #222639;
+  --mp-border: rgba(255, 255, 255, 0.07);
+  --mp-border-soft: rgba(255, 255, 255, 0.04);
 
-  --mp-slate: #1e1c16;
-  --mp-slate-2: #2d2b23;
-  --mp-slate-3: #4a4840;
-  --mp-muted: #8a8780;
-  --mp-muted-2: #b5b3ac;
+  --mp-slate: #e8eaf0;
+  --mp-slate-2: #c8cad6;
+  --mp-slate-3: #8890a8;
+  --mp-muted: #6a7290;
+  --mp-muted-2: #4e5470;
 
-  --mp-amber: #c9853a;
-  --mp-amber-light: #e09a4f;
-  --mp-amber-soft: rgba(201, 133, 58, 0.1);
-  --mp-amber-glow: rgba(201, 133, 58, 0.18);
+  --mp-amber: #c9a96e;
+  --mp-amber-light: #e2c89a;
+  --mp-amber-soft: rgba(201, 169, 110, 0.1);
+  --mp-amber-glow: rgba(201, 169, 110, 0.18);
 
-  --mp-green: #2d7a4f;
-  --mp-green-soft: rgba(45, 122, 79, 0.1);
-  --mp-red: #c0392b;
-  --mp-red-soft: rgba(192, 57, 43, 0.08);
-  --mp-blue: #2563eb;
-  --mp-blue-soft: rgba(37, 99, 235, 0.1);
-  --mp-purple: #7c3aed;
-  --mp-purple-soft: rgba(124, 58, 237, 0.1);
+  --mp-green: #5bcfb0;
+  --mp-green-soft: rgba(91, 207, 176, 0.1);
+  --mp-red: #e05b5b;
+  --mp-red-soft: rgba(224, 91, 91, 0.08);
+  --mp-blue: #4facfe;
+  --mp-blue-soft: rgba(79, 172, 254, 0.1);
+  --mp-purple: #a78bfa;
+  --mp-purple-soft: rgba(167, 139, 250, 0.1);
 
   --mp-radius: 16px;
   --mp-radius-sm: 10px;

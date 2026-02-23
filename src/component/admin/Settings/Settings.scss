@@ -752,6 +752,19 @@
   animation: fadeIn 0.2s ease;
 }
 
+.toast--error {
+  background: var(--danger-muted);
+  border-color: rgba(224, 91, 91, 0.3);
+  color: var(--danger);
+}
+
+// ─── Field error ──────────────────────────────────────────────────────────────
+.field-error {
+  font-size: 0.8rem;
+  color: var(--danger);
+  margin: -4px 0 8px;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

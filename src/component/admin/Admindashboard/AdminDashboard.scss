@@ -2,22 +2,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Crimson+Pro:wght@600;700&display=swap');
 
 :root {
-  --primary: #00bfa6;
-  --primary-dark: #008a80;
-  --secondary: #10b981;
-  --accent: #8b5cf6;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --bg-light: #f8fafc;
-  --bg-white: #ffffff;
-  --text-dark: #0f172a;
-  --text-gray: #6b7280;
-  --border-light: #e2e8f0;
-  --shadow-sm: 0 4px 12px rgba(2, 6, 23, 0.06);
-  --shadow-md: 0 10px 30px rgba(2, 6, 23, 0.1);
-  --shadow-lg: 0 20px 50px rgba(2, 6, 23, 0.15);
+  --primary: #c9a96e;
+  --primary-dark: #a87842;
+  --secondary: #5bcfb0;
+  --accent: #e2c89a;
+  --warning: #f0b954;
+  --danger: #e05b5b;
+  --bg-light: #0e0f13;
+  --bg-white: #15171d;
+  --text-dark: #e8eaf0;
+  --text-gray: #8890a8;
+  --border-light: rgba(255, 255, 255, 0.07);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.55);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --color-surface: #1e293b;
+  --color-surface: #1c1f28;
 }
 
 .enhanced-admin-dashboard {

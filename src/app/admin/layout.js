@@ -367,8 +367,6 @@ export default function AdminLayout ({ children }) {
           return <Report />
         case 'FindArtisan':
           return <FindArtisan />
-        case 'Profile':
-          return <Settings />
         case 'Settings':
           return <Settings />
         default:

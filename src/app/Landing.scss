@@ -3,32 +3,33 @@
 // ========================================
 
 :root {
-  // Brand Colors - Vibrant & Bold
-  --primary: #ff6b35;
-  --primary-dark: #e5521f;
-  --secondary: #004e89;
-  --accent: #f7cb15;
-  --accent-2: #00d9ff;
+  // ── Estate Gold Theme ──────────────────────────────────
+  // Brand Colors
+  --primary: #c9a96e;
+  --primary-dark: #a87842;
+  --secondary: #1c1f28;
+  --accent: #e2c89a;
+  --accent-2: #5bcfb0;
 
   // Neutrals
-  --dark: #0a0e27;
-  --dark-2: #151b3d;
-  --dark-3: #1f2847;
+  --dark: #0e0f13;
+  --dark-2: #15171d;
+  --dark-3: #1c1f28;
   --light: #ffffff;
-  --light-2: #f5f7fa;
-  --gray: #8892a6;
-  --gray-dark: #4a5568;
+  --light-2: #f5f3ee;
+  --gray: #8890a8;
+  --gray-dark: #4e5470;
 
   // Gradients
-  --gradient-1: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
-  --gradient-2: linear-gradient(135deg, #004e89 0%, #00d9ff 100%);
-  --gradient-3: linear-gradient(135deg, #ff6b35 0%, #004e89 100%);
+  --gradient-1: linear-gradient(135deg, #c9a96e 0%, #e2c89a 100%);
+  --gradient-2: linear-gradient(135deg, #0e0f13 0%, #1c1f28 100%);
+  --gradient-3: linear-gradient(135deg, #c9a96e 0%, #0e0f13 100%);
 
   // Shadows
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
-  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.65);
 
   // Timing
   --transition: cubic-bezier(0.4, 0, 0.2, 1);
@@ -192,7 +193,7 @@
     &.orb-1 {
       width: 600px;
       height: 600px;
-      background: radial-gradient(circle, #ff6b35, transparent);
+      background: radial-gradient(circle, #c9a96e, transparent);
       top: -200px;
       left: -200px;
       animation-delay: 0s;
@@ -201,7 +202,7 @@
     &.orb-2 {
       width: 500px;
       height: 500px;
-      background: radial-gradient(circle, #00d9ff, transparent);
+      background: radial-gradient(circle, #5bcfb0, transparent);
       bottom: -150px;
       right: -150px;
       animation-delay: 5s;
@@ -210,7 +211,7 @@
     &.orb-3 {
       width: 400px;
       height: 400px;
-      background: radial-gradient(circle, #f7cb15, transparent);
+      background: radial-gradient(circle, #a87842, transparent);
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);

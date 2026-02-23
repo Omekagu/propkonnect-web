@@ -1,6 +1,6 @@
 // minimal reviews client used by the ReviewsProvider
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000'
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'
 
 export async function getReviews (section, { limit = 20, page = 1 } = {}) {
   const url = `${API_BASE}/api/reviews?section=${encodeURIComponent(

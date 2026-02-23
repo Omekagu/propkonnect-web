@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './Settings.scss'
 
 // ─── Tab config ───────────────────────────────────────────────────────────────
@@ -9,6 +9,39 @@ const TABS = [
   { id: 'security', label: 'Security', icon: '⬡' },
   { id: 'preferences', label: 'Preferences', icon: '◉' }
 ]
+
+// ─── API helpers ──────────────────────────────────────────────────────────────
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'
+
+function getToken () {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem('authToken')
+}
+
+async function apiFetch (method, path, body) {
+  const token = getToken()
+  const headers = { 'Content-Type': 'application/json' }
+  if (token) headers.Authorization = `Bearer ${token}`
+
+  const opts = { method, headers }
+  if (body !== undefined) opts.body = JSON.stringify(body)
+
+  const res = await fetch(`${API_BASE}${path}`, opts)
+  return res.json()
+}
+
+async function apiUpload (path, formData) {
+  const token = getToken()
+  const headers = {}
+  if (token) headers.Authorization = `Bearer ${token}`
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers,
+    body: formData
+  })
+  return res.json()
+}
 
 // ─── Reusable field components ────────────────────────────────────────────────
 function FieldGroup ({ label, hint, children }) {
@@ -73,7 +106,16 @@ function SaveBar ({ dirty, onSave, onDiscard, saving }) {
 
 // ─── Tab Panels ───────────────────────────────────────────────────────────────
 
-function ProfileTab ({ data, onChange }) {
+function ProfileTab ({ data, onChange, onAvatarUpload }) {
+  const fileRef = useRef(null)
+
+  function handleFileChange (e) {
+    const file = e.target.files?.[0]
+    if (file) onAvatarUpload(file)
+    // reset so the same file can be re-selected
+    e.target.value = ''
+  }
+
   return (
     <div className='tab-panel'>
       <SectionBlock
@@ -82,11 +124,32 @@ function ProfileTab ({ data, onChange }) {
       >
         <div className='avatar-row'>
           <div className='avatar-large'>
-            {data.firstName?.[0]}
-            {data.lastName?.[0]}
+            {data.avatar
+              ? (
+                <img
+                  src={data.avatar}
+                  alt='Profile'
+                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                />
+                )
+              : (
+                <>{data.firstName?.[0]}{data.lastName?.[0]}</>
+                )}
           </div>
           <div className='avatar-row__actions'>
-            <button className='btn btn--ghost btn--sm'>Upload photo</button>
+            <input
+              ref={fileRef}
+              type='file'
+              accept='image/*'
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
+            <button
+              className='btn btn--ghost btn--sm'
+              onClick={() => fileRef.current?.click()}
+            >
+              Upload photo
+            </button>
             <button className='btn btn--danger-ghost btn--sm'>Remove</button>
           </div>
         </div>
@@ -286,7 +349,25 @@ function NotificationsTab ({ data, onChange }) {
   )
 }
 
-function BillingTab ({ data, onChange }) {
+function BillingTab ({ data, onChange, onLinkBank }) {
+  const [showBankForm, setShowBankForm] = useState(false)
+  const [bankForm, setBankForm] = useState({
+    bank_name: '',
+    account_number: '',
+    routing_number: '',
+    account_name: ''
+  })
+  const [linkingBank, setLinkingBank] = useState(false)
+
+  async function submitBankLink () {
+    if (!bankForm.bank_name || !bankForm.account_number) return
+    setLinkingBank(true)
+    await onLinkBank(bankForm)
+    setLinkingBank(false)
+    setShowBankForm(false)
+    setBankForm({ bank_name: '', account_number: '', routing_number: '', account_name: '' })
+  }
+
   return (
     <div className='tab-panel'>
       <SectionBlock
@@ -305,10 +386,65 @@ function BillingTab ({ data, onChange }) {
               </span>
             )}
           </div>
-          <button className='btn btn--ghost btn--sm'>
+          <button
+            className='btn btn--ghost btn--sm'
+            onClick={() => setShowBankForm(v => !v)}
+          >
             {data.bankName ? 'Update' : 'Link Account'}
           </button>
         </div>
+
+        {showBankForm && (
+          <div className='pw-form'>
+            <FieldGroup label='Bank Name'>
+              <input
+                className='input'
+                value={bankForm.bank_name}
+                onChange={e => setBankForm(p => ({ ...p, bank_name: e.target.value }))}
+                placeholder='e.g. First Bank Nigeria'
+              />
+            </FieldGroup>
+            <FieldGroup label='Account Number'>
+              <input
+                className='input'
+                type='password'
+                value={bankForm.account_number}
+                onChange={e => setBankForm(p => ({ ...p, account_number: e.target.value }))}
+                placeholder='Enter account number'
+              />
+            </FieldGroup>
+            <FieldGroup label='Routing / Sort Code' hint='Optional'>
+              <input
+                className='input'
+                value={bankForm.routing_number}
+                onChange={e => setBankForm(p => ({ ...p, routing_number: e.target.value }))}
+              />
+            </FieldGroup>
+            <FieldGroup label='Account Name'>
+              <input
+                className='input'
+                value={bankForm.account_name}
+                onChange={e => setBankForm(p => ({ ...p, account_name: e.target.value }))}
+                placeholder='Name on account'
+              />
+            </FieldGroup>
+            <div className='btn-row'>
+              <button
+                className='btn btn--ghost'
+                onClick={() => setShowBankForm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className='btn btn--primary'
+                onClick={submitBankLink}
+                disabled={linkingBank || !bankForm.bank_name || !bankForm.account_number}
+              >
+                {linkingBank ? <span className='spinner' /> : 'Link Account'}
+              </button>
+            </div>
+          </div>
+        )}
 
         <FieldGroup label='Payout Schedule'>
           <select
@@ -383,9 +519,53 @@ function BillingTab ({ data, onChange }) {
   )
 }
 
-function SecurityTab ({ data, onChange }) {
+function SecurityTab ({
+  data,
+  onChange,
+  sessions,
+  onPasswordChange,
+  onRevokeSession,
+  onRevokeAllSessions,
+  onDeactivate,
+  onDeleteAccount
+}) {
   const [showPwForm, setShowPwForm] = useState(false)
   const [pw, setPw] = useState({ current: '', next: '', confirm: '' })
+  const [pwSaving, setPwSaving] = useState(false)
+  const [pwError, setPwError] = useState('')
+
+  const [showDeleteForm, setShowDeleteForm] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleting, setDeleting] = useState(false)
+
+  async function submitPasswordChange () {
+    setPwError('')
+    if (pw.next.length < 8) {
+      setPwError('New password must be at least 8 characters.')
+      return
+    }
+    if (pw.next !== pw.confirm) {
+      setPwError('Passwords do not match.')
+      return
+    }
+    setPwSaving(true)
+    const ok = await onPasswordChange({
+      current_password: pw.current,
+      new_password: pw.next
+    })
+    setPwSaving(false)
+    if (ok) {
+      setShowPwForm(false)
+      setPw({ current: '', next: '', confirm: '' })
+    }
+  }
+
+  async function submitDeleteAccount () {
+    if (!deletePassword) return
+    setDeleting(true)
+    await onDeleteAccount(deletePassword)
+    setDeleting(false)
+  }
 
   return (
     <div className='tab-panel'>
@@ -393,50 +573,59 @@ function SecurityTab ({ data, onChange }) {
         title='Password'
         description='Keep your account secure with a strong, unique password.'
       >
-        {!showPwForm ? (
-          <button
-            className='btn btn--ghost'
-            onClick={() => setShowPwForm(true)}
-          >
-            Change Password
-          </button>
-        ) : (
-          <div className='pw-form'>
-            <FieldGroup label='Current Password'>
-              <input
-                className='input'
-                type='password'
-                value={pw.current}
-                onChange={e => setPw(p => ({ ...p, current: e.target.value }))}
-              />
-            </FieldGroup>
-            <FieldGroup label='New Password' hint='Min. 8 characters'>
-              <input
-                className='input'
-                type='password'
-                value={pw.next}
-                onChange={e => setPw(p => ({ ...p, next: e.target.value }))}
-              />
-            </FieldGroup>
-            <FieldGroup label='Confirm New Password'>
-              <input
-                className='input'
-                type='password'
-                value={pw.confirm}
-                onChange={e => setPw(p => ({ ...p, confirm: e.target.value }))}
-              />
-            </FieldGroup>
-            <div className='btn-row'>
-              <button
-                className='btn btn--ghost'
-                onClick={() => setShowPwForm(false)}
-              >
-                Cancel
-              </button>
-              <button className='btn btn--primary'>Update Password</button>
+        {!showPwForm
+          ? (
+            <button
+              className='btn btn--ghost'
+              onClick={() => setShowPwForm(true)}
+            >
+              Change Password
+            </button>
+            )
+          : (
+            <div className='pw-form'>
+              <FieldGroup label='Current Password'>
+                <input
+                  className='input'
+                  type='password'
+                  value={pw.current}
+                  onChange={e => setPw(p => ({ ...p, current: e.target.value }))}
+                />
+              </FieldGroup>
+              <FieldGroup label='New Password' hint='Min. 8 characters'>
+                <input
+                  className='input'
+                  type='password'
+                  value={pw.next}
+                  onChange={e => setPw(p => ({ ...p, next: e.target.value }))}
+                />
+              </FieldGroup>
+              <FieldGroup label='Confirm New Password'>
+                <input
+                  className='input'
+                  type='password'
+                  value={pw.confirm}
+                  onChange={e => setPw(p => ({ ...p, confirm: e.target.value }))}
+                />
+              </FieldGroup>
+              {pwError && <p className='field-error'>{pwError}</p>}
+              <div className='btn-row'>
+                <button
+                  className='btn btn--ghost'
+                  onClick={() => { setShowPwForm(false); setPwError('') }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className='btn btn--primary'
+                  onClick={submitPasswordChange}
+                  disabled={pwSaving}
+                >
+                  {pwSaving ? <span className='spinner' /> : 'Update Password'}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+            )}
       </SectionBlock>
 
       <SectionBlock
@@ -461,49 +650,43 @@ function SecurityTab ({ data, onChange }) {
         title='Active Sessions'
         description='Devices currently signed into your account.'
       >
-        <div className='session-list'>
-          {[
-            {
-              device: 'MacBook Pro · Chrome',
-              location: 'Lagos, NG',
-              time: 'Active now',
-              current: true
-            },
-            {
-              device: 'iPhone 15 · Safari',
-              location: 'Lagos, NG',
-              time: '2 hours ago',
-              current: false
-            },
-            {
-              device: 'Windows PC · Edge',
-              location: 'Abuja, NG',
-              time: '3 days ago',
-              current: false
-            }
-          ].map((s, i) => (
-            <div key={i} className='session-row'>
-              <div className='session-row__icon'>{s.current ? '💻' : '📱'}</div>
-              <div className='session-row__info'>
-                <span className='session-row__device'>
-                  {s.device}{' '}
-                  {s.current && (
-                    <span className='current-badge'>This device</span>
+        {sessions.length === 0
+          ? (
+            <p className='section-block__desc' style={{ fontStyle: 'italic' }}>
+              No other active sessions found.
+            </p>
+            )
+          : (
+            <div className='session-list'>
+              {sessions.map((s, i) => (
+                <div key={s._id ?? i} className='session-row'>
+                  <div className='session-row__icon'>
+                    {s.current ? '💻' : '📱'}
+                  </div>
+                  <div className='session-row__info'>
+                    <span className='session-row__device'>
+                      {s.device ?? s.userAgent ?? 'Unknown device'}
+                      {s.current && (
+                        <span className='current-badge'>This device</span>
+                      )}
+                    </span>
+                    <span className='session-row__meta'>
+                      {s.location ?? ''}{s.location && s.lastActive ? ' · ' : ''}{s.lastActive ?? ''}
+                    </span>
+                  </div>
+                  {!s.current && (
+                    <button
+                      className='btn btn--danger-ghost btn--sm'
+                      onClick={() => onRevokeSession(s._id)}
+                    >
+                      Revoke
+                    </button>
                   )}
-                </span>
-                <span className='session-row__meta'>
-                  {s.location} · {s.time}
-                </span>
-              </div>
-              {!s.current && (
-                <button className='btn btn--danger-ghost btn--sm'>
-                  Revoke
-                </button>
-              )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <button className='btn btn--danger-ghost'>
+            )}
+        <button className='btn btn--danger-ghost' onClick={onRevokeAllSessions}>
           Revoke All Other Sessions
         </button>
       </SectionBlock>
@@ -520,7 +703,9 @@ function SecurityTab ({ data, onChange }) {
                 Temporarily disable your account. Your data is preserved.
               </p>
             </div>
-            <button className='btn btn--danger-ghost'>Deactivate</button>
+            <button className='btn btn--danger-ghost' onClick={onDeactivate}>
+              Deactivate
+            </button>
           </div>
           <div className='danger-zone__item'>
             <div>
@@ -529,7 +714,43 @@ function SecurityTab ({ data, onChange }) {
                 All properties, tenants, and transaction history will be erased.
               </p>
             </div>
-            <button className='btn btn--danger'>Delete Account</button>
+            {!showDeleteForm
+              ? (
+                <button
+                  className='btn btn--danger'
+                  onClick={() => setShowDeleteForm(true)}
+                >
+                  Delete Account
+                </button>
+                )
+              : (
+                <div className='pw-form' style={{ minWidth: '260px' }}>
+                  <FieldGroup label='Enter your password to confirm'>
+                    <input
+                      className='input'
+                      type='password'
+                      value={deletePassword}
+                      onChange={e => setDeletePassword(e.target.value)}
+                      placeholder='Current password'
+                    />
+                  </FieldGroup>
+                  <div className='btn-row'>
+                    <button
+                      className='btn btn--ghost'
+                      onClick={() => { setShowDeleteForm(false); setDeletePassword('') }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className='btn btn--danger'
+                      onClick={submitDeleteAccount}
+                      disabled={deleting || !deletePassword}
+                    >
+                      {deleting ? <span className='spinner' /> : 'Confirm Delete'}
+                    </button>
+                  </div>
+                </div>
+                )}
           </div>
         </div>
       </SectionBlock>
@@ -575,9 +796,7 @@ function PreferencesTab ({ data, onChange }) {
             {['dark', 'light', 'system'].map(t => (
               <button
                 key={t}
-                className={`theme-btn ${
-                  data.theme === t ? 'theme-btn--active' : ''
-                }`}
+                className={`theme-btn ${data.theme === t ? 'theme-btn--active' : ''}`}
                 onClick={() => onChange('theme', t)}
               >
                 {t === 'dark' ? '🌙' : t === 'light' ? '☀️' : '⚙️'}
@@ -641,79 +860,288 @@ function PreferencesTab ({ data, onChange }) {
   )
 }
 
-// ─── Initial state ────────────────────────────────────────────────────────────
-const INITIAL = {
-  // profile
-  firstName: 'Marcus',
-  lastName: 'King',
-  email: 'marcus@kingproperties.io',
-  phone: '+234 801 234 5678',
-  timezone: 'Africa/Lagos',
-  company: 'King Properties LLC',
-  taxId: '',
-  licenseNo: '',
-  businessAddress: '',
-  // notifications
-  rentReceived: true,
-  rentOverdue: true,
-  rentPartial: false,
-  payoutProcessed: true,
-  maintenanceNew: true,
-  maintenanceUpdated: false,
-  maintenanceResolved: true,
-  leaseExpiringSoon: true,
-  leaseSigned: true,
-  tenantMoveEvent: false,
-  tenantApplication: true,
-  deliveryEmail: true,
-  deliverySms: false,
-  deliveryPush: true,
-  weeklyDigest: true,
-  // billing
-  bankName: 'First Bank Nigeria',
-  bankLast4: '4821',
-  payoutSchedule: 'monthly',
-  billingEmail: 'billing@kingproperties.io',
-  // security
-  twoFactorEnabled: false,
-  smsFallback: false,
-  // preferences
-  currency: 'NGN',
-  dateFormat: 'DD/MM/YYYY',
-  theme: 'dark',
-  defaultPropertyView: 'grid',
-  vacantFirst: false,
-  compactSidebar: false,
-  showPhone: false,
-  showCompany: true,
-  allowAgentContact: true
-}
-
 // ─── Root Settings component ──────────────────────────────────────────────────
 export default function Settings () {
   const [activeTab, setActiveTab] = useState('profile')
-  const [formData, setFormData] = useState(INITIAL)
-  const [savedData, setSavedData] = useState(INITIAL)
+  const [formData, setFormData] = useState({})
+  const [savedData, setSavedData] = useState({})
+  const [sessions, setSessions] = useState([])
+  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
 
   const dirty = JSON.stringify(formData) !== JSON.stringify(savedData)
 
+  function showToast (msg, type = 'success') {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 3500)
+  }
+
+  // ─── Load all settings on mount ─────────────────────────────────────────────
+  useEffect(() => {
+    async function loadAll () {
+      setLoading(true)
+      try {
+        const [profileRes, notifRes, prefRes, sessionRes] = await Promise.all([
+          apiFetch('GET', '/api/settings/profile'),
+          apiFetch('GET', '/api/settings/notifications'),
+          apiFetch('GET', '/api/settings/preferences'),
+          apiFetch('GET', '/api/settings/security/sessions')
+        ])
+
+        // billing may 404 if not set yet — treat that as empty
+        const billingRes = await apiFetch('GET', '/api/settings/billing').catch(() => ({ data: {} }))
+
+        const p    = profileRes.data    ?? {}
+        const n    = notifRes.data      ?? {}
+        const b    = billingRes.data    ?? {}
+        const pref = prefRes.data       ?? {}
+
+        const merged = {
+          // ── profile ──────────────────────────────────────────────────────
+          firstName:       p.firstName                            ?? '',
+          lastName:        p.lastName                             ?? '',
+          email:           p.email                                ?? '',
+          phone:           p.phone                                ?? '',
+          timezone:        p.preferences?.timezone                ?? 'Africa/Lagos',
+          company:         p.propertyOwnerProfile?.companyName    ?? '',
+          taxId:           p.propertyOwnerProfile?.taxId          ?? '',
+          licenseNo:       '',
+          businessAddress: '',
+          avatar:          p.avatar                               ?? '',
+
+          // ── notifications ────────────────────────────────────────────────
+          rentReceived:        n.rentReceived        ?? true,
+          rentOverdue:         n.rentOverdue         ?? true,
+          rentPartial:         n.rentPartial         ?? false,
+          payoutProcessed:     n.payoutProcessed     ?? true,
+          maintenanceNew:      n.maintenanceNew      ?? true,
+          maintenanceUpdated:  n.maintenanceUpdated  ?? false,
+          maintenanceResolved: n.maintenanceResolved ?? true,
+          leaseExpiringSoon:   n.leaseExpiringSoon   ?? true,
+          leaseSigned:         n.leaseSigned         ?? true,
+          tenantMoveEvent:     n.tenantMoveEvent     ?? false,
+          tenantApplication:   n.tenantApplication   ?? true,
+          deliveryEmail:       n.deliveryEmail        ?? true,
+          deliverySms:         n.deliverySms          ?? false,
+          deliveryPush:        n.deliveryPush          ?? true,
+          weeklyDigest:        n.weeklyDigest          ?? true,
+
+          // ── billing ──────────────────────────────────────────────────────
+          bankName:       b.bankName       ?? '',
+          bankLast4:      b.bankLast4      ?? '',
+          payoutSchedule: b.payoutSchedule ?? 'monthly',
+          billingEmail:   b.billingEmail   ?? '',
+
+          // ── security (2FA lives in Settings doc, not returned by profile) ─
+          twoFactorEnabled: false,
+          smsFallback:      false,
+
+          // ── preferences ──────────────────────────────────────────────────
+          currency:            pref.currency             ?? 'NGN',
+          dateFormat:          pref.dateFormat            ?? 'DD/MM/YYYY',
+          theme:               pref.theme                 ?? 'dark',
+          defaultPropertyView: pref.defaultPropertyView  ?? 'grid',
+          vacantFirst:         pref.vacantFirst           ?? false,
+          compactSidebar:      pref.compactSidebar        ?? false,
+          showPhone:           pref.showPhone             ?? false,
+          showCompany:         pref.showCompany           ?? true,
+          allowAgentContact:   pref.allowAgentContact     ?? true
+        }
+
+        setFormData(merged)
+        setSavedData(merged)
+        setSessions(sessionRes.data ?? [])
+      } catch (err) {
+        console.error('[Settings] loadAll failed', err)
+        showToast('Failed to load settings.', 'error')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadAll()
+  }, [])
+
+  // ─── Field change ────────────────────────────────────────────────────────────
   function handleChange (key, value) {
     setFormData(prev => ({ ...prev, [key]: value }))
   }
 
+  // ─── Tab-aware save ──────────────────────────────────────────────────────────
   async function handleSave () {
     setSaving(true)
-    await new Promise(r => setTimeout(r, 900)) // simulate API
-    setSavedData(formData)
-    setSaving(false)
-    setToast('Settings saved successfully')
-    setTimeout(() => setToast(null), 3000)
+    try {
+      let res
+
+      if (activeTab === 'profile') {
+        res = await apiFetch('PATCH', '/api/settings/profile', {
+          first_name:       formData.firstName,
+          last_name:        formData.lastName,
+          email:            formData.email,
+          phone:            formData.phone,
+          timezone:         formData.timezone,
+          company:          formData.company,
+          tax_id:           formData.taxId,
+          license_no:       formData.licenseNo,
+          business_address: formData.businessAddress
+        })
+      } else if (activeTab === 'notifications') {
+        const {
+          rentReceived, rentOverdue, rentPartial, payoutProcessed,
+          maintenanceNew, maintenanceUpdated, maintenanceResolved,
+          leaseExpiringSoon, leaseSigned, tenantMoveEvent, tenantApplication,
+          deliveryEmail, deliverySms, deliveryPush, weeklyDigest
+        } = formData
+        res = await apiFetch('PUT', '/api/settings/notifications', {
+          rentReceived, rentOverdue, rentPartial, payoutProcessed,
+          maintenanceNew, maintenanceUpdated, maintenanceResolved,
+          leaseExpiringSoon, leaseSigned, tenantMoveEvent, tenantApplication,
+          deliveryEmail, deliverySms, deliveryPush, weeklyDigest
+        })
+      } else if (activeTab === 'billing') {
+        res = await apiFetch('PATCH', '/api/settings/billing', {
+          payout_schedule: formData.payoutSchedule,
+          billing_email:   formData.billingEmail
+        })
+      } else if (activeTab === 'security') {
+        res = await apiFetch('PATCH', '/api/settings/security/2fa', {
+          two_factor_enabled: formData.twoFactorEnabled,
+          sms_fallback:       formData.smsFallback
+        })
+      } else if (activeTab === 'preferences') {
+        const {
+          currency, dateFormat, theme, defaultPropertyView,
+          vacantFirst, compactSidebar, showPhone, showCompany, allowAgentContact
+        } = formData
+        res = await apiFetch('PUT', '/api/settings/preferences', {
+          currency, dateFormat, theme, defaultPropertyView,
+          vacantFirst, compactSidebar, showPhone, showCompany, allowAgentContact
+        })
+      }
+
+      if (res && !res.success) throw new Error(res.message || 'Save failed.')
+
+      setSavedData({ ...formData })
+      showToast('Settings saved successfully.')
+    } catch (err) {
+      showToast(err.message || 'Failed to save settings.', 'error')
+    } finally {
+      setSaving(false)
+    }
   }
 
   function handleDiscard () {
-    setFormData(savedData)
+    setFormData({ ...savedData })
+  }
+
+  // ─── Avatar upload ───────────────────────────────────────────────────────────
+  async function handleAvatarUpload (file) {
+    try {
+      const fd = new FormData()
+      fd.append('avatar', file)
+      const res = await apiUpload('/api/settings/profile/avatar', fd)
+      if (!res.success) throw new Error(res.message)
+      setFormData(prev => ({ ...prev, avatar: res.avatar_url }))
+      setSavedData(prev => ({ ...prev, avatar: res.avatar_url }))
+      showToast('Avatar updated.')
+    } catch (err) {
+      showToast(err.message || 'Avatar upload failed.', 'error')
+    }
+  }
+
+  // ─── Bank link ───────────────────────────────────────────────────────────────
+  async function handleLinkBank ({ bank_name, account_number, routing_number, account_name }) {
+    try {
+      const res = await apiFetch('POST', '/api/settings/billing/bank', {
+        bank_name, account_number, routing_number, account_name
+      })
+      if (!res.success) throw new Error(res.message)
+      setFormData(prev => ({ ...prev, bankName: bank_name, bankLast4: res.bank_last4 }))
+      setSavedData(prev => ({ ...prev, bankName: bank_name, bankLast4: res.bank_last4 }))
+      showToast('Bank account linked.')
+    } catch (err) {
+      showToast(err.message || 'Failed to link bank account.', 'error')
+    }
+  }
+
+  // ─── Password change ─────────────────────────────────────────────────────────
+  async function handlePasswordChange ({ current_password, new_password }) {
+    try {
+      const res = await apiFetch('PATCH', '/api/settings/security/password', {
+        current_password,
+        new_password
+      })
+      if (!res.success) throw new Error(res.message)
+      showToast('Password updated.')
+      return true
+    } catch (err) {
+      showToast(err.message || 'Failed to update password.', 'error')
+      return false
+    }
+  }
+
+  // ─── Session management ──────────────────────────────────────────────────────
+  async function handleRevokeSession (sessionId) {
+    try {
+      const res = await apiFetch('DELETE', `/api/settings/security/sessions/${sessionId}`)
+      if (!res.success) throw new Error(res.message)
+      setSessions(prev => prev.filter(s => s._id !== sessionId))
+      showToast('Session revoked.')
+    } catch (err) {
+      showToast(err.message || 'Failed to revoke session.', 'error')
+    }
+  }
+
+  async function handleRevokeAllSessions () {
+    try {
+      const res = await apiFetch('DELETE', '/api/settings/security/sessions')
+      if (!res.success) throw new Error(res.message)
+      setSessions([])
+      showToast('All other sessions revoked.')
+    } catch (err) {
+      showToast(err.message || 'Failed to revoke sessions.', 'error')
+    }
+  }
+
+  // ─── Deactivate / Delete ─────────────────────────────────────────────────────
+  async function handleDeactivate () {
+    if (!window.confirm('Deactivate your account? You can reactivate by contacting support.')) return
+    try {
+      const res = await apiFetch('POST', '/api/settings/security/deactivate')
+      if (!res.success) throw new Error(res.message)
+      showToast('Account deactivated.')
+    } catch (err) {
+      showToast(err.message || 'Failed to deactivate account.', 'error')
+    }
+  }
+
+  async function handleDeleteAccount (password) {
+    try {
+      const res = await apiFetch('DELETE', '/api/settings/security/account', { password })
+      if (!res.success) throw new Error(res.message)
+      showToast('Account permanently deleted.')
+      setTimeout(() => { window.location.href = '/' }, 1500)
+      return true
+    } catch (err) {
+      showToast(err.message || 'Failed to delete account.', 'error')
+      return false
+    }
+  }
+
+  // ─── Render ──────────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className='settings'>
+        <div className='settings__header'>
+          <h1 className='settings__title'>Settings</h1>
+          <p className='settings__subtitle'>Manage your account, preferences, and security</p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+          <span className='spinner' style={{ width: 32, height: 32 }} />
+        </div>
+      </div>
+    )
   }
 
   const tabProps = { data: formData, onChange: handleChange }
@@ -749,10 +1177,24 @@ export default function Settings () {
 
         {/* Panel */}
         <div className='settings__panel'>
-          {activeTab === 'profile' && <ProfileTab {...tabProps} />}
+          {activeTab === 'profile' && (
+            <ProfileTab {...tabProps} onAvatarUpload={handleAvatarUpload} />
+          )}
           {activeTab === 'notifications' && <NotificationsTab {...tabProps} />}
-          {activeTab === 'billing' && <BillingTab {...tabProps} />}
-          {activeTab === 'security' && <SecurityTab {...tabProps} />}
+          {activeTab === 'billing' && (
+            <BillingTab {...tabProps} onLinkBank={handleLinkBank} />
+          )}
+          {activeTab === 'security' && (
+            <SecurityTab
+              {...tabProps}
+              sessions={sessions}
+              onPasswordChange={handlePasswordChange}
+              onRevokeSession={handleRevokeSession}
+              onRevokeAllSessions={handleRevokeAllSessions}
+              onDeactivate={handleDeactivate}
+              onDeleteAccount={handleDeleteAccount}
+            />
+          )}
           {activeTab === 'preferences' && <PreferencesTab {...tabProps} />}
         </div>
       </div>
@@ -764,7 +1206,11 @@ export default function Settings () {
         saving={saving}
       />
 
-      {toast && <div className='toast'>{toast}</div>}
+      {toast && (
+        <div className={`toast ${toast.type === 'error' ? 'toast--error' : ''}`}>
+          {toast.msg}
+        </div>
+      )}
     </div>
   )
 }

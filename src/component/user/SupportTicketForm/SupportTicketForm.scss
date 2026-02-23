@@ -1,15 +1,15 @@
 // Color scheme
-$primary: #1b2f4f;
-$success: #10b981;
-$danger: #ef4444;
-$warning: #f59e0b;
+$primary: #c9a96e;
+$success: #5bcfb0;
+$danger: #e05b5b;
+$warning: #f0b954;
 
-$bg-primary: #f8fafc;
-$bg-secondary: #ffffff;
-$border-color: #e2e8f0;
-$text-primary: #1e293b;
-$text-secondary: #1a3761;
-$text-light: #94a3b8;
+$bg-primary: #0e0f13;
+$bg-secondary: #15171d;
+$border-color: rgba(255, 255, 255, 0.07);
+$text-primary: #e8eaf0;
+$text-secondary: #c8cad6;
+$text-light: #8890a8;
 
 // Spacing
 $spacing-xs: 0.25rem;
@@ -19,8 +19,8 @@ $spacing-lg: 1.5rem;
 $spacing-xl: 2rem;
 $spacing-2xl: 3rem;
 :root {
-  --color-surface: #1e293b;
-  --color-grey-900: #2f384e;
+  --color-surface: #15171d;
+  --color-grey-900: #1c1f28;
 }
 
 // Transitions

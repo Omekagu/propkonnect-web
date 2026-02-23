@@ -1,7 +1,6 @@
 .lux-footer {
   position: relative;
-  // background: linear-gradient(135deg, #0b0b0b 0%, #1b1b1b 40%, #0d0d0d 100%);
-  background: #0a0e27;
+  background: #0e0f13;
   color: #fff;
   padding: 4rem 5% 2rem;
   overflow: hidden;
@@ -14,7 +13,7 @@
     bottom: 0;
     background: radial-gradient(
       circle at top left,
-      rgba(255, 180, 0, 0.15),
+      rgba(201, 169, 110, 0.12),
       transparent 70%
     );
     z-index: 1;
@@ -36,7 +35,7 @@
       margin-bottom: 1rem;
 
       .accent {
-        background: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
+        background: linear-gradient(135deg, #c9a96e 0%, #e2c89a 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
@@ -44,9 +43,8 @@
 
     p {
       font-size: 0.95rem;
-      color: #cfcfcf;
+      color: #8890a8;
       line-height: 1.6;
-      //   max-width: 280px;
       align-self: center;
     }
   }
@@ -56,7 +54,7 @@
       font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
+      color: #c9a96e;
       margin-bottom: 1rem;
     }
 
@@ -68,13 +66,13 @@
         margin-bottom: 0.6rem;
 
         a {
-          color: #cfcfcf;
+          color: #8890a8;
           text-decoration: none;
           font-size: 0.95rem;
           transition: 0.3s;
 
           &:hover {
-            color: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
+            color: #c9a96e;
             transform: translateX(4px);
           }
         }
@@ -84,7 +82,7 @@
 
   &__newsletter {
     h4 {
-      color: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
+      color: #c9a96e;
       margin-bottom: 1rem;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -92,7 +90,7 @@
 
     p {
       font-size: 0.9rem;
-      color: #cfcfcf;
+      color: #8890a8;
       margin-bottom: 1rem;
     }
 
@@ -104,19 +102,19 @@
         flex: 1;
         padding: 0.8rem 1rem;
         border-radius: 6px;
-        border: none;
+        border: 1px solid rgba(255, 255, 255, 0.07);
         outline: none;
-        background: #181818;
-        color: #fff;
+        background: #15171d;
+        color: #e8eaf0;
         font-size: 0.9rem;
-        box-shadow: inset 0 0 5px rgba(255, 180, 0, 0.2);
+        box-shadow: inset 0 0 5px rgba(201, 169, 110, 0.08);
       }
 
       button {
-        background: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
+        background: linear-gradient(135deg, #c9a96e 0%, #e2c89a 100%);
         border: none;
         border-radius: 6px;
-        color: #fff;
+        color: #0e0f13;
         font-weight: 600;
         padding: 0.8rem 1.2rem;
         cursor: pointer;
@@ -124,7 +122,7 @@
 
         &:hover {
           transform: scale(1.05);
-          box-shadow: 0 0 15px rgba(255, 180, 0, 0.4);
+          box-shadow: 0 0 15px rgba(201, 169, 110, 0.35);
         }
       }
     }
@@ -132,7 +130,7 @@
 
   &__socials {
     h4 {
-      color: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
+      color: #c9a96e;
       margin-bottom: 1rem;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -143,15 +141,18 @@
       gap: 0.8rem;
 
       a {
-        background: #181818;
+        background: #15171d;
+        border: 1px solid rgba(255, 255, 255, 0.07);
         border-radius: 50%;
         padding: 0.7rem;
         font-size: 1.1rem;
-        color: #fff;
+        color: #8890a8;
         transition: all 0.3s ease;
 
         &:hover {
-          background: linear-gradient(135deg, #ff6b35 0%, #f7cb15 100%);
+          background: linear-gradient(135deg, #c9a96e 0%, #e2c89a 100%);
+          color: #0e0f13;
+          border-color: transparent;
           transform: scale(1.15);
         }
       }
@@ -159,11 +160,11 @@
   }
 
   &__bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
     margin-top: 3rem;
     padding-top: 1.5rem;
     text-align: center;
-    color: #aaa;
+    color: #4e5470;
     font-size: 0.9rem;
     z-index: 2;
     position: relative;
