@@ -15,15 +15,15 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata = {
-  metadataBase: new URL('https://propnect.com'), // change to your real domain
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL), // change to your real domain
 
   title: {
-    default: 'Propnect – Real Estate Solutions',
-    template: '%s | Propnect'
+    default: `${process.env.NEXT_PUBLIC_APP_NAME} – Real Estate Solutions`,
+    template: '%s | %s',
+    append: process.env.NEXT_PUBLIC_APP_NAME
   },
 
-  description:
-    'Find your dream home with Propnect. Trusted real estate platform for buying, selling, renting properties and connecting you to artisans with ease.',
+  description: `${process.env.NEXT_PUBLIC_APP_DESCRIPTION} Find your dream home with ${process.env.NEXT_PUBLIC_APP_NAME}. Buy, sell or rent properties easily.`,
 
   keywords: [
     'real estate',
@@ -39,33 +39,31 @@ export const metadata = {
     'luxury real estate'
   ],
 
-  authors: [{ name: 'Propnect' }],
+  authors: [{ name: process.env.NEXT_PUBLIC_APP_NAME }],
 
-  creator: 'Propnect',
+  creator: `${process.env.NEXT_PUBLIC_APP_NAME} Team`,
 
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://propnect.com',
-    title: 'Propnect – Real Estate Solutions',
-    description:
-      'Find your dream home with Propnect. Buy, sell or rent properties easily.',
-    siteName: 'Propnect',
+    url: process.env.NEXT_PUBLIC_APP_URL,
+    title: `${process.env.NEXT_PUBLIC_APP_NAME} – Real Estate Solutions`,
+    description: `${process.env.NEXT_PUBLIC_APP_DESCRIPTION} Find your dream home with ${process.env.NEXT_PUBLIC_APP_NAME}. Buy, sell or rent properties easily.`,
+    siteName: process.env.NEXT_PUBLIC_APP_NAME,
     images: [
       {
         url: '/images/seo-banner.jpg', // put a real banner image here
         width: 1200,
         height: 630,
-        alt: 'Propnect Real Estate'
+        alt: `${process.env.NEXT_PUBLIC_APP_NAME} Real Estate`
       }
     ]
   },
 
   twitter: {
     card: 'summary_large_image',
-    title: 'Propnect – Real Estate Solutions',
-    description:
-      'Find your dream home with Propnect. Buy, sell or rent properties easily.',
+    title: `${process.env.NEXT_PUBLIC_APP_NAME} – Real Estate Solutions`,
+    description: `${process.env.NEXT_PUBLIC_APP_DESCRIPTION} Find your dream home with ${process.env.NEXT_PUBLIC_APP_NAME}. Buy, sell or rent properties easily.`,
     images: ['/images/seo-banner.jpg']
   },
 
@@ -101,13 +99,13 @@ export default function RootLayout ({ children }) {
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'Organization',
-              name: 'Pro Hunters',
-              url: 'https://prohunters.com',
-              logo: 'https://prohunters.com/logo.png',
+              name: process.env.NEXT_PUBLIC_APP_NAME,
+              url: process.env.NEXT_PUBLIC_APP_URL,
+              logo: `${process.env.NEXT_PUBLIC_APP_URL}/logo.png`,
               sameAs: [
-                'https://facebook.com/prohunters',
-                'https://instagram.com/prohunters',
-                'https://twitter.com/prohunters'
+                `https://facebook.com/${process.env.NEXT_PUBLIC_APP_NAME.toLowerCase()}`,
+                `https://instagram.com/${process.env.NEXT_PUBLIC_APP_NAME.toLowerCase()}`,
+                `https://twitter.com/${process.env.NEXT_PUBLIC_APP_NAME.toLowerCase()}`
               ]
             })
           }}

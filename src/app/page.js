@@ -86,7 +86,9 @@ const LandingPage = () => {
       <nav className='navbar' style={{ opacity: scrollY > 100 ? 1 : 0 }}>
         <div className='nav-container'>
           <div className='logo'>
-            <span className='logo-text'>Propnect</span>
+            <span className='logo-text'>
+              {process.env.NEXT_PUBLIC_APP_NAME}
+            </span>
           </div>
           <div className='nav-links'>
             <a onClick={() => scrollToSection('features')}>Features</a>
@@ -230,7 +232,9 @@ const LandingPage = () => {
       <section id='how-it-works' className='how-it-works'>
         <div className='section-header'>
           <div className='section-tag'>Process</div>
-          <h2 className='section-title'>How propnect Works</h2>
+          <h2 className='section-title'>
+            How {process.env.NEXT_PUBLIC_APP_NAME} Works
+          </h2>
         </div>
 
         <div className='steps-container'>
@@ -441,79 +445,6 @@ const LandingPage = () => {
           <div className='cta-glow'></div>
         </div>
       </section>
-
-      {/* Footer */}
-      {/* <footer className='footer'>
-        <div className='footer-content'>
-          <div className='footer-main'>
-            <div className='footer-brand'>
-              <div className='footer-logo'>
-                <span className='logo-icon'>🏛️</span>
-                <span className='logo-text'>propnect</span>
-              </div>
-              <p className='footer-tagline'>
-                Connecting people with properties and professionals since 2024
-              </p>
-              <div className='social-links'>
-                <a href='#' className='social-link'>
-                  📘
-                </a>
-                <a href='#' className='social-link'>
-                  🐦
-                </a>
-                <a href='#' className='social-link'>
-                  📸
-                </a>
-                <a href='#' className='social-link'>
-                  💼
-                </a>
-              </div>
-            </div>
-
-            <div className='footer-links'>
-              <div className='footer-column'>
-                <h4>Product</h4>
-                <a href='#'>Features</a>
-                <a href='#'>Pricing</a>
-                <a href='#'>API</a>
-                <a href='#'>Integrations</a>
-              </div>
-
-              <div className='footer-column'>
-                <h4>Company</h4>
-                <a href='#'>About</a>
-                <a href='#'>Blog</a>
-                <a href='#'>Careers</a>
-                <a href='#'>Press</a>
-              </div>
-
-              <div className='footer-column'>
-                <h4>Resources</h4>
-                <a href='#'>Documentation</a>
-                <a href='#'>Help Center</a>
-                <a href='#'>Community</a>
-                <a href='#'>Contact</a>
-              </div>
-
-              <div className='footer-column'>
-                <h4>Legal</h4>
-                <a href='#'>Privacy</a>
-                <a href='#'>Terms</a>
-                <a href='#'>Security</a>
-                <a href='#'>Cookies</a>
-              </div>
-            </div>
-          </div>
-
-          <div className='footer-bottom'>
-            <p>© 2024 propnect. All rights reserved.</p>
-            <div className='footer-badges'>
-              <span className='badge'>🔒 SSL Secured</span>
-              <span className='badge'>✓ Verified Platform</span>
-            </div>
-          </div>
-        </div>
-      </footer> */}
     </div>
   )
 }

@@ -354,7 +354,9 @@ export default function AuthPage () {
         {/* Left side - Branding & Message */}
         <div className='auth-welcome'>
           <div className='welcome-content'>
-            <h1 className='welcome-title'>PROPNECT</h1>
+            <h1 className='welcome-title'>
+              {process.env.NEXT_PUBLIC_APP_NAME}
+            </h1>
             <p className='welcome-subtitle'>Professional Property Management</p>
             <p className='welcome-description'>
               Streamline your property operations with intelligent tools
@@ -525,7 +527,7 @@ export default function AuthPage () {
                 </button>
 
                 <div className='divider'>
-                  <span>New to Propnect?</span>
+                  <span>New to {process.env.NEXT_PUBLIC_APP_NAME}?</span>
                 </div>
 
                 <p className='signup-prompt'>

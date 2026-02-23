@@ -70,7 +70,7 @@ export default function Sidebar ({
     const navigationMap = {
       // Super Admin - Full access
       'super-admin': {
-        brand: 'PROPNECT ADMIN',
+        brand: `${process.env.NEXT_PUBLIC_APP_NAME} ADMIN`,
         nav: [
           {
             key: 'Dashboard',
@@ -139,7 +139,7 @@ export default function Sidebar ({
 
       // Property Owner
       'property-owner': {
-        brand: 'PROPNECT',
+        brand: `${process.env.NEXT_PUBLIC_APP_NAME} OWNER`,
         nav: [
           {
             key: 'Dashboard',
@@ -203,7 +203,7 @@ export default function Sidebar ({
 
       // Property Admin
       'property-admin': {
-        brand: 'PROPNECT MANAGER',
+        brand: `${process.env.NEXT_PUBLIC_APP_NAME} MANAGER`,
         nav: [
           {
             key: 'Dashboard',
@@ -262,7 +262,7 @@ export default function Sidebar ({
 
       // Artisan
       artisan: {
-        brand: 'PROPNECT',
+        brand: `${process.env.NEXT_PUBLIC_APP_NAME}`,
         nav: [
           {
             key: 'Dashboard',
@@ -326,7 +326,7 @@ export default function Sidebar ({
 
       // Artisan Admin
       'artisan-admin': {
-        brand: 'PROPNECT PRO ADMIN',
+        brand: `${process.env.NEXT_PUBLIC_APP_NAME} ARTISAN ADMIN`,
         nav: [
           {
             key: 'Dashboard',
@@ -380,7 +380,7 @@ export default function Sidebar ({
 
       // Tenant
       user: {
-        brand: 'PROPNECT TENANT',
+        brand: `${process.env.NEXT_PUBLIC_APP_NAME} TENANT`,
         nav: [
           {
             key: 'Dashboard',

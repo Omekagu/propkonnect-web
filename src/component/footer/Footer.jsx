@@ -17,11 +17,11 @@ export default function Footer () {
       <div className='lux-footer__content'>
         <div className='lux-footer__branding'>
           <h1 className='logo'>
-            <span className='accent'>Prop</span>nect
+            <span className='accent'>{process.env.NEXT_PUBLIC_APP_NAME}</span>
           </h1>
           <p>
-            Elevating luxury living — Propnect redefines real estate with
-            elegance, comfort, and innovation.
+            Elevating luxury living — {process.env.NEXT_PUBLIC_APP_NAME}{' '}
+            redefines real estate with elegance, comfort, and innovation.
           </p>
         </div>
 
@@ -81,7 +81,10 @@ export default function Footer () {
       </div>
 
       <div className='lux-footer__bottom'>
-        <p>© {new Date().getFullYear()} Propnect. All rights reserved.</p>
+        <p>
+          © {new Date().getFullYear()} {process.env.NEXT_PUBLIC_APP_NAME}. All
+          rights reserved.
+        </p>
       </div>
 
       <a
