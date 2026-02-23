@@ -1,13 +1,9 @@
 'use client'
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
-import axios from 'axios'
+// import { api } from '@/libs/api-client'
 import './MyProperties.scss'
 import UploadPropertyWizard from '@/component/UploadProperty/UploadProperty'
-// ★ Correct import path — adjust to match your project structure
-// import UploadPropertyWizard from '@/components/UploadProperty/UploadProperty'
-
-const backend = process.env.NEXT_PUBLIC_BACKEND_URL || ''
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const Icon = {
@@ -708,17 +704,9 @@ export default function MyProperties () {
   // ── Fetch my properties ──────────────────────────────────────────────────
   // Route: GET /api/properties/property/mine  (auth required)
   const fetchProperties = useCallback(async () => {
-    const token = localStorage.getItem('authToken')
-    if (!token) {
-      flash('Please log in first', 'warning')
-      return
-    }
-
     setLoadingList(true)
     try {
-      const res = await axios.get(`${backend}/api/properties/property/mine`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      // const res = await api.get('/api/properties/property/mine')
       if (res.data?.success && Array.isArray(res.data.properties)) {
         setProperties(res.data.properties)
       } else {
@@ -729,8 +717,6 @@ export default function MyProperties () {
       const msg =
         err.response?.data?.msg || err.message || 'Failed to load properties'
       flash(msg, 'error')
-      if (err.response?.status === 401)
-        flash('Session expired — please log in again', 'error')
     } finally {
       setLoadingList(false)
     }
@@ -744,18 +730,9 @@ export default function MyProperties () {
   // Route: DELETE /api/properties/:id  (auth + owner check in controller)
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return
-    const token = localStorage.getItem('authToken')
-    if (!token) {
-      flash('Not logged in', 'error')
-      return
-    }
-
     setDeleting(true)
     try {
-      const res = await axios.delete(
-        `${backend}/api/properties/${deleteTarget._id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      // const res = await api.delete(`/api/properties/${deleteTarget._id}`)
       if (res.data?.success) {
         setProperties(prev => prev.filter(p => p._id !== deleteTarget._id))
         flash('Property deleted', 'success')
