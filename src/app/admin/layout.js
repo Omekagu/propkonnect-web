@@ -14,7 +14,7 @@ import Settings from '@/component/admin/Settings/Settings'
 import PaymentMethod from '@/component/admin/paymentMethod/PaymentMethod'
 import UploadPortfolio from '@/component/admin/UploadPortfolio/UploadPortfolio'
 import AdminDashboard from '@/component/admin/Admindashboard/AdminDashboard'
-import UploadProperty from '@/component/admin/UploadProperty/UploadProperty'
+import UploadProperty from '@/component/UploadProperty/UploadProperty'
 
 // Property Owner Components
 import PropertyOwnerDashboard from '@/component/property-owner/Dashboard/Dashboard'

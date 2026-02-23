@@ -238,7 +238,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: $spacing-md;
   border: 1px solid $border-color;
   border-radius: 8px;
-  font-family: inherit;
   font-size: 0.95rem;
   color: $text-primary;
   background: $bg-secondary;
@@ -507,7 +506,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .ticket-number {
       font-size: 0.8rem;
       color: $text-light;
-      font-family: monospace;
       margin: 0.5rem 0 0;
     }
 
@@ -697,7 +695,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       padding: $spacing-md;
       border: 1px solid $border-color;
       border-radius: 8px;
-      font-family: inherit;
       font-size: 0.95rem;
       color: $text-primary;
       resize: vertical;
