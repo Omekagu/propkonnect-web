@@ -48,11 +48,21 @@ import Artisan from '@/component/admin/Artisan/Artisan'
 import FinanceDashboard from '@/component/tenant/Finance/Finance'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { useNotifications } from '@/hooks/useNotifications'
 import './layout.scss'
 
 export default function AdminLayout ({ children }) {
   const router = useRouter()
-  const { isLoggedIn, isLoading, user, logout, checkAuth } = useAuth()
+  const { isLoggedIn, isLoading, user, logout, checkAuth, token } = useAuth()
+
+  const {
+    notifications,
+    unreadCount,
+    markAsRead: markNotifRead,
+    markAllAsRead: markAllNotifsRead,
+    deleteNotification: deleteNotif,
+    clearAll: clearAllNotifs
+  } = useNotifications(token)
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
@@ -491,6 +501,12 @@ export default function AdminLayout ({ children }) {
           user={user}
           onLogout={logout}
           supportTicketCount={supportTicketCount}
+          notifications={notifications}
+          unreadCount={unreadCount}
+          onMarkAsRead={markNotifRead}
+          onMarkAllAsRead={markAllNotifsRead}
+          onDeleteNotification={deleteNotif}
+          onClearAll={clearAllNotifs}
         />
 
         <main className='admin-content' role='main'>
