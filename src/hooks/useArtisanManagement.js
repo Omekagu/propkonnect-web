@@ -22,7 +22,7 @@ export const useArtisanManagement = () => {
   const [sortBy, setSortBy] = useState('recent')
 
   const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'
-  const endpoint = '/api/artisans'
+  const endpoint = '/api/artisan'
 
   /**
    * Show temporary notification
@@ -278,19 +278,19 @@ export const useArtisanManagement = () => {
    */
   const filteredArtisans = useMemo(() => {
     return artisans.filter(artisan => {
+      const q = searchQuery.toLowerCase()
       const matchesSearch =
-        artisan.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        artisan.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        artisan.specialization
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        artisan.location?.toLowerCase().includes(searchQuery.toLowerCase())
+        !q ||
+        artisan.name?.toLowerCase().includes(q) ||
+        artisan.category?.toLowerCase().includes(q) ||
+        artisan.specialization?.toLowerCase().includes(q) ||
+        artisan.location?.toLowerCase().includes(q)
 
       const matchesCategory =
         categoryFilter === 'All' || artisan.category === categoryFilter
 
-      const matchesRating =
-        ratingFilter === 0 || (artisan.rating && artisan.rating >= ratingFilter)
+      const artisanRating = artisan.rating ?? artisan.stats?.averageRating ?? 0
+      const matchesRating = ratingFilter === 0 || artisanRating >= ratingFilter
 
       return matchesSearch && matchesCategory && matchesRating
     })
@@ -332,20 +332,19 @@ export const useArtisanManagement = () => {
    */
   const stats = useMemo(() => {
     const totalArtisans = artisans.length
+    const getRating = a => a.rating ?? a.stats?.averageRating ?? 0
+    const getReviews = a => a.reviewCount ?? a.stats?.reviewCount ?? 0
     const averageRating =
       artisans.length > 0
-        ? (
-            artisans.reduce((sum, a) => sum + (a.rating || 0), 0) /
-            artisans.length
-          ).toFixed(1)
+        ? (artisans.reduce((sum, a) => sum + getRating(a), 0) / artisans.length).toFixed(1)
         : 0
-    const topRated = artisans.filter(a => a.rating && a.rating >= 4.5).length
+    const topRated = artisans.filter(a => getRating(a) >= 4.5).length
 
     return {
       totalArtisans,
       averageRating,
       topRated,
-      totalReviews: artisans.reduce((sum, a) => sum + (a.reviewCount || 0), 0)
+      totalReviews: artisans.reduce((sum, a) => sum + getReviews(a), 0)
     }
   }, [artisans])
 
