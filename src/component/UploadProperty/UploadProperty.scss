@@ -47,10 +47,8 @@
   --wz-mid: 250ms;
   --wz-slow: 360ms;
 
-  --wz-shadow: 0 2px 16px rgba(0, 0, 0, 0.35),
-    0 1px 4px rgba(0, 0, 0, 0.25);
-  --wz-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.5),
-    0 4px 16px rgba(0, 0, 0, 0.35);
+  --wz-shadow: 0 2px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.25);
+  --wz-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.35);
   --wz-shadow-amber: 0 8px 24px rgba(201, 169, 110, 0.22);
   --wz-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.3);
 
@@ -155,7 +153,7 @@
 
   h2 {
     margin: 0;
-    font-family: 'Playfair Display', serif;
+    //font-family: 'Playfair Display', serif;
     font-size: 28px;
     font-weight: 700;
     color: var(--wz-slate);
@@ -367,7 +365,7 @@
   border-bottom: 1px solid var(--wz-border-soft);
 
   h3 {
-    font-family: 'Playfair Display', serif;
+    //font-family: 'Playfair Display', serif;
     font-size: 22px;
     font-weight: 700;
     color: var(--wz-slate);
@@ -912,7 +910,7 @@
 
   h4 {
     margin: 0;
-    font-family: 'Playfair Display', serif;
+    //font-family: 'Playfair Display', serif;
     font-size: 18px;
     font-weight: 600;
     color: var(--wz-slate);
@@ -1171,7 +1169,7 @@
 
     .score-number {
       display: block;
-      font-family: 'Playfair Display', serif;
+      //font-family: 'Playfair Display', serif;
       font-size: 26px;
       font-weight: 700;
       color: var(--wz-amber-deep);
@@ -1193,7 +1191,7 @@
     flex: 1;
 
     h4 {
-      font-family: 'Playfair Display', serif;
+      //font-family: 'Playfair Display', serif;
       font-size: 18px;
       font-weight: 600;
       color: var(--wz-slate);
@@ -1263,7 +1261,7 @@
     gap: 8px;
 
     h3 {
-      font-family: 'Playfair Display', serif;
+      //font-family: 'Playfair Display', serif;
       font-size: 18px;
       font-weight: 600;
       color: var(--wz-slate);
@@ -1298,7 +1296,7 @@
     }
 
     .preview-price {
-      font-family: 'Playfair Display', serif;
+      //font-family: 'Playfair Display', serif;
       font-size: 22px;
       font-weight: 700;
       color: var(--wz-slate);
@@ -1535,7 +1533,7 @@
   }
 
   h3 {
-    font-family: 'Playfair Display', serif;
+    //font-family: 'Playfair Display', serif;
     font-size: 20px;
     font-weight: 600;
     color: var(--wz-slate);

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
-import axios from 'axios'
+import { api } from '@/libs/api-client'
 import {
   MapPin,
   Upload,
@@ -204,8 +204,6 @@ export default function UploadPropertyWizard ({
   onBack,
   onSaved
 }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || ''
-
   const [currentStep, setCurrentStep] = useState(1)
   const [form, setForm] = useState(() => blankForm(creationTier))
   const [paymentPlans, setPaymentPlans] = useState(INITIAL_PAYMENT_PLANS)
@@ -252,16 +250,9 @@ export default function UploadPropertyWizard ({
   }, [editPropertyId]) // Only depend on editPropertyId, NOT creationTier
 
   const loadForEdit = async id => {
-    const token = localStorage.getItem('authToken')
-    if (!token) {
-      flash('Not logged in', 'error')
-      return
-    }
     setLoadingEdit(true)
     try {
-      const res = await axios.get(`${backendUrl}/api/properties/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const res = await api.get(`/api/properties/${id}`)
       if (!res.data?.success || !res.data.property)
         throw new Error(res.data?.msg || 'Property not found')
       const p = res.data.property
@@ -506,7 +497,7 @@ export default function UploadPropertyWizard ({
     }
     setAiGenerating(true)
     try {
-      const res = await axios.post(`${backendUrl}/api/ai/generate-title`, {
+      const res = await api.post('/api/ai/generate-title', {
         category: form.category,
         location: form.location,
         beds: form.beds,
@@ -530,18 +521,15 @@ export default function UploadPropertyWizard ({
     }
     setAiGenerating(true)
     try {
-      const res = await axios.post(
-        `${backendUrl}/api/ai/generate-description`,
-        {
-          title: form.title,
-          category: form.category,
-          location: form.location,
-          beds: form.beds,
-          baths: form.baths,
-          area: form.area,
-          features: form.features
-        }
-      )
+      const res = await api.post('/api/ai/generate-description', {
+        title: form.title,
+        category: form.category,
+        location: form.location,
+        beds: form.beds,
+        baths: form.baths,
+        area: form.area,
+        features: form.features
+      })
       if (res.data?.success) {
         updateFormField('description', res.data.description)
         flash('AI description generated')
@@ -559,7 +547,7 @@ export default function UploadPropertyWizard ({
       return
     }
     try {
-      const res = await axios.post(`${backendUrl}/api/ai/suggest-price`, {
+      const res = await api.post('/api/ai/suggest-price', {
         category: form.category,
         location: form.location,
         beds: form.beds,
@@ -683,11 +671,6 @@ export default function UploadPropertyWizard ({
       flash('Please fix the highlighted errors', 'error')
       return
     }
-    const token = localStorage.getItem('authToken')
-    if (!token) {
-      flash('Not logged in', 'error')
-      return
-    }
 
     setLoading(true)
     try {
@@ -792,16 +775,12 @@ export default function UploadPropertyWizard ({
 
       const isEdit = !!form._id
       const url = isEdit
-        ? `${backendUrl}/api/properties/${form._id}`
-        : `${backendUrl}/api/properties`
-      const method = isEdit ? 'put' : 'post'
+        ? `/api/properties/${form._id}`
+        : `/api/properties`
 
-      const res = await axios[method](url, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      const res = isEdit
+        ? await api.put(url, payload)
+        : await api.post(url, payload)
 
       if (res.data?.success) {
         flash(

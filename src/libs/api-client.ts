@@ -38,21 +38,19 @@ export const createApiClient = (): AxiosInstance => {
       return response
     },
     (error: AxiosError) => {
-      // If unauthorized, clear auth and redirect
-      if (error.response?.status === 401 || error.response?.status === 403) {
+      if (error.response?.status === 401) {
+        // Token expired or invalid — clear auth and let useAuth redirect softly
         clearAuthData()
-
-        // Dispatch event for cross-tab sync
-        const event = new CustomEvent('authStatusChanged', {
-          detail: { status: 'logout', reason: 'unauthorized' }
-        })
-        window.dispatchEvent(event)
-
-        // Redirect to login
         if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login'
+          window.dispatchEvent(
+            new CustomEvent('authStatusChanged', {
+              detail: { status: 'logout', reason: 'unauthorized' }
+            })
+          )
         }
       }
+      // 403 = authenticated but forbidden — do NOT clear auth or redirect;
+      // let the calling component handle it (show error, etc.)
 
       return Promise.reject(error)
     }

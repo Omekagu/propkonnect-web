@@ -167,8 +167,8 @@ export default function AdminLayout ({ children }) {
     const handleAuthChange = event => {
       const { detail } = event
 
-      if (detail.status === 'logout') {
-        // Another tab logged out
+      if (detail.status === 'logout' && detail.reason !== 'unauthorized') {
+        // Another tab explicitly logged out (not a 401 API error)
         setError('You have been logged out in another tab.')
         setTimeout(() => {
           router.push('/auth/login')
