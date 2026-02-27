@@ -17,7 +17,7 @@ export default function SuccessPageContent () {
 
     axios
       .get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/verify-monnify-transaction?transactionReference=${trxRef}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/verify-monnify-transaction?transactionReference=${trxRef}`
       )
       .then(res => {
         setStatus(res.data.responseBody.paymentStatus)
