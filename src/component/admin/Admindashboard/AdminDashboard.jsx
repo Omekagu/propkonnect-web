@@ -4,6 +4,8 @@ import axios from 'axios'
 import {
   AreaChart,
   Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -281,6 +283,45 @@ export default function AdminDashboard () {
             </ResponsiveContainer>
           ) : (
             <div className='chart-empty'>No role data</div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Registrations + Listings Charts ── */}
+      <div className='charts-row'>
+        {/* New Registrations by Month */}
+        <div className='chart-card chart-wide'>
+          <h3 className='chart-title'>New Registrations (Last 6 Months)</h3>
+          {stats?.monthlyRegistrationsTrend?.length > 0 ? (
+            <ResponsiveContainer width='100%' height={220}>
+              <BarChart data={stats.monthlyRegistrationsTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
+                <XAxis dataKey='month' tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey='newUsers' fill='#10b981' radius={[4, 4, 0, 0]} name='New Users' />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className='chart-empty'>No registration data yet</div>
+          )}
+        </div>
+
+        {/* Active Listings by Category */}
+        <div className='chart-card chart-narrow'>
+          <h3 className='chart-title'>Listings by Category</h3>
+          {stats?.listingsByCategory?.length > 0 ? (
+            <ResponsiveContainer width='100%' height={220}>
+              <BarChart data={stats.listingsByCategory} layout='vertical' margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' horizontal={false} />
+                <XAxis type='number' tick={{ fontSize: 11 }} allowDecimals={false} />
+                <YAxis type='category' dataKey='category' tick={{ fontSize: 11 }} width={80} />
+                <Tooltip />
+                <Bar dataKey='count' fill='#6366f1' radius={[0, 4, 4, 0]} name='Listings' />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className='chart-empty'>No listings data</div>
           )}
         </div>
       </div>
