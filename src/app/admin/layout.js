@@ -46,6 +46,7 @@ import SupportTicketList from '@/component/user/SupportTicketList/SupportTicketL
 import PropertyManagementDashboard from '@/component/admin/PropertyManagementDashboard/PropertyManagementDashboard'
 import Artisan from '@/component/admin/Artisan/Artisan'
 import FinanceDashboard from '@/component/tenant/Finance/Finance'
+import PlatformSettings from '../../component/admin/PlatformSettings/PlatformSettings.jsx'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
@@ -351,6 +352,8 @@ export default function AdminLayout ({ children }) {
           return <Settings />
         case 'Security':
           return <Settings />
+        case 'PlatformSettings':
+          return <PlatformSettings />
         default:
           return <AdminDashboard />
       }
