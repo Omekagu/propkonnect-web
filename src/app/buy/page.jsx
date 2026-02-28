@@ -9,6 +9,9 @@ import { useRouter } from 'next/navigation'
 const PROPERTY_TYPES = [
   'All',
   'Apartment',
+  'House',
+  'Shortlet',
+  'Hotel',
   'Duplex',
   'Terraced',
   'Bungalow',

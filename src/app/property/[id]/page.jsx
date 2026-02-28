@@ -22,6 +22,7 @@ export default function PropertyDetails () {
   const [property, setProperty] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [similarProperties, setSimilarProperties] = useState([])
 
   const startMonnifyPayment = async () => {
     const totalAmount = isPerNightType
@@ -225,6 +226,15 @@ export default function PropertyDetails () {
         setLoading(false)
       })
   }, [id])
+
+  // Fetch similar properties after the main property loads
+  useEffect(() => {
+    if (!id || !property) return
+    axios
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/properties/${id}/similar`)
+      .then(res => setSimilarProperties(res.data?.properties || res.data?.data || []))
+      .catch(() => {})
+  }, [id, property])
 
   // initialize thumbnail / selections
   useEffect(() => {
@@ -724,6 +734,36 @@ export default function PropertyDetails () {
           </div>
         </aside>
       </main>
+
+      {/* Similar Properties */}
+      {similarProperties.length > 0 && (
+        <section className='similar-section'>
+          <h2 className='similar-heading'>Similar Properties</h2>
+          <div className='similar-grid'>
+            {similarProperties.slice(0, 6).map(p => (
+              <a key={p._id} href={`/property/${p._id}`} className='similar-card'>
+                <div className='similar-thumb'>
+                  <img
+                    src={p.images?.[0] || p.media?.[0]?.url || '/placeholder.jpg'}
+                    alt={p.title || 'Property'}
+                    loading='lazy'
+                  />
+                </div>
+                <div className='similar-info'>
+                  <div className='similar-name'>{p.title}</div>
+                  <div className='similar-loc'>
+                    <MapPin size={12} />
+                    {p.location || p.city || '—'}
+                  </div>
+                  <div className='similar-price'>
+                    ₦{Number(p.price || p.rentPrice || 0).toLocaleString()}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Mobile fixed CTA for faster conversion on phones */}
       <div className='mobile-cta' aria-hidden={false}>

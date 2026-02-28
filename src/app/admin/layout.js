@@ -47,6 +47,7 @@ import PropertyManagementDashboard from '@/component/admin/PropertyManagementDas
 import Artisan from '@/component/admin/Artisan/Artisan'
 import FinanceDashboard from '@/component/tenant/Finance/Finance'
 import PlatformSettings from '../../component/admin/PlatformSettings/PlatformSettings.jsx'
+import EmailTemplates from '../../component/admin/EmailTemplates/EmailTemplates.jsx'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
@@ -354,6 +355,8 @@ export default function AdminLayout ({ children }) {
           return <Settings />
         case 'PlatformSettings':
           return <PlatformSettings />
+        case 'EmailTemplates':
+          return <EmailTemplates />
         default:
           return <AdminDashboard />
       }
