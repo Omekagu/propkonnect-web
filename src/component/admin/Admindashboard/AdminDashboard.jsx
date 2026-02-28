@@ -1,339 +1,142 @@
 'use client'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from 'recharts'
 import {
   FiUsers,
   FiHome,
   FiDollarSign,
   FiTool,
-  FiDownload,
-  FiPlus,
-  FiSettings,
-  FiEye,
-  FiEyeOff,
-  FiTrash2,
-  FiPieChart,
+  FiRefreshCw,
+  FiUserCheck,
   FiActivity,
-  FiMessageSquare,
-  FiBell,
-  FiX
+  FiCheckCircle,
+  FiClock
 } from 'react-icons/fi'
 import './AdminDashboard.scss'
 
-// Available Widget Types
-const AVAILABLE_WIDGETS = [
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL
+
+const KPI_CONFIG = [
   {
-    id: 'properties',
+    key: 'totalUsers',
+    label: 'Total Users',
+    icon: FiUsers,
+    color: '#10b981',
+    bg: 'card-green',
+    sub: stat => `${stat.newUsersThisMonth ?? 0} new this month`,
+    growth: stat => stat.userGrowth
+  },
+  {
+    key: 'totalProperties',
     label: 'Properties',
     icon: FiHome,
-    category: 'core',
-    description: 'Total properties listed'
+    color: '#3b82f6',
+    bg: 'card-blue',
+    sub: stat => `${stat.activeProperties ?? 0} available`,
+    growth: null
   },
   {
-    id: 'users',
-    label: 'Users',
-    icon: FiUsers,
-    category: 'core',
-    description: 'Registered users'
-  },
-  {
-    id: 'transactions',
-    label: 'Transactions',
+    key: 'totalRevenue',
+    label: 'Total Revenue',
     icon: FiDollarSign,
-    category: 'core',
-    description: 'Total transactions'
+    color: '#8b5cf6',
+    bg: 'card-purple',
+    format: v => `₦${(v || 0).toLocaleString()}`,
+    sub: stat => `₦${(stat.revenueThisMonth ?? 0).toLocaleString()} this month`,
+    growth: null
   },
   {
-    id: 'services',
-    label: 'Services',
+    key: 'totalServiceRequests',
+    label: 'Service Requests',
     icon: FiTool,
-    category: 'core',
-    description: 'Active service requests'
-  },
-  {
-    id: 'chart',
-    label: 'Analytics Chart',
-    icon: FiPieChart,
-    category: 'charts',
-    description: 'Revenue trends'
-  },
-  {
-    id: 'pie',
-    label: 'Distribution',
-    icon: FiPieChart,
-    category: 'charts',
-    description: 'Data distribution'
-  },
-  {
-    id: 'activity',
-    label: 'Activity Feed',
-    icon: FiActivity,
-    category: 'data',
-    description: 'Recent activities'
-  },
-  {
-    id: 'messages',
-    label: 'Messages',
-    icon: FiMessageSquare,
-    category: 'data',
-    description: 'User messages'
-  },
-  {
-    id: 'notifications',
-    label: 'Notifications',
-    icon: FiBell,
-    category: 'data',
-    description: 'System notifications'
+    color: '#f59e0b',
+    bg: 'card-orange',
+    sub: stat => `${stat.openServiceRequests ?? 0} open`,
+    growth: null
   }
 ]
 
-// Color configurations for stat cards
-const CARD_COLORS = {
-  properties: { primary: '#3b82f6', light: '#60a5fa', bg: 'card-blue' },
-  users: { primary: '#10b981', light: '#34d399', bg: 'card-green' },
-  transactions: { primary: '#8b5cf6', light: '#a78bfa', bg: 'card-purple' },
-  services: { primary: '#f59e0b', light: '#fbbf24', bg: 'card-orange' },
-  chart: { primary: '#06b6d4', light: '#22d3ee', bg: 'card-cyan' },
-  pie: { primary: '#ec4899', light: '#f472b6', bg: 'card-pink' },
-  activity: { primary: '#14b8a6', light: '#2dd4bf', bg: 'card-teal' },
-  messages: { primary: '#f97316', light: '#fb923c', bg: 'card-orange-light' },
-  notifications: { primary: '#6366f1', light: '#818cf8', bg: 'card-indigo' }
+const PIE_COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4']
+
+const STATUS_COLOR = {
+  completed: '#10b981',
+  pending: '#f59e0b',
+  rejected: '#ef4444',
+  refunded: '#6b7280',
+  open: '#3b82f6',
+  'in-progress': '#8b5cf6',
+  cancelled: '#ef4444'
 }
 
-export default function EnhancedAdminDashboard () {
-  const [user, setUser] = useState(null)
-  const [stats, setStats] = useState({})
+export default function AdminDashboard () {
+  const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [showAddPanel, setShowAddPanel] = useState(false)
-  const [showCustomizer, setShowCustomizer] = useState(false)
-  const [draggedWidget, setDraggedWidget] = useState(null)
-  const [dashboardWidgets, setDashboardWidgets] = useState([
-    { id: 'w1', type: 'properties', position: 0, visible: true },
-    { id: 'w2', type: 'users', position: 1, visible: true },
-    { id: 'w3', type: 'transactions', position: 2, visible: true },
-    { id: 'w4', type: 'services', position: 3, visible: true }
-  ])
-  const [dragOverIndex, setDragOverIndex] = useState(null)
-  const dragSource = useRef(null)
-  const dropZoneRef = useRef(null)
+  const [error, setError] = useState(null)
 
   const token =
     typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
-  const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL
 
-  // Fetch dashboard data
-  useEffect(() => {
-    fetchDashboardData()
-  }, [])
-
-  const fetchDashboardData = async () => {
+  const fetchStats = async () => {
+    setLoading(true)
+    setError(null)
     try {
-      setLoading(true)
-      const res = await axios.get(`${API_URL}/api/user/id`, {
+      const res = await axios.get(`${API_URL}/api/user/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      setUser(res.data.user)
       setStats(res.data.stats)
     } catch (err) {
-      console.error('❌ Error fetching dashboard data:', err)
+      console.error('Dashboard stats error:', err)
+      setError('Failed to load dashboard data.')
     } finally {
       setLoading(false)
     }
   }
 
-  // Widget management
-  const addWidget = widgetType => {
-    const newWidget = {
-      id: `w${Date.now()}`,
-      type: widgetType,
-      position: dashboardWidgets.length,
-      visible: true
-    }
-    setDashboardWidgets([...dashboardWidgets, newWidget])
-    setShowAddPanel(false)
-  }
+  useEffect(() => {
+    fetchStats()
+  }, [])
 
-  const removeWidget = widgetId => {
-    setDashboardWidgets(dashboardWidgets.filter(w => w.id !== widgetId))
-  }
-
-  const toggleWidgetVisibility = widgetId => {
-    setDashboardWidgets(
-      dashboardWidgets.map(w =>
-        w.id === widgetId ? { ...w, visible: !w.visible } : w
-      )
-    )
-  }
-
-  // Drag and drop handlers
-  const handleDragStart = (e, index) => {
-    dragSource.current = index
-    setDraggedWidget(index)
-    e.dataTransfer.effectAllowed = 'move'
-  }
-
-  const handleDragOver = (e, index) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
-    setDragOverIndex(index)
-  }
-
-  const handleDrop = (e, dropIndex) => {
-    e.preventDefault()
-    const dragIndex = dragSource.current
-
-    if (dragIndex !== null && dragIndex !== dropIndex) {
-      const newWidgets = [...dashboardWidgets]
-      const draggedItem = newWidgets[dragIndex]
-
-      // Remove from old position
-      newWidgets.splice(dragIndex, 1)
-      // Insert at new position
-      newWidgets.splice(dropIndex, 0, draggedItem)
-
-      // Update positions
-      newWidgets.forEach((w, i) => (w.position = i))
-      setDashboardWidgets(newWidgets)
-    }
-
-    setDraggedWidget(null)
-    setDragOverIndex(null)
-  }
-
-  const handleDragEnd = () => {
-    setDraggedWidget(null)
-    setDragOverIndex(null)
-    dragSource.current = null
-  }
-
-  // Render stat card widget
-  const StatCard = ({ widget, data, colorConfig }) => (
-    <div
-      key={widget.id}
-      className={`admin-stat-card ${colorConfig.bg} draggable-widget`}
-      draggable
-      onDragStart={e => handleDragStart(e, dashboardWidgets.indexOf(widget))}
-      onDragOver={e => handleDragOver(e, dashboardWidgets.indexOf(widget))}
-      onDrop={e => handleDrop(e, dashboardWidgets.indexOf(widget))}
-      onDragEnd={handleDragEnd}
-      style={{
-        opacity: draggedWidget === dashboardWidgets.indexOf(widget) ? 0.5 : 1
-      }}
-    >
-      <div className='widget-header'>
-        <div className='grip-handle'>
-          <FiX />
-        </div>
-        <div className='widget-actions'>
-          <button
-            className='action-btn'
-            onClick={() => toggleWidgetVisibility(widget.id)}
-            title='Toggle visibility'
-          >
-            {widget.visible ? <FiEye /> : <FiEyeOff />}
-          </button>
-          <button
-            className='action-btn delete'
-            onClick={() => removeWidget(widget.id)}
-            title='Remove widget'
-          >
-            <FiX />
-          </button>
-        </div>
-      </div>
-
-      {widget.visible && (
-        <div className='stat-icon'>{data.icon && <data.icon />}</div>
-      )}
-
-      {widget.visible && (
-        <div className='stat-content'>
-          <h3>{data.value}</h3>
-          <p>{data.label}</p>
-          <span className={`stat-change ${data.change > 0 ? 'positive' : ''}`}>
-            {data.change > 0 ? '+' : ''}
-            {data.change}% this month
-          </span>
-        </div>
-      )}
-    </div>
-  )
-
-  // Get widget data
-  const getWidgetData = type => {
-    const widgetDataMap = {
-      properties: {
-        icon: FiHome,
-        value: stats.totalProperties || 0,
-        label: 'Properties Listed',
-        change: 12
-      },
-      users: {
-        icon: FiUsers,
-        value: stats.totalUsers || 0,
-        label: 'Registered Users',
-        change: 8
-      },
-      transactions: {
-        icon: FiDollarSign,
-        value: stats.totalTransactions || 0,
-        label: 'Transactions',
-        change: 15
-      },
-      services: {
-        icon: FiTool,
-        value: stats.totalServiceRequests || 0,
-        label: 'Service Requests',
-        change: 5
-      },
-      chart: {
-        icon: FiPieChart,
-        value: '₦2.4M',
-        label: 'Revenue Trend',
-        change: 18
-      },
-      pie: {
-        icon: FiPieChart,
-        value: '12K',
-        label: 'Data Points',
-        change: 22
-      },
-      activity: {
-        icon: FiActivity,
-        value: '348',
-        label: 'Active Sessions',
-        change: 11
-      },
-      messages: {
-        icon: FiMessageSquare,
-        value: stats.totalMessages || '156',
-        label: 'Messages',
-        change: 9
-      },
-      notifications: {
-        icon: FiBell,
-        value: stats.totalNotifications || '42',
-        label: 'Notifications',
-        change: 7
-      }
-    }
-    return widgetDataMap[type] || widgetDataMap.properties
-  }
-
-  if (loading && !user) {
+  if (loading) {
     return (
       <div className='loader-container'>
-        <div className='loader-spinner'></div>
+        <div className='loader-spinner' />
         <p>Loading dashboard...</p>
       </div>
     )
   }
 
-  const visibleWidgets = dashboardWidgets.filter(w => w.visible)
+  if (error) {
+    return (
+      <div className='dash-error'>
+        <p>{error}</p>
+        <button className='btn-primary' onClick={fetchStats}>
+          <FiRefreshCw /> Retry
+        </button>
+      </div>
+    )
+  }
+
+  // Build pie data from usersByRole
+  const roleData = Object.entries(stats?.usersByRole || {})
+    .map(([role, count]) => ({ name: role, value: count }))
+    .filter(r => r.name !== 'undefined' && r.name !== 'unknown')
 
   return (
     <div className='enhanced-admin-dashboard'>
-      {/* Header */}
+      {/* ── Header ── */}
       <div className='dashboard-header'>
         <div className='header-left'>
           <div className='header-content'>
@@ -348,140 +151,237 @@ export default function EnhancedAdminDashboard () {
             </p>
           </div>
         </div>
-
         <div className='header-actions'>
-          <button
-            className='btn-icon'
-            onClick={() => setShowCustomizer(!showCustomizer)}
-            title='Customize dashboard'
-          >
-            <FiSettings />
-          </button>
-          <button className='btn-secondary'>
-            <FiDownload /> Export
-          </button>
-          <button
-            className='btn-primary'
-            onClick={() => setShowAddPanel(!showAddPanel)}
-          >
-            <FiPlus /> Add Widget
+          <button className='btn-icon' onClick={fetchStats} title='Refresh'>
+            <FiRefreshCw />
           </button>
         </div>
       </div>
 
-      {/* Customizer Panel */}
-      {showCustomizer && (
-        <div className='customizer-panel'>
-          <div className='customizer-header'>
-            <h3>Dashboard Customizer</h3>
-            <button
-              className='close-btn'
-              onClick={() => setShowCustomizer(false)}
-            >
-              <FiX />
-            </button>
-          </div>
-          <div className='customizer-content'>
-            <div className='widget-list'>
-              {dashboardWidgets.map((widget, idx) => (
-                <div key={widget.id} className='widget-item'>
-                  <div className='widget-info'>
-                    <span className='widget-name'>
-                      {AVAILABLE_WIDGETS.find(w => w.id === widget.type)
-                        ?.label || widget.type}
-                    </span>
-                    <span className='widget-pos'>Position {idx + 1}</span>
-                  </div>
-                  <div className='widget-controls'>
-                    <button
-                      className='toggle-btn'
-                      onClick={() => toggleWidgetVisibility(widget.id)}
-                    >
-                      {widget.visible ? <FiEye /> : <FiEyeOff />}
-                    </button>
-                    <button
-                      className='remove-btn'
-                      onClick={() => removeWidget(widget.id)}
-                    >
-                      <FiTrash2 />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add Widget Panel */}
-      {showAddPanel && (
-        <div className='add-panel'>
-          <div className='add-panel-header'>
-            <h3>Add Widgets</h3>
-            <button
-              className='close-btn'
-              onClick={() => setShowAddPanel(false)}
-            >
-              <FiX />
-            </button>
-          </div>
-
-          <div className='add-panel-content'>
-            {['core', 'charts', 'data'].map(category => (
-              <div key={category} className='widget-category'>
-                <h4 className='category-title'>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </h4>
-                <div className='widget-grid'>
-                  {AVAILABLE_WIDGETS.filter(w => w.category === category).map(
-                    widget => (
-                      <button
-                        key={widget.id}
-                        className='widget-option'
-                        onClick={() => addWidget(widget.id)}
-                        title={widget.description}
-                      >
-                        <widget.icon />
-                        <span>{widget.label}</span>
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Main Dashboard Grid */}
-      <div className='dashboard-grid'>
-        {visibleWidgets.map(widget => {
-          const data = getWidgetData(widget.type)
-          const colorConfig = CARD_COLORS[widget.type] || CARD_COLORS.properties
-
+      {/* ── KPI Cards ── */}
+      <div className='kpi-grid'>
+        {KPI_CONFIG.map(cfg => {
+          const raw = stats?.[cfg.key] ?? 0
+          const formatted = cfg.format ? cfg.format(raw) : raw.toLocaleString()
+          const growth = cfg.growth ? cfg.growth(stats || {}) : null
           return (
-            <div
-              key={widget.id}
-              className={`grid-item ${
-                dragOverIndex === dashboardWidgets.indexOf(widget)
-                  ? 'drag-over'
-                  : ''
-              }`}
-            >
-              <StatCard widget={widget} data={data} colorConfig={colorConfig} />
+            <div key={cfg.key} className={`admin-stat-card ${cfg.bg}`}>
+              <div className='stat-icon-wrap'>
+                <cfg.icon size={22} color={cfg.color} />
+              </div>
+              <div className='stat-content'>
+                <h3 className='stat-value'>{formatted}</h3>
+                <p className='stat-label'>{cfg.label}</p>
+                <span className='stat-sub'>{cfg.sub(stats || {})}</span>
+                {growth !== null && (
+                  <span className={`stat-growth ${growth >= 0 ? 'positive' : 'negative'}`}>
+                    {growth >= 0 ? '+' : ''}{growth}% vs last month
+                  </span>
+                )}
+              </div>
             </div>
           )
         })}
       </div>
 
-      {/* Empty State */}
-      {visibleWidgets.length === 0 && (
-        <div className='empty-state'>
-          <FiPlus />
-          <h3>No widgets added</h3>
-          <p>Click "Add Widget" to get started</p>
+      {/* ── Secondary KPIs ── */}
+      <div className='secondary-kpis'>
+        <div className='secondary-kpi-item'>
+          <FiUserCheck size={18} />
+          <div>
+            <span className='sk-value'>{stats?.verifiedArtisans ?? 0}</span>
+            <span className='sk-label'>Verified Artisans</span>
+          </div>
         </div>
-      )}
+        <div className='secondary-kpi-item'>
+          <FiUsers size={18} />
+          <div>
+            <span className='sk-value'>{stats?.totalArtisans ?? 0}</span>
+            <span className='sk-label'>Total Artisans</span>
+          </div>
+        </div>
+        <div className='secondary-kpi-item'>
+          <FiCheckCircle size={18} />
+          <div>
+            <span className='sk-value'>{stats?.verifiedUsers ?? 0}</span>
+            <span className='sk-label'>Verified Users</span>
+          </div>
+        </div>
+        <div className='secondary-kpi-item'>
+          <FiActivity size={18} />
+          <div>
+            <span className='sk-value'>{stats?.totalTransactions ?? 0}</span>
+            <span className='sk-label'>Total Transactions</span>
+          </div>
+        </div>
+        <div className='secondary-kpi-item'>
+          <FiClock size={18} />
+          <div>
+            <span className='sk-value'>{stats?.pendingArtisans ?? 0}</span>
+            <span className='sk-label'>Pending Artisans</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Charts Row ── */}
+      <div className='charts-row'>
+        {/* Revenue Trend */}
+        <div className='chart-card chart-wide'>
+          <h3 className='chart-title'>Revenue Trend (Last 6 Months)</h3>
+          {stats?.monthlyTrend?.length > 0 ? (
+            <ResponsiveContainer width='100%' height={220}>
+              <AreaChart data={stats.monthlyTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id='revenueGrad' x1='0' y1='0' x2='0' y2='1'>
+                    <stop offset='5%' stopColor='#8b5cf6' stopOpacity={0.35} />
+                    <stop offset='95%' stopColor='#8b5cf6' stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
+                <XAxis dataKey='month' tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`} />
+                <Tooltip formatter={v => `₦${v.toLocaleString()}`} />
+                <Area
+                  type='monotone'
+                  dataKey='revenue'
+                  stroke='#8b5cf6'
+                  strokeWidth={2}
+                  fill='url(#revenueGrad)'
+                  name='Revenue'
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className='chart-empty'>No revenue data yet</div>
+          )}
+        </div>
+
+        {/* Users by Role Pie */}
+        <div className='chart-card chart-narrow'>
+          <h3 className='chart-title'>Users by Role</h3>
+          {roleData.length > 0 ? (
+            <ResponsiveContainer width='100%' height={220}>
+              <PieChart>
+                <Pie
+                  data={roleData}
+                  cx='50%'
+                  cy='50%'
+                  innerRadius={55}
+                  outerRadius={85}
+                  paddingAngle={3}
+                  dataKey='value'
+                >
+                  {roleData.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className='chart-empty'>No role data</div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Recent Activity ── */}
+      <div className='activity-row'>
+        {/* Recent Transactions */}
+        <div className='activity-card'>
+          <h3 className='activity-title'>Recent Transactions</h3>
+          {stats?.recentTransactions?.length > 0 ? (
+            <div className='activity-table'>
+              <div className='activity-header'>
+                <span>User</span>
+                <span>Amount</span>
+                <span>Type</span>
+                <span>Status</span>
+              </div>
+              {stats.recentTransactions.map(txn => (
+                <div key={txn._id} className='activity-row-item'>
+                  <span className='act-user'>
+                    {txn.userId?.firstName
+                      ? `${txn.userId.firstName} ${txn.userId.lastName}`
+                      : 'Unknown'}
+                  </span>
+                  <span className='act-amount'>₦{(txn.amount || 0).toLocaleString()}</span>
+                  <span className='act-type'>{txn.type || txn.paymentMethod || '—'}</span>
+                  <span
+                    className='act-status'
+                    style={{ color: STATUS_COLOR[txn.status] || '#6b7280' }}
+                  >
+                    {txn.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className='activity-empty'>No transactions yet</div>
+          )}
+        </div>
+
+        {/* Recent Service Requests */}
+        <div className='activity-card'>
+          <h3 className='activity-title'>Recent Service Requests</h3>
+          {stats?.recentServiceRequests?.length > 0 ? (
+            <div className='activity-table'>
+              <div className='activity-header'>
+                <span>Title</span>
+                <span>Category</span>
+                <span>Budget</span>
+                <span>Status</span>
+              </div>
+              {stats.recentServiceRequests.map(sr => (
+                <div key={sr._id} className='activity-row-item'>
+                  <span className='act-user' title={sr.title}>
+                    {sr.title?.length > 28 ? sr.title.slice(0, 28) + '…' : sr.title || '—'}
+                  </span>
+                  <span className='act-type'>{sr.category || '—'}</span>
+                  <span className='act-amount'>
+                    {sr.estimatedBudget ? `₦${sr.estimatedBudget.toLocaleString()}` : '—'}
+                  </span>
+                  <span
+                    className='act-status'
+                    style={{ color: STATUS_COLOR[sr.status] || '#6b7280' }}
+                  >
+                    {sr.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className='activity-empty'>No service requests yet</div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Recent Users ── */}
+      <div className='recent-users-card'>
+        <h3 className='activity-title'>Recent Users</h3>
+        <div className='recent-users-list'>
+          {stats?.recentUsers?.map(u => (
+            <div key={u._id} className='recent-user-item'>
+              <div className='ru-avatar'>
+                {u.avatar ? (
+                  <img src={u.avatar} alt={u.firstName} />
+                ) : (
+                  <span>{(u.firstName || u.email || 'U')[0].toUpperCase()}</span>
+                )}
+              </div>
+              <div className='ru-info'>
+                <p className='ru-name'>
+                  {u.firstName ? `${u.firstName} ${u.lastName}` : u.email}
+                </p>
+                <p className='ru-role'>{u.role}</p>
+              </div>
+              <span className={`ru-badge ${u.isVerified ? 'verified' : 'pending'}`}>
+                {u.isVerified ? 'Verified' : 'Unverified'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
