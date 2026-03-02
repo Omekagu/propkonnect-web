@@ -104,6 +104,30 @@ export default function PropertyDetails () {
   const isHotel = category === 'hotel'
   const isShortlet = category === 'shortlet'
   const isPerNightType = isHotel || isShortlet
+  const isRentPurpose = (property?.purpose || '').toLowerCase().includes('rent')
+
+  // Apply-to-rent modal state
+  const [applyOpen, setApplyOpen] = useState(false)
+  const [applyMsg, setApplyMsg] = useState('')
+  const [applyStatus, setApplyStatus] = useState(null) // null | 'success' | 'error'
+  const [applying, setApplying] = useState(false)
+
+  const submitApplication = async () => {
+    setApplying(true)
+    setApplyStatus(null)
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/properties/property-applications`,
+        { propertyId: id, applicationType: 'rent', message: applyMsg },
+        { withCredentials: true }
+      )
+      setApplyStatus('success')
+    } catch (e) {
+      setApplyStatus(e.response?.data?.message || 'Failed to submit application.')
+    } finally {
+      setApplying(false)
+    }
+  }
 
   // Price resolution (selected options override)
   const effectivePrice = useMemo(() => {
@@ -678,12 +702,21 @@ export default function PropertyDetails () {
             </div>
 
             <div className='cta-row'>
-              <button
-                className='btn primary full'
-                onClick={() => startMonnifyPayment()}
-              >
-                Proceed to Checkout
-              </button>
+              {isRentPurpose && !isPerNightType ? (
+                <button
+                  className='btn primary full'
+                  onClick={() => setApplyOpen(true)}
+                >
+                  Apply to Rent
+                </button>
+              ) : (
+                <button
+                  className='btn primary full'
+                  onClick={() => startMonnifyPayment()}
+                >
+                  Proceed to Checkout
+                </button>
+              )}
               <button
                 className='btn outline full'
                 onClick={() =>
@@ -693,6 +726,63 @@ export default function PropertyDetails () {
                 Contact Agent
               </button>
             </div>
+
+            {/* Apply to Rent modal */}
+            {applyOpen && (
+              <div style={{
+                position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+                zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16
+              }}>
+                <div style={{
+                  background: '#fff', borderRadius: 16, padding: 28,
+                  maxWidth: 460, width: '100%', boxShadow: '0 8px 40px rgba(0,0,0,0.15)'
+                }}>
+                  {applyStatus === 'success' ? (
+                    <>
+                      <h3 style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 700 }}>Application Submitted!</h3>
+                      <p style={{ color: '#6b7280', marginBottom: 20 }}>
+                        The property owner will review your application and get back to you.
+                      </p>
+                      <button className='btn primary full' onClick={() => { setApplyOpen(false); setApplyStatus(null) }}>
+                        Close
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 700 }}>Apply to Rent</h3>
+                      <p style={{ color: '#6b7280', fontSize: 13, marginBottom: 16 }}>{property?.title}</p>
+
+                      {applyStatus && typeof applyStatus === 'string' && (
+                        <p style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>{applyStatus}</p>
+                      )}
+
+                      <label style={{ display: 'block', fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
+                        Message to landlord (optional)
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={applyMsg}
+                        onChange={e => setApplyMsg(e.target.value)}
+                        placeholder='Introduce yourself, mention your move-in date, etc.'
+                        style={{
+                          width: '100%', padding: '10px 12px', borderRadius: 8,
+                          border: '1px solid #d1d5db', fontSize: 14, fontFamily: 'inherit',
+                          resize: 'vertical', boxSizing: 'border-box', marginBottom: 16
+                        }}
+                      />
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button className='btn primary full' onClick={submitApplication} disabled={applying}>
+                          {applying ? 'Submitting…' : 'Submit Application'}
+                        </button>
+                        <button className='btn outline full' onClick={() => setApplyOpen(false)}>
+                          Cancel
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className='agent-compact'>
               <img

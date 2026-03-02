@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+# Public browsing pages
+Allow: /buy
+Allow: /rent
+Allow: /search
+Allow: /property/
+Allow: /artisan/
+Allow: /invest
+
+# Block private/auth pages
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /property-owner/
+Disallow: /tenant/
+Disallow: /artisan-dashboard/
+Disallow: /api/
+Disallow: /payment/
+
+Sitemap: https://estateproperties.ng/sitemap.xml
