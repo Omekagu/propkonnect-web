@@ -149,28 +149,10 @@ export default function AuthPage () {
 
   const redirectBasedOnRole = async () => {
     try {
-      const token = localStorage.getItem('authToken')
       const userData = localStorage.getItem('userData')
-
       if (userData) {
-        const data = JSON.parse(userData)
-        const role = data?.role
-        const adminRoles = [
-          'super-admin',
-          'sub-admin',
-          'property-admin',
-          'property-owner',
-          'artisan',
-          'sub-property-admin',
-          'artisan-admin',
-          'sub-artisan-admin'
-        ]
-
-        if (adminRoles.includes(role)) {
-          router.push('/admin/dashboard')
-        } else {
-          router.push('/user/dashboard')
-        }
+        // All roles use /admin/dashboard — the layout renders role-specific content
+        router.push('/admin/dashboard')
       }
     } catch (err) {
       console.error('Error redirecting:', err)

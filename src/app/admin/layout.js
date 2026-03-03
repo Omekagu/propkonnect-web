@@ -341,6 +341,7 @@ export default function AdminLayout ({ children }) {
         case 'Report':
           return <Report />
         case 'Maintenance':
+          return <Maintenance />
         case 'ActiveJobs':
           return <ActiveJobs />
         case 'UserManagement':

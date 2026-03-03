@@ -4,6 +4,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
 import {
   getOrCreateDeviceId,
   isAuthenticated,
@@ -48,6 +49,15 @@ export const useAuth = (): UseAuthReturn => {
       return false
     }
   }, [])
+
+  // Sync axios Authorization header whenever token changes
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    } else {
+      delete axios.defaults.headers.common['Authorization']
+    }
+  }, [token])
 
   // Initial auth check
   useEffect(() => {
@@ -144,22 +154,8 @@ export const useAuthPageGuard = () => {
 
   useEffect(() => {
     if (!isLoading && isLoggedIn) {
-      const adminRoles = [
-        'super-admin',
-        'sub-admin',
-        'property-admin',
-        'property-owner',
-        'artisan',
-        'sub-property-admin',
-        'artisan-admin',
-        'sub-artisan-admin'
-      ]
-
-      if (user?.role && adminRoles.includes(user.role)) {
-        router.push('/admin/dashboard')
-      } else {
-        router.push('/user/dashboard')
-      }
+      // All roles use /admin/dashboard — the layout renders role-specific content
+      router.push('/admin/dashboard')
     }
   }, [isLoggedIn, isLoading, user, router])
 

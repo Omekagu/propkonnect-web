@@ -24,19 +24,15 @@ export default function PropertyDetails () {
   const [error, setError] = useState(null)
   const [similarProperties, setSimilarProperties] = useState([])
 
-  const startMonnifyPayment = async () => {
-    const totalAmount = isPerNightType
-      ? bookingTotal?.total
-      : paymentBreakdown?.total ?? effectivePrice
+  const getPaymentAmount = () =>
+    isPerNightType ? bookingTotal?.total : paymentBreakdown?.total ?? effectivePrice
 
-    if (!totalAmount) {
-      alert('Amount cannot be zero')
-      return
-    }
+  const startMonnifyPayment = async () => {
+    const totalAmount = getPaymentAmount()
+    if (!totalAmount) { alert('Amount cannot be zero'); return }
 
     try {
       const payRef = 'REF-' + Date.now()
-
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/initialize-monnify-transaction`,
         {
@@ -46,7 +42,6 @@ export default function PropertyDetails () {
           paymentReference: payRef
         }
       )
-
       if (res?.data?.requestSuccessful) {
         window.location.href = res.data.responseBody.checkoutUrl
       } else {
@@ -55,6 +50,36 @@ export default function PropertyDetails () {
     } catch (err) {
       console.log(err)
       alert('Payment error')
+    }
+  }
+
+  const startStripeCheckout = async () => {
+    const totalAmount = getPaymentAmount()
+    if (!totalAmount) { alert('Amount cannot be zero'); return }
+
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
+      if (!token) { alert('Please log in to continue'); return }
+
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/stripe-checkout`,
+        {
+          propertyId: id,
+          amount: totalAmount,
+          propertyTitle: property?.title,
+          propertyImage: property?.images?.[0]
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+
+      if (res?.data?.url) {
+        window.location.href = res.data.url
+      } else {
+        alert('Failed to initialize Stripe checkout')
+      }
+    } catch (err) {
+      console.error('[stripeCheckout]', err)
+      alert('Stripe payment error. Please try again.')
     }
   }
 
@@ -710,12 +735,21 @@ export default function PropertyDetails () {
                   Apply to Rent
                 </button>
               ) : (
-                <button
-                  className='btn primary full'
-                  onClick={() => startMonnifyPayment()}
-                >
-                  Proceed to Checkout
-                </button>
+                <>
+                  <button
+                    className='btn primary full'
+                    onClick={() => startMonnifyPayment()}
+                  >
+                    Pay with Bank Transfer
+                  </button>
+                  <button
+                    className='btn outline full'
+                    onClick={() => startStripeCheckout()}
+                    style={{ borderColor: '#635bff', color: '#635bff' }}
+                  >
+                    Pay with Card (Stripe)
+                  </button>
+                </>
               )}
               <button
                 className='btn outline full'

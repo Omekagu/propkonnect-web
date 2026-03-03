@@ -2,7 +2,17 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { io } from 'socket.io-client'
-import { FiSend, FiMessageSquare, FiSearch } from 'react-icons/fi'
+import {
+  FiSend,
+  FiMessageSquare,
+  FiSearch,
+  FiPaperclip,
+  FiX,
+  FiFile,
+  FiDownload,
+  FiHome,
+  FiImage
+} from 'react-icons/fi'
 import './Messages.scss'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
@@ -25,11 +35,27 @@ function getInitials (user) {
   return '?'
 }
 
+function formatFileSize (bytes) {
+  if (!bytes) return ''
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function resolveUrl (url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return `${API}/${url.replace(/\\/g, '/')}`
+}
+
 export default function Messages () {
   const token =
     typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
-  const currentUserId =
-    typeof window !== 'undefined' ? localStorage.getItem('userId') : null
+  const currentUser =
+    typeof window !== 'undefined'
+      ? JSON.parse(localStorage.getItem('userData') || 'null')
+      : null
+  const currentUserId = currentUser?._id || currentUser?.id
 
   const [conversations, setConversations] = useState([])
   const [activeConvId, setActiveConvId] = useState(null)
@@ -43,13 +69,23 @@ export default function Messages () {
   const [typing, setTyping] = useState(false)
   const [remoteTyping, setRemoteTyping] = useState(false)
 
+  // Attachment state
+  const [attachment, setAttachment] = useState(null) // { file, preview, type }
+  const fileInputRef = useRef(null)
+
+  // Property picker state
+  const [showPropertyPicker, setShowPropertyPicker] = useState(false)
+  const [pickerSearch, setPickerSearch] = useState('')
+  const [pickerProperties, setPickerProperties] = useState([])
+  const [pickerLoading, setPickerLoading] = useState(false)
+
   const socketRef = useRef(null)
   const messagesEndRef = useRef(null)
   const typingTimeout = useRef(null)
 
   const authHeader = () => ({ Authorization: `Bearer ${token}` })
 
-  // ── Fetch conversations ────────────────────────────────────────────────────
+  // ── Fetch conversations ─────────────────────────────────────────────────────
   const fetchConversations = useCallback(async () => {
     if (!token) return
     setLoadingConvs(true)
@@ -67,7 +103,7 @@ export default function Messages () {
     }
   }, [token])
 
-  // ── Fetch messages for active conversation ────────────────────────────────
+  // ── Fetch messages for active conversation ──────────────────────────────────
   const fetchMessages = useCallback(async (convId) => {
     if (!token || !convId) return
     setLoadingMsgs(true)
@@ -77,7 +113,7 @@ export default function Messages () {
       })
       if (!res.ok) return
       const data = await res.json()
-      setMessages((data.messages || []).reverse())
+      setMessages(data.messages || [])
     } catch (e) {
       console.warn('[Messages] fetch messages error:', e.message)
     } finally {
@@ -96,14 +132,20 @@ export default function Messages () {
     socketRef.current = socket
 
     socket.on('new-message', (msg) => {
-      // Prepend to active conversation if matching
       setMessages(prev => {
-        if (msg.conversationId === activeConvId || prev.some(m => m.conversationId === msg.conversationId)) {
+        if (
+          msg.conversationId === activeConvId ||
+          prev.some(m => m.conversationId === msg.conversationId)
+        ) {
+          // Replace optimistic if tempId matches, otherwise append
+          const hasOptimistic = prev.some(m => m.isOptimistic && m.text === msg.text)
+          if (hasOptimistic) {
+            return prev.map(m => (m.isOptimistic && m.text === msg.text ? msg : m))
+          }
           return [...prev, msg]
         }
         return prev
       })
-      // Update last message in conversation list
       setConversations(prev =>
         prev.map(c =>
           c._id === msg.conversationId
@@ -126,40 +168,38 @@ export default function Messages () {
     }
   }, [token, activeConvId])
 
-  useEffect(() => {
-    fetchConversations()
-  }, [fetchConversations])
+  useEffect(() => { fetchConversations() }, [fetchConversations])
 
   useEffect(() => {
     if (activeConvId) fetchMessages(activeConvId)
   }, [activeConvId, fetchMessages])
 
-  // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // ── Select conversation ───────────────────────────────────────────────────
+  // ── Select conversation ────────────────────────────────────────────────────
   const openConversation = (conv) => {
     setActiveConvId(conv._id)
     setActiveConv(conv)
     setRemoteTyping(false)
-    // Clear unread count locally
     setConversations(prev =>
       prev.map(c => c._id === conv._id ? { ...c, unreadCount: 0 } : c)
     )
   }
 
-  // ── Send message ──────────────────────────────────────────────────────────
+  // ── Send text message ──────────────────────────────────────────────────────
   const handleSend = async () => {
     if (!text.trim() || !activeConvId || sending) return
     const receiverId = activeConv?.otherUser?._id
     setSending(true)
+    const optimisticText = text.trim()
     const optimistic = {
       _id: `opt_${Date.now()}`,
       conversationId: activeConvId,
       senderId: currentUserId,
-      text: text.trim(),
+      text: optimisticText,
+      type: 'text',
       createdAt: new Date().toISOString(),
       isOptimistic: true
     }
@@ -169,7 +209,7 @@ export default function Messages () {
       const res = await fetch(`${API}/api/messages/send`, {
         method: 'POST',
         headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId: activeConvId, text: optimistic.text, receiverId })
+        body: JSON.stringify({ conversationId: activeConvId, text: optimisticText, receiverId })
       })
       const data = await res.json()
       if (res.ok && data.message) {
@@ -191,7 +231,120 @@ export default function Messages () {
     }
   }
 
-  // ── Typing indicator ──────────────────────────────────────────────────────
+  // ── File/image attachment ──────────────────────────────────────────────────
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const isImage = file.type.startsWith('image/')
+    const preview = isImage ? URL.createObjectURL(file) : null
+    setAttachment({ file, preview, type: isImage ? 'image' : 'file' })
+    e.target.value = ''
+  }
+
+  const cancelAttachment = () => {
+    if (attachment?.preview) URL.revokeObjectURL(attachment.preview)
+    setAttachment(null)
+  }
+
+  const handleSendAttachment = async () => {
+    if (!attachment || !activeConvId || sending) return
+    const receiverId = activeConv?.otherUser?._id
+    setSending(true)
+    try {
+      const formData = new FormData()
+      formData.append('image', attachment.file)
+      formData.append('conversationId', activeConvId)
+      formData.append('receiverId', receiverId)
+      if (attachment.type === 'file') formData.append('type', 'file')
+      if (text.trim()) formData.append('caption', text.trim())
+
+      const res = await fetch(`${API}/api/messages/send-image`, {
+        method: 'POST',
+        headers: authHeader(),
+        body: formData
+      })
+      const data = await res.json()
+      if (res.ok && data.message) {
+        setMessages(prev => [...prev, data.message])
+        setConversations(prev =>
+          prev.map(c =>
+            c._id === activeConvId
+              ? { ...c, lastMessage: data.message.text, lastMessageAt: data.message.createdAt }
+              : c
+          )
+        )
+      }
+      setText('')
+      cancelAttachment()
+    } catch (e) {
+      console.warn('[Messages] send attachment error:', e.message)
+    } finally {
+      setSending(false)
+    }
+  }
+
+  // ── Property picker ────────────────────────────────────────────────────────
+  const openPropertyPicker = async () => {
+    setShowPropertyPicker(true)
+    setPickerLoading(true)
+    try {
+      const res = await fetch(`${API}/api/properties?limit=10`, {
+        headers: authHeader()
+      })
+      const data = await res.json()
+      setPickerProperties(data.properties || [])
+    } catch (e) {
+      setPickerProperties([])
+    } finally {
+      setPickerLoading(false)
+    }
+  }
+
+  const searchProperties = async (q) => {
+    setPickerSearch(q)
+    if (!q.trim()) { openPropertyPicker(); return }
+    setPickerLoading(true)
+    try {
+      const res = await fetch(`${API}/api/properties?search=${encodeURIComponent(q)}&limit=8`, {
+        headers: authHeader()
+      })
+      const data = await res.json()
+      setPickerProperties(data.properties || [])
+    } catch (e) {
+      setPickerProperties([])
+    } finally {
+      setPickerLoading(false)
+    }
+  }
+
+  const handleShareProperty = async (property) => {
+    const receiverId = activeConv?.otherUser?._id
+    setSending(true)
+    try {
+      const res = await fetch(`${API}/api/messages/send`, {
+        method: 'POST',
+        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId: activeConvId,
+          receiverId,
+          type: 'property',
+          propertyId: property._id
+        })
+      })
+      const data = await res.json()
+      if (res.ok && data.message) {
+        setMessages(prev => [...prev, data.message])
+      }
+    } catch (e) {
+      console.warn('[Messages] share property error:', e.message)
+    } finally {
+      setSending(false)
+      setShowPropertyPicker(false)
+      setPickerSearch('')
+    }
+  }
+
+  // ── Typing indicator ───────────────────────────────────────────────────────
   const handleTextChange = (e) => {
     setText(e.target.value)
     if (!socketRef.current || !activeConvId) return
@@ -209,7 +362,97 @@ export default function Messages () {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handleSend()
+      attachment ? handleSendAttachment() : handleSend()
+    }
+  }
+
+  // ── Message content renderer ───────────────────────────────────────────────
+  const renderMessageContent = (msg) => {
+    switch (msg.type) {
+      case 'image':
+        return (
+          <div className='msg-image'>
+            <img
+              src={resolveUrl(msg.imageUrl)}
+              alt='Image'
+              onClick={() => window.open(resolveUrl(msg.imageUrl), '_blank')}
+            />
+            {msg.text && <p className='msg-caption'>{msg.text}</p>}
+            <span className='msg-time'>{timeAgo(msg.createdAt)}</span>
+          </div>
+        )
+      case 'file':
+        return (
+          <div className='msg-file'>
+            <FiFile size={22} className='msg-file-icon' />
+            <div className='msg-file-info'>
+              <span className='msg-file-name'>{msg.fileName || 'File'}</span>
+              {msg.fileSize > 0 && (
+                <span className='msg-file-size'>{formatFileSize(msg.fileSize)}</span>
+              )}
+            </div>
+            <a
+              href={resolveUrl(msg.fileUrl)}
+              download
+              target='_blank'
+              rel='noreferrer'
+              className='msg-file-download'
+            >
+              <FiDownload size={16} />
+            </a>
+            <span className='msg-time'>{timeAgo(msg.createdAt)}</span>
+          </div>
+        )
+      case 'property': {
+        const prop = msg.propertyData
+        return (
+          <div className='msg-property-card'>
+            {prop?.images?.[0] && (
+              <img src={resolveUrl(prop.images[0])} alt={prop.title} className='msg-card-img' />
+            )}
+            <div className='msg-card-body'>
+              <FiHome size={13} className='msg-card-icon' />
+              <p className='msg-card-title'>{prop?.title || 'Property'}</p>
+              {prop?.price && (
+                <p className='msg-card-price'>₦{Number(prop.price).toLocaleString()}</p>
+              )}
+              {prop?.location && (
+                <p className='msg-card-location'>
+                  {typeof prop.location === 'string'
+                    ? prop.location
+                    : prop.location?.city || prop.location?.address || ''}
+                </p>
+              )}
+            </div>
+            <span className='msg-time'>{timeAgo(msg.createdAt)}</span>
+          </div>
+        )
+      }
+      case 'artisan': {
+        const a = msg.artisanData
+        return (
+          <div className='msg-artisan-card'>
+            {a?.portfolioImages?.[0] && (
+              <img src={resolveUrl(a.portfolioImages[0])} alt={a.name} className='msg-card-img' />
+            )}
+            <div className='msg-card-body'>
+              <p className='msg-card-title'>{a?.name || 'Artisan'}</p>
+              <p className='msg-card-sub'>{a?.profession}</p>
+              {a?.rating != null && (
+                <p className='msg-card-rating'>⭐ {Number(a.rating).toFixed(1)}</p>
+              )}
+            </div>
+            <span className='msg-time'>{timeAgo(msg.createdAt)}</span>
+          </div>
+        )
+      }
+      default:
+        return (
+          <>
+            <p>{msg.text}</p>
+            <span className='msg-time'>{timeAgo(msg.createdAt)}</span>
+          </>
+        )
     }
   }
 
@@ -219,6 +462,8 @@ export default function Messages () {
       : ''
     return name.toLowerCase().includes(search.toLowerCase())
   })
+
+  const canSend = (text.trim() || attachment) && !sending
 
   return (
     <div className='messages-container'>
@@ -327,9 +572,8 @@ export default function Messages () {
                     msg.senderId?._id === currentUserId
                   return (
                     <div key={msg._id} className={`msg-bubble-wrap ${isMine ? 'mine' : 'theirs'}`}>
-                      <div className={`msg-bubble ${msg.isOptimistic ? 'optimistic' : ''}`}>
-                        <p>{msg.text}</p>
-                        <span className='msg-time'>{timeAgo(msg.createdAt)}</span>
+                      <div className={`msg-bubble ${msg.isOptimistic ? 'optimistic' : ''} type-${msg.type || 'text'}`}>
+                        {renderMessageContent(msg)}
                       </div>
                     </div>
                   )
@@ -345,11 +589,57 @@ export default function Messages () {
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Attachment preview */}
+            {attachment && (
+              <div className='attachment-preview'>
+                {attachment.type === 'image'
+                  ? <img src={attachment.preview} alt='preview' />
+                  : (
+                    <div className='attachment-file'>
+                      <FiFile size={20} />
+                      <span>{attachment.file.name}</span>
+                    </div>
+                  )}
+                <button className='attachment-cancel' onClick={cancelAttachment}>
+                  <FiX size={14} />
+                </button>
+              </div>
+            )}
+
             {/* Input */}
             <div className='thread-input-area'>
+              {/* Hidden file input */}
+              <input
+                type='file'
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                accept='image/*,application/pdf,.doc,.docx,.txt,.zip'
+                onChange={handleFileSelect}
+              />
+
+              {/* Attachment button */}
+              <button
+                className='attach-btn'
+                onClick={() => fileInputRef.current?.click()}
+                title='Attach file or image'
+                disabled={sending}
+              >
+                <FiPaperclip size={18} />
+              </button>
+
+              {/* Share property button */}
+              <button
+                className='attach-btn'
+                onClick={openPropertyPicker}
+                title='Share a property'
+                disabled={sending}
+              >
+                <FiHome size={18} />
+              </button>
+
               <textarea
                 className='thread-input'
-                placeholder='Type a message…'
+                placeholder={attachment ? 'Add a caption…' : 'Type a message…'}
                 value={text}
                 onChange={handleTextChange}
                 onKeyDown={handleKeyDown}
@@ -357,8 +647,8 @@ export default function Messages () {
               />
               <button
                 className='send-btn'
-                onClick={handleSend}
-                disabled={!text.trim() || sending}
+                onClick={attachment ? handleSendAttachment : handleSend}
+                disabled={!canSend}
               >
                 <FiSend size={18} />
               </button>
@@ -366,6 +656,52 @@ export default function Messages () {
           </>
         )}
       </main>
+
+      {/* ── Property Picker Modal ── */}
+      {showPropertyPicker && (
+        <div className='picker-overlay' onClick={() => setShowPropertyPicker(false)}>
+          <div className='picker-modal' onClick={e => e.stopPropagation()}>
+            <div className='picker-header'>
+              <h3>Share a Property</h3>
+              <button onClick={() => setShowPropertyPicker(false)}><FiX size={18} /></button>
+            </div>
+            <div className='picker-search'>
+              <FiSearch size={14} />
+              <input
+                placeholder='Search properties…'
+                value={pickerSearch}
+                onChange={e => searchProperties(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className='picker-list'>
+              {pickerLoading ? (
+                <div className='picker-loading'>Loading…</div>
+              ) : pickerProperties.length === 0 ? (
+                <div className='picker-empty'>No properties found</div>
+              ) : (
+                pickerProperties.map(prop => (
+                  <div
+                    key={prop._id}
+                    className='picker-item'
+                    onClick={() => handleShareProperty(prop)}
+                  >
+                    {prop.images?.[0] && (
+                      <img src={resolveUrl(prop.images[0])} alt={prop.title} />
+                    )}
+                    <div className='picker-item-info'>
+                      <span className='picker-item-title'>{prop.title}</span>
+                      <span className='picker-item-sub'>
+                        ₦{Number(prop.price).toLocaleString()} · {prop.location?.city || prop.location?.address || ''}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
