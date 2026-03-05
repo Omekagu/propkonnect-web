@@ -48,6 +48,7 @@ import Artisan from '@/component/admin/Artisan/Artisan'
 import FinanceDashboard from '@/component/tenant/Finance/Finance'
 import PlatformSettings from '../../component/admin/PlatformSettings/PlatformSettings.jsx'
 import EmailTemplates from '../../component/admin/EmailTemplates/EmailTemplates.jsx'
+import AdminPermissions from '../../component/admin/AdminPermissions/AdminPermissions.jsx'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
@@ -70,6 +71,12 @@ export default function AdminLayout ({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [activePage, setActivePage] = useState('Dashboard')
+
+  // Restore last active page on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('ep_activePage')
+    if (saved) setActivePage(saved)
+  }, [])
   const [error, setError] = useState(null)
   const [sessionWarning, setSessionWarning] = useState(false)
   const [sessionTimeoutWarning, setSessionTimeoutWarning] = useState(false)
@@ -358,6 +365,8 @@ export default function AdminLayout ({ children }) {
           return <PlatformSettings />
         case 'EmailTemplates':
           return <EmailTemplates />
+        case 'AdminPermissions':
+          return <AdminPermissions currentUser={user} />
         default:
           return <AdminDashboard />
       }
@@ -495,7 +504,7 @@ export default function AdminLayout ({ children }) {
         userRole={userRole}
         collapsed={sidebarCollapsed}
         mobileOpen={mobileSidebarOpen}
-        onRouteChange={setActivePage}
+        onRouteChange={page => { setActivePage(page); localStorage.setItem('ep_activePage', page) }}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         onToggleCollapse={() => setSidebarCollapsed(s => !s)}
         supportTicketCount={supportTicketCount}
@@ -507,6 +516,7 @@ export default function AdminLayout ({ children }) {
           onToggleTheme={() => alert('Toggle theme (wire up)')}
           user={user}
           onLogout={logout}
+          currentPage={activePage}
           supportTicketCount={supportTicketCount}
           notifications={notifications}
           unreadCount={unreadCount}

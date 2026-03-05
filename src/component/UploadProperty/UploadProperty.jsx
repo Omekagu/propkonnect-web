@@ -215,6 +215,8 @@ export default function UploadPropertyWizard ({
   const [errors, setErrors] = useState({})
   const [notice, setNotice] = useState(null)
   const [aiGenerating, setAiGenerating] = useState(false)
+  const [planInfo, setPlanInfo] = useState(null)
+  const [listingCount, setListingCount] = useState(0)
 
   // Track if component is mounted to avoid memory leaks
   const mounted = useRef(true)
@@ -226,6 +228,37 @@ export default function UploadPropertyWizard ({
     return () => {
       mounted.current = false
     }
+  }, [])
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // LOAD PLAN INFO
+  // ─────────────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const loadPlanInfo = async () => {
+      try {
+        // Get plan from stored user data first (fast path)
+        let tier = 'free', limit = 3
+        try {
+          const stored = localStorage.getItem('userData') || localStorage.getItem('user')
+          if (stored) {
+            const u = JSON.parse(stored)
+            tier = u?.plan?.tier || 'free'
+            limit = u?.plan?.listingLimit ?? (tier === 'enterprise' ? -1 : tier === 'pro' ? 50 : tier === 'basic' ? 15 : 3)
+          }
+        } catch { /* ignore parse errors */ }
+
+        // Fetch current listing count
+        const res = await api.get('/api/properties/property/mine')
+        if (mounted.current) {
+          const count = res.data?.properties?.length ?? res.data?.data?.length ?? 0
+          setListingCount(count)
+          setPlanInfo({ tier, limit })
+        }
+      } catch {
+        // Non-critical — silently skip banner
+      }
+    }
+    loadPlanInfo()
   }, [])
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -840,6 +873,45 @@ export default function UploadPropertyWizard ({
       )}
 
       <div className='wizard-container'>
+        {/* ── PLAN BANNER ── */}
+        {planInfo && !editPropertyId && (() => {
+          const pct = planInfo.limit === -1 ? 0 : Math.round((listingCount / planInfo.limit) * 100)
+          const isFull = planInfo.limit !== -1 && listingCount >= planInfo.limit
+          const isWarn = !isFull && pct >= 80
+          return (
+            <div className='plan-banner'>
+              <div className='plan-info'>
+                <span className='plan-icon'>🏠</span>
+                <span>
+                  <strong>{listingCount}</strong> of{' '}
+                  <strong>{planInfo.limit === -1 ? '∞' : planInfo.limit}</strong> listings used
+                  {' · '}
+                  <strong style={{ textTransform: 'capitalize' }}>{planInfo.tier}</strong> Plan
+                  {isFull && <span style={{ color: '#cc0000', marginLeft: 8 }}>— Limit reached</span>}
+                  {isWarn && !isFull && <span style={{ color: '#f5a623', marginLeft: 8 }}>— Almost full</span>}
+                </span>
+              </div>
+              {planInfo.limit !== -1 && (
+                <div className='plan-bar'>
+                  <div
+                    className={`plan-bar-fill${isFull ? ' full' : isWarn ? ' warn' : ''}`}
+                    style={{ width: `${Math.min(pct, 100)}%` }}
+                  />
+                </div>
+              )}
+              {(isFull || isWarn) && (
+                <button
+                  type='button'
+                  className='btn-upgrade'
+                  onClick={() => window.location.href = '/pricing'}
+                >
+                  Upgrade Plan
+                </button>
+              )}
+            </div>
+          )
+        })()}
+
         {/* ── HEADER ── */}
         <div className='wizard-header'>
           <button type='button' className='btn-back' onClick={handleBack}>

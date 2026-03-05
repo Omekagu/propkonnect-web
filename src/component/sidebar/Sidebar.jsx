@@ -43,6 +43,12 @@ export default function Sidebar ({
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // Restore active page on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('ep_activePage')
+    if (saved) setActiveKey(saved)
+  }, [])
+
   useEffect(() => {
     const fetchUser = async () => {
       const authToken = localStorage.getItem('authToken')
@@ -116,6 +122,11 @@ export default function Sidebar ({
             key: 'Documents',
             label: 'Documents',
             icon: <ClipboardMinus strokeWidth={0.75} />
+          },
+          {
+            key: 'AdminPermissions',
+            label: 'Permissions',
+            icon: <Shield strokeWidth={0.75} />
           }
         ],
         account: [
@@ -127,7 +138,7 @@ export default function Sidebar ({
           {
             key: 'Security',
             label: 'Security',
-            icon: <Shield strokeWidth={0.75} />
+            icon: <Cog strokeWidth={0.75} />
           },
           {
             key: 'Help',
@@ -455,6 +466,7 @@ export default function Sidebar ({
 
   const handleClick = key => {
     setActiveKey(key)
+    localStorage.setItem('ep_activePage', key)
     onRouteChange(key)
     if (mobileOpen) onCloseMobile()
   }

@@ -1,18 +1,7 @@
 import HeaderLayout from './HeaderLayout'
-import { Geist, Geist_Mono } from 'next/font/google'
 import './index.scss'
 import Script from 'next/script'
 import { ReviewsProvider } from '@/context/ReviewsProvider'
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin']
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin']
-})
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL), // change to your real domain
@@ -111,7 +100,7 @@ export default function RootLayout ({ children }) {
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body>
         <ReviewsProvider>
           <HeaderLayout>{children}</HeaderLayout>
         </ReviewsProvider>

@@ -1,24 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
-
-* {
-  box-sizing: border-box;
-}
-
-/* ==================== CSS VARIABLES ==================== */
-:root {
-  --primary-gradient: linear-gradient(135deg, #c9a96e 0%, #e2c89a 100%);
-  --primary-color: #c9a96e;
-  --primary-dark: #a87842;
-  --danger-color: #e05b5b;
-  --warning-color: #f0b954;
-  --text-dark: #e8eaf0;
-  --text-light: #8890a8;
-  --text-muted: #4e5470;
-  --bg-light: #0e0f13;
-  --bg-lighter: #15171d;
-  --border-color: rgba(255, 255, 255, 0.07);
-  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.55);
-}
+// Fonts & tokens loaded globally via src/app/index.scss
 
 /* ==================== KEYFRAME ANIMATIONS ==================== */
 @keyframes spin {

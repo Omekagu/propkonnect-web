@@ -1,38 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap');
 
-// ─── Tokens ──────────────────────────────────────────────────────────────────
-:root {
-  --bg: #0e0f13;
-  --bg-surface: #15171d;
-  --bg-raised: #1c1f28;
-  --bg-hover: #22263200;
-
-  --border: rgba(255, 255, 255, 0.06);
-  --border-mid: rgba(255, 255, 255, 0.11);
-
-  --text-1: #e8eaf0;
-  --text-2: #8890a8;
-  --text-3: #4e5470;
-
-  --accent: #c9a96e; // warm amber-gold
-  --accent-muted: rgba(201, 169, 110, 0.12);
-  --accent-glow: rgba(201, 169, 110, 0.25);
-
-  --danger: #e05b5b;
-  --danger-muted: rgba(224, 91, 91, 0.12);
-
-  --success: #5bcfb0;
-  --success-muted: rgba(91, 207, 176, 0.12);
-
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 16px;
-
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body: 'DM Sans', sans-serif;
-
-  --transition: all 0.18s ease;
-}
+// ─── Settings uses global design tokens from index.scss ──────────────────────
 
 .settings {
   font-family: var(--font-body);
@@ -391,8 +358,8 @@
   white-space: nowrap;
 
   &--primary {
-    background: var(--accent);
-    color: #0e0f13;
+    background: var(--color-primary);
+    color: #ffffff;
     &:hover {
       opacity: 0.88;
     }
@@ -781,8 +748,8 @@
   display: inline-block;
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  border-top-color: #0e0f13;
+  border: 2px solid rgba(37, 99, 235, 0.2);
+  border-top-color: #2563eb;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }

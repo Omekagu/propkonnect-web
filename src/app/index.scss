@@ -1,123 +1,434 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+// ============================================================
+// ESTATE PROPERTIES — GLOBAL DESIGN SYSTEM
+// Single source of truth for all colours, fonts, and tokens.
+// Every page and component inherits from this file.
+// ============================================================
 
-.montserrat-alternates-thin {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 100;
-  font-style: normal;
+// ── Fonts ────────────────────────────────────────────────────
+// Inter — primary UI font (body, UI, headings)
+// JetBrains Mono — code / OTP / numeric display
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+// Montserrat Alternates — kept as a display/brand option (opt-in via class)
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600;700;800;900&display=swap');
+
+// ── CSS Custom Properties (Design Tokens) ────────────────────
+:root {
+
+  // ── Brand — Primary Blue ────────────────────────────────────
+  --color-primary:        #1d4ed8;
+  --color-primary-mid:    #2563eb;
+  --color-primary-light:  #eff6ff;
+  --color-primary-dark:   #1e40af;
+  --color-primary-subtle: rgba(37, 99, 235, 0.08);
+
+  // Legacy aliases
+  --primary:              #1d4ed8;
+  --primary-mid:          #2563eb;
+  --primary-light:        #eff6ff;
+  --primary-hover:        #1e40af;
+
+  --color-primary-mid:    #0071c2;
+  --color-primary-light:  #e8f3ff;
+  --color-primary-dark:   #00224f;
+  --color-primary-subtle: rgba(0, 113, 194, 0.08);
+
+  // (legacy aliases defined above with primary colors)
+
+  // ── Accent / CTA — Amber ────────────────────────────────────
+  --color-accent:         #f5a623;
+  --color-accent-light:   #fbbf45;
+  --color-accent-dark:    #e09515;
+  --color-accent-subtle:  rgba(245, 166, 35, 0.1);
+
+  // Legacy aliases
+  --cta:                  #f5a623;
+  --cta-hover:            #e09515;
+  --cta-text:             #1a1a2e;
+  --accent:               #f5a623;
+
+  // ── Neutral Background ───────────────────────────────────────
+  --color-background:     #f2f6fb;
+  --color-surface:        #ffffff;
+  --color-surface-hover:  #f7f9fc;
+  --color-border:         #dce3ee;
+  --color-border-light:   #eef2f8;
+
+  // Legacy aliases
+  --bg:                   #f2f6fb;
+  --surface:              #ffffff;
+  --surface-2:            #f7f9fc;
+  --border:               #dce3ee;
+  --border-light:         #eef2f8;
+
+  // ── Text ────────────────────────────────────────────────────
+  --color-text-primary:   #1a1a2e;
+  --color-text-secondary: #4a5568;
+  --color-text-muted:     #94a3b8;
+  --color-text-inverse:   #ffffff;
+
+  // Legacy aliases
+  --text:                 #1a1a2e;
+  --text-secondary:       #4a5568;
+  --text-muted:           #94a3b8;
+  --text-inverse:         #ffffff;
+
+  // ── Semantic — Success / Warning / Error / Info ──────────────
+  --color-success:        #00875a;
+  --color-warning:        #f59e0b;
+  --color-error:          #cc0000;
+  --color-info:           #0071c2;
+
+  --color-success-bg:     #e3f5ee;
+  --color-warning-bg:     #fef3c7;
+  --color-error-bg:       #fee2e2;
+  --color-info-bg:        #e8f3ff;
+
+  // Legacy aliases
+  --success:              #00875a;
+  --success-bg:           #e3f5ee;
+  --warning:              #f59e0b;
+  --warning-bg:           #fef3c7;
+  --error:                #cc0000;
+  --error-bg:             #fee2e2;
+  --info:                 #0071c2;
+  --info-bg:              #e8f3ff;
+
+  // ── Gradients ────────────────────────────────────────────────
+  --gradient-brand:       linear-gradient(135deg, #003580 0%, #0071c2 100%);
+  --gradient-mid:         linear-gradient(135deg, #0071c2 0%, #00a8e8 100%);
+  --gradient-hero:        linear-gradient(160deg, #003580 0%, #005ea6 50%, #0071c2 100%);
+  --gradient-amber:       linear-gradient(135deg, #f5a623 0%, #fbbf45 100%);
+  --gradient-1:           linear-gradient(135deg, #003580 0%, #0071c2 100%);
+  --gradient-2:           linear-gradient(135deg, #0071c2 0%, #00a8e8 100%);
+
+  // ── Typography ───────────────────────────────────────────────
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Montserrat Alternates', 'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+
+  // Font size scale
+  --text-xs:    0.75rem;   // 12px
+  --text-sm:    0.875rem;  // 14px
+  --text-base:  1rem;      // 16px
+  --text-lg:    1.125rem;  // 18px
+  --text-xl:    1.25rem;   // 20px
+  --text-2xl:   1.5rem;    // 24px
+  --text-3xl:   1.875rem;  // 30px
+  --text-4xl:   2.25rem;   // 36px
+  --text-5xl:   3rem;      // 48px
+
+  // Legacy aliases (admin.scss naming)
+  --font-size-xs:   0.75rem;
+  --font-size-sm:   0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg:   1.125rem;
+  --font-size-xl:   1.25rem;
+  --font-size-2xl:  1.5rem;
+
+  // Font weights
+  --weight-thin:       300;
+  --weight-normal:     400;
+  --weight-medium:     500;
+  --weight-semibold:   600;
+  --weight-bold:       700;
+  --weight-extrabold:  800;
+  --weight-black:      900;
+
+  // Legacy aliases
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  // Line height
+  --leading-none:     1;
+  --leading-tight:    1.25;
+  --leading-snug:     1.375;
+  --leading-normal:   1.5;
+  --leading-relaxed:  1.625;
+  --leading-loose:    1.75;
+
+  // Legacy aliases
+  --line-height-tight:   1.25;
+  --line-height-normal:  1.5;
+  --line-height-relaxed: 1.75;
+
+  // ── Spacing ──────────────────────────────────────────────────
+  --space-1:  0.25rem;   //  4px
+  --space-2:  0.5rem;    //  8px
+  --space-3:  0.75rem;   // 12px
+  --space-4:  1rem;      // 16px
+  --space-5:  1.25rem;   // 20px
+  --space-6:  1.5rem;    // 24px
+  --space-8:  2rem;      // 32px
+  --space-10: 2.5rem;    // 40px
+  --space-12: 3rem;      // 48px
+  --space-16: 4rem;      // 64px
+  --space-20: 5rem;      // 80px
+  --space-24: 6rem;      // 96px
+
+  // Legacy aliases (admin.scss naming)
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  0.75rem;
+  --space-lg:  1rem;
+  --space-xl:  1.5rem;
+  --space-2xl: 2rem;
+  --space-3xl: 3rem;
+
+  // ── Border Radius ────────────────────────────────────────────
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-2xl:  28px;
+  --radius-full: 9999px;
+
+  // ── Shadows (brand-tinted blue) ───────────────────────────────
+  --shadow-xs:   0 1px 3px rgba(0, 53, 128, 0.06);
+  --shadow-sm:   0 2px 8px rgba(0, 53, 128, 0.10);
+  --shadow-md:   0 4px 16px rgba(0, 53, 128, 0.12);
+  --shadow-lg:   0 8px 32px rgba(0, 53, 128, 0.15);
+  --shadow-xl:   0 16px 48px rgba(0, 53, 128, 0.18);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.09), 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  // ── Transitions ──────────────────────────────────────────────
+  --ease:             cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:         cubic-bezier(0, 0, 0.2, 1);
+  --ease-in:          cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce:      cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition:       cubic-bezier(0.4, 0, 0.2, 1);        // legacy alias
+  --transition-fast:  150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base:  250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:  350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  // ── Layout ────────────────────────────────────────────────────
+  --sidebar-width:     280px;
+  --sidebar-collapsed: 80px;
+  --header-height:     72px;
+  --max-width:         1280px;
+  --content-width:     1100px;
+
+  // ── Legacy dark-theme component aliases (light remapping) ─────
+  // These remap old dark-theme variable names used by migrated
+  // component SCSS files so they render correctly in the light layout.
+  --text-dark:      #1a1a2e;    // was #e8eaf0 (white text on dark bg → dark)
+  --text-gray:      #64748b;    // was #8890a8
+  --bg-light:       #f2f6fb;    // was #0e0f13 (darkest bg → light)
+  --bg-white:       #ffffff;    // was #15171d (dark → white)
+  --bg-dark:        #f2f6fb;    // was #0e0f13 (paradox: maps to our LIGHT bg)
+  --bg-darker:      #eef2f8;    // was #09090b
+  --surface-light:  #f7f9fc;    // was #1c1f28
+  --bg-surface:     #ffffff;    // was #15171d
+  --bg-raised:      #f7f9fc;    // was #1c1f28
+  --bg-hover:       #f1f5f9;    // was rgba(255,255,255,0.08) on dark
+  --text-1:         #1a1a2e;    // was #e8eaf0 (inverted for dark mode)
+  --text-2:         #4a5568;    // was #8890a8
+  --text-3:         #94a3b8;    // was #4e5470
+  --secondary:      #1d4ed8;    // was #5bcfb0 teal → blue
+  --border-mid:     #dce3ee;    // was rgba(255,255,255,0.11)
+  --accent-muted:   rgba(29, 78, 216, 0.08);  // was amber rgba
+  --accent-glow:    rgba(29, 78, 216, 0.15);  // was amber rgba
+  --transition:     all 0.2s cubic-bezier(0.4, 0, 0.2, 1); // full shorthand
+  --color-surface:  #ffffff;    // ensure not overridden by dark theme files
 }
 
-.montserrat-alternates-extralight {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.montserrat-alternates-light {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.montserrat-alternates-regular {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.montserrat-alternates-medium {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.montserrat-alternates-semibold {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.montserrat-alternates-bold {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.montserrat-alternates-extrabold {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 800;
-  font-style: normal;
-}
-
-.montserrat-alternates-black {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 900;
-  font-style: normal;
-}
-
-.montserrat-alternates-thin-italic {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.montserrat-alternates-extralight-italic {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 200;
-  font-style: italic;
-}
-
-.montserrat-alternates-light-italic {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.montserrat-alternates-regular-italic {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.montserrat-alternates-medium-italic {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.montserrat-alternates-semibold-italic {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 600;
-  font-style: italic;
-}
-
-.montserrat-alternates-bold-italic {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
-.montserrat-alternates-extrabold-italic {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 800;
-  font-style: italic;
-}
-
-.montserrat-alternates-black-italic {
-  font-family: 'Montserrat Alternates', sans-serif;
-  font-weight: 900;
-  font-style: italic;
-}
-
+// ── Global Reset ─────────────────────────────────────────────
 *,
-*::after,
-*::before {
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+// ── Base Styles ──────────────────────────────────────────────
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-weight: 200;
-  background: #fff !important;
+  font-family: var(--font);
+  font-size: var(--text-base);
+  font-weight: var(--weight-normal);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  min-height: 100vh;
+}
+
+// ── Typography ───────────────────────────────────────────────
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+}
+
+h1 { font-size: var(--text-4xl); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+h5 { font-size: var(--text-lg); }
+h6 { font-size: var(--text-base); }
+
+p  {
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+}
+
+a {
+  color: var(--color-primary-mid);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  &:hover { color: var(--color-primary); }
+}
+
+// ── Form Elements ────────────────────────────────────────────
+input, textarea, select, button {
+  font-family: var(--font);
+  font-size: var(--text-sm);
+}
+
+input, textarea, select {
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:focus {
+    border-color: var(--color-primary-mid);
+    box-shadow: 0 0 0 3px var(--color-primary-subtle);
+  }
+
+  &::placeholder { color: var(--color-text-muted); }
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-weight: var(--weight-medium);
+}
+
+img, video {
+  max-width: 100%;
+  display: block;
+}
+
+// ── Scrollbar ─────────────────────────────────────────────────
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: var(--color-border-light); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb  { background: var(--color-border); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+// ── Focus Visible ─────────────────────────────────────────────
+:focus-visible {
+  outline: 2px solid var(--color-primary-mid);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+// ── Text Selection ───────────────────────────────────────────
+::selection {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+// ── Utility Classes ──────────────────────────────────────────
+
+// Font families
+.font-sans    { font-family: var(--font); }
+.font-mono    { font-family: var(--font-mono); }
+.font-display { font-family: var(--font-display); }
+
+// Kept for backward-compat — Montserrat Alternates display helper
+.montserrat   { font-family: var(--font-display); }
+
+// ── Dark Mode (OS-level preference) ──────────────────────────
+@media (prefers-color-scheme: dark) {
+  :root {
+    // Backgrounds
+    --color-background:     #020617;
+    --color-surface:        #0f172a;
+    --color-surface-hover:  #1e293b;
+    --color-border:         #1e293b;
+    --color-border-light:   #0f172a;
+
+    // Legacy aliases
+    --bg:       #020617;
+    --surface:  #0f172a;
+    --surface-2:#1e293b;
+    --border:   #1e293b;
+    --border-light: #0f172a;
+
+    // Text
+    --color-text-primary:   #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted:     #64748b;
+    --color-text-inverse:   #0f172a;
+
+    --text:           #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted:     #64748b;
+    --text-inverse:   #0f172a;
+
+    // Primary tints (blue is still vivid in dark)
+    --color-primary-light:  rgba(37, 99, 235, 0.15);
+    --color-primary-subtle: rgba(37, 99, 235, 0.10);
+    --primary-light: rgba(37, 99, 235, 0.15);
+
+    // Semantic bg tints
+    --color-success-bg: rgba(0, 135, 90, 0.15);
+    --color-warning-bg: rgba(245, 158, 11, 0.15);
+    --color-error-bg:   rgba(239, 68, 68, 0.15);
+    --color-info-bg:    rgba(37, 99, 235, 0.15);
+
+    --success-bg: rgba(0, 135, 90, 0.15);
+    --warning-bg: rgba(245, 158, 11, 0.15);
+    --error-bg:   rgba(239, 68, 68, 0.15);
+    --info-bg:    rgba(37, 99, 235, 0.15);
+
+    // Shadows — deeper in dark
+    --shadow-xs:   0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.6);
+    --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.7);
+    --shadow-xl:   0 16px 48px rgba(0, 0, 0, 0.8);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  body {
+    color-scheme: dark;
+  }
+
+  // Inputs in dark mode
+  input, textarea, select {
+    color-scheme: dark;
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+
+    &::placeholder { color: var(--color-text-muted); }
+  }
+
+  // Scrollbar in dark
+  ::-webkit-scrollbar-track { background: #0f172a; }
+  ::-webkit-scrollbar-thumb { background: #334155; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+  ::selection {
+    background: rgba(37, 99, 235, 0.3);
+    color: #93c5fd;
+  }
 }

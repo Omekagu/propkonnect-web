@@ -170,13 +170,14 @@ export default function AuthPage () {
       setError('')
       setStatus('')
 
+      const normalizedEmail = email.trim().toLowerCase()
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
-        { email }
+        { email: normalizedEmail }
       )
 
       const data = res.data
-      localStorage.setItem('email', email)
+      localStorage.setItem('email', normalizedEmail)
       if (data.user?._id) {
         localStorage.setItem('userId', data.user._id)
       }
@@ -222,7 +223,7 @@ export default function AuthPage () {
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
-        { email }
+        { email: (localStorage.getItem('email') || email).trim().toLowerCase() }
       )
       const data = res.data
 
@@ -258,10 +259,12 @@ export default function AuthPage () {
     setLoading(true)
 
     try {
+      // Use the exact email stored at login time to prevent any browser normalization mismatch
+      const verifyEmail = (localStorage.getItem('email') || email).trim().toLowerCase()
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-otp`,
         {
-          email: email.toLocaleLowerCase(),
+          email: verifyEmail,
           otp: otpCode
         }
       )
@@ -445,11 +448,13 @@ export default function AuthPage () {
                     </svg>
                     <input
                       id='email-input'
-                      type='email'
+                      type='text'
+                      inputMode='email'
+                      autoComplete='email'
                       className='form-input'
                       placeholder='name@company.com'
                       value={email}
-                      onChange={e => setEmail(e.target.value)}
+                      onChange={e => setEmail(e.target.value.trim())}
                       onFocus={() => setEmailFocused(true)}
                       onBlur={() => setEmailFocused(false)}
                       aria-label='Email address'

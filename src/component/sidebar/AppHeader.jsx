@@ -5,11 +5,27 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import './admin.scss'
 
+// Map page keys to human-readable titles
+const PAGE_TITLES = {
+  Dashboard: 'Dashboard', UserManagement: 'User Management', PropertyManagement: 'Properties',
+  ArtisanManagement: 'Artisans', Finance: 'Finance', Maintenance: 'Maintenance',
+  Reports: 'Reports', Analytics: 'Analytics', Documents: 'Documents',
+  AdminPermissions: 'Permissions', Settings: 'Settings', Security: 'Security',
+  Help: 'Help & Support', MyProperties: 'My Properties', Tenants: 'Tenants',
+  Payments: 'Payments', FindArtisan: 'Find Artisan', AvailableJobs: 'Available Jobs',
+  ActiveJobs: 'Active Jobs', JobHistory: 'Job History', Earnings: 'Earnings',
+  Schedule: 'Schedule', Portfolio: 'Portfolio', Certifications: 'Certifications',
+  MyHome: 'My Home', Messages: 'Messages', SupportTickets: 'Support Tickets',
+  PlatformSettings: 'Platform Settings', EmailTemplates: 'Email Templates',
+  PropertyUpload: 'Upload Property', PropertyOwners: 'Property Owners',
+}
+
 export default function AppHeader ({
   onOpenMobileSidebar,
   onToggleTheme,
   user,
   onLogout,
+  currentPage,
   // Notification props from layout
   notifications = [],
   unreadCount = 0,
@@ -75,6 +91,11 @@ export default function AppHeader ({
             <line x1='3' y1='18' x2='21' y2='18' strokeWidth='2' />
           </svg>
         </button>
+      </div>
+
+      {/* Page Title */}
+      <div className='header-page-title'>
+        <span className='page-title-text'>{PAGE_TITLES[currentPage] || currentPage || 'Dashboard'}</span>
       </div>
 
       {/* Search Bar */}
