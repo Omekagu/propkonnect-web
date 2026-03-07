@@ -227,7 +227,7 @@ const FindArtisan = () => {
                   )}
 
                   {artisan.location && (
-                    <p className='location'>📍 {artisan.location}</p>
+                    <p className='location'>📍 {typeof artisan.location === 'string' ? artisan.location : artisan.location?.city || artisan.location?.address || ''}</p>
                   )}
 
                   {/* Rating */}
@@ -357,7 +357,7 @@ const FindArtisan = () => {
                   {selectedArtisan.location && (
                     <div className='info-item'>
                       <span className='label'>Location</span>
-                      <span className='value'>{selectedArtisan.location}</span>
+                      <span className='value'>{typeof selectedArtisan.location === 'string' ? selectedArtisan.location : selectedArtisan.location?.city || selectedArtisan.location?.address || ''}</span>
                     </div>
                   )}
                   <div className='info-item'>

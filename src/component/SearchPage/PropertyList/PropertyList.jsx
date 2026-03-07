@@ -182,7 +182,7 @@ export default function PropertyList () {
             <div className='property-info'>
               <h3>{property.title}</h3>
               <p className='location'>
-                <MapPin size={15} /> {property.location}
+                <MapPin size={15} /> {typeof property.location === 'string' ? property.location : [property.location?.address, property.location?.city, property.location?.state].filter(Boolean).join(', ') || property.city || property.address || ''}
               </p>
               <div className='bottom'>
                 <span className='price'>

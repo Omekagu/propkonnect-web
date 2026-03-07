@@ -332,7 +332,7 @@ export const usePropertyManagement = () => {
     return properties.filter(p => {
       const matchesSearch =
         p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (typeof p.location === 'string' ? p.location : p.location?.address || p.location?.city || '')?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.description?.toLowerCase().includes(searchQuery.toLowerCase())
 
       const matchesCategory =

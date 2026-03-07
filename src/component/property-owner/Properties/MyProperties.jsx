@@ -603,7 +603,7 @@ function PropertyCard ({ property: p, listView, onEdit, onDeleteRequest }) {
         <p className='mp-card__location'>
           <Icon.MapPin />{' '}
           {[p.city, p.state, p.country].filter(Boolean).join(', ') ||
-            p.location ||
+            (typeof p.location === 'string' ? p.location : p.location?.city || p.location?.address || '') ||
             p.address ||
             'No location'}
         </p>
@@ -826,7 +826,7 @@ export default function MyProperties () {
       list = list.filter(
         p =>
           p.title?.toLowerCase().includes(q) ||
-          p.location?.toLowerCase().includes(q) ||
+          (typeof p.location === 'string' ? p.location : p.location?.address || p.location?.city || '')?.toLowerCase().includes(q) ||
           p.address?.toLowerCase().includes(q) ||
           p.city?.toLowerCase().includes(q) ||
           p.category?.toLowerCase().includes(q)

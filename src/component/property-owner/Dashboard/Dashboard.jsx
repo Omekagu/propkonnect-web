@@ -474,7 +474,7 @@ function PropertyRow ({ property }) {
         </p>
         <p className='od-prop-row__meta'>
           <Icon.MapPin />
-          {property.location || property.city || '—'}
+          {typeof property.location === 'string' ? property.location : [property.location?.address, property.location?.city, property.location?.state].filter(Boolean).join(', ') || property.city || property.address || '—'}
           <span className='od-prop-row__cat'>{property.category}</span>
         </p>
       </div>
@@ -839,7 +839,7 @@ export default function Dashboard () {
                           {p.title || 'Untitled'}
                         </p>
                         <p className='od-top-item__loc'>
-                          {p.location || p.city || '—'}
+                          {typeof p.location === 'string' ? p.location : p.location?.city || p.location?.address || p.city || '—'}
                         </p>
                       </div>
                       <div className='od-top-item__views'>

@@ -107,7 +107,7 @@ export default function Maintenance () {
     const matchSearch = !search
       || (r.title || '').toLowerCase().includes(search.toLowerCase())
       || (r.description || '').toLowerCase().includes(search.toLowerCase())
-      || (r.location || '').toLowerCase().includes(search.toLowerCase())
+      || (typeof r.location === 'string' ? r.location : r.location?.address || r.location?.city || '').toLowerCase().includes(search.toLowerCase())
     return matchStatus && matchCat && matchSearch
   })
 
@@ -194,7 +194,7 @@ export default function Maintenance () {
                       <div style={s.title}>{req.title || 'Maintenance Request'}</div>
                       <div style={s.meta}>
                         {req.category && <span>{req.category} · </span>}
-                        {req.location || req.property?.title || ''}
+                        {typeof req.location === 'string' ? req.location : req.location?.address || req.location?.city || req.property?.title || ''}
                         {req.createdAt && <span> · {new Date(req.createdAt).toLocaleDateString()}</span>}
                       </div>
                     </div>

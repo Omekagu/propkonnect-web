@@ -262,7 +262,7 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
 
                   <div className='property-details'>
                     <h3>{property.title}</h3>
-                    <p className='location'>📍 {property.location}</p>
+                    <p className='location'>📍 {typeof property.location === 'string' ? property.location : [property.location?.address, property.location?.city, property.location?.state].filter(Boolean).join(', ') || property.city || property.address || ''}</p>
                     <p className='category'>
                       <span className='badge'>{property.category}</span>
                     </p>
@@ -415,7 +415,7 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
                   <h3>{selectedProperty.title}</h3>
                   <p>{selectedProperty.description}</p>
                   <p>
-                    <strong>Location:</strong> {selectedProperty.location}
+                    <strong>Location:</strong> {typeof selectedProperty.location === 'string' ? selectedProperty.location : [selectedProperty.location?.address, selectedProperty.location?.city, selectedProperty.location?.state].filter(Boolean).join(', ') || selectedProperty.city || selectedProperty.address || ''}
                   </p>
                   <p>
                     <strong>Category:</strong> {selectedProperty.category}

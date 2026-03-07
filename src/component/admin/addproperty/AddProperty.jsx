@@ -217,7 +217,7 @@ export default function PropertyManagement () {
     return properties.filter(p => {
       const matchesSearch =
         p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.location?.toLowerCase().includes(searchQuery.toLowerCase())
+        (typeof p.location === 'string' ? p.location : p.location?.address || p.location?.city || '')?.toLowerCase().includes(searchQuery.toLowerCase())
       const matchesCategory =
         categoryFilter === 'All' || p.category === categoryFilter
       return matchesSearch && matchesCategory
@@ -550,7 +550,7 @@ function PropertyCard ({
 
         <div className='property-location'>
           <MapPin size={14} />
-          {property.location}
+          {typeof property.location === 'string' ? property.location : [property.location?.address, property.location?.city, property.location?.state].filter(Boolean).join(', ') || property.city || property.address || ''}
         </div>
 
         <div className='property-details'>
@@ -805,7 +805,7 @@ function PropertyDetails ({ property, formatMoney }) {
             <DetailItem label='Title' value={property.title} />
             <DetailItem label='Category' value={property.category} />
             <DetailItem label='Purpose' value={property.purpose} />
-            <DetailItem label='Location' value={property.location} />
+            <DetailItem label='Location' value={typeof property.location === 'string' ? property.location : [property.location?.address, property.location?.city, property.location?.state].filter(Boolean).join(', ') || property.city || property.address || ''} />
             <DetailItem
               label='Price'
               value={formatMoney(property.price || property.rentPrice)}

@@ -1,6 +1,6 @@
 .portfolio-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #c9a96e 0%, #a87842 100%);
+  background: var(--color-background, #f2f6fb);
   padding: 2rem 1rem;
 }
 
@@ -98,8 +98,8 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #c9a96e;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .helper-text {
@@ -123,7 +123,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #c9a96e;
+  background: #2563eb;
   color: white;
   border: none;
   border-radius: 8px;
@@ -133,9 +133,9 @@
 }
 
 .upload-btn:hover:not(:disabled) {
-  background: #5568d3;
+  background: #1d4ed8;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
 .upload-btn:disabled {
@@ -193,7 +193,7 @@
 
 .submit-btn {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #c9a96e 0%, #a87842 100%);
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -206,7 +206,7 @@
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
 }
 
 .submit-btn:disabled {

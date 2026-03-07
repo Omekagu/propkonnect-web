@@ -336,7 +336,9 @@ export const useArtisanManagement = () => {
     const getReviews = a => a.reviewCount ?? a.stats?.reviewCount ?? 0
     const averageRating =
       artisans.length > 0
-        ? (artisans.reduce((sum, a) => sum + getRating(a), 0) / artisans.length).toFixed(1)
+        ? (
+            artisans.reduce((sum, a) => sum + getRating(a), 0) / artisans.length
+          ).toFixed(1)
         : 0
     const topRated = artisans.filter(a => getRating(a) >= 4.5).length
 

@@ -212,7 +212,7 @@ export default function BuyPropertyList () {
               <div className='details'>
                 <h2>{prop.title}</h2>
                 <p className='location'>
-                  <MapPin size={14} /> {prop.address || prop.location}
+                  <MapPin size={14} /> {prop.address || (typeof prop.location === 'string' ? prop.location : [prop.location?.address, prop.location?.city, prop.location?.state].filter(Boolean).join(', ')) || prop.city || ''}
                 </p>
                 <div className='features'>{renderFeatures(prop)}</div>
 

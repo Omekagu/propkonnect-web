@@ -877,7 +877,7 @@ export default function PropertyDetails () {
                   <div className='similar-name'>{p.title}</div>
                   <div className='similar-loc'>
                     <MapPin size={12} />
-                    {p.location || p.city || '—'}
+                    {typeof p.location === 'string' ? p.location : p.location?.city || p.location?.address || p.city || '—'}
                   </div>
                   <div className='similar-price'>
                     ₦{Number(p.price || p.rentPrice || 0).toLocaleString()}
