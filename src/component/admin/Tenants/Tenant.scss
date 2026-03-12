@@ -1,6 +1,6 @@
 .user-section {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   padding: 2rem;
   box-shadow: 0 5px 12px rgba(0, 0, 0, 0.05);
 
@@ -16,10 +16,10 @@
     }
 
     .add-btn {
-      background: #111827;
-      color: #fff;
+      background: var(--color-text-primary);
+      color: var(--color-surface);
       border: none;
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       padding: 0.5rem 1rem;
       cursor: pointer;
       transition: 0.3s;
@@ -50,24 +50,24 @@
 
     .status {
       padding: 0.3rem 0.8rem;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       font-size: 0.85rem;
       font-weight: 500;
 
       &.active {
-        background: #dcfce7;
-        color: #16a34a;
+        background: var(--color-success-bg);
+        color: var(--color-success);
       }
 
       &.pending {
-        background: #fef9c3;
+        background: var(--color-warning-bg);
         color: #ca8a04;
       }
     }
 
     button {
       border: none;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       padding: 0.3rem 0.6rem;
       margin-right: 0.4rem;
       cursor: pointer;
@@ -81,13 +81,13 @@
       }
 
       &.btn-edit {
-        background: #fef9c3;
+        background: var(--color-warning-bg);
         color: #ca8a04;
       }
 
       &.btn-delete {
-        background: #fee2e2;
-        color: #b91c1c;
+        background: var(--color-error-bg);
+        color: var(--color-error);
       }
 
       &:hover {
