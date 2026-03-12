@@ -3,8 +3,9 @@ import axios from 'axios'
 import './FindArtisan.scss'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const API_URL =
-  `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://10.0.1.10:4001'}/api`
+const API_URL = `${
+  process.env.NEXT_PUBLIC_BACKEND_URL || 'http://172.20.10.4:4001'
+}/api`
 const POLL_INTERVAL = 3000
 
 const getAuthConfig = () => {
@@ -357,7 +358,7 @@ function MyRequestsView ({ onNegotiate }) {
       )
       setRequests(data.data || [])
       console.log(data, data.data)
-        } catch {
+    } catch {
       if (!silent) setToast({ msg: 'Could not load requests', type: 'error' })
     } finally {
       setLoading(false)
