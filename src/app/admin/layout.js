@@ -106,15 +106,17 @@ export default function AdminLayout ({ children }) {
     }
   }, [isLoggedIn, isLoading, router])
 
-  // ✅ Read accountStatus from user data
+  // ✅ Read accountStatus — auto-open setup overlay for pending property-owners / artisans
   useEffect(() => {
     if (!user) return
     const status = user?.accountStatus
     const gatedRoles = ['property-owner', 'artisan']
     if (gatedRoles.includes(user?.role) && status && status !== 'active') {
       setAccountStatus(status)
+      setShowAccountSetup(true) // immediately show setup flow, don't wait for banner click
     } else {
       setAccountStatus('active')
+      setShowAccountSetup(false)
     }
   }, [user])
 

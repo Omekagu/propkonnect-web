@@ -124,17 +124,23 @@ function ProfileTab ({ data, onChange, onAvatarUpload }) {
       >
         <div className='avatar-row'>
           <div className='avatar-large'>
-            {data.avatar
-              ? (
-                <img
-                  src={data.avatar}
-                  alt='Profile'
-                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                />
-                )
-              : (
-                <>{data.firstName?.[0]}{data.lastName?.[0]}</>
-                )}
+            {data.avatar ? (
+              <img
+                src={data.avatar}
+                alt='Profile'
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  objectFit: 'cover'
+                }}
+              />
+            ) : (
+              <>
+                {data.firstName?.[0]}
+                {data.lastName?.[0]}
+              </>
+            )}
           </div>
           <div className='avatar-row__actions'>
             <input
@@ -350,82 +356,224 @@ function NotificationsTab ({ data, onChange }) {
 }
 
 const PLAN_ICONS_S = { free: '🌱', basic: '⚡', pro: '🚀', enterprise: '🏢' }
-const PLAN_COLORS_S = { free: '#64748b', basic: '#0071c2', pro: '#7c3aed', enterprise: '#059669' }
+const PLAN_COLORS_S = {
+  free: '#64748b',
+  basic: '#0071c2',
+  pro: '#7c3aed',
+  enterprise: '#059669'
+}
 const fmtNgn = v => `₦${Number(v || 0).toLocaleString()}`
-const fmtDateS = d => d ? new Date(d).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }) : null
+const fmtDateS = d =>
+  d
+    ? new Date(d).toLocaleDateString('en-NG', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      })
+    : null
 
 function BillingTab ({ data, onChange }) {
   const [setupStatus, setSetupStatus] = useState(null)
-  const [plans, setPlans]             = useState([])
+  const [plans, setPlans] = useState([])
+  const [platformConfig, setPlatformConfig] = useState(null)
   const [billingLoading, setBillingLoading] = useState(true)
   const [subscribing, setSubscribing] = useState(null)
-  const [billingMsg, setBillingMsg]   = useState(null)
+  const [billingMsg, setBillingMsg] = useState(null)
+
+  // ── Payout bank update state ──
+  const [showBankUpdate, setShowBankUpdate] = useState(false)
+  const [banks, setBanks] = useState([])
+  const [banksLoading, setBanksLoading] = useState(false)
+  const [bankCode, setBankCode] = useState('')
+  const [bankName, setBankName] = useState('')
+  const [accountNumber, setAccountNumber] = useState('')
+  const [accountName, setAccountName] = useState('')
+  const [resolving, setResolving] = useState(false)
+  const [savingBank, setSavingBank] = useState(false)
 
   useEffect(() => {
     Promise.all([
       apiFetch('GET', '/api/paystack/setup-status'),
-      fetch(`${API_BASE}/api/paystack/plans`).then(r => r.json())
-    ]).then(([statusRes, plansRes]) => {
-      if (statusRes.success) setSetupStatus(statusRes)
-      if (plansRes.success)  setPlans(plansRes.plans || [])
-    }).catch(console.error).finally(() => setBillingLoading(false))
+      fetch(`${API_BASE}/api/paystack/plans`).then(r => r.json()),
+      fetch(`${API_BASE}/api/platform-config`).then(r => r.json())
+    ])
+      .then(([statusRes, plansRes, configRes]) => {
+        if (statusRes.success) setSetupStatus(statusRes)
+        if (plansRes.success) setPlans(plansRes.plans || [])
+        if (configRes.success) setPlatformConfig(configRes.config)
+      })
+      .catch(console.error)
+      .finally(() => setBillingLoading(false))
   }, [])
+
+  // Load banks when update form is opened
+  useEffect(() => {
+    if (!showBankUpdate || banks.length > 0) return
+    setBanksLoading(true)
+    apiFetch('GET', '/api/paystack/banks')
+      .then(r => {
+        if (r.success) setBanks(r.banks || [])
+      })
+      .catch(() => {})
+      .finally(() => setBanksLoading(false))
+  }, [showBankUpdate, banks.length])
+
+  // Auto-resolve account name
+  useEffect(() => {
+    if (accountNumber.length !== 10 || !bankCode) {
+      setAccountName('')
+      return
+    }
+    const t = setTimeout(async () => {
+      setResolving(true)
+      setAccountName('')
+      try {
+        const r = await apiFetch(
+          'GET',
+          `/api/paystack/resolve-account?accountNumber=${accountNumber}&bankCode=${bankCode}`
+        )
+        if (r.success) setAccountName(r.accountName || '')
+      } catch {
+        setAccountName('')
+      } finally {
+        setResolving(false)
+      }
+    }, 600)
+    return () => clearTimeout(t)
+  }, [accountNumber, bankCode])
+
+  async function handleSaveBank () {
+    if (!accountNumber || !bankCode || !accountName) return
+    setSavingBank(true)
+    try {
+      // First ensure Paystack customer exists
+      await apiFetch('POST', '/api/paystack/setup/initialize')
+      const res = await apiFetch('POST', '/api/paystack/setup/bank', {
+        accountNumber,
+        bankCode,
+        bankName,
+        accountName
+      })
+      if (!res.success)
+        throw new Error(res.msg || 'Failed to save bank account')
+      setBillingMsg({ text: 'Payout account updated successfully.', ok: true })
+      setSetupStatus(prev => ({
+        ...prev,
+        paymentSetup: {
+          completed: true,
+          bankVerified: true,
+          bankName,
+          accountName
+        },
+        accountStatus: res.accountStatus || prev?.accountStatus
+      }))
+      setShowBankUpdate(false)
+      setAccountNumber('')
+      setBankCode('')
+      setBankName('')
+      setAccountName('')
+    } catch (err) {
+      setBillingMsg({
+        text: err.message || 'Failed to update bank account',
+        ok: false
+      })
+    } finally {
+      setSavingBank(false)
+      setTimeout(() => setBillingMsg(null), 5000)
+    }
+  }
 
   async function handleUpgrade (plan) {
     if (subscribing) return
     setSubscribing(plan.id)
     try {
-      const res = await apiFetch('POST', '/api/paystack/subscribe', { planId: plan.id })
+      const res = await apiFetch('POST', '/api/paystack/subscribe', {
+        planId: plan.id
+      })
       if (!res.success) throw new Error(res.msg || 'Failed')
       if (plan.price === 0) {
         setBillingMsg({ text: 'Downgraded to Free plan.', ok: true })
-        setSetupStatus(prev => ({ ...prev, plan: { ...prev?.plan, tier: 'free', effectiveTier: 'free' } }))
+        setSetupStatus(prev => ({
+          ...prev,
+          plan: { ...prev?.plan, tier: 'free', effectiveTier: 'free' }
+        }))
       } else {
         window.open(res.authorizationUrl, '_blank', 'noopener')
-        setBillingMsg({ text: 'Payment page opened. Your plan activates once payment is confirmed.', ok: true })
+        setBillingMsg({
+          text: 'Payment page opened. Your plan activates once payment is confirmed.',
+          ok: true
+        })
       }
     } catch (err) {
-      setBillingMsg({ text: err.message || 'Could not process plan change', ok: false })
+      setBillingMsg({
+        text: err.message || 'Could not process plan change',
+        ok: false
+      })
     } finally {
       setSubscribing(null)
       setTimeout(() => setBillingMsg(null), 5000)
     }
   }
 
-  const plan   = setupStatus?.plan || {}
+  const plan = setupStatus?.plan || {}
   const payout = setupStatus?.paymentSetup || {}
-  const tier   = plan.effectiveTier || plan.tier || 'free'
+  const tier = plan.effectiveTier || plan.tier || 'free'
   const tierColor = PLAN_COLORS_S[tier] || '#1d4ed8'
 
   return (
     <div className='tab-panel'>
-
       {billingMsg && (
-        <div className={`billing-msg${billingMsg.ok ? ' billing-msg--ok' : ' billing-msg--err'}`}>
+        <div
+          className={`billing-msg${
+            billingMsg.ok ? ' billing-msg--ok' : ' billing-msg--err'
+          }`}
+        >
           {billingMsg.ok ? '✓' : '✕'} {billingMsg.text}
         </div>
       )}
 
       {/* ── Current Plan ── */}
-      <SectionBlock title='Subscription Plan' description='Your current platform plan and billing cycle.'>
+      <SectionBlock
+        title='Subscription Plan'
+        description='Your current platform plan and billing cycle.'
+      >
         {billingLoading ? (
-          <div style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Loading plan info…</div>
+          <div style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
+            Loading plan info…
+          </div>
         ) : (
           <>
             <div className='plan-card plan-card--active'>
               <div className='plan-card__left'>
-                <span style={{ fontSize: 28 }}>{PLAN_ICONS_S[tier] || '📦'}</span>
+                <span style={{ fontSize: 28 }}>
+                  {PLAN_ICONS_S[tier] || '📦'}
+                </span>
                 <div>
-                  <span className='plan-card__name' style={{ color: tierColor }}>
+                  <span
+                    className='plan-card__name'
+                    style={{ color: tierColor }}
+                  >
                     {tier.charAt(0).toUpperCase() + tier.slice(1)}
                     {plan.trialActive && (
-                      <span style={{ fontSize: 11, background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d', borderRadius: 20, padding: '2px 8px', marginLeft: 8, fontWeight: 700 }}>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          background: '#fef3c7',
+                          color: '#92400e',
+                          border: '1px solid #fcd34d',
+                          borderRadius: 20,
+                          padding: '2px 8px',
+                          marginLeft: 8,
+                          fontWeight: 700
+                        }}
+                      >
                         Trial
                       </span>
                     )}
                   </span>
                   <span className='plan-card__features'>
-                    {plan.listingLimit === -1 ? 'Unlimited' : plan.listingLimit} listings ·&nbsp;
+                    {plan.listingLimit === -1 ? 'Unlimited' : plan.listingLimit}{' '}
+                    listings ·&nbsp;
                     {plan.features?.length || 0} premium features
                     {plan.trialActive && plan.trialEndsAt && (
                       <> · Trial ends {fmtDateS(plan.trialEndsAt)}</>
@@ -440,41 +588,102 @@ function BillingTab ({ data, onChange }) {
 
             {/* Available plans */}
             <div style={{ marginTop: 20 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 12 }}>
+              <p
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--color-text-secondary)',
+                  marginBottom: 12
+                }}
+              >
                 Available Plans — click to upgrade or downgrade
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                  gap: 12
+                }}
+              >
                 {plans.map(p => {
                   const isCurrent = p.id === (plan.tier || 'free')
                   const c = PLAN_COLORS_S[p.id] || '#1d4ed8'
                   return (
-                    <div key={p.id} style={{
-                      border: `1.5px solid ${isCurrent ? c : 'var(--color-border)'}`,
-                      borderTop: `4px solid ${c}`,
-                      borderRadius: 10,
-                      padding: '14px',
-                      background: 'var(--color-surface)',
-                      display: 'flex', flexDirection: 'column', gap: 8
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 22 }}>{PLAN_ICONS_S[p.id]}</span>
+                    <div
+                      key={p.id}
+                      style={{
+                        border: `1.5px solid ${
+                          isCurrent ? c : 'var(--color-border)'
+                        }`,
+                        borderTop: `4px solid ${c}`,
+                        borderRadius: 10,
+                        padding: '14px',
+                        background: 'var(--color-surface)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 8
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8
+                        }}
+                      >
+                        <span style={{ fontSize: 22 }}>
+                          {PLAN_ICONS_S[p.id]}
+                        </span>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text-primary)' }}>{p.name}</div>
-                          <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                          <div
+                            style={{
+                              fontWeight: 700,
+                              fontSize: 14,
+                              color: 'var(--color-text-primary)'
+                            }}
+                          >
+                            {p.name}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 12,
+                              color: 'var(--color-text-muted)'
+                            }}
+                          >
                             {p.price === 0 ? 'Free' : `${fmtNgn(p.price)}/mo`}
                           </div>
                         </div>
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
-                        {p.listingLimit === -1 ? '∞' : p.listingLimit} listings · {p.aiCredits === -1 ? '∞' : p.aiCredits} AI credits
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: 'var(--color-text-muted)'
+                        }}
+                      >
+                        {p.listingLimit === -1 ? '∞' : p.listingLimit} listings
+                        · {p.aiCredits === -1 ? '∞' : p.aiCredits} AI credits
                       </div>
                       <button
-                        className={isCurrent ? 'btn btn--ghost btn--sm' : 'btn btn--primary btn--sm'}
-                        style={!isCurrent ? { background: c, border: 'none' } : {}}
+                        className={
+                          isCurrent
+                            ? 'btn btn--ghost btn--sm'
+                            : 'btn btn--primary btn--sm'
+                        }
+                        style={
+                          !isCurrent ? { background: c, border: 'none' } : {}
+                        }
                         onClick={() => !isCurrent && handleUpgrade(p)}
                         disabled={isCurrent || subscribing === p.id}
                       >
-                        {subscribing === p.id ? <span className='spinner' /> : isCurrent ? 'Current' : p.price === 0 ? 'Downgrade' : 'Upgrade'}
+                        {subscribing === p.id ? (
+                          <span className='spinner' />
+                        ) : isCurrent ? (
+                          'Current'
+                        ) : p.price === 0 ? (
+                          'Downgrade'
+                        ) : (
+                          'Upgrade'
+                        )}
                       </button>
                     </div>
                   )
@@ -484,7 +693,10 @@ function BillingTab ({ data, onChange }) {
           </>
         )}
 
-        <FieldGroup label='Billing Email' hint='Invoices and receipts are sent here'>
+        <FieldGroup
+          label='Billing Email'
+          hint='Invoices and receipts are sent here'
+        >
           <input
             className='input'
             type='email'
@@ -495,46 +707,215 @@ function BillingTab ({ data, onChange }) {
       </SectionBlock>
 
       {/* ── Payout Account ── */}
-      <SectionBlock title='Payout Account' description='Bank account where collected rent is deposited after platform fees.'>
+      <SectionBlock
+        title='Payout Account'
+        description='Nigerian bank account where collected rent and escrow funds are deposited after platform fees.'
+      >
         {billingLoading ? (
-          <div style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Loading payout info…</div>
-        ) : payout.completed ? (
-          <div className='bank-card'>
-            <div className='bank-card__icon'>🏦</div>
-            <div className='bank-card__info'>
-              <span className='bank-card__name'>{payout.bankName || 'Bank Account'}</span>
-              <span className='bank-card__number'>{payout.accountName}</span>
-              <span style={{ fontSize: 11, color: '#059669', fontWeight: 600 }}>✓ Verified & Active</span>
-            </div>
+          <div style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
+            Loading payout info…
           </div>
         ) : (
-          <div style={{ padding: '12px', background: 'var(--color-warning-bg, #fef3c7)', borderRadius: 8, fontSize: 14, color: '#92400e' }}>
-            ⚠️ No payout account set up. Go to <strong>Account Setup</strong> from the banner at the top to link your bank account.
-          </div>
-        )}
+          <>
+            {payout.completed ? (
+              <div className='bank-card'>
+                <div className='bank-card__icon'>🏦</div>
+                <div className='bank-card__info'>
+                  <span className='bank-card__name'>{payout.bankName}</span>
+                  <span className='bank-card__number'>
+                    {payout.accountName}
+                  </span>
+                  <span
+                    style={{ fontSize: 11, color: '#059669', fontWeight: 600 }}
+                  >
+                    ✓ Subaccount verified via Paystack
+                  </span>
+                </div>
+                <button
+                  className='btn btn--ghost btn--sm'
+                  onClick={() => setShowBankUpdate(v => !v)}
+                >
+                  {showBankUpdate ? 'Cancel' : 'Update'}
+                </button>
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 16px',
+                  background: 'var(--color-warning-bg, #fef3c7)',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  color: '#92400e',
+                  gap: 12
+                }}
+              >
+                <span>
+                  ⚠️ No payout account linked. Add your Nigerian bank account to
+                  receive payments.
+                </span>
+                <button
+                  className='btn btn--primary btn--sm'
+                  onClick={() => setShowBankUpdate(true)}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  Add Account
+                </button>
+              </div>
+            )}
 
-        <FieldGroup label='Payout Schedule'>
-          <select
-            className='input input--select'
-            value={data.payoutSchedule}
-            onChange={e => onChange('payoutSchedule', e.target.value)}
-          >
-            <option value='instant'>Instant (2% fee)</option>
-            <option value='daily'>Daily</option>
-            <option value='weekly'>Weekly</option>
-            <option value='monthly'>Monthly (1st of month)</option>
-          </select>
-        </FieldGroup>
+            {/* ── Bank update form (Paystack-connected) ── */}
+            {showBankUpdate && (
+              <div className='pw-form' style={{ marginTop: 16 }}>
+                <FieldGroup label='Bank'>
+                  {banksLoading ? (
+                    <div
+                      style={{ fontSize: 13, color: 'var(--color-text-muted)' }}
+                    >
+                      Loading banks…
+                    </div>
+                  ) : (
+                    <select
+                      className='input input--select'
+                      value={bankCode}
+                      onChange={e => {
+                        const sel = banks.find(b => b.code === e.target.value)
+                        setBankCode(e.target.value)
+                        setBankName(sel?.name || '')
+                        setAccountName('')
+                      }}
+                    >
+                      <option value=''>Select your bank…</option>
+                      {banks.map(b => (
+                        <option key={b.code} value={b.code}>
+                          {b.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </FieldGroup>
+
+                <FieldGroup label='Account Number' hint='10-digit NUBAN'>
+                  <input
+                    className='input'
+                    maxLength={10}
+                    value={accountNumber}
+                    onChange={e => {
+                      setAccountNumber(e.target.value.replace(/\D/g, ''))
+                      setAccountName('')
+                    }}
+                    placeholder='e.g. 0123456789'
+                  />
+                </FieldGroup>
+
+                <FieldGroup
+                  label='Account Name'
+                  hint='Auto-resolved via Paystack'
+                >
+                  <div
+                    style={{
+                      padding: '9px 12px',
+                      border: '1.5px solid var(--color-border)',
+                      borderRadius: 8,
+                      fontSize: 14,
+                      minHeight: 40,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      color: accountName
+                        ? 'var(--color-text-primary)'
+                        : 'var(--color-text-muted)',
+                      background: 'var(--color-surface-hover)'
+                    }}
+                  >
+                    {resolving ? (
+                      <>
+                        <span
+                          className='spinner'
+                          style={{ width: 14, height: 14 }}
+                        />{' '}
+                        Resolving…
+                      </>
+                    ) : accountName ? (
+                      <>
+                        <span style={{ color: '#059669' }}>✓</span>{' '}
+                        {accountName}
+                      </>
+                    ) : (
+                      'Will auto-fill after entering account number'
+                    )}
+                  </div>
+                </FieldGroup>
+
+                <div className='btn-row'>
+                  <button
+                    className='btn btn--ghost'
+                    onClick={() => {
+                      setShowBankUpdate(false)
+                      setAccountNumber('')
+                      setBankCode('')
+                      setAccountName('')
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className='btn btn--primary'
+                    onClick={handleSaveBank}
+                    disabled={
+                      savingBank ||
+                      !accountNumber ||
+                      !bankCode ||
+                      !accountName ||
+                      resolving
+                    }
+                  >
+                    {savingBank ? (
+                      <span className='spinner' />
+                    ) : payout.completed ? (
+                      'Update Account'
+                    ) : (
+                      'Save & Activate'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </SectionBlock>
 
       {/* ── Platform Fees ── */}
-      <SectionBlock title='Platform Fees' description='Fee rates applied to transactions through the platform.'>
-        <div className='fee-table'>
-          <div className='fee-row'><span>Rent collection fee</span><strong>2.5%</strong></div>
-          <div className='fee-row'><span>Escrow management fee</span><strong>2.5%</strong></div>
-          <div className='fee-row'><span>Instant payout fee</span><strong>2.0%</strong></div>
-          <div className='fee-row'><span>Paystack processing fee</span><strong>1.5% + ₦100</strong></div>
-        </div>
+      <SectionBlock
+        title='Platform Fees'
+        description='Fee rates applied to transactions through the platform.'
+      >
+        {platformConfig?.fees ? (
+          <div className='fee-table'>
+            <div className='fee-row'>
+              <span>Property transaction fee</span>
+              <strong>{platformConfig.fees.propertyTransactionPct}%</strong>
+            </div>
+            <div className='fee-row'>
+              <span>Service request fee</span>
+              <strong>{platformConfig.fees.serviceRequestPct}%</strong>
+            </div>
+            <div className='fee-row'>
+              <span>Escrow release fee</span>
+              <strong>{platformConfig.fees.escrowReleasePct}%</strong>
+            </div>
+            <div className='fee-row'>
+              <span>Withdrawal fee</span>
+              <strong>₦{platformConfig.fees.withdrawalFlatFee?.toLocaleString()}</strong>
+            </div>
+          </div>
+        ) : (
+          <div className='fee-table'>
+            <div className='fee-row'><span>Loading fee schedule…</span></div>
+          </div>
+        )}
       </SectionBlock>
     </div>
   )
@@ -594,59 +975,60 @@ function SecurityTab ({
         title='Password'
         description='Keep your account secure with a strong, unique password.'
       >
-        {!showPwForm
-          ? (
-            <button
-              className='btn btn--ghost'
-              onClick={() => setShowPwForm(true)}
-            >
-              Change Password
-            </button>
-            )
-          : (
-            <div className='pw-form'>
-              <FieldGroup label='Current Password'>
-                <input
-                  className='input'
-                  type='password'
-                  value={pw.current}
-                  onChange={e => setPw(p => ({ ...p, current: e.target.value }))}
-                />
-              </FieldGroup>
-              <FieldGroup label='New Password' hint='Min. 8 characters'>
-                <input
-                  className='input'
-                  type='password'
-                  value={pw.next}
-                  onChange={e => setPw(p => ({ ...p, next: e.target.value }))}
-                />
-              </FieldGroup>
-              <FieldGroup label='Confirm New Password'>
-                <input
-                  className='input'
-                  type='password'
-                  value={pw.confirm}
-                  onChange={e => setPw(p => ({ ...p, confirm: e.target.value }))}
-                />
-              </FieldGroup>
-              {pwError && <p className='field-error'>{pwError}</p>}
-              <div className='btn-row'>
-                <button
-                  className='btn btn--ghost'
-                  onClick={() => { setShowPwForm(false); setPwError('') }}
-                >
-                  Cancel
-                </button>
-                <button
-                  className='btn btn--primary'
-                  onClick={submitPasswordChange}
-                  disabled={pwSaving}
-                >
-                  {pwSaving ? <span className='spinner' /> : 'Update Password'}
-                </button>
-              </div>
+        {!showPwForm ? (
+          <button
+            className='btn btn--ghost'
+            onClick={() => setShowPwForm(true)}
+          >
+            Change Password
+          </button>
+        ) : (
+          <div className='pw-form'>
+            <FieldGroup label='Current Password'>
+              <input
+                className='input'
+                type='password'
+                value={pw.current}
+                onChange={e => setPw(p => ({ ...p, current: e.target.value }))}
+              />
+            </FieldGroup>
+            <FieldGroup label='New Password' hint='Min. 8 characters'>
+              <input
+                className='input'
+                type='password'
+                value={pw.next}
+                onChange={e => setPw(p => ({ ...p, next: e.target.value }))}
+              />
+            </FieldGroup>
+            <FieldGroup label='Confirm New Password'>
+              <input
+                className='input'
+                type='password'
+                value={pw.confirm}
+                onChange={e => setPw(p => ({ ...p, confirm: e.target.value }))}
+              />
+            </FieldGroup>
+            {pwError && <p className='field-error'>{pwError}</p>}
+            <div className='btn-row'>
+              <button
+                className='btn btn--ghost'
+                onClick={() => {
+                  setShowPwForm(false)
+                  setPwError('')
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className='btn btn--primary'
+                onClick={submitPasswordChange}
+                disabled={pwSaving}
+              >
+                {pwSaving ? <span className='spinner' /> : 'Update Password'}
+              </button>
             </div>
-            )}
+          </div>
+        )}
       </SectionBlock>
 
       <SectionBlock
@@ -671,42 +1053,42 @@ function SecurityTab ({
         title='Active Sessions'
         description='Devices currently signed into your account.'
       >
-        {sessions.length === 0
-          ? (
-            <p className='section-block__desc' style={{ fontStyle: 'italic' }}>
-              No other active sessions found.
-            </p>
-            )
-          : (
-            <div className='session-list'>
-              {sessions.map((s, i) => (
-                <div key={s._id ?? i} className='session-row'>
-                  <div className='session-row__icon'>
-                    {s.current ? '💻' : '📱'}
-                  </div>
-                  <div className='session-row__info'>
-                    <span className='session-row__device'>
-                      {s.device ?? s.userAgent ?? 'Unknown device'}
-                      {s.current && (
-                        <span className='current-badge'>This device</span>
-                      )}
-                    </span>
-                    <span className='session-row__meta'>
-                      {s.location ?? ''}{s.location && s.lastActive ? ' · ' : ''}{s.lastActive ?? ''}
-                    </span>
-                  </div>
-                  {!s.current && (
-                    <button
-                      className='btn btn--danger-ghost btn--sm'
-                      onClick={() => onRevokeSession(s._id)}
-                    >
-                      Revoke
-                    </button>
-                  )}
+        {sessions.length === 0 ? (
+          <p className='section-block__desc' style={{ fontStyle: 'italic' }}>
+            No other active sessions found.
+          </p>
+        ) : (
+          <div className='session-list'>
+            {sessions.map((s, i) => (
+              <div key={s._id ?? i} className='session-row'>
+                <div className='session-row__icon'>
+                  {s.current ? '💻' : '📱'}
                 </div>
-              ))}
-            </div>
-            )}
+                <div className='session-row__info'>
+                  <span className='session-row__device'>
+                    {s.device ?? s.userAgent ?? 'Unknown device'}
+                    {s.current && (
+                      <span className='current-badge'>This device</span>
+                    )}
+                  </span>
+                  <span className='session-row__meta'>
+                    {s.location ?? ''}
+                    {s.location && s.lastActive ? ' · ' : ''}
+                    {s.lastActive ?? ''}
+                  </span>
+                </div>
+                {!s.current && (
+                  <button
+                    className='btn btn--danger-ghost btn--sm'
+                    onClick={() => onRevokeSession(s._id)}
+                  >
+                    Revoke
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
         <button className='btn btn--danger-ghost' onClick={onRevokeAllSessions}>
           Revoke All Other Sessions
         </button>
@@ -735,43 +1117,44 @@ function SecurityTab ({
                 All properties, tenants, and transaction history will be erased.
               </p>
             </div>
-            {!showDeleteForm
-              ? (
-                <button
-                  className='btn btn--danger'
-                  onClick={() => setShowDeleteForm(true)}
-                >
-                  Delete Account
-                </button>
-                )
-              : (
-                <div className='pw-form' style={{ minWidth: '260px' }}>
-                  <FieldGroup label='Enter your password to confirm'>
-                    <input
-                      className='input'
-                      type='password'
-                      value={deletePassword}
-                      onChange={e => setDeletePassword(e.target.value)}
-                      placeholder='Current password'
-                    />
-                  </FieldGroup>
-                  <div className='btn-row'>
-                    <button
-                      className='btn btn--ghost'
-                      onClick={() => { setShowDeleteForm(false); setDeletePassword('') }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className='btn btn--danger'
-                      onClick={submitDeleteAccount}
-                      disabled={deleting || !deletePassword}
-                    >
-                      {deleting ? <span className='spinner' /> : 'Confirm Delete'}
-                    </button>
-                  </div>
+            {!showDeleteForm ? (
+              <button
+                className='btn btn--danger'
+                onClick={() => setShowDeleteForm(true)}
+              >
+                Delete Account
+              </button>
+            ) : (
+              <div className='pw-form' style={{ minWidth: '260px' }}>
+                <FieldGroup label='Enter your password to confirm'>
+                  <input
+                    className='input'
+                    type='password'
+                    value={deletePassword}
+                    onChange={e => setDeletePassword(e.target.value)}
+                    placeholder='Current password'
+                  />
+                </FieldGroup>
+                <div className='btn-row'>
+                  <button
+                    className='btn btn--ghost'
+                    onClick={() => {
+                      setShowDeleteForm(false)
+                      setDeletePassword('')
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className='btn btn--danger'
+                    onClick={submitDeleteAccount}
+                    disabled={deleting || !deletePassword}
+                  >
+                    {deleting ? <span className='spinner' /> : 'Confirm Delete'}
+                  </button>
                 </div>
-                )}
+              </div>
+            )}
           </div>
         </div>
       </SectionBlock>
@@ -817,7 +1200,9 @@ function PreferencesTab ({ data, onChange }) {
             {['dark', 'light', 'system'].map(t => (
               <button
                 key={t}
-                className={`theme-btn ${data.theme === t ? 'theme-btn--active' : ''}`}
+                className={`theme-btn ${
+                  data.theme === t ? 'theme-btn--active' : ''
+                }`}
                 onClick={() => onChange('theme', t)}
               >
                 {t === 'dark' ? '🌙' : t === 'light' ? '☀️' : '⚙️'}
@@ -911,63 +1296,65 @@ export default function Settings () {
         ])
 
         // billing may 404 if not set yet — treat that as empty
-        const billingRes = await apiFetch('GET', '/api/settings/billing').catch(() => ({ data: {} }))
+        const billingRes = await apiFetch('GET', '/api/settings/billing').catch(
+          () => ({ data: {} })
+        )
 
-        const p    = profileRes.data    ?? {}
-        const n    = notifRes.data      ?? {}
-        const b    = billingRes.data    ?? {}
-        const pref = prefRes.data       ?? {}
+        const p = profileRes.data ?? {}
+        const n = notifRes.data ?? {}
+        const b = billingRes.data ?? {}
+        const pref = prefRes.data ?? {}
 
         const merged = {
           // ── profile ──────────────────────────────────────────────────────
-          firstName:       p.firstName                            ?? '',
-          lastName:        p.lastName                             ?? '',
-          email:           p.email                                ?? '',
-          phone:           p.phone                                ?? '',
-          timezone:        p.preferences?.timezone                ?? 'Africa/Lagos',
-          company:         p.propertyOwnerProfile?.companyName    ?? '',
-          taxId:           p.propertyOwnerProfile?.taxId          ?? '',
-          licenseNo:       '',
+          firstName: p.firstName ?? '',
+          lastName: p.lastName ?? '',
+          email: p.email ?? '',
+          phone: p.phone ?? '',
+          timezone: p.preferences?.timezone ?? 'Africa/Lagos',
+          company: p.propertyOwnerProfile?.companyName ?? '',
+          taxId: p.propertyOwnerProfile?.taxId ?? '',
+          licenseNo: '',
           businessAddress: '',
-          avatar:          p.avatar                               ?? '',
+          avatar: p.avatar ?? '',
 
           // ── notifications ────────────────────────────────────────────────
-          rentReceived:        n.rentReceived        ?? true,
-          rentOverdue:         n.rentOverdue         ?? true,
-          rentPartial:         n.rentPartial         ?? false,
-          payoutProcessed:     n.payoutProcessed     ?? true,
-          maintenanceNew:      n.maintenanceNew      ?? true,
-          maintenanceUpdated:  n.maintenanceUpdated  ?? false,
+          rentReceived: n.rentReceived ?? true,
+          rentOverdue: n.rentOverdue ?? true,
+          rentPartial: n.rentPartial ?? false,
+          payoutProcessed: n.payoutProcessed ?? true,
+          maintenanceNew: n.maintenanceNew ?? true,
+          maintenanceUpdated: n.maintenanceUpdated ?? false,
           maintenanceResolved: n.maintenanceResolved ?? true,
-          leaseExpiringSoon:   n.leaseExpiringSoon   ?? true,
-          leaseSigned:         n.leaseSigned         ?? true,
-          tenantMoveEvent:     n.tenantMoveEvent     ?? false,
-          tenantApplication:   n.tenantApplication   ?? true,
-          deliveryEmail:       n.deliveryEmail        ?? true,
-          deliverySms:         n.deliverySms          ?? false,
-          deliveryPush:        n.deliveryPush          ?? true,
-          weeklyDigest:        n.weeklyDigest          ?? true,
+          leaseExpiringSoon: n.leaseExpiringSoon ?? true,
+          leaseSigned: n.leaseSigned ?? true,
+          tenantMoveEvent: n.tenantMoveEvent ?? false,
+          tenantApplication: n.tenantApplication ?? true,
+          deliveryEmail: n.deliveryEmail ?? true,
+          deliverySms: n.deliverySms ?? false,
+          deliveryPush: n.deliveryPush ?? true,
+          weeklyDigest: n.weeklyDigest ?? true,
 
           // ── billing ──────────────────────────────────────────────────────
-          bankName:       b.bankName       ?? '',
-          bankLast4:      b.bankLast4      ?? '',
+          bankName: b.bankName ?? '',
+          bankLast4: b.bankLast4 ?? '',
           payoutSchedule: b.payoutSchedule ?? 'monthly',
-          billingEmail:   b.billingEmail   ?? '',
+          billingEmail: b.billingEmail ?? '',
 
           // ── security (2FA lives in Settings doc, not returned by profile) ─
           twoFactorEnabled: false,
-          smsFallback:      false,
+          smsFallback: false,
 
           // ── preferences ──────────────────────────────────────────────────
-          currency:            pref.currency             ?? 'NGN',
-          dateFormat:          pref.dateFormat            ?? 'DD/MM/YYYY',
-          theme:               pref.theme                 ?? 'dark',
-          defaultPropertyView: pref.defaultPropertyView  ?? 'grid',
-          vacantFirst:         pref.vacantFirst           ?? false,
-          compactSidebar:      pref.compactSidebar        ?? false,
-          showPhone:           pref.showPhone             ?? false,
-          showCompany:         pref.showCompany           ?? true,
-          allowAgentContact:   pref.allowAgentContact     ?? true
+          currency: pref.currency ?? 'NGN',
+          dateFormat: pref.dateFormat ?? 'DD/MM/YYYY',
+          theme: pref.theme ?? 'dark',
+          defaultPropertyView: pref.defaultPropertyView ?? 'grid',
+          vacantFirst: pref.vacantFirst ?? false,
+          compactSidebar: pref.compactSidebar ?? false,
+          showPhone: pref.showPhone ?? false,
+          showCompany: pref.showCompany ?? true,
+          allowAgentContact: pref.allowAgentContact ?? true
         }
 
         setFormData(merged)
@@ -997,47 +1384,83 @@ export default function Settings () {
 
       if (activeTab === 'profile') {
         res = await apiFetch('PATCH', '/api/settings/profile', {
-          first_name:       formData.firstName,
-          last_name:        formData.lastName,
-          email:            formData.email,
-          phone:            formData.phone,
-          timezone:         formData.timezone,
-          company:          formData.company,
-          tax_id:           formData.taxId,
-          license_no:       formData.licenseNo,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          timezone: formData.timezone,
+          company: formData.company,
+          tax_id: formData.taxId,
+          license_no: formData.licenseNo,
           business_address: formData.businessAddress
         })
       } else if (activeTab === 'notifications') {
         const {
-          rentReceived, rentOverdue, rentPartial, payoutProcessed,
-          maintenanceNew, maintenanceUpdated, maintenanceResolved,
-          leaseExpiringSoon, leaseSigned, tenantMoveEvent, tenantApplication,
-          deliveryEmail, deliverySms, deliveryPush, weeklyDigest
+          rentReceived,
+          rentOverdue,
+          rentPartial,
+          payoutProcessed,
+          maintenanceNew,
+          maintenanceUpdated,
+          maintenanceResolved,
+          leaseExpiringSoon,
+          leaseSigned,
+          tenantMoveEvent,
+          tenantApplication,
+          deliveryEmail,
+          deliverySms,
+          deliveryPush,
+          weeklyDigest
         } = formData
         res = await apiFetch('PUT', '/api/settings/notifications', {
-          rentReceived, rentOverdue, rentPartial, payoutProcessed,
-          maintenanceNew, maintenanceUpdated, maintenanceResolved,
-          leaseExpiringSoon, leaseSigned, tenantMoveEvent, tenantApplication,
-          deliveryEmail, deliverySms, deliveryPush, weeklyDigest
+          rentReceived,
+          rentOverdue,
+          rentPartial,
+          payoutProcessed,
+          maintenanceNew,
+          maintenanceUpdated,
+          maintenanceResolved,
+          leaseExpiringSoon,
+          leaseSigned,
+          tenantMoveEvent,
+          tenantApplication,
+          deliveryEmail,
+          deliverySms,
+          deliveryPush,
+          weeklyDigest
         })
       } else if (activeTab === 'billing') {
         res = await apiFetch('PATCH', '/api/settings/billing', {
           payout_schedule: formData.payoutSchedule,
-          billing_email:   formData.billingEmail
+          billing_email: formData.billingEmail
         })
       } else if (activeTab === 'security') {
         res = await apiFetch('PATCH', '/api/settings/security/2fa', {
           two_factor_enabled: formData.twoFactorEnabled,
-          sms_fallback:       formData.smsFallback
+          sms_fallback: formData.smsFallback
         })
       } else if (activeTab === 'preferences') {
         const {
-          currency, dateFormat, theme, defaultPropertyView,
-          vacantFirst, compactSidebar, showPhone, showCompany, allowAgentContact
+          currency,
+          dateFormat,
+          theme,
+          defaultPropertyView,
+          vacantFirst,
+          compactSidebar,
+          showPhone,
+          showCompany,
+          allowAgentContact
         } = formData
         res = await apiFetch('PUT', '/api/settings/preferences', {
-          currency, dateFormat, theme, defaultPropertyView,
-          vacantFirst, compactSidebar, showPhone, showCompany, allowAgentContact
+          currency,
+          dateFormat,
+          theme,
+          defaultPropertyView,
+          vacantFirst,
+          compactSidebar,
+          showPhone,
+          showCompany,
+          allowAgentContact
         })
       }
 
@@ -1072,14 +1495,30 @@ export default function Settings () {
   }
 
   // ─── Bank link ───────────────────────────────────────────────────────────────
-  async function handleLinkBank ({ bank_name, account_number, routing_number, account_name }) {
+  async function handleLinkBank ({
+    bank_name,
+    account_number,
+    routing_number,
+    account_name
+  }) {
     try {
       const res = await apiFetch('POST', '/api/settings/billing/bank', {
-        bank_name, account_number, routing_number, account_name
+        bank_name,
+        account_number,
+        routing_number,
+        account_name
       })
       if (!res.success) throw new Error(res.message)
-      setFormData(prev => ({ ...prev, bankName: bank_name, bankLast4: res.bank_last4 }))
-      setSavedData(prev => ({ ...prev, bankName: bank_name, bankLast4: res.bank_last4 }))
+      setFormData(prev => ({
+        ...prev,
+        bankName: bank_name,
+        bankLast4: res.bank_last4
+      }))
+      setSavedData(prev => ({
+        ...prev,
+        bankName: bank_name,
+        bankLast4: res.bank_last4
+      }))
       showToast('Bank account linked.')
     } catch (err) {
       showToast(err.message || 'Failed to link bank account.', 'error')
@@ -1105,7 +1544,10 @@ export default function Settings () {
   // ─── Session management ──────────────────────────────────────────────────────
   async function handleRevokeSession (sessionId) {
     try {
-      const res = await apiFetch('DELETE', `/api/settings/security/sessions/${sessionId}`)
+      const res = await apiFetch(
+        'DELETE',
+        `/api/settings/security/sessions/${sessionId}`
+      )
       if (!res.success) throw new Error(res.message)
       setSessions(prev => prev.filter(s => s._id !== sessionId))
       showToast('Session revoked.')
@@ -1127,7 +1569,12 @@ export default function Settings () {
 
   // ─── Deactivate / Delete ─────────────────────────────────────────────────────
   async function handleDeactivate () {
-    if (!window.confirm('Deactivate your account? You can reactivate by contacting support.')) return
+    if (
+      !window.confirm(
+        'Deactivate your account? You can reactivate by contacting support.'
+      )
+    )
+      return
     try {
       const res = await apiFetch('POST', '/api/settings/security/deactivate')
       if (!res.success) throw new Error(res.message)
@@ -1139,10 +1586,14 @@ export default function Settings () {
 
   async function handleDeleteAccount (password) {
     try {
-      const res = await apiFetch('DELETE', '/api/settings/security/account', { password })
+      const res = await apiFetch('DELETE', '/api/settings/security/account', {
+        password
+      })
       if (!res.success) throw new Error(res.message)
       showToast('Account permanently deleted.')
-      setTimeout(() => { window.location.href = '/' }, 1500)
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 1500)
       return true
     } catch (err) {
       showToast(err.message || 'Failed to delete account.', 'error')
@@ -1156,9 +1607,13 @@ export default function Settings () {
       <div className='settings'>
         <div className='settings__header'>
           <h1 className='settings__title'>Settings</h1>
-          <p className='settings__subtitle'>Manage your account, preferences, and security</p>
+          <p className='settings__subtitle'>
+            Manage your account, preferences, and security
+          </p>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+        <div
+          style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}
+        >
           <span className='spinner' style={{ width: 32, height: 32 }} />
         </div>
       </div>
@@ -1228,7 +1683,9 @@ export default function Settings () {
       />
 
       {toast && (
-        <div className={`toast ${toast.type === 'error' ? 'toast--error' : ''}`}>
+        <div
+          className={`toast ${toast.type === 'error' ? 'toast--error' : ''}`}
+        >
           {toast.msg}
         </div>
       )}

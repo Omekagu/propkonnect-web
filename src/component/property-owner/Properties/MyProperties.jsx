@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
-// import { api } from '@/libs/api-client'
+import { api } from '@/libs/api-client'
 import './MyProperties.scss'
 import UploadPropertyWizard from '@/component/UploadProperty/UploadProperty'
 
@@ -706,7 +706,7 @@ export default function MyProperties () {
   const fetchProperties = useCallback(async () => {
     setLoadingList(true)
     try {
-      // const res = await api.get('/api/properties/property/mine')
+      const res = await api.get('/api/properties/property/mine')
       if (res.data?.success && Array.isArray(res.data.properties)) {
         setProperties(res.data.properties)
       } else {
@@ -732,7 +732,7 @@ export default function MyProperties () {
     if (!deleteTarget) return
     setDeleting(true)
     try {
-      // const res = await api.delete(`/api/properties/${deleteTarget._id}`)
+      const res = await api.delete(`/api/properties/${deleteTarget._id}`)
       if (res.data?.success) {
         setProperties(prev => prev.filter(p => p._id !== deleteTarget._id))
         flash('Property deleted', 'success')
