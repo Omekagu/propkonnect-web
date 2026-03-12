@@ -349,100 +349,167 @@ function NotificationsTab ({ data, onChange }) {
   )
 }
 
-function BillingTab ({ data, onChange, onLinkBank }) {
-  const [showBankForm, setShowBankForm] = useState(false)
-  const [bankForm, setBankForm] = useState({
-    bank_name: '',
-    account_number: '',
-    routing_number: '',
-    account_name: ''
-  })
-  const [linkingBank, setLinkingBank] = useState(false)
+const PLAN_ICONS_S = { free: '🌱', basic: '⚡', pro: '🚀', enterprise: '🏢' }
+const PLAN_COLORS_S = { free: '#64748b', basic: '#0071c2', pro: '#7c3aed', enterprise: '#059669' }
+const fmtNgn = v => `₦${Number(v || 0).toLocaleString()}`
+const fmtDateS = d => d ? new Date(d).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }) : null
 
-  async function submitBankLink () {
-    if (!bankForm.bank_name || !bankForm.account_number) return
-    setLinkingBank(true)
-    await onLinkBank(bankForm)
-    setLinkingBank(false)
-    setShowBankForm(false)
-    setBankForm({ bank_name: '', account_number: '', routing_number: '', account_name: '' })
+function BillingTab ({ data, onChange }) {
+  const [setupStatus, setSetupStatus] = useState(null)
+  const [plans, setPlans]             = useState([])
+  const [billingLoading, setBillingLoading] = useState(true)
+  const [subscribing, setSubscribing] = useState(null)
+  const [billingMsg, setBillingMsg]   = useState(null)
+
+  useEffect(() => {
+    Promise.all([
+      apiFetch('GET', '/api/paystack/setup-status'),
+      fetch(`${API_BASE}/api/paystack/plans`).then(r => r.json())
+    ]).then(([statusRes, plansRes]) => {
+      if (statusRes.success) setSetupStatus(statusRes)
+      if (plansRes.success)  setPlans(plansRes.plans || [])
+    }).catch(console.error).finally(() => setBillingLoading(false))
+  }, [])
+
+  async function handleUpgrade (plan) {
+    if (subscribing) return
+    setSubscribing(plan.id)
+    try {
+      const res = await apiFetch('POST', '/api/paystack/subscribe', { planId: plan.id })
+      if (!res.success) throw new Error(res.msg || 'Failed')
+      if (plan.price === 0) {
+        setBillingMsg({ text: 'Downgraded to Free plan.', ok: true })
+        setSetupStatus(prev => ({ ...prev, plan: { ...prev?.plan, tier: 'free', effectiveTier: 'free' } }))
+      } else {
+        window.open(res.authorizationUrl, '_blank', 'noopener')
+        setBillingMsg({ text: 'Payment page opened. Your plan activates once payment is confirmed.', ok: true })
+      }
+    } catch (err) {
+      setBillingMsg({ text: err.message || 'Could not process plan change', ok: false })
+    } finally {
+      setSubscribing(null)
+      setTimeout(() => setBillingMsg(null), 5000)
+    }
   }
+
+  const plan   = setupStatus?.plan || {}
+  const payout = setupStatus?.paymentSetup || {}
+  const tier   = plan.effectiveTier || plan.tier || 'free'
+  const tierColor = PLAN_COLORS_S[tier] || '#1d4ed8'
 
   return (
     <div className='tab-panel'>
-      <SectionBlock
-        title='Payout Account'
-        description='Where collected rent gets deposited after platform fees.'
-      >
-        <div className='bank-card'>
-          <div className='bank-card__icon'>🏦</div>
-          <div className='bank-card__info'>
-            <span className='bank-card__name'>
-              {data.bankName || 'No account linked'}
-            </span>
-            {data.bankLast4 && (
-              <span className='bank-card__number'>
-                Account ending in •••• {data.bankLast4}
-              </span>
-            )}
-          </div>
-          <button
-            className='btn btn--ghost btn--sm'
-            onClick={() => setShowBankForm(v => !v)}
-          >
-            {data.bankName ? 'Update' : 'Link Account'}
-          </button>
-        </div>
 
-        {showBankForm && (
-          <div className='pw-form'>
-            <FieldGroup label='Bank Name'>
-              <input
-                className='input'
-                value={bankForm.bank_name}
-                onChange={e => setBankForm(p => ({ ...p, bank_name: e.target.value }))}
-                placeholder='e.g. First Bank Nigeria'
-              />
-            </FieldGroup>
-            <FieldGroup label='Account Number'>
-              <input
-                className='input'
-                type='password'
-                value={bankForm.account_number}
-                onChange={e => setBankForm(p => ({ ...p, account_number: e.target.value }))}
-                placeholder='Enter account number'
-              />
-            </FieldGroup>
-            <FieldGroup label='Routing / Sort Code' hint='Optional'>
-              <input
-                className='input'
-                value={bankForm.routing_number}
-                onChange={e => setBankForm(p => ({ ...p, routing_number: e.target.value }))}
-              />
-            </FieldGroup>
-            <FieldGroup label='Account Name'>
-              <input
-                className='input'
-                value={bankForm.account_name}
-                onChange={e => setBankForm(p => ({ ...p, account_name: e.target.value }))}
-                placeholder='Name on account'
-              />
-            </FieldGroup>
-            <div className='btn-row'>
-              <button
-                className='btn btn--ghost'
-                onClick={() => setShowBankForm(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className='btn btn--primary'
-                onClick={submitBankLink}
-                disabled={linkingBank || !bankForm.bank_name || !bankForm.account_number}
-              >
-                {linkingBank ? <span className='spinner' /> : 'Link Account'}
-              </button>
+      {billingMsg && (
+        <div className={`billing-msg${billingMsg.ok ? ' billing-msg--ok' : ' billing-msg--err'}`}>
+          {billingMsg.ok ? '✓' : '✕'} {billingMsg.text}
+        </div>
+      )}
+
+      {/* ── Current Plan ── */}
+      <SectionBlock title='Subscription Plan' description='Your current platform plan and billing cycle.'>
+        {billingLoading ? (
+          <div style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Loading plan info…</div>
+        ) : (
+          <>
+            <div className='plan-card plan-card--active'>
+              <div className='plan-card__left'>
+                <span style={{ fontSize: 28 }}>{PLAN_ICONS_S[tier] || '📦'}</span>
+                <div>
+                  <span className='plan-card__name' style={{ color: tierColor }}>
+                    {tier.charAt(0).toUpperCase() + tier.slice(1)}
+                    {plan.trialActive && (
+                      <span style={{ fontSize: 11, background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d', borderRadius: 20, padding: '2px 8px', marginLeft: 8, fontWeight: 700 }}>
+                        Trial
+                      </span>
+                    )}
+                  </span>
+                  <span className='plan-card__features'>
+                    {plan.listingLimit === -1 ? 'Unlimited' : plan.listingLimit} listings ·&nbsp;
+                    {plan.features?.length || 0} premium features
+                    {plan.trialActive && plan.trialEndsAt && (
+                      <> · Trial ends {fmtDateS(plan.trialEndsAt)}</>
+                    )}
+                  </span>
+                </div>
+              </div>
+              <div className='plan-card__right'>
+                {/* price shown in plans grid below */}
+              </div>
             </div>
+
+            {/* Available plans */}
+            <div style={{ marginTop: 20 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 12 }}>
+                Available Plans — click to upgrade or downgrade
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+                {plans.map(p => {
+                  const isCurrent = p.id === (plan.tier || 'free')
+                  const c = PLAN_COLORS_S[p.id] || '#1d4ed8'
+                  return (
+                    <div key={p.id} style={{
+                      border: `1.5px solid ${isCurrent ? c : 'var(--color-border)'}`,
+                      borderTop: `4px solid ${c}`,
+                      borderRadius: 10,
+                      padding: '14px',
+                      background: 'var(--color-surface)',
+                      display: 'flex', flexDirection: 'column', gap: 8
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 22 }}>{PLAN_ICONS_S[p.id]}</span>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text-primary)' }}>{p.name}</div>
+                          <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                            {p.price === 0 ? 'Free' : `${fmtNgn(p.price)}/mo`}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
+                        {p.listingLimit === -1 ? '∞' : p.listingLimit} listings · {p.aiCredits === -1 ? '∞' : p.aiCredits} AI credits
+                      </div>
+                      <button
+                        className={isCurrent ? 'btn btn--ghost btn--sm' : 'btn btn--primary btn--sm'}
+                        style={!isCurrent ? { background: c, border: 'none' } : {}}
+                        onClick={() => !isCurrent && handleUpgrade(p)}
+                        disabled={isCurrent || subscribing === p.id}
+                      >
+                        {subscribing === p.id ? <span className='spinner' /> : isCurrent ? 'Current' : p.price === 0 ? 'Downgrade' : 'Upgrade'}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </>
+        )}
+
+        <FieldGroup label='Billing Email' hint='Invoices and receipts are sent here'>
+          <input
+            className='input'
+            type='email'
+            value={data.billingEmail}
+            onChange={e => onChange('billingEmail', e.target.value)}
+          />
+        </FieldGroup>
+      </SectionBlock>
+
+      {/* ── Payout Account ── */}
+      <SectionBlock title='Payout Account' description='Bank account where collected rent is deposited after platform fees.'>
+        {billingLoading ? (
+          <div style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Loading payout info…</div>
+        ) : payout.completed ? (
+          <div className='bank-card'>
+            <div className='bank-card__icon'>🏦</div>
+            <div className='bank-card__info'>
+              <span className='bank-card__name'>{payout.bankName || 'Bank Account'}</span>
+              <span className='bank-card__number'>{payout.accountName}</span>
+              <span style={{ fontSize: 11, color: '#059669', fontWeight: 600 }}>✓ Verified & Active</span>
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: '12px', background: 'var(--color-warning-bg, #fef3c7)', borderRadius: 8, fontSize: 14, color: '#92400e' }}>
+            ⚠️ No payout account set up. Go to <strong>Account Setup</strong> from the banner at the top to link your bank account.
           </div>
         )}
 
@@ -460,59 +527,13 @@ function BillingTab ({ data, onChange, onLinkBank }) {
         </FieldGroup>
       </SectionBlock>
 
-      <SectionBlock
-        title='Subscription Plan'
-        description='Your current platform plan and billing cycle.'
-      >
-        <div className='plan-card plan-card--active'>
-          <div className='plan-card__left'>
-            <span className='plan-card__name'>Pro Owner</span>
-            <span className='plan-card__features'>
-              Up to 20 properties · Unlimited tenants · Priority support
-            </span>
-          </div>
-          <div className='plan-card__right'>
-            <span className='plan-card__price'>
-              $49<span>/mo</span>
-            </span>
-            <button className='btn btn--ghost btn--sm'>Change Plan</button>
-          </div>
-        </div>
-
-        <FieldGroup
-          label='Billing Email'
-          hint='Invoices and receipts are sent here'
-        >
-          <input
-            className='input'
-            type='email'
-            value={data.billingEmail}
-            onChange={e => onChange('billingEmail', e.target.value)}
-          />
-        </FieldGroup>
-      </SectionBlock>
-
-      <SectionBlock
-        title='Platform Fees'
-        description='Fee rates applied to rent collected through the platform.'
-      >
+      {/* ── Platform Fees ── */}
+      <SectionBlock title='Platform Fees' description='Fee rates applied to transactions through the platform.'>
         <div className='fee-table'>
-          <div className='fee-row'>
-            <span>Rent collection fee</span>
-            <strong>2.5%</strong>
-          </div>
-          <div className='fee-row'>
-            <span>Late payment processing</span>
-            <strong>$2.50</strong>
-          </div>
-          <div className='fee-row'>
-            <span>Instant payout fee</span>
-            <strong>2.0%</strong>
-          </div>
-          <div className='fee-row fee-row--total'>
-            <span>Your current monthly platform fee</span>
-            <strong>$49.00</strong>
-          </div>
+          <div className='fee-row'><span>Rent collection fee</span><strong>2.5%</strong></div>
+          <div className='fee-row'><span>Escrow management fee</span><strong>2.5%</strong></div>
+          <div className='fee-row'><span>Instant payout fee</span><strong>2.0%</strong></div>
+          <div className='fee-row'><span>Paystack processing fee</span><strong>1.5% + ₦100</strong></div>
         </div>
       </SectionBlock>
     </div>

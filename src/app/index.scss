@@ -432,3 +432,97 @@ img, video {
     color: #93c5fd;
   }
 }
+
+// ── Dark Mode (programmatic toggle via data-theme="dark") ─────
+// Mirrors the OS block above so manual toggle works independently.
+html[data-theme="dark"] {
+  :root {
+    // Backgrounds
+    --color-background:     #020617;
+    --color-surface:        #0f172a;
+    --color-surface-hover:  #1e293b;
+    --color-border:         #1e293b;
+    --color-border-light:   #0f172a;
+
+    // Legacy aliases
+    --bg:       #020617;
+    --surface:  #0f172a;
+    --surface-2:#1e293b;
+    --border:   #1e293b;
+    --border-light: #0f172a;
+
+    // Text
+    --color-text-primary:   #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted:     #64748b;
+    --color-text-inverse:   #0f172a;
+
+    --text:           #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted:     #64748b;
+    --text-inverse:   #0f172a;
+
+    // Primary tints (blue is still vivid in dark)
+    --color-primary-light:  rgba(37, 99, 235, 0.15);
+    --color-primary-subtle: rgba(37, 99, 235, 0.10);
+    --primary-light: rgba(37, 99, 235, 0.15);
+
+    // Semantic bg tints
+    --color-success-bg: rgba(0, 135, 90, 0.15);
+    --color-warning-bg: rgba(245, 158, 11, 0.15);
+    --color-error-bg:   rgba(239, 68, 68, 0.15);
+    --color-info-bg:    rgba(37, 99, 235, 0.15);
+
+    --success-bg: rgba(0, 135, 90, 0.15);
+    --warning-bg: rgba(245, 158, 11, 0.15);
+    --error-bg:   rgba(239, 68, 68, 0.15);
+    --info-bg:    rgba(37, 99, 235, 0.15);
+
+    // Shadows — deeper in dark
+    --shadow-xs:   0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.6);
+    --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.7);
+    --shadow-xl:   0 16px 48px rgba(0, 0, 0, 0.8);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
+
+    // Legacy dark-theme component aliases remapped for dark
+    --text-dark:      #f1f5f9;
+    --text-gray:      #94a3b8;
+    --bg-light:       #020617;
+    --bg-white:       #0f172a;
+    --bg-dark:        #020617;
+    --bg-darker:      #010409;
+    --surface-light:  #1e293b;
+    --bg-surface:     #0f172a;
+    --bg-raised:      #1e293b;
+    --bg-hover:       rgba(255,255,255,0.06);
+    --text-1:         #f1f5f9;
+    --text-2:         #94a3b8;
+    --text-3:         #64748b;
+    --border-mid:     #1e293b;
+    --color-surface:  #0f172a;
+  }
+
+  body {
+    color-scheme: dark;
+  }
+
+  input, textarea, select {
+    color-scheme: dark;
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+
+    &::placeholder { color: var(--color-text-muted); }
+  }
+
+  ::-webkit-scrollbar-track { background: #0f172a; }
+  ::-webkit-scrollbar-thumb { background: #334155; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+  ::selection {
+    background: rgba(37, 99, 235, 0.3);
+    color: #93c5fd;
+  }
+}

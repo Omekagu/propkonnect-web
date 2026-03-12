@@ -20,6 +20,7 @@ import UploadProperty from '@/component/UploadProperty/UploadProperty'
 import PropertyOwnerDashboard from '@/component/property-owner/Dashboard/Dashboard'
 import MyProperties from '@/component/property-owner/Properties/MyProperties'
 import FindArtisan from '@/component/property-owner/Artisan/FindArtisan'
+import PropertyOwnerPayments from '@/component/property-owner/Payments/PropertyOwnerPayments'
 
 // Artisan Components
 import ArtisanDashboard from '@/component/artisan/Dashboard/Dashboard'
@@ -53,6 +54,7 @@ import AccountSetup from '../../component/AccountSetup/AccountSetup.jsx'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useTheme } from '@/hooks/useTheme'
 import './layout.scss'
 
 export default function AdminLayout ({ children }) {
@@ -67,6 +69,8 @@ export default function AdminLayout ({ children }) {
     deleteNotification: deleteNotif,
     clearAll: clearAllNotifs
   } = useNotifications(token)
+
+  const { isDark, toggleTheme } = useTheme()
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
@@ -391,7 +395,7 @@ export default function AdminLayout ({ children }) {
     if (userRole === 'property-owner') {
       switch (activePage) {
         case 'Dashboard':
-          return <PropertyOwnerDashboard />
+          return <PropertyOwnerDashboard onRouteChange={page => { setActivePage(page); localStorage.setItem('ep_activePage', page) }} />
         case 'MyProperties':
           return <MyProperties />
         case 'PropertyUpload':
@@ -401,7 +405,7 @@ export default function AdminLayout ({ children }) {
         case 'Maintenance':
           return <Maintenance />
         case 'Payments':
-          return <Finance />
+          return <PropertyOwnerPayments />
         case 'Documents':
           return <Document />
         case 'Reports':
@@ -567,7 +571,8 @@ export default function AdminLayout ({ children }) {
       <div className='main-column'>
         <AppHeader
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
-          onToggleTheme={() => alert('Toggle theme (wire up)')}
+          onToggleTheme={toggleTheme}
+          isDark={isDark}
           user={user}
           onLogout={logout}
           currentPage={activePage}

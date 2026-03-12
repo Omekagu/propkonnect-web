@@ -767,3 +767,14 @@
 .mono {
   font-variant-numeric: tabular-nums;
 }
+
+// ─── Billing inline message ───────────────────────────────────────────────────
+.billing-msg {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  &--ok  { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+  &--err { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+}

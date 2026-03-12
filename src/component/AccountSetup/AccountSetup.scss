@@ -1,19 +1,19 @@
 // AccountSetup.scss
 
 .account-setup {
-  --as-bg: #f7f9fc;
-  --as-card: #ffffff;
-  --as-border: #e2e8f0;
+  --as-bg: var(--color-background, #f7f9fc);
+  --as-card: var(--color-surface, #ffffff);
+  --as-border: var(--color-border, #e2e8f0);
   --as-primary: var(--color-primary, #003580);
   --as-mid: var(--color-primary-mid, #0071c2);
   --as-accent: var(--color-accent, #f5a623);
   --as-success: #10b981;
   --as-error: #ef4444;
   --as-warning: #f59e0b;
-  --as-muted: #64748b;
-  --as-text: #1a202c;
+  --as-muted: var(--color-text-muted, #64748b);
+  --as-text: var(--color-text-primary, #1a202c);
   --as-radius: 14px;
-  --as-shadow: 0 4px 20px rgba(0,0,0,.08);
+  --as-shadow: var(--shadow-sm, 0 4px 20px rgba(0,0,0,.08));
 
   max-width: 560px;
   margin: 0 auto;

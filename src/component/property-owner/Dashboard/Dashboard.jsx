@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-// import { api } from '@/libs/api-client'
+import { api } from '@/libs/api-client'
 import './Dashboard.scss'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
@@ -549,7 +549,7 @@ function ActivityItem ({ icon: IconComp, color, title, sub, time }) {
 }
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
-export default function Dashboard () {
+export default function Dashboard ({ onRouteChange }) {
   const [properties, setProperties] = useState([])
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState('Owner')
@@ -569,7 +569,7 @@ export default function Dashboard () {
     if (!silent) setLoading(true)
     else setRefreshing(true)
     try {
-      // const { data } = await api.get('/api/properties/property/mine')
+      const { data } = await api.get('/api/properties/property/mine')
       if (data.success) setProperties(data.properties || [])
     } catch (err) {
       console.error('[Dashboard] fetch error', err)
@@ -924,30 +924,35 @@ export default function Dashboard () {
                   label='Upload Property'
                   desc='List a new property'
                   accent='gold'
+                  onClick={() => onRouteChange?.('PropertyUpload')}
                 />
                 <QuickAction
                   icon={Icon.FileText}
                   label='Manage Listings'
                   desc='Edit, publish or archive'
                   accent='default'
+                  onClick={() => onRouteChange?.('MyProperties')}
                 />
                 <QuickAction
                   icon={Icon.Users}
                   label='Applications'
                   desc='Review buyer requests'
                   accent='default'
+                  onClick={() => onRouteChange?.('Tenants')}
                 />
                 <QuickAction
                   icon={Icon.BarChart}
                   label='Analytics'
                   desc='Track performance'
                   accent='default'
+                  onClick={() => onRouteChange?.('Reports')}
                 />
                 <QuickAction
                   icon={Icon.Award}
-                  label='Upgrade Listing'
-                  desc='Boost visibility with Gold tier'
+                  label='Upgrade Plan'
+                  desc='See available plans'
                   accent='amber'
+                  onClick={() => onRouteChange?.('Payments')}
                 />
               </div>
             </section>
@@ -1018,7 +1023,7 @@ export default function Dashboard () {
                 Upgrade to Gold or Elite tier and get up to 5× more views on
                 your properties.
               </p>
-              <button className='od-btn od-btn--gold od-btn--full'>
+              <button className='od-btn od-btn--gold od-btn--full' onClick={() => onRouteChange?.('Payments')}>
                 <Icon.Award /> Explore Upgrade Plans
               </button>
             </div>

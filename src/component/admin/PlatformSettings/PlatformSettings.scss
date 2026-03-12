@@ -253,3 +253,37 @@
     }
   }
 }
+
+// ── Dark Mode ─────────────────────────────────────────────────────────────────
+@mixin ps-dark {
+  .ps-title, .ps-section-title, .ps-tier-name { color: var(--color-text-primary, #f1f5f9); }
+  .ps-subtitle, .ps-hint, .ps-loading, .ps-form-desc { color: var(--color-text-muted, #64748b); }
+  .ps-label { color: var(--color-text-secondary, #94a3b8); }
+  .ps-tabs { border-bottom-color: var(--color-border, #1e293b); }
+  .ps-tab { color: var(--color-text-muted, #64748b); }
+  .ps-section-title { border-bottom-color: var(--color-border, #1e293b); }
+  .ps-toggle-row { border-bottom-color: var(--color-border, #1e293b); }
+  .ps-toggle { background: #334155; }
+  .ps-input {
+    background: var(--color-surface, #0f172a);
+    border-color: var(--color-border, #1e293b);
+    color: var(--color-text-primary, #f1f5f9);
+  }
+  .ps-tier-card {
+    background: var(--color-surface, #0f172a);
+    border-color: var(--color-border, #1e293b);
+  }
+  .ps-tier-name { border-bottom-color: var(--color-border, #1e293b); }
+  .ps-spinner { border-color: var(--color-border, #1e293b); border-top-color: #2563eb; }
+  .ps-plan-card {
+    background: var(--color-surface, #0f172a);
+    border-color: var(--color-border, #1e293b);
+    .ps-plan-id { background: #1e293b; color: #94a3b8; }
+    .ps-plan-field label, .ps-plan-features label { color: #94a3b8; }
+    .ps-feat-chip { background: #1e293b; border-color: #334155; color: #94a3b8; }
+    .ps-feat-chip.on { background: rgba(37,99,235,0.15); border-color: #2563eb; color: #93c5fd; }
+  }
+}
+
+@media (prefers-color-scheme: dark) { @include ps-dark; }
+html[data-theme="dark"] { @include ps-dark; }

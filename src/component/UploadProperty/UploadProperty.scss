@@ -1,21 +1,21 @@
 // UploadProperty.scss — Clean multi-step wizard
 
 .upload-wizard {
-  --wz-bg: #f7f9fc;
-  --wz-card: #ffffff;
-  --wz-border: #e2e8f0;
+  --wz-bg: var(--color-background, #f7f9fc);
+  --wz-card: var(--color-surface, #ffffff);
+  --wz-border: var(--color-border, #e2e8f0);
   --wz-primary: var(--color-primary, #003580);
   --wz-primary-mid: var(--color-primary-mid, #0071c2);
   --wz-accent: var(--color-accent, #f5a623);
-  --wz-text: #1a202c;
-  --wz-muted: #64748b;
+  --wz-text: var(--color-text-primary, #1a202c);
+  --wz-muted: var(--color-text-muted, #64748b);
   --wz-success: #10b981;
   --wz-warning: #f59e0b;
   --wz-error: #ef4444;
   --wz-radius: 12px;
   --wz-radius-sm: 8px;
-  --wz-shadow: 0 2px 12px rgba(0,0,0,.07);
-  --wz-shadow-lg: 0 8px 32px rgba(0,0,0,.10);
+  --wz-shadow: var(--shadow-sm, 0 2px 12px rgba(0,0,0,.07));
+  --wz-shadow-lg: var(--shadow-md, 0 8px 32px rgba(0,0,0,.10));
 
   min-height: 100vh;
   background: var(--wz-bg);
