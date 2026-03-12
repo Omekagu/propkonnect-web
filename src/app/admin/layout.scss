@@ -2,6 +2,45 @@
 // ADMIN LAYOUT — Session modal, alert banner, loading
 // ============================================================
 
+// ── Account Pending Banner ────────────────────────────────────
+.account-pending-banner {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(90deg, #1e40af, #2563eb);
+  color: white;
+  padding: 12px 24px;
+  font-size: 14px;
+  flex-wrap: wrap;
+
+  .apb-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    .apb-icon { font-size: 18px; }
+    strong { font-weight: 700; }
+    span   { opacity: .88; }
+  }
+  .apb-btn {
+    padding: 8px 20px;
+    background: rgba(255,255,255,.2);
+    border: 1.5px solid rgba(255,255,255,.4);
+    border-radius: 8px;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s;
+    &:hover { background: rgba(255,255,255,.3); }
+  }
+}
+
 // ── Session Warning Modal ─────────────────────────────────────
 .session-warning-overlay {
   position: fixed;

@@ -190,3 +190,66 @@
   animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Subscription Plans grid ──────────────────────────────────────────────────
+.ps-form-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px;
+  line-height: 1.55;
+}
+
+.ps-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ps-plan-card {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  background: #fff;
+
+  .ps-plan-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    .ps-plan-name { flex: 1; font-weight: 700; font-size: 15px; border: none; padding: 4px 6px; }
+    .ps-plan-id { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; background: #f1f5f9; padding: 3px 8px; border-radius: 4px; }
+  }
+
+  .ps-plan-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+
+    .ps-plan-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      label { font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: .4px; }
+    }
+  }
+
+  .ps-plan-features {
+    label { font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: .4px; display: block; margin-bottom: 8px; }
+    .ps-feat-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ps-feat-chip {
+      padding: 4px 10px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 20px;
+      font-size: 11px;
+      cursor: pointer;
+      color: #64748b;
+      background: #fff;
+      transition: all .2s;
+      font-weight: 500;
+      &.on { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+      &:hover:not(.on) { border-color: #93c5fd; }
+    }
+  }
+}

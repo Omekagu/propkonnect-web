@@ -19,11 +19,13 @@ async function api (method, path, body) {
 }
 
 const TABS = [
-  { id: 'fees',    label: 'Platform Fees' },
-  { id: 'tiers',   label: 'Listing Tiers' },
-  { id: 'kyc',     label: 'KYC Requirements' },
-  { id: 'features',label: 'Feature Flags' },
-  { id: 'limits',  label: 'Limits' }
+  { id: 'fees',         label: 'Platform Fees' },
+  { id: 'tiers',        label: 'Listing Tiers' },
+  { id: 'plans',        label: 'Subscription Plans' },
+  { id: 'trial',        label: 'Trial & Onboarding' },
+  { id: 'kyc',          label: 'KYC / Verification' },
+  { id: 'features',     label: 'Feature Flags' },
+  { id: 'limits',       label: 'Limits' }
 ]
 
 // ── Reusable input ────────────────────────────────────────────────────────────
@@ -233,6 +235,105 @@ function LimitsTab ({ settings, onSave, saving }) {
   )
 }
 
+// ── Trial Tab ─────────────────────────────────────────────────────────────────
+function TrialTab ({ settings, onSave, saving }) {
+  const trial = settings?.trial || {}
+  const [form, setForm] = useState({
+    enabled: trial.enabled ?? true,
+    durationDays: trial.durationDays ?? 30,
+    grantsPremiumAccess: trial.grantsPremiumAccess ?? true
+  })
+
+  useEffect(() => {
+    const t = settings?.trial || {}
+    setForm({ enabled: t.enabled ?? true, durationDays: t.durationDays ?? 30, grantsPremiumAccess: t.grantsPremiumAccess ?? true })
+  }, [settings])
+
+  const change = e => setForm(p => ({ ...p, [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : Number(e.target.value) || e.target.value }))
+  const submit = e => { e.preventDefault(); onSave('/api/admin/platform-settings/trial', { trial: form }) }
+
+  return (
+    <form className='ps-form' onSubmit={submit}>
+      <p className='ps-form-desc'>When new property owners or artisans register, they start on the free tier. A trial period lets them access premium features before committing to a plan.</p>
+      <Toggle label='Enable Trial Period' name='enabled' checked={form.enabled} onChange={e => setForm(p => ({ ...p, enabled: e.target.value }))} hint='When enabled, new users get a trial period with elevated access' />
+      <Field label='Trial Duration (days)' name='durationDays' type='number' min={1} max={365} step={1} value={form.durationDays} onChange={change} hint='How many days the trial lasts after registration' />
+      <Toggle label='Grant Full Premium Access During Trial' name='grantsPremiumAccess' checked={form.grantsPremiumAccess} onChange={e => setForm(p => ({ ...p, grantsPremiumAccess: e.target.value }))} hint='Give trial users pro-level features (unlimited listings, all premium features)' />
+      <button type='submit' className='ps-btn ps-btn--primary' disabled={saving}>{saving ? 'Saving…' : 'Save Trial Settings'}</button>
+    </form>
+  )
+}
+
+// ── Subscription Plans Tab ─────────────────────────────────────────────────────
+const PLAN_FEATURE_OPTIONS = [
+  'analytics', 'priority_support', 'featured_badge', 'escrow_access',
+  'document_upload', 'api_access', 'bulk_upload', 'dedicated_manager'
+]
+
+function PlansTab ({ settings, onSave, saving }) {
+  const [plans, setPlans] = useState(settings?.subscriptionPlans || [])
+
+  useEffect(() => {
+    setPlans(settings?.subscriptionPlans || [])
+  }, [settings])
+
+  const setField = (idx, key, val) => setPlans(p => p.map((pl, i) => i !== idx ? pl : { ...pl, [key]: val }))
+  const toggleFeature = (idx, feat) => setPlans(p => p.map((pl, i) => i !== idx ? pl : {
+    ...pl,
+    features: pl.features.includes(feat) ? pl.features.filter(f => f !== feat) : [...pl.features, feat]
+  }))
+
+  const submit = e => { e.preventDefault(); onSave('/api/admin/platform-settings/subscription-plans', { subscriptionPlans: plans }) }
+
+  return (
+    <form className='ps-form' onSubmit={submit}>
+      <p className='ps-form-desc'>Define subscription tiers available to property owners and artisans. Set the Paystack plan code for automatic billing.</p>
+      <div className='ps-plans-grid'>
+        {plans.map((plan, idx) => (
+          <div key={idx} className='ps-plan-card'>
+            <div className='ps-plan-header'>
+              <input className='ps-input ps-plan-name' value={plan.name} onChange={e => setField(idx, 'name', e.target.value)} />
+              <span className='ps-plan-id'>{plan.id}</span>
+            </div>
+            <div className='ps-plan-fields'>
+              <div className='ps-plan-field'>
+                <label>Price (₦/month)</label>
+                <input type='number' className='ps-input' min={0} value={plan.price} onChange={e => setField(idx, 'price', Number(e.target.value))} />
+              </div>
+              <div className='ps-plan-field'>
+                <label>Listing Limit (-1 = ∞)</label>
+                <input type='number' className='ps-input' value={plan.listingLimit} onChange={e => setField(idx, 'listingLimit', Number(e.target.value))} />
+              </div>
+              <div className='ps-plan-field'>
+                <label>Media per Listing</label>
+                <input type='number' className='ps-input' min={1} value={plan.mediaPerListing} onChange={e => setField(idx, 'mediaPerListing', Number(e.target.value))} />
+              </div>
+              <div className='ps-plan-field'>
+                <label>AI Credits (-1 = ∞)</label>
+                <input type='number' className='ps-input' value={plan.aiCredits} onChange={e => setField(idx, 'aiCredits', Number(e.target.value))} />
+              </div>
+              <div className='ps-plan-field' style={{ gridColumn: '1/-1' }}>
+                <label>Paystack Plan Code</label>
+                <input type='text' className='ps-input' placeholder='PLN_xxxxx' value={plan.paystackPlanCode || ''} onChange={e => setField(idx, 'paystackPlanCode', e.target.value)} />
+              </div>
+            </div>
+            <div className='ps-plan-features'>
+              <label>Features</label>
+              <div className='ps-feat-chips'>
+                {PLAN_FEATURE_OPTIONS.map(f => (
+                  <button key={f} type='button' className={`ps-feat-chip${(plan.features||[]).includes(f)?' on':''}`} onClick={() => toggleFeature(idx, f)}>
+                    {f.replace(/_/g, ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button type='submit' className='ps-btn ps-btn--primary' disabled={saving}>{saving ? 'Saving…' : 'Save Subscription Plans'}</button>
+    </form>
+  )
+}
+
 // ── Root Component ────────────────────────────────────────────────────────────
 export default function PlatformSettings () {
   const [activeTab, setActiveTab] = useState('fees')
@@ -301,6 +402,8 @@ export default function PlatformSettings () {
       <div className='ps-content'>
         {activeTab === 'fees'     && <FeesTab     settings={settings} onSave={handleSave} saving={saving} />}
         {activeTab === 'tiers'    && <TiersTab    settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'plans'    && <PlansTab    settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'trial'    && <TrialTab    settings={settings} onSave={handleSave} saving={saving} />}
         {activeTab === 'kyc'      && <KycTab      settings={settings} onSave={handleSave} saving={saving} />}
         {activeTab === 'features' && <FeaturesTab settings={settings} onSave={handleSave} saving={saving} />}
         {activeTab === 'limits'   && <LimitsTab   settings={settings} onSave={handleSave} saving={saving} />}

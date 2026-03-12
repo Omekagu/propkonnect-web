@@ -49,6 +49,7 @@ import FinanceDashboard from '@/component/tenant/Finance/Finance'
 import PlatformSettings from '../../component/admin/PlatformSettings/PlatformSettings.jsx'
 import EmailTemplates from '../../component/admin/EmailTemplates/EmailTemplates.jsx'
 import AdminPermissions from '../../component/admin/AdminPermissions/AdminPermissions.jsx'
+import AccountSetup from '../../component/AccountSetup/AccountSetup.jsx'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
@@ -81,6 +82,8 @@ export default function AdminLayout ({ children }) {
   const [sessionWarning, setSessionWarning] = useState(false)
   const [sessionTimeoutWarning, setSessionTimeoutWarning] = useState(false)
   const [supportTicketCount, setSupportTicketCount] = useState(0)
+  const [accountStatus, setAccountStatus] = useState(null) // 'pending_kyc' | 'pending_payment_setup' | 'active'
+  const [showAccountSetup, setShowAccountSetup] = useState(false)
 
   // Session timeout timer reference
   const sessionTimeoutRef = React.useRef(null)
@@ -98,6 +101,18 @@ export default function AdminLayout ({ children }) {
       router.push('/auth/login')
     }
   }, [isLoggedIn, isLoading, router])
+
+  // ✅ Read accountStatus from user data
+  useEffect(() => {
+    if (!user) return
+    const status = user?.accountStatus
+    const gatedRoles = ['property-owner', 'artisan']
+    if (gatedRoles.includes(user?.role) && status && status !== 'active') {
+      setAccountStatus(status)
+    } else {
+      setAccountStatus('active')
+    }
+  }, [user])
 
   // ✅ Fetch support ticket count
   useEffect(() => {
@@ -460,8 +475,47 @@ export default function AdminLayout ({ children }) {
     return <div className='page-placeholder'>Page Not Found</div>
   }
 
+  // Account setup overlay — shown when user clicks "Complete Setup" or tries a gated action
+  if (showAccountSetup && accountStatus && accountStatus !== 'active') {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f7f9fc' }}>
+        <AccountSetup
+          initialStatus={accountStatus}
+          onComplete={newStatus => {
+            setAccountStatus(newStatus)
+            setShowAccountSetup(false)
+          }}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className='admin-shell'>
+      {/* Account Pending Banner — shown for property-owner / artisan with incomplete setup */}
+      {accountStatus && accountStatus !== 'active' && !showAccountSetup && (
+        <div className='account-pending-banner'>
+          <div className='apb-content'>
+            <span className='apb-icon'>🔐</span>
+            <div>
+              <strong>
+                {accountStatus === 'pending_kyc'
+                  ? 'Complete Identity Verification (KYC)'
+                  : 'Connect Your Payout Account'}
+              </strong>
+              <span>
+                {accountStatus === 'pending_kyc'
+                  ? ' — Verify your identity to list properties and receive payments.'
+                  : ' — Link your bank account to receive payments from tenants and buyers.'}
+              </span>
+            </div>
+          </div>
+          <button className='apb-btn' onClick={() => setShowAccountSetup(true)}>
+            Complete Setup →
+          </button>
+        </div>
+      )}
+
       {/* Session Warning Modal */}
       {sessionWarning && (
         <div className='session-warning-overlay'>
