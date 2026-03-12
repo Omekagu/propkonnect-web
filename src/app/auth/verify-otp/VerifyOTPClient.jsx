@@ -115,31 +115,19 @@ export default function VerifyOTP () {
 
       setSuccess(true)
 
-      // Store token if provided
+      // Store token and user data so the dashboard knows the role immediately
       if (data.token) {
         localStorage.setItem('authToken', data.token)
       }
+      if (data.data) {
+        localStorage.setItem('userData', JSON.stringify(data.data))
+      }
+      // Reset saved page so new user starts on their own Dashboard
+      localStorage.removeItem('ep_activePage')
 
       setTimeout(() => {
-        // Redirect based on user role
-        const role = data.data?.role
-
-        const adminRoles = [
-          'super-admin',
-          'sub-admin',
-          'property-admin',
-          'property-owner',
-          'sub-property-admin',
-          'artisan-admin',
-          'artisan',
-          'sub-artisan-admin'
-        ]
-
-        if (adminRoles.includes(role)) {
-          router.push('/admin/dashboard')
-        } else {
-          router.push('/dashboard')
-        }
+        // All roles use /admin/dashboard — layout renders role-specific content
+        router.push('/admin/dashboard')
       }, 2000)
     } catch (err) {
       const errorMessage =

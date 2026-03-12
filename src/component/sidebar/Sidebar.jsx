@@ -74,77 +74,28 @@ export default function Sidebar ({
   // Define navigation items for each role
   const roleBasedNavigation = useMemo(() => {
     const navigationMap = {
-      // Super Admin - Full access
+      // Super Admin - Full platform management
       'super-admin': {
         brand: `${process.env.NEXT_PUBLIC_APP_NAME} ADMIN`,
         nav: [
-          {
-            key: 'Dashboard',
-            label: 'Dashboard',
-            icon: <LayoutDashboard strokeWidth={0.75} />
-          },
-          {
-            key: 'UserManagement',
-            label: 'Users',
-            icon: <Users strokeWidth={0.75} />
-          },
-          {
-            key: 'PropertyManagement',
-            label: 'Properties',
-            icon: <HousePlus strokeWidth={0.75} />
-          },
-          {
-            key: 'ArtisanManagement',
-            label: 'Artisans',
-            icon: <Wrench strokeWidth={0.75} />
-          },
-          {
-            key: 'Finance',
-            label: 'Finances',
-            icon: <WalletMinimal strokeWidth={0.75} />
-          },
-          {
-            key: 'Maintenance',
-            label: 'Maintenance',
-            icon: <Drill strokeWidth={0.75} />
-          },
-          {
-            key: 'Reports',
-            label: 'Reports',
-            icon: <BarChart3 strokeWidth={0.75} />
-          },
-          {
-            key: 'Analytics',
-            label: 'Analytics',
-            icon: <BarChart3 strokeWidth={0.75} />
-          },
-          {
-            key: 'Documents',
-            label: 'Documents',
-            icon: <ClipboardMinus strokeWidth={0.75} />
-          },
-          {
-            key: 'AdminPermissions',
-            label: 'Permissions',
-            icon: <Shield strokeWidth={0.75} />
-          }
+          { key: 'Dashboard',          label: 'Dashboard',           icon: <LayoutDashboard strokeWidth={0.75} /> },
+          { key: 'UserManagement',     label: 'Users & Roles',       icon: <Users strokeWidth={0.75} /> },
+          { key: 'PropertyManagement', label: 'Properties',          icon: <HousePlus strokeWidth={0.75} /> },
+          { key: 'ArtisanManagement',  label: 'Artisans',            icon: <Wrench strokeWidth={0.75} /> },
+          { key: 'Tenants',            label: 'Tenants',             icon: <Home strokeWidth={0.75} /> },
+          { key: 'Finance',            label: 'Finance',             icon: <WalletMinimal strokeWidth={0.75} /> },
+          { key: 'Payouts',            label: 'Payouts',             icon: <DollarSign strokeWidth={0.75} /> },
+          { key: 'Maintenance',        label: 'Maintenance',         icon: <Drill strokeWidth={0.75} /> },
+          { key: 'Reports',            label: 'Reports & Analytics', icon: <BarChart3 strokeWidth={0.75} /> },
+          { key: 'Documents',          label: 'Documents',           icon: <ClipboardMinus strokeWidth={0.75} /> },
+          { key: 'SupportTickets',     label: 'Support Tickets',     icon: <MessageSquareWarning strokeWidth={0.75} /> },
+          { key: 'PlatformSettings',   label: 'Platform Settings',   icon: <ChevronsRightLeft strokeWidth={0.75} /> },
+          { key: 'EmailTemplates',     label: 'Email Templates',     icon: <ClipboardMinus strokeWidth={0.75} /> },
+          { key: 'AdminPermissions',   label: 'Permissions & RBAC',  icon: <Shield strokeWidth={0.75} /> }
         ],
         account: [
-          {
-            key: 'Settings',
-            label: 'Settings',
-            icon: <Cog strokeWidth={0.75} />
-          },
-          {
-            key: 'Security',
-            label: 'Security',
-            icon: <Cog strokeWidth={0.75} />
-          },
-          {
-            key: 'Help',
-            label: 'Help & Support',
-            icon: <HeartHandshake strokeWidth={0.75} />
-          }
+          { key: 'Settings', label: 'My Settings',  icon: <Cog strokeWidth={0.75} /> },
+          { key: 'Help',     label: 'Help & Support', icon: <HeartHandshake strokeWidth={0.75} /> }
         ]
       },
 
@@ -461,7 +412,7 @@ export default function Sidebar ({
 
     const roleToUse = user?.role || userRole
 
-    return navigationMap[roleToUse] || navigationMap['property-owner']
+    return navigationMap[roleToUse] || { brand: process.env.NEXT_PUBLIC_APP_NAME || 'Propnect', nav: [], account: [] }
   }, [user, userRole])
 
   const handleClick = key => {

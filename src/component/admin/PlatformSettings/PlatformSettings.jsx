@@ -25,7 +25,9 @@ const TABS = [
   { id: 'trial',        label: 'Trial & Onboarding' },
   { id: 'kyc',          label: 'KYC / Verification' },
   { id: 'features',     label: 'Feature Flags' },
-  { id: 'limits',       label: 'Limits' }
+  { id: 'limits',       label: 'Limits' },
+  { id: 'email',        label: 'Email Settings' },
+  { id: 'acctverify',   label: 'Account Verification' }
 ]
 
 // ── Reusable input ────────────────────────────────────────────────────────────
@@ -108,7 +110,10 @@ function TiersTab ({ settings, onSave, saving }) {
   useEffect(() => { setTiers(settings?.listingTiers || []) }, [settings])
 
   const change = (idx, field, val) =>
-    setTiers(prev => prev.map((t, i) => i === idx ? { ...t, [field]: field === 'name' ? val : Number(val) } : t))
+    setTiers(prev => prev.map((t, i) => i === idx
+      ? { ...t, [field]: ['name', 'badgeColor'].includes(field) ? val : Number(val) }
+      : t
+    ))
 
   return (
     <div className='ps-section'>
@@ -118,15 +123,14 @@ function TiersTab ({ settings, onSave, saving }) {
         {tiers.map((tier, idx) => (
           <div key={tier.name || idx} className='ps-tier-card'>
             <div className='ps-tier-name'>{tier.name}</div>
-            <Field label='Monthly Fee (₦)' name='monthlyFee' type='number' min={0} step={100} value={tier.monthlyFee ?? 0} onChange={e => change(idx, 'monthlyFee', e.target.value)} />
-            <Field label='Max Listings' name='maxListings' type='number' min={1} step={1} value={tier.maxListings ?? 10} onChange={e => change(idx, 'maxListings', e.target.value)} />
-            <Field label='Max Images per Listing' name='maxImages' type='number' min={1} step={1} value={tier.maxImages ?? 10} onChange={e => change(idx, 'maxImages', e.target.value)} />
-            <Toggle label='Premier Badge' name='premierBadge' checked={!!tier.premierBadge} onChange={e => change(idx, 'premierBadge', e.target.value)} />
-            <Toggle label='Featured on Homepage' name='featuredOnHomepage' checked={!!tier.featuredOnHomepage} onChange={e => change(idx, 'featuredOnHomepage', e.target.value)} />
+            <Field label='Price (₦/month)' name='price' type='number' min={0} step={100} value={tier.price ?? 0} onChange={e => change(idx, 'price', e.target.value)} />
+            <Field label='Max Images per Listing' name='maxImages' type='number' min={1} step={1} value={tier.maxImages ?? 5} onChange={e => change(idx, 'maxImages', e.target.value)} />
+            <Field label='Featured Days on Homepage' name='featuredDays' type='number' min={0} step={1} value={tier.featuredDays ?? 0} onChange={e => change(idx, 'featuredDays', e.target.value)} hint='0 = not featured' />
+            <Field label='Badge Color (hex)' name='badgeColor' type='text' value={tier.badgeColor ?? '#6b7280'} onChange={e => change(idx, 'badgeColor', e.target.value)} hint='e.g. #f59e0b' />
           </div>
         ))}
       </div>
-      <button className='ps-btn ps-btn--primary' disabled={saving} onClick={() => onSave('/api/admin/platform-settings/listing-tiers', { listingTiers: tiers })}>
+      <button className='ps-btn ps-btn--primary' disabled={saving} onClick={() => onSave('/api/admin/platform-settings/listing-tiers', { tiers })}>
         {saving ? 'Saving…' : 'Save Tiers'}
       </button>
     </div>
@@ -209,7 +213,7 @@ function LimitsTab ({ settings, onSave, saving }) {
   const limits = settings?.limits || {}
   const [form, setForm] = useState({
     maxPropertiesPerOwner: limits.maxPropertiesPerOwner ?? 50,
-    maxBidsPerRequest: limits.maxBidsPerRequest ?? 10,
+    maxBidsPerArtisan: limits.maxBidsPerArtisan ?? 10,
     maxImagesPerProperty: limits.maxImagesPerProperty ?? 20
   })
 
@@ -217,7 +221,7 @@ function LimitsTab ({ settings, onSave, saving }) {
     const l = settings?.limits || {}
     setForm({
       maxPropertiesPerOwner: l.maxPropertiesPerOwner ?? 50,
-      maxBidsPerRequest: l.maxBidsPerRequest ?? 10,
+      maxBidsPerArtisan: l.maxBidsPerArtisan ?? 10,
       maxImagesPerProperty: l.maxImagesPerProperty ?? 20
     })
   }, [settings])
@@ -228,7 +232,7 @@ function LimitsTab ({ settings, onSave, saving }) {
     <form className='ps-section' onSubmit={e => { e.preventDefault(); onSave('/api/admin/platform-settings/limits', form) }}>
       <h3 className='ps-section-title'>Platform Limits</h3>
       <Field label='Max Properties per Owner' name='maxPropertiesPerOwner' type='number' min={1} step={1} value={form.maxPropertiesPerOwner} onChange={change} />
-      <Field label='Max Bids per Service Request' name='maxBidsPerRequest' type='number' min={1} step={1} value={form.maxBidsPerRequest} onChange={change} />
+      <Field label='Max Bids per Artisan' name='maxBidsPerArtisan' type='number' min={1} step={1} value={form.maxBidsPerArtisan} onChange={change} hint='How many active bids an artisan can hold at once' />
       <Field label='Max Images per Property' name='maxImagesPerProperty' type='number' min={1} step={1} value={form.maxImagesPerProperty} onChange={change} />
       <button type='submit' className='ps-btn ps-btn--primary' disabled={saving}>{saving ? 'Saving…' : 'Save Limits'}</button>
     </form>
@@ -334,6 +338,84 @@ function PlansTab ({ settings, onSave, saving }) {
   )
 }
 
+// ── Email Settings Tab ────────────────────────────────────────────────────────
+function EmailTab ({ settings, onSave, saving }) {
+  const email = settings?.email || {}
+  const [form, setForm] = useState({
+    fromName: email.fromName ?? 'Propnect',
+    fromAddress: email.fromAddress ?? 'noreply@propnect.app',
+    supportAddress: email.supportAddress ?? 'support@propnect.app'
+  })
+
+  useEffect(() => {
+    const e = settings?.email || {}
+    setForm({
+      fromName: e.fromName ?? 'Propnect',
+      fromAddress: e.fromAddress ?? 'noreply@propnect.app',
+      supportAddress: e.supportAddress ?? 'support@propnect.app'
+    })
+  }, [settings])
+
+  const change = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
+
+  return (
+    <form className='ps-section' onSubmit={e => { e.preventDefault(); onSave('/api/admin/platform-settings/email', form) }}>
+      <h3 className='ps-section-title'>Email Settings</h3>
+      <Field label='Sender Name' name='fromName' value={form.fromName} onChange={change} hint='Displayed as the "From" name in all outgoing emails' />
+      <Field label='Sender Address' name='fromAddress' value={form.fromAddress} onChange={change} hint='Reply-to address for platform emails (e.g. noreply@yourapp.com)' />
+      <Field label='Support Address' name='supportAddress' value={form.supportAddress} onChange={change} hint='Where users can reach support (shown in email footers)' />
+      <button type='submit' className='ps-btn ps-btn--primary' disabled={saving}>{saving ? 'Saving…' : 'Save Email Settings'}</button>
+    </form>
+  )
+}
+
+// ── Account Verification Tab ──────────────────────────────────────────────────
+function AcctVerifyTab ({ settings, onSave, saving }) {
+  const av = settings?.accountVerification || {}
+  const [form, setForm] = useState({
+    requireKycForListing: av.requireKycForListing ?? true,
+    requirePaymentSetupForListing: av.requirePaymentSetupForListing ?? true,
+    requireKycForEscrow: av.requireKycForEscrow ?? true,
+    requireKycLevel: av.requireKycLevel ?? 'basic'
+  })
+
+  useEffect(() => {
+    const a = settings?.accountVerification || {}
+    setForm({
+      requireKycForListing: a.requireKycForListing ?? true,
+      requirePaymentSetupForListing: a.requirePaymentSetupForListing ?? true,
+      requireKycForEscrow: a.requireKycForEscrow ?? true,
+      requireKycLevel: a.requireKycLevel ?? 'basic'
+    })
+  }, [settings])
+
+  const change = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
+
+  return (
+    <form className='ps-section' onSubmit={e => { e.preventDefault(); onSave('/api/admin/platform-settings/account-verification', form) }}>
+      <h3 className='ps-section-title'>Account Verification Requirements</h3>
+      <Toggle label='Require KYC to List Properties' name='requireKycForListing' checked={form.requireKycForListing} onChange={change} hint='Property owners must verify identity before listing goes live' />
+      <Toggle label='Require Bank Setup to List Properties' name='requirePaymentSetupForListing' checked={form.requirePaymentSetupForListing} onChange={change} hint='Property owners must link a bank account before publishing' />
+      <Toggle label='Require KYC to Access Escrow' name='requireKycForEscrow' checked={form.requireKycForEscrow} onChange={change} hint='Both parties must be KYC-verified before escrow funds are held' />
+      <div className='ps-field'>
+        <label className='ps-label'>Minimum KYC Level</label>
+        <span className='ps-hint'>The level of identity verification required across the platform</span>
+        <select
+          name='requireKycLevel'
+          value={form.requireKycLevel}
+          onChange={change}
+          className='ps-input'
+        >
+          <option value='basic'>Basic (ID only)</option>
+          <option value='intermediate'>Intermediate (ID + address proof)</option>
+          <option value='advanced'>Advanced (ID + address + income proof)</option>
+        </select>
+      </div>
+      <button type='submit' className='ps-btn ps-btn--primary' disabled={saving}>{saving ? 'Saving…' : 'Save Verification Settings'}</button>
+    </form>
+  )
+}
+
 // ── Root Component ────────────────────────────────────────────────────────────
 export default function PlatformSettings () {
   const [activeTab, setActiveTab] = useState('fees')
@@ -400,13 +482,15 @@ export default function PlatformSettings () {
       </div>
 
       <div className='ps-content'>
-        {activeTab === 'fees'     && <FeesTab     settings={settings} onSave={handleSave} saving={saving} />}
-        {activeTab === 'tiers'    && <TiersTab    settings={settings} onSave={handleSave} saving={saving} />}
-        {activeTab === 'plans'    && <PlansTab    settings={settings} onSave={handleSave} saving={saving} />}
-        {activeTab === 'trial'    && <TrialTab    settings={settings} onSave={handleSave} saving={saving} />}
-        {activeTab === 'kyc'      && <KycTab      settings={settings} onSave={handleSave} saving={saving} />}
-        {activeTab === 'features' && <FeaturesTab settings={settings} onSave={handleSave} saving={saving} />}
-        {activeTab === 'limits'   && <LimitsTab   settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'fees'       && <FeesTab       settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'tiers'      && <TiersTab      settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'plans'      && <PlansTab      settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'trial'      && <TrialTab      settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'kyc'        && <KycTab        settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'features'   && <FeaturesTab   settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'limits'     && <LimitsTab     settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'email'      && <EmailTab      settings={settings} onSave={handleSave} saving={saving} />}
+        {activeTab === 'acctverify' && <AcctVerifyTab settings={settings} onSave={handleSave} saving={saving} />}
       </div>
     </div>
   )

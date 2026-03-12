@@ -77,11 +77,20 @@ export default function AdminLayout ({ children }) {
   const [isMobile, setIsMobile] = useState(false)
   const [activePage, setActivePage] = useState('Dashboard')
 
-  // Restore last active page on mount
+  // Restore last active page — but only for the same user session
   useEffect(() => {
-    const saved = localStorage.getItem('ep_activePage')
-    if (saved) setActivePage(saved)
-  }, [])
+    if (!user) return
+    const savedUserId = localStorage.getItem('ep_session_user')
+    const savedPage   = localStorage.getItem('ep_activePage')
+    if (savedUserId === String(user._id) && savedPage) {
+      setActivePage(savedPage)
+    } else {
+      // Different user logged in — reset to Dashboard and claim this session
+      setActivePage('Dashboard')
+      localStorage.setItem('ep_session_user', String(user._id))
+      localStorage.removeItem('ep_activePage')
+    }
+  }, [user?._id])
   const [error, setError] = useState(null)
   const [sessionWarning, setSessionWarning] = useState(false)
   const [sessionTimeoutWarning, setSessionTimeoutWarning] = useState(false)
@@ -286,7 +295,19 @@ export default function AdminLayout ({ children }) {
     )
   }
 
-  const userRole = user?.role || 'property-owner'
+  const userRole = user?.role
+
+  // Guard: user object not yet hydrated from localStorage
+  if (!userRole) {
+    return (
+      <div className='loading-state'>
+        <div className='loading-spinner'>
+          <div className='spinner'></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   // ✅ Role-based page rendering with proper support ticket routing
   const renderPage = () => {
@@ -360,6 +381,8 @@ export default function AdminLayout ({ children }) {
         case 'Finance':
         case 'Payments':
           return <Finance />
+        case 'Payouts':
+          return <Finance initialTab="Payouts" />
         case 'PaymentMethod':
           return <PaymentMethod />
         case 'Documents':

@@ -285,9 +285,9 @@ export default function AuthPage () {
         localStorage.setItem('userData', JSON.stringify(data.data))
       }
 
-      // Broadcast to other tabs that login happened
+      // Broadcast to other tabs that login happened (include userData so useAuth picks up the role)
       const event = new CustomEvent('authStatusChanged', {
-        detail: { status: 'login', token: data.token, deviceId }
+        detail: { status: 'login', token: data.token, userData: data.data, deviceId }
       })
       window.dispatchEvent(event)
 

@@ -223,28 +223,95 @@ function EscrowTab() {
 function PayoutsTab() {
   const [payouts, setPayouts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [processingId, setProcessingId] = useState(null)
+  const [confirmUser, setConfirmUser] = useState(null) // { userId, name, amount }
+  const [toast, setToast] = useState(null)
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true)
     apiFetch('/api/admin/finance/payouts/pending').then(data => {
       if (data.success) setPayouts(data.payouts)
       setLoading(false)
     })
-  }, [])
+  }
+
+  useEffect(() => { load() }, [])
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 4000)
+  }
+
+  const handleProcessConfirm = async () => {
+    if (!confirmUser) return
+    const { userId, name, amount } = confirmUser
+    setConfirmUser(null)
+    setProcessingId(userId)
+    try {
+      const data = await apiFetch(`/api/admin/finance/payouts/${userId}/process`, { method: 'POST' })
+      if (data.success) {
+        showToast(`Payout of ₦${Number(amount).toLocaleString()} initiated for ${name}`)
+        load()
+      } else {
+        showToast(data.message || 'Payout failed', 'error')
+      }
+    } catch {
+      showToast('Network error — payout not processed', 'error')
+    }
+    setProcessingId(null)
+  }
 
   return (
     <div className="fin-tab-content">
       <p className="fin-tab-desc">Users with available wallet balances eligible for payout.</p>
+
+      {toast && (
+        <div className={`fin-toast fin-toast--${toast.type}`}>{toast.msg}</div>
+      )}
+
+      {confirmUser && (
+        <div className="fin-confirm-overlay">
+          <div className="fin-confirm-modal">
+            <h4>Confirm Payout</h4>
+            <p>Process payout of <strong>{fmt(confirmUser.amount)}</strong> to <strong>{confirmUser.name}</strong>?</p>
+            <p className="fin-confirm-sub">This will transfer the full wallet balance to their registered bank account via Paystack.</p>
+            <div className="fin-confirm-actions">
+              <button className="fin-btn fin-btn--primary" onClick={handleProcessConfirm}>Yes, Process Payout</button>
+              <button className="fin-btn fin-btn--outline" onClick={() => setConfirmUser(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading ? <div className="fin-loading">Loading...</div> : (
         <table className="fin-table">
-          <thead><tr>{['Name','Email','Role','Balance'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+          <thead>
+            <tr>{['Name','Email','Role','Balance','Bank','Account Name','Account No.',''].map(h => <th key={h}>{h}</th>)}</tr>
+          </thead>
           <tbody>
-            {!payouts.length && <tr><td colSpan={4} className="fin-empty-td">No pending payouts</td></tr>}
+            {!payouts.length && <tr><td colSpan={8} className="fin-empty-td">No pending payouts</td></tr>}
             {payouts.map(p => (
               <tr key={p.userId}>
                 <td>{p.name}</td>
                 <td>{p.email}</td>
                 <td><span className="fin-badge fin-badge--role">{p.role}</span></td>
                 <td className="fin-amount">{fmt(p.availableBalance)}</td>
+                <td>{p.bankName || <span className="fin-muted">—</span>}</td>
+                <td>{p.accountName || <span className="fin-muted">—</span>}</td>
+                <td className="fin-mono">{p.accountNumber || <span className="fin-muted">—</span>}</td>
+                <td>
+                  {p.bankSetup ? (
+                    <button
+                      className="fin-btn fin-btn--primary fin-btn--sm"
+                      disabled={processingId === p.userId}
+                      onClick={() => setConfirmUser({ userId: p.userId, name: p.name, amount: p.availableBalance })}
+                    >
+                      {processingId === p.userId ? 'Processing...' : 'Pay Out'}
+                    </button>
+                  ) : (
+                    <span className="fin-muted fin-badge fin-badge--warn">No Bank</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -254,8 +321,8 @@ function PayoutsTab() {
   )
 }
 
-export default function FinanceDashboard() {
-  const [activeTab, setActiveTab] = useState('Overview')
+export default function FinanceDashboard({ initialTab }) {
+  const [activeTab, setActiveTab] = useState(initialTab || 'Overview')
   const [overview, setOverview] = useState(null)
 
   useEffect(() => {
