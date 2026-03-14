@@ -1,34 +1,60 @@
-import React from 'react'
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaTiktok,
-  FaTwitter,
-  FaWhatsapp
-} from 'react-icons/fa'
+'use client'
+import React, { useEffect, useState } from 'react'
 import '../../app/Landing.scss'
 
+const APP_NAME_FALLBACK = process.env.NEXT_PUBLIC_APP_NAME || 'propnekt'
+const API = process.env.NEXT_PUBLIC_BACKEND_URL || ''
+
 export default function Footer () {
+  const [branding, setBranding] = useState(null)
+
+  useEffect(() => {
+    fetch(`${API}/api/platform-config`)
+      .then(r => r.json())
+      .then(d => { if (d?.config?.branding) setBranding(d.config.branding) })
+      .catch(() => {})
+  }, [])
+
+  const appName      = branding?.appName      || APP_NAME_FALLBACK
+  const tagline      = branding?.footerTagline || "Nigeria's most trusted platform for buying, renting, booking shortlets, and hiring artisans."
+  const logoUrl      = branding?.logoUrl       || ''
+  const social       = branding?.socialLinks   || {}
+
+  const socialLinks = [
+    { key: 'twitter',   label: '𝕏',  href: social.twitter   },
+    { key: 'instagram', label: '📸', href: social.instagram  },
+    { key: 'facebook',  label: 'f',  href: social.facebook   },
+    { key: 'linkedin',  label: 'in', href: social.linkedin   },
+    { key: 'whatsapp',  label: '💬', href: social.whatsapp   }
+  ].filter(s => s.href)
+
   return (
     <footer className='lp-footer'>
       <div className='lp-footer__inner'>
         <div className='lp-footer__brand'>
           <a className='lp-footer__logo' href='/'>
-            <span className='lp-nav__logo-icon'>P</span>
-            <span>{process.env.NEXT_PUBLIC_APP_NAME}</span>
+            {logoUrl
+              ? <img src={logoUrl} alt={appName} style={{ height: 30, width: 'auto', objectFit: 'contain' }} />
+              : <><span className='lp-nav__logo-icon'>P</span><span>{appName}</span></>
+            }
           </a>
-          <p>
-            Nigeria's most trusted platform for buying, renting, booking
-            shortlets, and hiring artisans.
-          </p>
-          <div className='lp-footer__socials'>
-            {['𝕏', 'in', 'f', '▶'].map(s => (
-              <a key={s} className='lp-footer__social' href='#'>
-                {s}
-              </a>
-            ))}
-          </div>
+          <p>{tagline}</p>
+          {socialLinks.length > 0 && (
+            <div className='lp-footer__socials'>
+              {socialLinks.map(s => (
+                <a key={s.key} className='lp-footer__social' href={s.href} target='_blank' rel='noopener noreferrer'>
+                  {s.label}
+                </a>
+              ))}
+            </div>
+          )}
+          {socialLinks.length === 0 && (
+            <div className='lp-footer__socials'>
+              {['𝕏', 'in', 'f', '▶'].map(s => (
+                <a key={s} className='lp-footer__social' href='#'>{s}</a>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className='lp-footer__col'>
@@ -67,10 +93,7 @@ export default function Footer () {
       </div>
 
       <div className='lp-footer__bottom'>
-        <p>
-          © {new Date().getFullYear()} {process.env.NEXT_PUBLIC_APP_NAME}. All
-          rights reserved.
-        </p>
+        <p>© {new Date().getFullYear()} {appName}. All rights reserved.</p>
         <p>Built in Nigeria 🇳🇬 for Africa</p>
       </div>
     </footer>

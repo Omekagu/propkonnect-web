@@ -22,6 +22,7 @@ async function api (method, path, body) {
 }
 
 const TABS = [
+  { id: 'branding', label: '🎨 Branding' },
   { id: 'fees', label: 'Platform Fees' },
   { id: 'tiers', label: 'Listing Tiers' },
   { id: 'plans', label: 'Subscription Plans' },
@@ -79,6 +80,146 @@ function Toggle ({ label, name, checked, onChange, hint }) {
         <span className='ps-toggle-knob' />
       </button>
     </div>
+  )
+}
+
+// ── Branding Tab ──────────────────────────────────────────────────────────────
+function BrandingTab ({ settings, onSave, saving }) {
+  const b = settings?.branding || {}
+  const [form, setForm] = useState({
+    appName:       b.appName       || 'propnekt',
+    tagline:       b.tagline       || '',
+    logoUrl:       b.logoUrl       || '',
+    faviconUrl:    b.faviconUrl    || '',
+    heroTitle:     b.heroTitle     || '',
+    heroSubtitle:  b.heroSubtitle  || '',
+    heroImageUrl:  b.heroImageUrl  || '',
+    contactEmail:  b.contactEmail  || '',
+    supportEmail:  b.supportEmail  || '',
+    phone:         b.phone         || '',
+    address:       b.address       || '',
+    footerTagline: b.footerTagline || '',
+    // social
+    twitter:   b.socialLinks?.twitter   || '',
+    instagram: b.socialLinks?.instagram || '',
+    facebook:  b.socialLinks?.facebook  || '',
+    linkedin:  b.socialLinks?.linkedin  || '',
+    whatsapp:  b.socialLinks?.whatsapp  || '',
+    // stats bar
+    verifiedUsers:  b.statsBar?.verifiedUsers  || '50,000+',
+    activeListings: b.statsBar?.activeListings || '10,000+',
+    avgRating:      b.statsBar?.avgRating      || '4.9/5',
+    citiesCovered:  b.statsBar?.citiesCovered  || '20+'
+  })
+
+  useEffect(() => {
+    const b2 = settings?.branding || {}
+    setForm({
+      appName:       b2.appName       || 'propnekt',
+      tagline:       b2.tagline       || '',
+      logoUrl:       b2.logoUrl       || '',
+      faviconUrl:    b2.faviconUrl    || '',
+      heroTitle:     b2.heroTitle     || '',
+      heroSubtitle:  b2.heroSubtitle  || '',
+      heroImageUrl:  b2.heroImageUrl  || '',
+      contactEmail:  b2.contactEmail  || '',
+      supportEmail:  b2.supportEmail  || '',
+      phone:         b2.phone         || '',
+      address:       b2.address       || '',
+      footerTagline: b2.footerTagline || '',
+      twitter:   b2.socialLinks?.twitter   || '',
+      instagram: b2.socialLinks?.instagram || '',
+      facebook:  b2.socialLinks?.facebook  || '',
+      linkedin:  b2.socialLinks?.linkedin  || '',
+      whatsapp:  b2.socialLinks?.whatsapp  || '',
+      verifiedUsers:  b2.statsBar?.verifiedUsers  || '50,000+',
+      activeListings: b2.statsBar?.activeListings || '10,000+',
+      avgRating:      b2.statsBar?.avgRating      || '4.9/5',
+      citiesCovered:  b2.statsBar?.citiesCovered  || '20+'
+    })
+  }, [settings])
+
+  const ch = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
+
+  const handleSubmit = e => {
+    e.preventDefault()
+    onSave('/api/admin/platform-settings/branding', {
+      appName:       form.appName,
+      tagline:       form.tagline,
+      logoUrl:       form.logoUrl,
+      faviconUrl:    form.faviconUrl,
+      heroTitle:     form.heroTitle,
+      heroSubtitle:  form.heroSubtitle,
+      heroImageUrl:  form.heroImageUrl,
+      contactEmail:  form.contactEmail,
+      supportEmail:  form.supportEmail,
+      phone:         form.phone,
+      address:       form.address,
+      footerTagline: form.footerTagline,
+      socialLinks: {
+        twitter:   form.twitter,
+        instagram: form.instagram,
+        facebook:  form.facebook,
+        linkedin:  form.linkedin,
+        whatsapp:  form.whatsapp
+      },
+      statsBar: {
+        verifiedUsers:  form.verifiedUsers,
+        activeListings: form.activeListings,
+        avgRating:      form.avgRating,
+        citiesCovered:  form.citiesCovered
+      }
+    })
+  }
+
+  return (
+    <form className='ps-section' onSubmit={handleSubmit}>
+      <h3 className='ps-section-title'>Branding &amp; Company Identity</h3>
+      <p className='ps-hint' style={{ marginBottom: '1.5rem' }}>
+        Control the public-facing name, logo, hero content, and contact details across the entire platform.
+      </p>
+
+      <div className='ps-group-label'>App Identity</div>
+      <Field label='App Name' name='appName' value={form.appName} onChange={ch} hint='Displayed in nav, footer, emails and SEO' />
+      <Field label='Tagline' name='tagline' value={form.tagline} onChange={ch} hint='Short one-line brand tagline' />
+      <Field label='Logo URL' name='logoUrl' value={form.logoUrl} onChange={ch} hint='Full URL to your logo image (PNG/SVG, min 200px wide)' />
+      <Field label='Favicon URL' name='faviconUrl' value={form.faviconUrl} onChange={ch} hint='Full URL to favicon (.ico or 32×32 PNG)' />
+
+      <div className='ps-group-label'>Hero Section</div>
+      <Field label='Hero Title' name='heroTitle' value={form.heroTitle} onChange={ch} hint='Main heading on the landing page hero' />
+      <Field label='Hero Subtitle' name='heroSubtitle' value={form.heroSubtitle} onChange={ch} hint='Subheading below the hero title' />
+      <Field label='Hero Background Image URL' name='heroImageUrl' value={form.heroImageUrl} onChange={ch} hint='Full URL to the hero background photo (1800px+ wide recommended)' />
+
+      <div className='ps-group-label'>Stats Bar</div>
+      <div className='ps-grid-2'>
+        <Field label='Verified Users' name='verifiedUsers' value={form.verifiedUsers} onChange={ch} hint='e.g. 50,000+' />
+        <Field label='Active Listings' name='activeListings' value={form.activeListings} onChange={ch} hint='e.g. 10,000+' />
+        <Field label='Avg Rating' name='avgRating' value={form.avgRating} onChange={ch} hint='e.g. 4.9/5' />
+        <Field label='Cities Covered' name='citiesCovered' value={form.citiesCovered} onChange={ch} hint='e.g. 20+' />
+      </div>
+
+      <div className='ps-group-label'>Contact &amp; Footer</div>
+      <div className='ps-grid-2'>
+        <Field label='Contact Email' name='contactEmail' value={form.contactEmail} onChange={ch} />
+        <Field label='Support Email' name='supportEmail' value={form.supportEmail} onChange={ch} />
+        <Field label='Phone' name='phone' value={form.phone} onChange={ch} />
+        <Field label='Address / City' name='address' value={form.address} onChange={ch} />
+      </div>
+      <Field label='Footer Tagline' name='footerTagline' value={form.footerTagline} onChange={ch} hint='Short description shown in the footer brand column' />
+
+      <div className='ps-group-label'>Social Links</div>
+      <div className='ps-grid-2'>
+        <Field label='Twitter / X URL' name='twitter' value={form.twitter} onChange={ch} />
+        <Field label='Instagram URL' name='instagram' value={form.instagram} onChange={ch} />
+        <Field label='Facebook URL' name='facebook' value={form.facebook} onChange={ch} />
+        <Field label='LinkedIn URL' name='linkedin' value={form.linkedin} onChange={ch} />
+        <Field label='WhatsApp Link' name='whatsapp' value={form.whatsapp} onChange={ch} hint='e.g. https://wa.me/2348012345678' />
+      </div>
+
+      <button type='submit' className='ps-btn ps-btn--primary' disabled={saving}>
+        {saving ? 'Saving…' : 'Save Branding'}
+      </button>
+    </form>
   )
 }
 
@@ -840,7 +981,7 @@ function AcctVerifyTab ({ settings, onSave, saving }) {
 
 // ── Root Component ────────────────────────────────────────────────────────────
 export default function PlatformSettings () {
-  const [activeTab, setActiveTab] = useState('fees')
+  const [activeTab, setActiveTab] = useState('branding')
   const [settings, setSettings] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -913,6 +1054,9 @@ export default function PlatformSettings () {
       </div>
 
       <div className='ps-content'>
+        {activeTab === 'branding' && (
+          <BrandingTab settings={settings} onSave={handleSave} saving={saving} />
+        )}
         {activeTab === 'fees' && (
           <FeesTab settings={settings} onSave={handleSave} saving={saving} />
         )}
