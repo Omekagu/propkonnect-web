@@ -7,93 +7,72 @@ import {
   FaTwitter,
   FaWhatsapp
 } from 'react-icons/fa'
-import './Footer.scss'
+import '../../app/Landing.scss'
 
 export default function Footer () {
   return (
-    <footer className='lux-footer'>
-      <div className='lux-footer__overlay'></div>
-
-      <div className='lux-footer__content'>
-        <div className='lux-footer__branding'>
-          <h1 className='logo'>
-            <span className='accent'>{process.env.NEXT_PUBLIC_APP_NAME}</span>
-          </h1>
+    <footer className='lp-footer'>
+      <div className='lp-footer__inner'>
+        <div className='lp-footer__brand'>
+          <a className='lp-footer__logo' href='/'>
+            <span className='lp-nav__logo-icon'>P</span>
+            <span>{process.env.NEXT_PUBLIC_APP_NAME}</span>
+          </a>
           <p>
-            Elevating luxury living — {process.env.NEXT_PUBLIC_APP_NAME}{' '}
-            redefines real estate with elegance, comfort, and innovation.
+            Nigeria's most trusted platform for buying, renting, booking
+            shortlets, and hiring artisans.
           </p>
-        </div>
-
-        <div className='lux-footer__links'>
-          <h4>Quick Links</h4>
-          <ul>
-            <li>
-              <a href='#'>Home</a>
-            </li>
-            <li>
-              <a href='#'>Our Estates</a>
-            </li>
-            <li>
-              <a href='#'>Invest</a>
-            </li>
-            <li>
-              <a href='#'>About</a>
-            </li>
-            <li>
-              <a href='https://propnektdocs.netlify.app/'>Docs & Api</a>
-            </li>
-            <li>
-              <a href='#'>Contact</a>
-            </li>
-          </ul>
-        </div>
-
-        <div className='lux-footer__newsletter'>
-          <h4>Stay Updated</h4>
-          <p>Subscribe for new listings, insights & market news.</p>
-          <form>
-            <input type='email' placeholder='Enter your email' required />
-            <button type='submit'>Join</button>
-          </form>
-        </div>
-
-        <div className='lux-footer__socials'>
-          <h4>Follow Us</h4>
-          <div className='icons'>
-            <a href='#'>
-              <FaFacebookF />
-            </a>
-            <a href='#'>
-              <FaInstagram />
-            </a>
-            <a href='#'>
-              <FaTwitter />
-            </a>
-            <a href='#'>
-              <FaLinkedinIn />
-            </a>
-            <a href='#'>
-              <FaTiktok />
-            </a>
+          <div className='lp-footer__socials'>
+            {['𝕏', 'in', 'f', '▶'].map(s => (
+              <a key={s} className='lp-footer__social' href='#'>
+                {s}
+              </a>
+            ))}
           </div>
+        </div>
+
+        <div className='lp-footer__col'>
+          <h4>Properties</h4>
+          <a href='/buy'>Buy a Home</a>
+          <a href='/rent'>Rent a Property</a>
+          <a href='/search?intent=shortlet'>Shortlets</a>
+          <a href='/search?type=commercial'>Commercial</a>
+          <a href='/search?type=land'>Land</a>
+        </div>
+
+        <div className='lp-footer__col'>
+          <h4>Services</h4>
+          <a href='/search?type=artisan'>Find Artisans</a>
+          <a href='/auth/register?role=artisan'>Join as Artisan</a>
+          <a href='/auth/register?role=property-owner'>List a Property</a>
+          <a href='/auth/register'>Sign Up</a>
+        </div>
+
+        <div className='lp-footer__col'>
+          <h4>Company</h4>
+          <a href='/about'>About Us</a>
+          <a href='/contact'>Contact</a>
+          <a href='#'>Careers</a>
+          <a href='#'>Blog</a>
+          <a href='#'>Press</a>
+        </div>
+
+        <div className='lp-footer__col'>
+          <h4>Support</h4>
+          <a href='/contact'>Help Center</a>
+          <a href='#'>Privacy Policy</a>
+          <a href='#'>Terms of Service</a>
+          <a href='#'>Cookie Policy</a>
         </div>
       </div>
 
-      <div className='lux-footer__bottom'>
+      <div className='lp-footer__bottom'>
         <p>
           © {new Date().getFullYear()} {process.env.NEXT_PUBLIC_APP_NAME}. All
           rights reserved.
         </p>
+        <p>Built in Nigeria 🇳🇬 for Africa</p>
       </div>
-
-      <a
-        href='https://wa.me/2349012345678'
-        className='whatsapp-float'
-        target='_blank'
-      >
-        <FaWhatsapp />
-      </a>
     </footer>
   )
 }
