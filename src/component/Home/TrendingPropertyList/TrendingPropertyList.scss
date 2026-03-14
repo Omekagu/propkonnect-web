@@ -24,7 +24,7 @@
     letter-spacing: -0.04em;
 
     .gradient-text {
-      background: linear-gradient(135deg, var(--color-primary), #6366f1);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-mid));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -69,7 +69,7 @@
         color: var(--color-surface);
         border-color: var(--color-primary);
         transform: scale(1.06);
-        box-shadow: 0 4px 14px rgba(29, 78, 216, 0.3);
+        box-shadow: 0 4px 14px rgba(11, 61, 40, 0.25);
       }
 
       @media (prefers-color-scheme: dark) {
@@ -108,8 +108,8 @@
 
     &:hover {
       transform: translateY(-6px);
-      box-shadow: 0 16px 40px rgba(29, 78, 216, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
-      border-color: rgba(37, 99, 235, 0.2);
+      box-shadow: 0 16px 40px rgba(11, 61, 40, 0.1), 0 4px 12px rgba(0, 0, 0, 0.06);
+      border-color: rgba(11, 61, 40, 0.15);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -174,7 +174,7 @@
         }
 
         &.sale {
-          background: rgba(29, 78, 216, 0.85);
+          background: rgba(11, 61, 40, 0.85);
         }
         &.rent {
           background: rgba(5, 150, 105, 0.85);
@@ -250,7 +250,7 @@
           &:hover {
             background: var(--color-primary-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35);
+            box-shadow: 0 4px 12px rgba(11, 61, 40, 0.3);
           }
         }
       }

@@ -17,7 +17,7 @@
   h1 {
     font-size: 22px;
     font-weight: 800;
-    background: linear-gradient(135deg, var(--color-primary), #6366f1);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-mid));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -43,7 +43,7 @@
   &--primary {
     background: var(--color-primary);
     color: var(--color-surface);
-    box-shadow: 0 2px 8px rgba(29,78,216,0.2);
+    box-shadow: 0 2px 8px rgba(11, 61, 40, 0.2);
     &:hover { background: var(--color-primary-dark); transform: translateY(-1px); }
   }
   &--outline {
@@ -201,7 +201,7 @@
 
   &--pending    { background: #fffbeb; color: #b45309; }
   &--open       { background: var(--color-primary-light); color: var(--color-primary); }
-  &--in-progress { background: #f0f9ff; color: #0369a1; }
+  &--in-progress { background: var(--color-primary-light); color: var(--color-primary-mid); }
   &--completed  { background: var(--color-success-bg); color: #065f46; }
   &--overdue    { background: var(--color-error-bg); color: #991b1b; }
   &--cancelled  { background: var(--color-surface-hover); color: var(--color-text-secondary); }
