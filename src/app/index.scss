@@ -14,219 +14,225 @@
 
 // ── CSS Custom Properties (Design Tokens) ────────────────────
 :root {
-
-  // ── Brand — PropNect Forest Green ───────────────────────────
-  --color-primary:        #0B3D28;
-  --color-primary-mid:    #0F6040;
-  --color-primary-light:  #E8F5EE;
-  --color-primary-dark:   #052418;
+  // ── Brand — propnekt Forest Green ───────────────────────────
+  --color-primary: #0b3d28;
+  --color-primary-mid: #0f6040;
+  --color-primary-light: #e8f5ee;
+  --color-primary-dark: #052418;
   --color-primary-subtle: rgba(11, 61, 40, 0.08);
 
   // Legacy aliases
-  --primary:              #0B3D28;
-  --primary-mid:          #0F6040;
-  --primary-light:        #E8F5EE;
-  --primary-hover:        #052418;
+  --primary: #0b3d28;
+  --primary-mid: #0f6040;
+  --primary-light: #e8f5ee;
+  --primary-hover: #052418;
 
-  // ── Accent / CTA — PropNect Lime ────────────────────────────
-  --color-accent:         #C4E53C;
-  --color-accent-light:   #D4F04C;
-  --color-accent-dark:    #A8CC28;
-  --color-accent-subtle:  rgba(196, 229, 60, 0.15);
+  // ── Accent / CTA — propnekt Lime ────────────────────────────
+  --color-accent: #c4e53c;
+  --color-accent-light: #d4f04c;
+  --color-accent-dark: #a8cc28;
+  --color-accent-subtle: rgba(196, 229, 60, 0.15);
 
   // Legacy aliases
-  --cta:                  #C4E53C;
-  --cta-hover:            #A8CC28;
-  --cta-text:             #0B3D28;
-  --accent:               #C4E53C;
+  --cta: #c4e53c;
+  --cta-hover: #a8cc28;
+  --cta-text: #0b3d28;
+  --accent: #c4e53c;
 
   // ── Neutral Background ───────────────────────────────────────
-  --color-background:     #F5F8F2;
-  --color-surface:        #ffffff;
-  --color-surface-hover:  #F0F5EC;
-  --color-border:         #D5E2D0;
-  --color-border-light:   #EAF2E6;
+  --color-background: #f5f8f2;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f0f5ec;
+  --color-border: #d5e2d0;
+  --color-border-light: #eaf2e6;
 
   // Legacy aliases
-  --bg:                   #F5F8F2;
-  --surface:              #ffffff;
-  --surface-2:            #F0F5EC;
-  --border:               #D5E2D0;
-  --border-light:         #EAF2E6;
+  --bg: #f5f8f2;
+  --surface: #ffffff;
+  --surface-2: #f0f5ec;
+  --border: #d5e2d0;
+  --border-light: #eaf2e6;
 
   // ── Text ────────────────────────────────────────────────────
-  --color-text-primary:   #1a1a2e;
+  --color-text-primary: #1a1a2e;
   --color-text-secondary: #4a5568;
-  --color-text-muted:     #94a3b8;
-  --color-text-inverse:   #ffffff;
+  --color-text-muted: #94a3b8;
+  --color-text-inverse: #ffffff;
 
   // Legacy aliases
-  --text:                 #1a1a2e;
-  --text-secondary:       #4a5568;
-  --text-muted:           #94a3b8;
-  --text-inverse:         #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #4a5568;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
 
   // ── Semantic — Success / Warning / Error / Info ──────────────
-  --color-success:        #00875a;
-  --color-warning:        #f59e0b;
-  --color-error:          #cc0000;
-  --color-info:           #0F6040;
+  --color-success: #00875a;
+  --color-warning: #f59e0b;
+  --color-error: #cc0000;
+  --color-info: #0f6040;
 
-  --color-success-bg:     #e3f5ee;
-  --color-warning-bg:     #fef3c7;
-  --color-error-bg:       #fee2e2;
-  --color-info-bg:        #E8F5EE;
+  --color-success-bg: #e3f5ee;
+  --color-warning-bg: #fef3c7;
+  --color-error-bg: #fee2e2;
+  --color-info-bg: #e8f5ee;
 
   // Legacy aliases
-  --success:              #00875a;
-  --success-bg:           #e3f5ee;
-  --warning:              #f59e0b;
-  --warning-bg:           #fef3c7;
-  --error:                #cc0000;
-  --error-bg:             #fee2e2;
-  --info:                 #0F6040;
-  --info-bg:              #E8F5EE;
+  --success: #00875a;
+  --success-bg: #e3f5ee;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+  --error: #cc0000;
+  --error-bg: #fee2e2;
+  --info: #0f6040;
+  --info-bg: #e8f5ee;
 
   // ── Gradients ────────────────────────────────────────────────
-  --gradient-brand:       linear-gradient(135deg, #0B3D28 0%, #0F6040 100%);
-  --gradient-mid:         linear-gradient(135deg, #0F6040 0%, #1A8055 100%);
-  --gradient-hero:        linear-gradient(160deg, #052418 0%, #0B3D28 50%, #0F6040 100%);
-  --gradient-lime:        linear-gradient(135deg, #C4E53C 0%, #D4F04C 100%);
-  --gradient-1:           linear-gradient(135deg, #0B3D28 0%, #0F6040 100%);
-  --gradient-2:           linear-gradient(135deg, #0F6040 0%, #1A8055 100%);
+  --gradient-brand: linear-gradient(135deg, #0b3d28 0%, #0f6040 100%);
+  --gradient-mid: linear-gradient(135deg, #0f6040 0%, #1a8055 100%);
+  --gradient-hero: linear-gradient(
+    160deg,
+    #052418 0%,
+    #0b3d28 50%,
+    #0f6040 100%
+  );
+  --gradient-lime: linear-gradient(135deg, #c4e53c 0%, #d4f04c 100%);
+  --gradient-1: linear-gradient(135deg, #0b3d28 0%, #0f6040 100%);
+  --gradient-2: linear-gradient(135deg, #0f6040 0%, #1a8055 100%);
 
   // ── Typography ───────────────────────────────────────────────
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui,
+    sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui,
+    sans-serif;
   --font-display: 'Montserrat Alternates', 'Inter', sans-serif;
-  --font-mono:    'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
 
   // Font size scale
-  --text-xs:    0.75rem;   // 12px
-  --text-sm:    0.875rem;  // 14px
-  --text-base:  1rem;      // 16px
-  --text-lg:    1.125rem;  // 18px
-  --text-xl:    1.25rem;   // 20px
-  --text-2xl:   1.5rem;    // 24px
-  --text-3xl:   1.875rem;  // 30px
-  --text-4xl:   2.25rem;   // 36px
-  --text-5xl:   3rem;      // 48px
+  --text-xs: 0.75rem; // 12px
+  --text-sm: 0.875rem; // 14px
+  --text-base: 1rem; // 16px
+  --text-lg: 1.125rem; // 18px
+  --text-xl: 1.25rem; // 20px
+  --text-2xl: 1.5rem; // 24px
+  --text-3xl: 1.875rem; // 30px
+  --text-4xl: 2.25rem; // 36px
+  --text-5xl: 3rem; // 48px
 
   // Legacy aliases (admin.scss naming)
-  --font-size-xs:   0.75rem;
-  --font-size-sm:   0.875rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
-  --font-size-lg:   1.125rem;
-  --font-size-xl:   1.25rem;
-  --font-size-2xl:  1.5rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
 
   // Font weights
-  --weight-thin:       300;
-  --weight-normal:     400;
-  --weight-medium:     500;
-  --weight-semibold:   600;
-  --weight-bold:       700;
-  --weight-extrabold:  800;
-  --weight-black:      900;
+  --weight-thin: 300;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+  --weight-black: 900;
 
   // Legacy aliases
-  --font-weight-normal:   400;
-  --font-weight-medium:   500;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
   --font-weight-semibold: 600;
-  --font-weight-bold:     700;
+  --font-weight-bold: 700;
 
   // Line height
-  --leading-none:     1;
-  --leading-tight:    1.25;
-  --leading-snug:     1.375;
-  --leading-normal:   1.5;
-  --leading-relaxed:  1.625;
-  --leading-loose:    1.75;
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 1.75;
 
   // Legacy aliases
-  --line-height-tight:   1.25;
-  --line-height-normal:  1.5;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
 
   // ── Spacing ──────────────────────────────────────────────────
-  --space-1:  0.25rem;   //  4px
-  --space-2:  0.5rem;    //  8px
-  --space-3:  0.75rem;   // 12px
-  --space-4:  1rem;      // 16px
-  --space-5:  1.25rem;   // 20px
-  --space-6:  1.5rem;    // 24px
-  --space-8:  2rem;      // 32px
-  --space-10: 2.5rem;    // 40px
-  --space-12: 3rem;      // 48px
-  --space-16: 4rem;      // 64px
-  --space-20: 5rem;      // 80px
-  --space-24: 6rem;      // 96px
+  --space-1: 0.25rem; //  4px
+  --space-2: 0.5rem; //  8px
+  --space-3: 0.75rem; // 12px
+  --space-4: 1rem; // 16px
+  --space-5: 1.25rem; // 20px
+  --space-6: 1.5rem; // 24px
+  --space-8: 2rem; // 32px
+  --space-10: 2.5rem; // 40px
+  --space-12: 3rem; // 48px
+  --space-16: 4rem; // 64px
+  --space-20: 5rem; // 80px
+  --space-24: 6rem; // 96px
 
   // Legacy aliases (admin.scss naming)
-  --space-xs:  0.25rem;
-  --space-sm:  0.5rem;
-  --space-md:  0.75rem;
-  --space-lg:  1rem;
-  --space-xl:  1.5rem;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
   --space-2xl: 2rem;
   --space-3xl: 3rem;
 
   // ── Border Radius ────────────────────────────────────────────
-  --radius-xs:   4px;
-  --radius-sm:   6px;
-  --radius-md:   10px;
-  --radius-lg:   14px;
-  --radius-xl:   20px;
-  --radius-2xl:  28px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
   --radius-full: 9999px;
 
   // ── Shadows (brand-tinted green) ─────────────────────────────
-  --shadow-xs:   0 1px 3px rgba(11, 61, 40, 0.06);
-  --shadow-sm:   0 2px 8px rgba(11, 61, 40, 0.10);
-  --shadow-md:   0 4px 16px rgba(11, 61, 40, 0.12);
-  --shadow-lg:   0 8px 32px rgba(11, 61, 40, 0.15);
-  --shadow-xl:   0 16px 48px rgba(11, 61, 40, 0.18);
+  --shadow-xs: 0 1px 3px rgba(11, 61, 40, 0.06);
+  --shadow-sm: 0 2px 8px rgba(11, 61, 40, 0.1);
+  --shadow-md: 0 4px 16px rgba(11, 61, 40, 0.12);
+  --shadow-lg: 0 8px 32px rgba(11, 61, 40, 0.15);
+  --shadow-xl: 0 16px 48px rgba(11, 61, 40, 0.18);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.09), 0 1px 2px rgba(0, 0, 0, 0.05);
 
   // ── Transitions ──────────────────────────────────────────────
-  --ease:             cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-out:         cubic-bezier(0, 0, 0.2, 1);
-  --ease-in:          cubic-bezier(0.4, 0, 1, 1);
-  --ease-bounce:      cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition:       cubic-bezier(0.4, 0, 0.2, 1);        // legacy alias
-  --transition-fast:  150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base:  250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow:  350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition: cubic-bezier(0.4, 0, 0.2, 1); // legacy alias
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
 
   // ── Layout ────────────────────────────────────────────────────
-  --sidebar-width:     280px;
+  --sidebar-width: 280px;
   --sidebar-collapsed: 80px;
-  --header-height:     72px;
-  --max-width:         1280px;
-  --content-width:     1100px;
+  --header-height: 72px;
+  --max-width: 1280px;
+  --content-width: 1100px;
 
   // ── Legacy dark-theme component aliases (light remapping) ─────
   // These remap old dark-theme variable names used by migrated
   // component SCSS files so they render correctly in the light layout.
-  --text-dark:      #1a1a2e;    // was #e8eaf0 (white text on dark bg → dark)
-  --text-gray:      #64748b;    // was #8890a8
-  --bg-light:       #f2f6fb;    // was #0e0f13 (darkest bg → light)
-  --bg-white:       #ffffff;    // was #15171d (dark → white)
-  --bg-dark:        #f2f6fb;    // was #0e0f13 (paradox: maps to our LIGHT bg)
-  --bg-darker:      #eef2f8;    // was #09090b
-  --surface-light:  #f7f9fc;    // was #1c1f28
-  --bg-surface:     #ffffff;    // was #15171d
-  --bg-raised:      #f7f9fc;    // was #1c1f28
-  --bg-hover:       #f1f5f9;    // was rgba(255,255,255,0.08) on dark
-  --text-1:         #1a1a2e;    // was #e8eaf0 (inverted for dark mode)
-  --text-2:         #4a5568;    // was #8890a8
-  --text-3:         #94a3b8;    // was #4e5470
-  --secondary:      #0B3D28;    // was #5bcfb0 teal → PropNect green
-  --border-mid:     #D5E2D0;    // was rgba(255,255,255,0.11)
-  --accent-muted:   rgba(196, 229, 60, 0.10);  // PropNect lime subtle
-  --accent-glow:    rgba(196, 229, 60, 0.20);  // PropNect lime glow
-  --transition:     all 0.2s cubic-bezier(0.4, 0, 0.2, 1); // full shorthand
-  --color-surface:  #ffffff;    // ensure not overridden by dark theme files
+  --text-dark: #1a1a2e; // was #e8eaf0 (white text on dark bg → dark)
+  --text-gray: #64748b; // was #8890a8
+  --bg-light: #f2f6fb; // was #0e0f13 (darkest bg → light)
+  --bg-white: #ffffff; // was #15171d (dark → white)
+  --bg-dark: #f2f6fb; // was #0e0f13 (paradox: maps to our LIGHT bg)
+  --bg-darker: #eef2f8; // was #09090b
+  --surface-light: #f7f9fc; // was #1c1f28
+  --bg-surface: #ffffff; // was #15171d
+  --bg-raised: #f7f9fc; // was #1c1f28
+  --bg-hover: #f1f5f9; // was rgba(255,255,255,0.08) on dark
+  --text-1: #1a1a2e; // was #e8eaf0 (inverted for dark mode)
+  --text-2: #4a5568; // was #8890a8
+  --text-3: #94a3b8; // was #4e5470
+  --secondary: #0b3d28; // was #5bcfb0 teal → propnekt green
+  --border-mid: #d5e2d0; // was rgba(255,255,255,0.11)
+  --accent-muted: rgba(196, 229, 60, 0.1); // propnekt lime subtle
+  --accent-glow: rgba(196, 229, 60, 0.2); // propnekt lime glow
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); // full shorthand
+  --color-surface: #ffffff; // ensure not overridden by dark theme files
 }
 
 // ── Global Reset ─────────────────────────────────────────────
@@ -259,21 +265,38 @@ body {
 }
 
 // ── Typography ───────────────────────────────────────────────
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font);
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   color: var(--color-text-primary);
 }
 
-h1 { font-size: var(--text-4xl); }
-h2 { font-size: var(--text-3xl); }
-h3 { font-size: var(--text-2xl); }
-h4 { font-size: var(--text-xl); }
-h5 { font-size: var(--text-lg); }
-h6 { font-size: var(--text-base); }
+h1 {
+  font-size: var(--text-4xl);
+}
+h2 {
+  font-size: var(--text-3xl);
+}
+h3 {
+  font-size: var(--text-2xl);
+}
+h4 {
+  font-size: var(--text-xl);
+}
+h5 {
+  font-size: var(--text-lg);
+}
+h6 {
+  font-size: var(--text-base);
+}
 
-p  {
+p {
   line-height: var(--leading-relaxed);
   color: var(--color-text-secondary);
 }
@@ -282,29 +305,39 @@ a {
   color: var(--color-primary-mid);
   text-decoration: none;
   transition: color var(--transition-fast);
-  &:hover { color: var(--color-primary); }
+  &:hover {
+    color: var(--color-primary);
+  }
 }
 
 // ── Form Elements ────────────────────────────────────────────
-input, textarea, select, button {
+input,
+textarea,
+select,
+button {
   font-family: var(--font);
   font-size: var(--text-sm);
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   color: var(--color-text-primary);
   background: var(--color-surface);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
   outline: none;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 
   &:focus {
     border-color: var(--color-primary-mid);
     box-shadow: 0 0 0 3px var(--color-primary-subtle);
   }
 
-  &::placeholder { color: var(--color-text-muted); }
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
 }
 
 button {
@@ -314,16 +347,28 @@ button {
   font-weight: var(--weight-medium);
 }
 
-img, video {
+img,
+video {
   max-width: 100%;
   display: block;
 }
 
 // ── Scrollbar ─────────────────────────────────────────────────
-::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: var(--color-border-light); border-radius: var(--radius-full); }
-::-webkit-scrollbar-thumb  { background: var(--color-border); border-radius: var(--radius-full); }
-::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-border-light);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
 
 // ── Focus Visible ─────────────────────────────────────────────
 :focus-visible {
@@ -341,63 +386,71 @@ img, video {
 // ── Utility Classes ──────────────────────────────────────────
 
 // Font families
-.font-sans    { font-family: var(--font); }
-.font-mono    { font-family: var(--font-mono); }
-.font-display { font-family: var(--font-display); }
+.font-sans {
+  font-family: var(--font);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+.font-display {
+  font-family: var(--font-display);
+}
 
 // Kept for backward-compat — Montserrat Alternates display helper
-.montserrat   { font-family: var(--font-display); }
+.montserrat {
+  font-family: var(--font-display);
+}
 
 // ── Dark Mode (OS-level preference) ──────────────────────────
 @media (prefers-color-scheme: dark) {
   :root {
     // Backgrounds
-    --color-background:     #020617;
-    --color-surface:        #0f172a;
-    --color-surface-hover:  #1e293b;
-    --color-border:         #1e293b;
-    --color-border-light:   #0f172a;
+    --color-background: #020617;
+    --color-surface: #0f172a;
+    --color-surface-hover: #1e293b;
+    --color-border: #1e293b;
+    --color-border-light: #0f172a;
 
     // Legacy aliases
-    --bg:       #020617;
-    --surface:  #0f172a;
-    --surface-2:#1e293b;
-    --border:   #1e293b;
+    --bg: #020617;
+    --surface: #0f172a;
+    --surface-2: #1e293b;
+    --border: #1e293b;
     --border-light: #0f172a;
 
     // Text
-    --color-text-primary:   #f1f5f9;
+    --color-text-primary: #f1f5f9;
     --color-text-secondary: #94a3b8;
-    --color-text-muted:     #64748b;
-    --color-text-inverse:   #0f172a;
+    --color-text-muted: #64748b;
+    --color-text-inverse: #0f172a;
 
-    --text:           #f1f5f9;
+    --text: #f1f5f9;
     --text-secondary: #94a3b8;
-    --text-muted:     #64748b;
-    --text-inverse:   #0f172a;
+    --text-muted: #64748b;
+    --text-inverse: #0f172a;
 
-    // Primary tints — PropNect green in dark
-    --color-primary-light:  rgba(15, 96, 64, 0.22);
+    // Primary tints — propnekt green in dark
+    --color-primary-light: rgba(15, 96, 64, 0.22);
     --color-primary-subtle: rgba(15, 96, 64, 0.14);
     --primary-light: rgba(15, 96, 64, 0.22);
 
     // Semantic bg tints
     --color-success-bg: rgba(0, 135, 90, 0.15);
     --color-warning-bg: rgba(245, 158, 11, 0.15);
-    --color-error-bg:   rgba(239, 68, 68, 0.15);
-    --color-info-bg:    rgba(15, 96, 64, 0.18);
+    --color-error-bg: rgba(239, 68, 68, 0.15);
+    --color-info-bg: rgba(15, 96, 64, 0.18);
 
     --success-bg: rgba(0, 135, 90, 0.15);
     --warning-bg: rgba(245, 158, 11, 0.15);
-    --error-bg:   rgba(239, 68, 68, 0.15);
-    --info-bg:    rgba(15, 96, 64, 0.18);
+    --error-bg: rgba(239, 68, 68, 0.15);
+    --info-bg: rgba(15, 96, 64, 0.18);
 
     // Shadows — deeper in dark
-    --shadow-xs:   0 1px 3px rgba(0, 0, 0, 0.4);
-    --shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.5);
-    --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.6);
-    --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.7);
-    --shadow-xl:   0 16px 48px rgba(0, 0, 0, 0.8);
+    --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.8);
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
   }
 
@@ -406,19 +459,29 @@ img, video {
   }
 
   // Inputs in dark mode
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     color-scheme: dark;
     background: var(--color-surface);
     border-color: var(--color-border);
     color: var(--color-text-primary);
 
-    &::placeholder { color: var(--color-text-muted); }
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
   }
 
   // Scrollbar in dark
-  ::-webkit-scrollbar-track { background: #0f172a; }
-  ::-webkit-scrollbar-thumb { background: #334155; }
-  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
 
   ::selection {
     background: rgba(15, 96, 64, 0.35);
@@ -428,91 +491,101 @@ img, video {
 
 // ── Dark Mode (programmatic toggle via data-theme="dark") ─────
 // Mirrors the OS block above so manual toggle works independently.
-html[data-theme="dark"] {
+html[data-theme='dark'] {
   :root {
     // Backgrounds
-    --color-background:     #020617;
-    --color-surface:        #0f172a;
-    --color-surface-hover:  #1e293b;
-    --color-border:         #1e293b;
-    --color-border-light:   #0f172a;
+    --color-background: #020617;
+    --color-surface: #0f172a;
+    --color-surface-hover: #1e293b;
+    --color-border: #1e293b;
+    --color-border-light: #0f172a;
 
     // Legacy aliases
-    --bg:       #020617;
-    --surface:  #0f172a;
-    --surface-2:#1e293b;
-    --border:   #1e293b;
+    --bg: #020617;
+    --surface: #0f172a;
+    --surface-2: #1e293b;
+    --border: #1e293b;
     --border-light: #0f172a;
 
     // Text
-    --color-text-primary:   #f1f5f9;
+    --color-text-primary: #f1f5f9;
     --color-text-secondary: #94a3b8;
-    --color-text-muted:     #64748b;
-    --color-text-inverse:   #0f172a;
+    --color-text-muted: #64748b;
+    --color-text-inverse: #0f172a;
 
-    --text:           #f1f5f9;
+    --text: #f1f5f9;
     --text-secondary: #94a3b8;
-    --text-muted:     #64748b;
-    --text-inverse:   #0f172a;
+    --text-muted: #64748b;
+    --text-inverse: #0f172a;
 
-    // Primary tints — PropNect green in dark
-    --color-primary-light:  rgba(15, 96, 64, 0.22);
+    // Primary tints — propnekt green in dark
+    --color-primary-light: rgba(15, 96, 64, 0.22);
     --color-primary-subtle: rgba(15, 96, 64, 0.14);
     --primary-light: rgba(15, 96, 64, 0.22);
 
     // Semantic bg tints
     --color-success-bg: rgba(0, 135, 90, 0.15);
     --color-warning-bg: rgba(245, 158, 11, 0.15);
-    --color-error-bg:   rgba(239, 68, 68, 0.15);
-    --color-info-bg:    rgba(15, 96, 64, 0.18);
+    --color-error-bg: rgba(239, 68, 68, 0.15);
+    --color-info-bg: rgba(15, 96, 64, 0.18);
 
     --success-bg: rgba(0, 135, 90, 0.15);
     --warning-bg: rgba(245, 158, 11, 0.15);
-    --error-bg:   rgba(239, 68, 68, 0.15);
-    --info-bg:    rgba(15, 96, 64, 0.18);
+    --error-bg: rgba(239, 68, 68, 0.15);
+    --info-bg: rgba(15, 96, 64, 0.18);
 
     // Shadows — deeper in dark
-    --shadow-xs:   0 1px 3px rgba(0, 0, 0, 0.4);
-    --shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.5);
-    --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.6);
-    --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.7);
-    --shadow-xl:   0 16px 48px rgba(0, 0, 0, 0.8);
+    --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.8);
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
 
     // Legacy dark-theme component aliases remapped for dark
-    --text-dark:      #f1f5f9;
-    --text-gray:      #94a3b8;
-    --bg-light:       #020617;
-    --bg-white:       #0f172a;
-    --bg-dark:        #020617;
-    --bg-darker:      #010409;
-    --surface-light:  #1e293b;
-    --bg-surface:     #0f172a;
-    --bg-raised:      #1e293b;
-    --bg-hover:       rgba(255,255,255,0.06);
-    --text-1:         #f1f5f9;
-    --text-2:         #94a3b8;
-    --text-3:         #64748b;
-    --border-mid:     #1e293b;
-    --color-surface:  #0f172a;
+    --text-dark: #f1f5f9;
+    --text-gray: #94a3b8;
+    --bg-light: #020617;
+    --bg-white: #0f172a;
+    --bg-dark: #020617;
+    --bg-darker: #010409;
+    --surface-light: #1e293b;
+    --bg-surface: #0f172a;
+    --bg-raised: #1e293b;
+    --bg-hover: rgba(255, 255, 255, 0.06);
+    --text-1: #f1f5f9;
+    --text-2: #94a3b8;
+    --text-3: #64748b;
+    --border-mid: #1e293b;
+    --color-surface: #0f172a;
   }
 
   body {
     color-scheme: dark;
   }
 
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     color-scheme: dark;
     background: var(--color-surface);
     border-color: var(--color-border);
     color: var(--color-text-primary);
 
-    &::placeholder { color: var(--color-text-muted); }
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
   }
 
-  ::-webkit-scrollbar-track { background: #0f172a; }
-  ::-webkit-scrollbar-thumb { background: #334155; }
-  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
 
   ::selection {
     background: rgba(15, 96, 64, 0.35);

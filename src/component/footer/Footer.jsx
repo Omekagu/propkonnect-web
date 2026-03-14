@@ -41,7 +41,7 @@ export default function Footer () {
               <a href='#'>About</a>
             </li>
             <li>
-              <a href='https://propnectdocs.netlify.app/'>Docs & Api</a>
+              <a href='https://propnektdocs.netlify.app/'>Docs & Api</a>
             </li>
             <li>
               <a href='#'>Contact</a>

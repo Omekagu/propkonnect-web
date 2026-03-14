@@ -4,7 +4,7 @@ import Script from 'next/script'
 import { ReviewsProvider } from '@/context/ReviewsProvider'
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL), // change to your real domain
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://propnect.com'),
 
   title: {
     default: `${process.env.NEXT_PUBLIC_APP_NAME} – Real Estate Solutions`,

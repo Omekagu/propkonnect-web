@@ -193,8 +193,8 @@
 
 .submit-btn {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-  color: white;
+  background: var(--color-accent);
+  color: var(--cta-text);
   border: none;
   border-radius: 8px;
   font-size: 1.125rem;

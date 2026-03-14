@@ -4,114 +4,115 @@
    Fonts:  Playfair Display (headings) · DM Sans (body)
    ───────────────────────────────────────────────────────────────────────────── */
 
-
 /* ── CSS VARIABLES (scoped — inherits globals from index.scss) ──────────────── */
 .od-page {
-  // Light mode: mapped to global PropNect design tokens
-  --od-canvas:      var(--color-background);
-  --od-surface:     var(--color-surface-hover);
-  --od-raised:      var(--color-surface-hover);
-  --od-card:        var(--color-surface);
-  --od-border:      var(--color-border);
+  // Light mode: mapped to global propnekt design tokens
+  --od-canvas: var(--color-background);
+  --od-surface: var(--color-surface-hover);
+  --od-raised: var(--color-surface-hover);
+  --od-card: var(--color-surface);
+  --od-border: var(--color-border);
   --od-border-soft: var(--color-border-light);
   --od-border-gold: rgba(11, 61, 40, 0.15);
 
-  --od-text:   var(--color-text-primary);
+  --od-text: var(--color-text-primary);
   --od-text-2: var(--color-text-secondary);
-  --od-muted:  var(--color-text-muted);
+  --od-muted: var(--color-text-muted);
   --od-muted-2: var(--color-text-muted);
 
-  --od-gold:       var(--color-primary);
+  --od-gold: var(--color-primary);
   --od-gold-light: var(--color-primary-mid);
-  --od-gold-dark:  var(--color-primary-dark);
-  --od-gold-soft:  var(--color-primary-subtle);
-  --od-gold-glow:  var(--color-primary-light);
+  --od-gold-dark: var(--color-primary-dark);
+  --od-gold-soft: var(--color-primary-subtle);
+  --od-gold-glow: var(--color-primary-light);
 
-  --od-green:       var(--color-success);
-  --od-green-soft:  var(--color-success-bg);
-  --od-amber:       var(--color-warning);
-  --od-amber-soft:  var(--color-warning-bg);
-  --od-blue:        var(--color-primary-mid);
-  --od-blue-soft:   var(--color-primary-subtle);
-  --od-purple:      var(--color-accent);
+  --od-green: var(--color-success);
+  --od-green-soft: var(--color-success-bg);
+  --od-amber: var(--color-warning);
+  --od-amber-soft: var(--color-warning-bg);
+  --od-blue: var(--color-primary-mid);
+  --od-blue-soft: var(--color-primary-subtle);
+  --od-purple: var(--color-accent);
   --od-purple-soft: rgba(196, 229, 60, 0.12);
-  --od-red:         var(--color-error);
-  --od-red-soft:    var(--color-error-bg);
+  --od-red: var(--color-error);
+  --od-red-soft: var(--color-error-bg);
 
-  --od-r:    var(--radius-lg);
+  --od-r: var(--radius-lg);
   --od-r-sm: var(--radius-md);
   --od-r-xs: var(--radius-sm);
-  --od-ease:        cubic-bezier(0.22, 1, 0.36, 1);
+  --od-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --od-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --od-shadow:      var(--shadow-sm);
-  --od-shadow-lg:   var(--shadow-lg);
+  --od-shadow: var(--shadow-sm);
+  --od-shadow-lg: var(--shadow-lg);
   --od-shadow-gold: 0 8px 32px rgba(11, 61, 40, 0.18);
 }
 
 /* Dark mode — restore original dark / gold editorial aesthetic */
 @media (prefers-color-scheme: dark) {
   .od-page {
-    --od-canvas:      #0e0f13;
-    --od-surface:     #15171d;
-    --od-raised:      #1c1f28;
-    --od-card:        #181b24;
-    --od-border:      rgba(255, 255, 255, 0.07);
+    --od-canvas: #0e0f13;
+    --od-surface: #15171d;
+    --od-raised: #1c1f28;
+    --od-card: #181b24;
+    --od-border: rgba(255, 255, 255, 0.07);
     --od-border-soft: rgba(255, 255, 255, 0.04);
     --od-border-gold: rgba(201, 169, 110, 0.18);
-    --od-text:   #e8eaf0;
+    --od-text: #e8eaf0;
     --od-text-2: #c8cad6;
-    --od-muted:  #8890a8;
+    --od-muted: #8890a8;
     --od-muted-2: #4e5470;
-    --od-gold:       #c9a96e;
+    --od-gold: #c9a96e;
     --od-gold-light: #e2c89a;
-    --od-gold-dark:  #a87842;
-    --od-gold-soft:  rgba(201, 169, 110, 0.1);
-    --od-gold-glow:  rgba(201, 169, 110, 0.2);
-    --od-green:      #5bcfb0;
+    --od-gold-dark: #a87842;
+    --od-gold-soft: rgba(201, 169, 110, 0.1);
+    --od-gold-glow: rgba(201, 169, 110, 0.2);
+    --od-green: #5bcfb0;
     --od-green-soft: rgba(91, 207, 176, 0.1);
-    --od-amber:      #f0b954;
+    --od-amber: #f0b954;
     --od-amber-soft: rgba(240, 185, 84, 0.1);
-    --od-blue:       #4facfe;
-    --od-blue-soft:  rgba(79, 172, 254, 0.1);
-    --od-purple:     #a78bfa;
+    --od-blue: #4facfe;
+    --od-blue-soft: rgba(79, 172, 254, 0.1);
+    --od-purple: #a78bfa;
     --od-purple-soft: rgba(167, 139, 250, 0.1);
-    --od-red:        #e05b5b;
-    --od-red-soft:   rgba(224, 91, 91, 0.1);
-    --od-shadow:     0 2px 16px rgba(0, 0, 0, 0.24), 0 1px 4px rgba(0, 0, 0, 0.12);
-    --od-shadow-lg:  0 12px 48px rgba(0, 0, 0, 0.32), 0 4px 16px rgba(0, 0, 0, 0.16);
+    --od-red: #e05b5b;
+    --od-red-soft: rgba(224, 91, 91, 0.1);
+    --od-shadow: 0 2px 16px rgba(0, 0, 0, 0.24), 0 1px 4px rgba(0, 0, 0, 0.12);
+    --od-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.32),
+      0 4px 16px rgba(0, 0, 0, 0.16);
     --od-shadow-gold: 0 8px 32px rgba(201, 169, 110, 0.22);
   }
 }
 
-html[data-theme="dark"] .od-page {
-  --od-canvas:      #0e0f13;
-  --od-surface:     #15171d;
-  --od-raised:      #1c1f28;
-  --od-card:        #181b24;
-  --od-border:      rgba(255, 255, 255, 0.07);
+html[data-theme='dark'] .od-page {
+  --od-canvas: #0e0f13;
+  --od-surface: #15171d;
+  --od-raised: #1c1f28;
+  --od-card: #181b24;
+  --od-border: rgba(255, 255, 255, 0.07);
   --od-border-soft: rgba(255, 255, 255, 0.04);
   --od-border-gold: rgba(201, 169, 110, 0.18);
-  --od-text:   #e8eaf0;
+  --od-text: #e8eaf0;
   --od-text-2: #c8cad6;
-  --od-muted:  #8890a8;
+  --od-muted: #8890a8;
   --od-muted-2: #4e5470;
-  --od-gold:       #c9a96e;
+  --od-gold: #c9a96e;
   --od-gold-light: #e2c89a;
-  --od-gold-dark:  #a87842;
-  --od-gold-soft:  rgba(201, 169, 110, 0.1);
-  --od-gold-glow:  rgba(201, 169, 110, 0.2);
-  --od-green:      #5bcfb0;
+  --od-gold-dark: #a87842;
+  --od-gold-soft: rgba(201, 169, 110, 0.1);
+  --od-gold-glow: rgba(201, 169, 110, 0.2);
+  --od-green: #5bcfb0;
   --od-green-soft: rgba(91, 207, 176, 0.1);
-  --od-amber:      #f0b954;
+  --od-amber: #f0b954;
   --od-amber-soft: rgba(240, 185, 84, 0.1);
-  --od-blue:       #4facfe;
-  --od-blue-soft:  rgba(79, 172, 254, 0.1);
-  --od-purple:     #a78bfa;
+  --od-blue: #4facfe;
+  --od-blue-soft: rgba(79, 172, 254, 0.1);
+  --od-purple: #a78bfa;
   --od-purple-soft: rgba(167, 139, 250, 0.1);
-  --od-red:        #e05b5b;
-  --od-red-soft:   rgba(224, 91, 91, 0.1);
-  --od-shadow:     0 2px 16px rgba(0, 0, 0, 0.24), 0 1px 4px rgba(0, 0, 0, 0.12);
-  --od-shadow-lg:  0 12px 48px rgba(0, 0, 0, 0.32), 0 4px 16px rgba(0, 0, 0, 0.16);
+  --od-red: #e05b5b;
+  --od-red-soft: rgba(224, 91, 91, 0.1);
+  --od-shadow: 0 2px 16px rgba(0, 0, 0, 0.24), 0 1px 4px rgba(0, 0, 0, 0.12);
+  --od-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.32),
+    0 4px 16px rgba(0, 0, 0, 0.16);
   --od-shadow-gold: 0 8px 32px rgba(201, 169, 110, 0.22);
 }
 

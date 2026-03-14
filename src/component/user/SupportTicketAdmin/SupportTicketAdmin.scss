@@ -545,8 +545,8 @@ $desktop: 1024px;
     border-color: $primary;
 
     &:hover:not(:disabled) {
-      background: darken(#c9a96e, 10%);
-      border-color: darken(#c9a96e, 10%);
+      background: #b3914a;
+      border-color: #b3914a;
       box-shadow: 0 4px 12px rgba(201, 169, 110, 0.3);
     }
   }
@@ -559,7 +559,7 @@ $desktop: 1024px;
     &:hover:not(:disabled) {
       background: $bg-secondary;
       border-color: $primary;
-      color: darken(#c9a96e, 10%);
+      color: #b3914a;
     }
   }
 }
@@ -603,6 +603,6 @@ $desktop: 1024px;
   border-radius: var(--radius-xs);
 
   &:hover {
-    background: darken($border-color, 10%);
+    background: rgba(255, 255, 255, 0.15);
   }
 }

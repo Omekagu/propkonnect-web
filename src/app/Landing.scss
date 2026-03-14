@@ -1,5 +1,5 @@
 // ============================================================
-// LANDING PAGE — PropNect Brand
+// LANDING PAGE — propnekt Brand
 // Expedia-inspired UX · Forest Green + Lime color system
 // Design tokens come from index.scss — no :root block here.
 // ============================================================
@@ -98,8 +98,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.9rem 2rem;
-  background: rgba(255,255,255,0.12);
-  border: 1.5px solid rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
   border-radius: var(--radius-md);
   color: #fff;
   font-size: 1rem;
@@ -109,15 +109,17 @@
   transition: all 0.2s;
 
   &:hover {
-    background: rgba(255,255,255,0.2);
-    border-color: rgba(255,255,255,0.6);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
   }
 }
 
 // ── Navbar ───────────────────────────────────────────────────
 .lp-nav {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
   background: transparent;
   transition: background 0.3s, box-shadow 0.3s;
@@ -125,7 +127,7 @@
   &--scrolled {
     background: rgba(11, 61, 40, 0.97);
     backdrop-filter: blur(16px);
-    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
   }
 
   &__inner {
@@ -176,17 +178,21 @@
     margin-left: 0.5rem;
 
     a {
-      color: rgba(255,255,255,0.85);
+      color: rgba(255, 255, 255, 0.85);
       font-size: 0.9rem;
       font-weight: 500;
       text-decoration: none;
       cursor: pointer;
       transition: color 0.2s;
 
-      &:hover { color: var(--cta); }
+      &:hover {
+        color: var(--cta);
+      }
     }
 
-    @media (max-width: 900px) { display: none; }
+    @media (max-width: 900px) {
+      display: none;
+    }
   }
 
   &__actions {
@@ -195,13 +201,15 @@
     align-items: center;
     margin-left: auto;
 
-    @media (max-width: 900px) { display: none; }
+    @media (max-width: 900px) {
+      display: none;
+    }
   }
 
   &__btn-ghost {
     padding: 0.5rem 1.2rem;
     background: transparent;
-    border: 1.5px solid rgba(255,255,255,0.4);
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
     border-radius: var(--radius-md);
     color: #fff;
     font-size: 0.875rem;
@@ -210,8 +218,8 @@
     transition: all 0.2s;
 
     &:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.7);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.7);
     }
   }
 
@@ -251,19 +259,22 @@
       border-radius: 2px;
     }
 
-    @media (max-width: 900px) { display: flex; }
+    @media (max-width: 900px) {
+      display: flex;
+    }
   }
 
   &__mobile {
     background: var(--primary);
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding: 1rem 2rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 
-    a, button {
-      color: rgba(255,255,255,0.85);
+    a,
+    button {
+      color: rgba(255, 255, 255, 0.85);
       font-size: 1rem;
       font-weight: 500;
       text-decoration: none;
@@ -273,7 +284,9 @@
       text-align: left;
       padding: 0;
 
-      &:hover { color: var(--cta); }
+      &:hover {
+        color: var(--cta);
+      }
     }
 
     button {
@@ -288,7 +301,7 @@
 
     hr {
       border: none;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
       margin: 0.25rem 0;
     }
   }
@@ -322,7 +335,7 @@
     background: linear-gradient(
       160deg,
       rgba(5, 36, 24, 0.88) 0%,
-      rgba(11, 61, 40, 0.80) 40%,
+      rgba(11, 61, 40, 0.8) 40%,
       rgba(15, 96, 64, 0.65) 100%
     );
   }
@@ -360,7 +373,7 @@
 
   &__sub {
     font-size: 1.1rem;
-    color: rgba(255,255,255,0.78);
+    color: rgba(255, 255, 255, 0.78);
     max-width: 560px;
     line-height: 1.7;
     margin-bottom: 2.5rem;
@@ -372,7 +385,7 @@
 .lp-search {
   background: #fff;
   border-radius: var(--radius-xl);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   max-width: 800px;
   overflow: hidden;
   animation: lp-fade-up 1.2s ease both;
@@ -413,7 +426,9 @@
     align-items: stretch;
     gap: 0;
 
-    @media (max-width: 700px) { flex-direction: column; }
+    @media (max-width: 700px) {
+      flex-direction: column;
+    }
   }
 
   &__field {
@@ -426,10 +441,16 @@
     cursor: text;
     transition: background 0.15s;
 
-    &:hover { background: var(--surface-2); }
+    &:hover {
+      background: var(--surface-2);
+    }
 
-    &--location { flex: 2; }
-    &--type     { flex: 1; }
+    &--location {
+      flex: 2;
+    }
+    &--type {
+      flex: 1;
+    }
 
     @media (max-width: 700px) {
       border-right: none;
@@ -456,7 +477,8 @@
       letter-spacing: 0.07em;
     }
 
-    input, select {
+    input,
+    select {
       border: none;
       background: transparent;
       font-size: 0.95rem;
@@ -465,11 +487,18 @@
       box-shadow: none;
       width: 100%;
 
-      &:focus { box-shadow: none; border: none; }
-      &::placeholder { color: var(--text-muted); }
+      &:focus {
+        box-shadow: none;
+        border: none;
+      }
+      &::placeholder {
+        color: var(--text-muted);
+      }
     }
 
-    select { cursor: pointer; }
+    select {
+      cursor: pointer;
+    }
   }
 
   &__btn {
@@ -493,7 +522,9 @@
       transform: none;
     }
 
-    svg { flex-shrink: 0; }
+    svg {
+      flex-shrink: 0;
+    }
 
     @media (max-width: 700px) {
       padding: 1rem;
@@ -525,7 +556,9 @@
     color: var(--text-secondary);
     font-weight: 500;
 
-    strong { color: var(--text); }
+    strong {
+      color: var(--text);
+    }
   }
 }
 
@@ -588,7 +621,9 @@
     white-space: nowrap;
   }
 
-  &:hover &__label { color: var(--primary); }
+  &:hover &__label {
+    color: var(--primary);
+  }
 }
 
 // ── Featured Listings ─────────────────────────────────────────
@@ -672,7 +707,9 @@
       transition: transform 0.4s ease;
     }
 
-    &:hover img { transform: scale(1.04); }
+    &:hover img {
+      transform: scale(1.04);
+    }
   }
 
   &__badge {
@@ -687,9 +724,15 @@
     letter-spacing: 0.05em;
     color: #fff;
 
-    &--rent     { background: var(--primary-mid); }
-    &--sale     { background: var(--primary); }
-    &--shortlet { background: #6d28d9; }
+    &--rent {
+      background: var(--primary-mid);
+    }
+    &--sale {
+      background: var(--primary);
+    }
+    &--shortlet {
+      background: #6d28d9;
+    }
   }
 
   &__save {
@@ -698,7 +741,7 @@
     right: 10px;
     width: 34px;
     height: 34px;
-    background: rgba(255,255,255,0.92);
+    background: rgba(255, 255, 255, 0.92);
     border: none;
     border-radius: var(--radius-full);
     font-size: 1rem;
@@ -709,8 +752,12 @@
     backdrop-filter: blur(4px);
     transition: transform 0.2s;
 
-    &:hover { transform: scale(1.15); }
-    &.saved { background: rgba(255,255,255,1); }
+    &:hover {
+      transform: scale(1.15);
+    }
+    &.saved {
+      background: rgba(255, 255, 255, 1);
+    }
   }
 
   &__body {
@@ -777,8 +824,12 @@
     font-size: 0.82rem;
     color: var(--text-secondary);
 
-    strong { color: var(--text); }
-    span   { color: var(--text-muted); }
+    strong {
+      color: var(--text);
+    }
+    span {
+      color: var(--text-muted);
+    }
   }
 }
 
@@ -811,8 +862,12 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 1.25rem;
 
-    @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 500px) { grid-template-columns: 1fr; }
+    @media (max-width: 900px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 500px) {
+      grid-template-columns: 1fr;
+    }
   }
 }
 
@@ -830,7 +885,9 @@
     transition: transform 0.4s ease;
   }
 
-  &:hover img { transform: scale(1.06); }
+  &:hover img {
+    transform: scale(1.06);
+  }
 
   &__overlay {
     position: absolute;
@@ -844,7 +901,9 @@
     transition: opacity 0.3s;
   }
 
-  &:hover &__overlay { opacity: 0.9; }
+  &:hover &__overlay {
+    opacity: 0.9;
+  }
 
   &__info {
     position: absolute;
@@ -997,7 +1056,7 @@
   text-align: center;
 
   .lp-tag {
-    background: rgba(196,229,60,0.15);
+    background: rgba(196, 229, 60, 0.15);
     color: var(--cta);
   }
 
@@ -1044,7 +1103,7 @@
     font-size: 1rem;
     font-weight: 900;
     margin: 0 auto 1rem;
-    border: 3px solid rgba(255,255,255,0.15);
+    border: 3px solid rgba(255, 255, 255, 0.15);
   }
 
   &__icon {
@@ -1061,7 +1120,7 @@
 
   p {
     font-size: 0.87rem;
-    color: rgba(255,255,255,0.65);
+    color: rgba(255, 255, 255, 0.65);
     line-height: 1.65;
   }
 
@@ -1074,7 +1133,9 @@
     z-index: 2;
     font-weight: 700;
 
-    @media (max-width: 768px) { display: none; }
+    @media (max-width: 768px) {
+      display: none;
+    }
   }
 }
 
@@ -1176,9 +1237,11 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image:
-      linear-gradient(rgba(196,229,60,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(196,229,60,0.04) 1px, transparent 1px);
+    background-image: linear-gradient(
+        rgba(196, 229, 60, 0.04) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(196, 229, 60, 0.04) 1px, transparent 1px);
     background-size: 60px 60px;
   }
 
@@ -1199,7 +1262,7 @@
 
     p {
       font-size: 1.05rem;
-      color: rgba(255,255,255,0.75);
+      color: rgba(255, 255, 255, 0.75);
       margin-bottom: 2.25rem;
       line-height: 1.7;
     }
@@ -1219,15 +1282,15 @@
     justify-content: center;
     flex-wrap: wrap;
     font-size: 0.875rem;
-    color: rgba(255,255,255,0.6);
+    color: rgba(255, 255, 255, 0.6);
     font-weight: 500;
   }
 }
 
 // ── Footer ───────────────────────────────────────────────────
 .lp-footer {
-  background: #051F17;
-  color: rgba(255,255,255,0.65);
+  background: #051f17;
+  color: rgba(255, 255, 255, 0.65);
   padding: 4rem 2rem 2rem;
 
   &__inner {
@@ -1238,15 +1301,20 @@
     gap: 3rem;
     margin-bottom: 3rem;
 
-    @media (max-width: 1024px) { grid-template-columns: 2fr 1fr 1fr; }
-    @media (max-width: 600px)  { grid-template-columns: 1fr; gap: 2rem; }
+    @media (max-width: 1024px) {
+      grid-template-columns: 2fr 1fr 1fr;
+    }
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
   }
 
   &__brand {
     p {
       font-size: 0.9rem;
       line-height: 1.7;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255, 255, 255, 0.5);
       margin: 0.85rem 0 1.5rem;
       max-width: 280px;
     }
@@ -1279,19 +1347,19 @@
   &__social {
     width: 36px;
     height: 36px;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255,255,255,0.6);
+    color: rgba(255, 255, 255, 0.6);
     font-size: 0.9rem;
     text-decoration: none;
     transition: all 0.2s;
 
     &:hover {
-      background: rgba(196,229,60,0.15);
+      background: rgba(196, 229, 60, 0.15);
       border-color: var(--cta);
       color: var(--cta);
     }
@@ -1309,14 +1377,16 @@
 
     a {
       display: block;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255, 255, 255, 0.5);
       font-size: 0.875rem;
       margin-bottom: 0.6rem;
       text-decoration: none;
       cursor: pointer;
       transition: color 0.2s;
 
-      &:hover { color: var(--cta); }
+      &:hover {
+        color: var(--cta);
+      }
     }
   }
 
@@ -1324,7 +1394,7 @@
     max-width: 1400px;
     margin: 0 auto;
     padding-top: 2rem;
-    border-top: 1px solid rgba(255,255,255,0.07);
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
@@ -1332,15 +1402,21 @@
 
     p {
       font-size: 0.82rem;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255, 255, 255, 0.35);
     }
   }
 }
 
 // ── Animations ───────────────────────────────────────────────
 @keyframes lp-fade-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // ── Responsive ───────────────────────────────────────────────
@@ -1350,7 +1426,9 @@
     min-height: 90vh;
   }
 
-  .lp-artisan__inner { gap: 2.5rem; }
+  .lp-artisan__inner {
+    gap: 2.5rem;
+  }
 
   .lp-hiw__steps {
     gap: 2rem;
@@ -1358,7 +1436,12 @@
     align-items: center;
   }
 
-  .lp-step { max-width: 100%; }
+  .lp-step {
+    max-width: 100%;
+  }
 
-  .lp-cta__btns { flex-direction: column; align-items: center; }
+  .lp-cta__btns {
+    flex-direction: column;
+    align-items: center;
+  }
 }
