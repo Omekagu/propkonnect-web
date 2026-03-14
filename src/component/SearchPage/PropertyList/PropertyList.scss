@@ -45,7 +45,7 @@
       background: transparent;
       border: 1px solid rgba(2, 2, 2, 0.4);
       color: #000;
-      border-radius: 50%;
+      border-radius: var(--radius-full);
       width: 38px;
       height: 38px;
       display: flex;
@@ -113,7 +113,7 @@
         font-size: 0.8rem;
         font-weight: 600;
         text-transform: uppercase;
-        color: #fff;
+        color: var(--color-surface);
 
         &.sale {
           background: linear-gradient(90deg, #c9a96e, #a87842);
@@ -159,9 +159,9 @@
         .details-btn {
           background: linear-gradient(90deg, #c9a96e, #c9a96e);
           border: none;
-          border-radius: 8px;
+          border-radius: var(--radius-sm);
           padding: 0.6rem 1.2rem;
-          color: #fff;
+          color: var(--color-surface);
           font-weight: 600;
           transition: all 0.3s ease;
 

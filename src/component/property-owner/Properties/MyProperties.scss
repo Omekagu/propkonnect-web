@@ -5,44 +5,104 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 
-/* ── CSS VARIABLES ─────────────────────────────────────────────────────── */
-:root {
-  --mp-canvas: #0e0f13;
-  --mp-surface: #15171d;
-  --mp-surface-2: #1c1f28;
-  --mp-white: #222639;
-  --mp-border: rgba(255, 255, 255, 0.07);
-  --mp-border-soft: rgba(255, 255, 255, 0.04);
+/* ── CSS VARIABLES (scoped — inherits globals from index.scss) ─────────── */
+.mp-page {
+  // Light mode: mapped to global PropNect design tokens
+  --mp-canvas:    var(--color-background);
+  --mp-surface:   var(--color-surface-hover);
+  --mp-surface-2: var(--color-surface-hover);
+  --mp-white:     var(--color-surface);
+  --mp-border:      var(--color-border);
+  --mp-border-soft: var(--color-border-light);
 
-  --mp-slate: #e8eaf0;
+  --mp-slate:   var(--color-text-primary);
+  --mp-slate-2: var(--color-text-secondary);
+  --mp-slate-3: var(--color-text-muted);
+  --mp-muted:   var(--color-text-muted);
+  --mp-muted-2: var(--color-text-muted);
+
+  --mp-amber:       var(--color-primary);
+  --mp-amber-light: var(--color-primary-mid);
+  --mp-amber-soft:  var(--color-primary-subtle);
+  --mp-amber-glow:  var(--color-primary-light);
+
+  --mp-green:       var(--color-success);
+  --mp-green-soft:  var(--color-success-bg);
+  --mp-red:         var(--color-error);
+  --mp-red-soft:    var(--color-error-bg);
+  --mp-blue:        var(--color-primary-mid);
+  --mp-blue-soft:   var(--color-primary-subtle);
+  --mp-purple:      var(--color-accent);
+  --mp-purple-soft: rgba(196, 229, 60, 0.12);
+
+  --mp-radius:    var(--radius-lg);
+  --mp-radius-sm: var(--radius-md);
+  --mp-radius-xs: var(--radius-sm);
+  --mp-ease:        cubic-bezier(0.22, 1, 0.36, 1);
+  --mp-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --mp-shadow:       var(--shadow-sm);
+  --mp-shadow-lg:    var(--shadow-lg);
+  --mp-shadow-amber: 0 8px 24px rgba(11, 61, 40, 0.2);
+}
+
+/* Dark mode — restore original dark / gold editorial aesthetic */
+@media (prefers-color-scheme: dark) {
+  .mp-page {
+    --mp-canvas:    #0e0f13;
+    --mp-surface:   #15171d;
+    --mp-surface-2: #1c1f28;
+    --mp-white:     #222639;
+    --mp-border:      rgba(255, 255, 255, 0.07);
+    --mp-border-soft: rgba(255, 255, 255, 0.04);
+    --mp-slate:   #e8eaf0;
+    --mp-slate-2: #c8cad6;
+    --mp-slate-3: #8890a8;
+    --mp-muted:   #6a7290;
+    --mp-muted-2: #4e5470;
+    --mp-amber:       #c9a96e;
+    --mp-amber-light: #e2c89a;
+    --mp-amber-soft:  rgba(201, 169, 110, 0.1);
+    --mp-amber-glow:  rgba(201, 169, 110, 0.18);
+    --mp-green:      #5bcfb0;
+    --mp-green-soft: rgba(91, 207, 176, 0.1);
+    --mp-red:        #e05b5b;
+    --mp-red-soft:   rgba(224, 91, 91, 0.08);
+    --mp-blue:       #4facfe;
+    --mp-blue-soft:  rgba(79, 172, 254, 0.1);
+    --mp-purple:     #a78bfa;
+    --mp-purple-soft: rgba(167, 139, 250, 0.1);
+    --mp-shadow:       0 2px 16px rgba(0, 0, 0, 0.2), 0 1px 4px rgba(0, 0, 0, 0.1);
+    --mp-shadow-lg:    0 12px 48px rgba(0, 0, 0, 0.28), 0 4px 16px rgba(0, 0, 0, 0.14);
+    --mp-shadow-amber: 0 8px 24px rgba(201, 133, 58, 0.25);
+  }
+}
+
+html[data-theme="dark"] .mp-page {
+  --mp-canvas:    #0e0f13;
+  --mp-surface:   #15171d;
+  --mp-surface-2: #1c1f28;
+  --mp-white:     #222639;
+  --mp-border:      rgba(255, 255, 255, 0.07);
+  --mp-border-soft: rgba(255, 255, 255, 0.04);
+  --mp-slate:   #e8eaf0;
   --mp-slate-2: #c8cad6;
   --mp-slate-3: #8890a8;
-  --mp-muted: #6a7290;
+  --mp-muted:   #6a7290;
   --mp-muted-2: #4e5470;
-
-  --mp-amber: #c9a96e;
+  --mp-amber:       #c9a96e;
   --mp-amber-light: #e2c89a;
-  --mp-amber-soft: rgba(201, 169, 110, 0.1);
-  --mp-amber-glow: rgba(201, 169, 110, 0.18);
-
-  --mp-green: #5bcfb0;
+  --mp-amber-soft:  rgba(201, 169, 110, 0.1);
+  --mp-amber-glow:  rgba(201, 169, 110, 0.18);
+  --mp-green:      #5bcfb0;
   --mp-green-soft: rgba(91, 207, 176, 0.1);
-  --mp-red: #e05b5b;
-  --mp-red-soft: rgba(224, 91, 91, 0.08);
-  --mp-blue: #4facfe;
-  --mp-blue-soft: rgba(79, 172, 254, 0.1);
-  --mp-purple: #a78bfa;
+  --mp-red:        #e05b5b;
+  --mp-red-soft:   rgba(224, 91, 91, 0.08);
+  --mp-blue:       #4facfe;
+  --mp-blue-soft:  rgba(79, 172, 254, 0.1);
+  --mp-purple:     #a78bfa;
   --mp-purple-soft: rgba(167, 139, 250, 0.1);
-
-  --mp-radius: 16px;
-  --mp-radius-sm: 10px;
-  --mp-radius-xs: 6px;
-  --mp-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --mp-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --mp-shadow: 0 2px 16px rgba(30, 28, 22, 0.06),
-    0 1px 4px rgba(30, 28, 22, 0.04);
-  --mp-shadow-lg: 0 12px 48px rgba(30, 28, 22, 0.1),
-    0 4px 16px rgba(30, 28, 22, 0.06);
+  --mp-shadow:       0 2px 16px rgba(0, 0, 0, 0.2), 0 1px 4px rgba(0, 0, 0, 0.1);
+  --mp-shadow-lg:    0 12px 48px rgba(0, 0, 0, 0.28), 0 4px 16px rgba(0, 0, 0, 0.14);
   --mp-shadow-amber: 0 8px 24px rgba(201, 133, 58, 0.25);
 }
 

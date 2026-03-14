@@ -37,7 +37,7 @@
         font-size: 2rem;
         font-weight: 800;
         margin-bottom: 0.25rem;
-        background: linear-gradient(135deg, var(--color-primary) 0%, #6366f1 100%);
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -74,7 +74,7 @@
 
       .btn-primary {
         padding: 0.7rem 1.25rem;
-        background: linear-gradient(135deg, var(--color-primary) 0%, #6366f1 100%);
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
         border: none;
         border-radius: var(--radius-md);
         color: var(--color-surface);
@@ -85,11 +85,11 @@
         align-items: center;
         gap: 0.5rem;
         transition: var(--transition);
-        box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
+        box-shadow: 0 2px 8px rgba(11, 61, 40, 0.25);
 
         &:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(29, 78, 216, 0.35);
+          box-shadow: 0 6px 16px rgba(11, 61, 40, 0.3);
         }
       }
     }
@@ -150,9 +150,9 @@
 
     &.total  { color: var(--color-primary-mid); }
     &.active { color: var(--color-success); }
-    &.verified { color: #0ea5e9; }
+    &.verified { color: var(--color-success); }
     &.artisans { color: var(--color-warning); }
-    &.owners   { color: #8b5cf6; }
+    &.owners   { color: var(--color-primary-mid); }
   }
 }
 
@@ -194,7 +194,7 @@
         outline: none;
         background: var(--color-surface);
         border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+        box-shadow: 0 0 0 3px var(--color-primary-subtle);
       }
     }
   }
@@ -292,7 +292,7 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--color-primary), #6366f1);
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-mid));
     opacity: 0;
     transition: opacity 0.25s ease;
   }
@@ -321,7 +321,7 @@
         width: 52px;
         height: 52px;
         border-radius: var(--radius-md);
-        background: linear-gradient(135deg, var(--color-primary) 0%, #6366f1 100%);
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -402,7 +402,7 @@
       }
 
       .type-badge {
-        &.owner    { background: #fdf4ff; color: #7c3aed; }
+        &.owner    { background: var(--color-primary-light); color: var(--color-primary); }
         &.artisan  { background: #fffbeb; color: var(--color-accent-dark); }
         &.user     { background: var(--color-primary-light); color: var(--color-primary-mid); }
       }
@@ -463,9 +463,9 @@
       &:hover { transform: translateY(-1px); }
 
       &.verify:hover {
-        border-color: #0ea5e9;
-        color: #0ea5e9;
-        background: #f0f9ff;
+        border-color: var(--color-success);
+        color: var(--color-success);
+        background: var(--color-success-bg);
       }
 
       &.edit:hover {
@@ -682,7 +682,7 @@
             outline: none;
             background: var(--color-surface);
             border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+            box-shadow: 0 0 0 3px var(--color-primary-subtle);
           }
 
           &:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -718,15 +718,15 @@
     }
 
     .btn-submit, .btn-edit {
-      background: linear-gradient(135deg, var(--color-primary), #6366f1);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-mid));
       color: var(--color-surface);
-      &:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(29,78,216,0.3); }
+      &:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(11, 61, 40, 0.3); }
     }
 
     .btn-verify {
-      background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+      background: linear-gradient(135deg, var(--color-success), #059669);
       color: var(--color-surface);
-      &:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(14,165,233,0.3); }
+      &:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
     }
 
     .btn-delete {

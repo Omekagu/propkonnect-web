@@ -3,18 +3,18 @@
    ======================================== */
 
 // Variables
-$primary-color: #1d4ed8;
-$secondary-color: #64748b;
-$success-color: #10b981;
-$danger-color: #ef4444;
-$warning-color: #f59e0b;
+$primary-color: var(--color-primary);
+$secondary-color: var(--color-text-muted);
+$success-color: var(--color-success);
+$danger-color: var(--color-error);
+$warning-color: var(--color-warning);
 $info-color: #0ea5e9;
 
-$light-bg: #f8fafc;
-$white: #ffffff;
-$text-dark: #1e293b;
-$text-muted: #64748b;
-$border-color: #e2e8f0;
+$light-bg: var(--color-surface-hover);
+$white: var(--color-surface);
+$text-dark: var(--color-text-primary);
+$text-muted: var(--color-text-muted);
+$border-color: var(--color-border);
 
 $spacing-xs: 0.25rem;
 $spacing-sm: 0.5rem;
@@ -55,15 +55,15 @@ $transition: all 0.3s ease;
   animation: slideDown 0.3s ease-in-out;
 
   &.alert-danger {
-    background-color: #fef2f2;
+    background-color: var(--color-error-bg);
     color: #991b1b;
-    border: 1px solid #fecaca;
+    border: 1px solid var(--color-error-bg);
   }
 
   &.alert-success {
-    background-color: #f0fdf4;
+    background-color: var(--color-success-bg);
     color: #166534;
-    border: 1px solid #bbf7d0;
+    border: 1px solid var(--color-success-bg);
   }
 
   strong {
@@ -193,7 +193,7 @@ $transition: all 0.3s ease;
       &:focus {
         outline: none;
         border-color: $primary-color;
-        box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+        box-shadow: 0 0 0 3px rgba(0, 53, 128, 0.1);
       }
     }
 
@@ -219,12 +219,12 @@ $transition: all 0.3s ease;
     &:focus {
       outline: none;
       border-color: $primary-color;
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+      box-shadow: 0 0 0 3px rgba(0, 53, 128, 0.1);
     }
   }
 
   .bulk-actions {
-    background-color: #eff6ff;
+    background-color: var(--color-primary-light);
     border: 1px solid #bfdbfe;
     padding: $spacing-lg;
     border-radius: $border-radius;
@@ -332,7 +332,7 @@ $transition: all 0.3s ease;
       }
 
       &.selected {
-        background-color: #eff6ff;
+        background-color: var(--color-primary-light);
       }
 
       td {
@@ -356,7 +356,7 @@ $transition: all 0.3s ease;
     .avatar {
       width: 40px;
       height: 40px;
-      border-radius: 50%;
+      border-radius: var(--radius-full);
       object-fit: cover;
     }
   }
@@ -366,7 +366,7 @@ $transition: all 0.3s ease;
     background-color: $light-bg;
     color: $primary-color;
     padding: $spacing-xs $spacing-md;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     font-size: 0.85rem;
     font-weight: 500;
   }
@@ -374,17 +374,17 @@ $transition: all 0.3s ease;
   .status-badge {
     display: inline-block;
     padding: $spacing-xs $spacing-md;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     font-size: 0.85rem;
     font-weight: 600;
 
     &.verified {
-      background-color: #dcfce7;
-      color: #15803d;
+      background-color: var(--color-success-bg);
+      color: var(--color-success);
     }
 
     &.unverified {
-      background-color: #fef3c7;
+      background-color: var(--color-warning-bg);
       color: #92400e;
     }
   }
@@ -484,7 +484,7 @@ $transition: all 0.3s ease;
     color: $white;
 
     &:hover {
-      background-color: #d97706;
+      background-color: var(--color-warning);
     }
   }
 
@@ -493,17 +493,17 @@ $transition: all 0.3s ease;
     color: $white;
 
     &:hover {
-      background-color: #dc2626;
+      background-color: var(--color-error);
     }
   }
 
   &.btn-secondary {
-    background-color: #f1f5f9;
+    background-color: var(--color-surface-hover);
     color: $text-dark;
     border: 1px solid $border-color;
 
     &:hover {
-      background-color: #e2e8f0;
+      background-color: var(--color-border);
     }
   }
 }
@@ -600,7 +600,7 @@ $transition: all 0.3s ease;
   }
 
   .modal-avatar-placeholder {
-    background: linear-gradient(135deg, $primary-color 0%, #1e40af 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     color: $white;
     font-size: 2.5rem;
     font-weight: 700;
@@ -693,7 +693,7 @@ $transition: all 0.3s ease;
       background-color: $light-bg;
       color: $primary-color;
       padding: $spacing-sm $spacing-lg;
-      border-radius: 20px;
+      border-radius: var(--radius-xl);
       font-size: 0.9rem;
       font-weight: 500;
       border: 1px solid $border-color;

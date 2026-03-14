@@ -1,28 +1,17 @@
-:root {
-  --bg: #0e0f13;
-  --card: #15171d;
-  --muted: #8890a8;
-  --accent: #c9a96e;
-  --accent-2: #e2c89a;
-  --glass: rgba(201, 169, 110, 0.06);
-  --radius: 14px;
-  --shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-  --text: #e8eaf0;
-  --max-width: 1200px;
-  --glass-border: 1px solid rgba(201, 169, 110, 0.1);
-}
-
-/* Reset container */
+/* Reset container — inherits global design tokens */
 .property-details.modern {
-  background: linear-gradient(180deg, var(--bg), #fff);
+  --pd-max-width: 1200px;
+  --pd-glass-border: 1px solid var(--color-border-light);
+
+  background: var(--color-background);
   min-height: 100vh;
-  color: var(--text);
+  color: var(--color-text-primary);
   padding: 32px;
 }
 
 /* HERO */
 .hero {
-  max-width: var(--max-width);
+  max-width: var(--pd-max-width);
   margin: 0 auto 20px;
   border-radius: var(--radius);
   overflow: hidden;
@@ -33,7 +22,7 @@
     rgba(255, 255, 255, 0.6),
     rgba(255, 255, 255, 0.4)
   );
-  border: var(--glass-border);
+  border: var(--pd-glass-border);
 }
 
 .hero-media {
@@ -135,7 +124,7 @@
   align-items: center;
 }
 .btn.primary {
-  background: var(--accent);
+  background: var(--color-primary);
   color: #fff;
   box-shadow: 0 8px 24px rgba(14, 169, 160, 0.12);
 }
@@ -180,12 +169,12 @@
 .thumb.active {
   box-shadow: 0 6px 18px rgba(2, 6, 23, 0.08);
   transform: translateY(-6px);
-  border-color: var(--accent-2);
+  border-color: var(--color-border);
 }
 
 /* layout */
 .content {
-  max-width: var(--max-width);
+  max-width: var(--pd-max-width);
   margin: 18px auto 48px;
   display: grid;
   grid-template-columns: 1fr 360px;
@@ -210,7 +199,7 @@
 
 /* overview */
 .overview .lead {
-  color: var(--muted);
+  color: var(--color-text-muted);
   line-height: 1.6;
 }
 .feature-row {
@@ -271,7 +260,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: var(--muted);
+  color: var(--color-text-muted);
   background: linear-gradient(180deg, #00000012, #00000006);
 }
 
@@ -320,7 +309,7 @@
   font-size: 22px;
 }
 .price-sub {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 
@@ -330,7 +319,7 @@
   margin-top: 8px;
   font-weight: 700;
   font-size: 13px;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 .booking-form input[type='date'],
 .booking-form input[type='number'],
@@ -471,7 +460,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  max-width: var(--max-width);
+  max-width: var(--pd-max-width);
   margin: 0 auto;
 }
 .s-card {
@@ -515,7 +504,7 @@
 
 /* ── Similar Properties ─────────────────────────────────────────────────── */
 .similar-section {
-  max-width: var(--max-width);
+  max-width: var(--pd-max-width);
   margin: 48px auto 0;
   padding: 0 20px;
 }
@@ -534,7 +523,7 @@
 }
 .similar-card {
   background: var(--card);
-  border: var(--glass-border);
+  border: var(--pd-glass-border);
   border-radius: var(--radius);
   overflow: hidden;
   text-decoration: none;
@@ -572,7 +561,7 @@
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--muted);
+  color: var(--color-text-muted);
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;

@@ -15,51 +15,44 @@
 // ── CSS Custom Properties (Design Tokens) ────────────────────
 :root {
 
-  // ── Brand — Primary Blue ────────────────────────────────────
-  --color-primary:        #1d4ed8;
-  --color-primary-mid:    #2563eb;
-  --color-primary-light:  #eff6ff;
-  --color-primary-dark:   #1e40af;
-  --color-primary-subtle: rgba(37, 99, 235, 0.08);
+  // ── Brand — PropNect Forest Green ───────────────────────────
+  --color-primary:        #0B3D28;
+  --color-primary-mid:    #0F6040;
+  --color-primary-light:  #E8F5EE;
+  --color-primary-dark:   #052418;
+  --color-primary-subtle: rgba(11, 61, 40, 0.08);
 
   // Legacy aliases
-  --primary:              #1d4ed8;
-  --primary-mid:          #2563eb;
-  --primary-light:        #eff6ff;
-  --primary-hover:        #1e40af;
+  --primary:              #0B3D28;
+  --primary-mid:          #0F6040;
+  --primary-light:        #E8F5EE;
+  --primary-hover:        #052418;
 
-  --color-primary-mid:    #0071c2;
-  --color-primary-light:  #e8f3ff;
-  --color-primary-dark:   #00224f;
-  --color-primary-subtle: rgba(0, 113, 194, 0.08);
-
-  // (legacy aliases defined above with primary colors)
-
-  // ── Accent / CTA — Amber ────────────────────────────────────
-  --color-accent:         #f5a623;
-  --color-accent-light:   #fbbf45;
-  --color-accent-dark:    #e09515;
-  --color-accent-subtle:  rgba(245, 166, 35, 0.1);
+  // ── Accent / CTA — PropNect Lime ────────────────────────────
+  --color-accent:         #C4E53C;
+  --color-accent-light:   #D4F04C;
+  --color-accent-dark:    #A8CC28;
+  --color-accent-subtle:  rgba(196, 229, 60, 0.15);
 
   // Legacy aliases
-  --cta:                  #f5a623;
-  --cta-hover:            #e09515;
-  --cta-text:             #1a1a2e;
-  --accent:               #f5a623;
+  --cta:                  #C4E53C;
+  --cta-hover:            #A8CC28;
+  --cta-text:             #0B3D28;
+  --accent:               #C4E53C;
 
   // ── Neutral Background ───────────────────────────────────────
-  --color-background:     #f2f6fb;
+  --color-background:     #F5F8F2;
   --color-surface:        #ffffff;
-  --color-surface-hover:  #f7f9fc;
-  --color-border:         #dce3ee;
-  --color-border-light:   #eef2f8;
+  --color-surface-hover:  #F0F5EC;
+  --color-border:         #D5E2D0;
+  --color-border-light:   #EAF2E6;
 
   // Legacy aliases
-  --bg:                   #f2f6fb;
+  --bg:                   #F5F8F2;
   --surface:              #ffffff;
-  --surface-2:            #f7f9fc;
-  --border:               #dce3ee;
-  --border-light:         #eef2f8;
+  --surface-2:            #F0F5EC;
+  --border:               #D5E2D0;
+  --border-light:         #EAF2E6;
 
   // ── Text ────────────────────────────────────────────────────
   --color-text-primary:   #1a1a2e;
@@ -77,12 +70,12 @@
   --color-success:        #00875a;
   --color-warning:        #f59e0b;
   --color-error:          #cc0000;
-  --color-info:           #0071c2;
+  --color-info:           #0F6040;
 
   --color-success-bg:     #e3f5ee;
   --color-warning-bg:     #fef3c7;
   --color-error-bg:       #fee2e2;
-  --color-info-bg:        #e8f3ff;
+  --color-info-bg:        #E8F5EE;
 
   // Legacy aliases
   --success:              #00875a;
@@ -91,16 +84,16 @@
   --warning-bg:           #fef3c7;
   --error:                #cc0000;
   --error-bg:             #fee2e2;
-  --info:                 #0071c2;
-  --info-bg:              #e8f3ff;
+  --info:                 #0F6040;
+  --info-bg:              #E8F5EE;
 
   // ── Gradients ────────────────────────────────────────────────
-  --gradient-brand:       linear-gradient(135deg, #003580 0%, #0071c2 100%);
-  --gradient-mid:         linear-gradient(135deg, #0071c2 0%, #00a8e8 100%);
-  --gradient-hero:        linear-gradient(160deg, #003580 0%, #005ea6 50%, #0071c2 100%);
-  --gradient-amber:       linear-gradient(135deg, #f5a623 0%, #fbbf45 100%);
-  --gradient-1:           linear-gradient(135deg, #003580 0%, #0071c2 100%);
-  --gradient-2:           linear-gradient(135deg, #0071c2 0%, #00a8e8 100%);
+  --gradient-brand:       linear-gradient(135deg, #0B3D28 0%, #0F6040 100%);
+  --gradient-mid:         linear-gradient(135deg, #0F6040 0%, #1A8055 100%);
+  --gradient-hero:        linear-gradient(160deg, #052418 0%, #0B3D28 50%, #0F6040 100%);
+  --gradient-lime:        linear-gradient(135deg, #C4E53C 0%, #D4F04C 100%);
+  --gradient-1:           linear-gradient(135deg, #0B3D28 0%, #0F6040 100%);
+  --gradient-2:           linear-gradient(135deg, #0F6040 0%, #1A8055 100%);
 
   // ── Typography ───────────────────────────────────────────────
   --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
@@ -187,12 +180,12 @@
   --radius-2xl:  28px;
   --radius-full: 9999px;
 
-  // ── Shadows (brand-tinted blue) ───────────────────────────────
-  --shadow-xs:   0 1px 3px rgba(0, 53, 128, 0.06);
-  --shadow-sm:   0 2px 8px rgba(0, 53, 128, 0.10);
-  --shadow-md:   0 4px 16px rgba(0, 53, 128, 0.12);
-  --shadow-lg:   0 8px 32px rgba(0, 53, 128, 0.15);
-  --shadow-xl:   0 16px 48px rgba(0, 53, 128, 0.18);
+  // ── Shadows (brand-tinted green) ─────────────────────────────
+  --shadow-xs:   0 1px 3px rgba(11, 61, 40, 0.06);
+  --shadow-sm:   0 2px 8px rgba(11, 61, 40, 0.10);
+  --shadow-md:   0 4px 16px rgba(11, 61, 40, 0.12);
+  --shadow-lg:   0 8px 32px rgba(11, 61, 40, 0.15);
+  --shadow-xl:   0 16px 48px rgba(11, 61, 40, 0.18);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.09), 0 1px 2px rgba(0, 0, 0, 0.05);
 
   // ── Transitions ──────────────────────────────────────────────
@@ -228,10 +221,10 @@
   --text-1:         #1a1a2e;    // was #e8eaf0 (inverted for dark mode)
   --text-2:         #4a5568;    // was #8890a8
   --text-3:         #94a3b8;    // was #4e5470
-  --secondary:      #1d4ed8;    // was #5bcfb0 teal → blue
-  --border-mid:     #dce3ee;    // was rgba(255,255,255,0.11)
-  --accent-muted:   rgba(29, 78, 216, 0.08);  // was amber rgba
-  --accent-glow:    rgba(29, 78, 216, 0.15);  // was amber rgba
+  --secondary:      #0B3D28;    // was #5bcfb0 teal → PropNect green
+  --border-mid:     #D5E2D0;    // was rgba(255,255,255,0.11)
+  --accent-muted:   rgba(196, 229, 60, 0.10);  // PropNect lime subtle
+  --accent-glow:    rgba(196, 229, 60, 0.20);  // PropNect lime glow
   --transition:     all 0.2s cubic-bezier(0.4, 0, 0.2, 1); // full shorthand
   --color-surface:  #ffffff;    // ensure not overridden by dark theme files
 }
@@ -383,21 +376,21 @@ img, video {
     --text-muted:     #64748b;
     --text-inverse:   #0f172a;
 
-    // Primary tints (blue is still vivid in dark)
-    --color-primary-light:  rgba(37, 99, 235, 0.15);
-    --color-primary-subtle: rgba(37, 99, 235, 0.10);
-    --primary-light: rgba(37, 99, 235, 0.15);
+    // Primary tints — PropNect green in dark
+    --color-primary-light:  rgba(15, 96, 64, 0.22);
+    --color-primary-subtle: rgba(15, 96, 64, 0.14);
+    --primary-light: rgba(15, 96, 64, 0.22);
 
     // Semantic bg tints
     --color-success-bg: rgba(0, 135, 90, 0.15);
     --color-warning-bg: rgba(245, 158, 11, 0.15);
     --color-error-bg:   rgba(239, 68, 68, 0.15);
-    --color-info-bg:    rgba(37, 99, 235, 0.15);
+    --color-info-bg:    rgba(15, 96, 64, 0.18);
 
     --success-bg: rgba(0, 135, 90, 0.15);
     --warning-bg: rgba(245, 158, 11, 0.15);
     --error-bg:   rgba(239, 68, 68, 0.15);
-    --info-bg:    rgba(37, 99, 235, 0.15);
+    --info-bg:    rgba(15, 96, 64, 0.18);
 
     // Shadows — deeper in dark
     --shadow-xs:   0 1px 3px rgba(0, 0, 0, 0.4);
@@ -428,8 +421,8 @@ img, video {
   ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
   ::selection {
-    background: rgba(37, 99, 235, 0.3);
-    color: #93c5fd;
+    background: rgba(15, 96, 64, 0.35);
+    color: #a7f3d0;
   }
 }
 
@@ -462,21 +455,21 @@ html[data-theme="dark"] {
     --text-muted:     #64748b;
     --text-inverse:   #0f172a;
 
-    // Primary tints (blue is still vivid in dark)
-    --color-primary-light:  rgba(37, 99, 235, 0.15);
-    --color-primary-subtle: rgba(37, 99, 235, 0.10);
-    --primary-light: rgba(37, 99, 235, 0.15);
+    // Primary tints — PropNect green in dark
+    --color-primary-light:  rgba(15, 96, 64, 0.22);
+    --color-primary-subtle: rgba(15, 96, 64, 0.14);
+    --primary-light: rgba(15, 96, 64, 0.22);
 
     // Semantic bg tints
     --color-success-bg: rgba(0, 135, 90, 0.15);
     --color-warning-bg: rgba(245, 158, 11, 0.15);
     --color-error-bg:   rgba(239, 68, 68, 0.15);
-    --color-info-bg:    rgba(37, 99, 235, 0.15);
+    --color-info-bg:    rgba(15, 96, 64, 0.18);
 
     --success-bg: rgba(0, 135, 90, 0.15);
     --warning-bg: rgba(245, 158, 11, 0.15);
     --error-bg:   rgba(239, 68, 68, 0.15);
-    --info-bg:    rgba(37, 99, 235, 0.15);
+    --info-bg:    rgba(15, 96, 64, 0.18);
 
     // Shadows — deeper in dark
     --shadow-xs:   0 1px 3px rgba(0, 0, 0, 0.4);
@@ -522,7 +515,7 @@ html[data-theme="dark"] {
   ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
   ::selection {
-    background: rgba(37, 99, 235, 0.3);
-    color: #93c5fd;
+    background: rgba(15, 96, 64, 0.35);
+    color: #a7f3d0;
   }
 }

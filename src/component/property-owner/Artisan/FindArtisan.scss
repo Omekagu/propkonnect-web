@@ -1,60 +1,39 @@
 
-// ─── Tokens ───────────────────────────────────────────────────────────────────
-:root {
-  --bg: #0e0f13;
-  --bg-card: #15171d;
-  --bg-raised: #1c1f28;
-  --bg-ov: rgba(0, 0, 0, 0.65);
+// ─── Tokens (scoped — inherits globals from index.scss) ───────────────────────
+.find-artisan,
+.find-artisan * {
+  --bg:        var(--color-background);
+  --bg-card:   var(--color-surface);
+  --bg-raised: var(--color-surface-hover);
+  --bg-ov:     rgba(0, 0, 0, 0.5);
 
-  --border: rgba(255, 255, 255, 0.07);
-  --border-md: rgba(255, 255, 255, 0.12);
+  --border:    var(--color-border);
+  --border-md: var(--color-border);
 
-  --ink-1: #e8eaf0;
-  --ink-2: #c8cad6;
-  --ink-3: #8890a8;
-  --ink-4: #4e5470;
+  --ink-1: var(--color-text-primary);
+  --ink-2: var(--color-text-secondary);
+  --ink-3: var(--color-text-muted);
+  --ink-4: var(--color-text-muted);
 
-  --brand: #c9a96e;
-  --brand-lt: rgba(201, 169, 110, 0.15);
-  --brand-dk: #a87842;
+  --brand:    var(--color-primary);
+  --brand-lt: var(--color-primary-subtle);
+  --brand-dk: var(--color-primary-dark);
 
-  --green: #5bcfb0;
-  --green-lt: rgba(91, 207, 176, 0.12);
-  --red: #e05b5b;
-  --red-lt: rgba(224, 91, 91, 0.12);
-  --amber: #f0b954;
-  --amber-lt: rgba(240, 185, 84, 0.12);
+  --green:    var(--color-success);
+  --green-lt: var(--color-success-bg);
+  --red:      var(--color-error);
+  --red-lt:   var(--color-error-bg);
+  --amber:    var(--color-warning);
+  --amber-lt: var(--color-warning-bg);
 
   --nav-w: 240px;
-  --r: 12px;
-  --r-sm: 8px;
-  --r-lg: 18px;
+  --r:     var(--radius-md);
+  --r-sm:  var(--radius-sm);
+  --r-lg:  var(--radius-lg);
 
-  --font: 'Sora', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', monospace;
-
-  --sh-sm: 0 1px 3px rgba(0, 0, 0, 0.07);
-  --sh: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --sh-lg: 0 12px 40px rgba(0, 0, 0, 0.14);
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-button {
-  cursor: pointer;
-  font-family: var(--font);
-  border: none;
-  background: none;
-}
-input,
-textarea {
-  font-family: var(--font);
+  --sh-sm: var(--shadow-xs);
+  --sh:    var(--shadow-sm);
+  --sh-lg: var(--shadow-lg);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
