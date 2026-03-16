@@ -2,7 +2,7 @@
 
 // ── Layout ────────────────────────────────────────────────────────────────────
 
-.support-admin-container {
+.SUPPORT_ADMIN-container {
   min-height: 100%;
   background: var(--color-background);
   color: var(--color-text-primary);
@@ -25,7 +25,11 @@
       font-size: 22px;
       font-weight: 800;
       margin: 0 0 4px;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-mid));
+      background: linear-gradient(
+        135deg,
+        var(--color-primary),
+        var(--color-primary-mid)
+      );
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -159,7 +163,9 @@
         box-shadow: 0 0 0 3px var(--color-primary-subtle);
       }
 
-      &::placeholder { color: var(--color-text-muted); }
+      &::placeholder {
+        color: var(--color-text-muted);
+      }
     }
   }
 
@@ -291,7 +297,9 @@
     align-items: flex-start;
     gap: 16px;
 
-    @media (max-width: 768px) { flex-direction: column; }
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
 
     h2 {
       margin: 0 0 4px;
@@ -312,7 +320,9 @@
       flex-wrap: wrap;
       justify-content: flex-end;
 
-      @media (max-width: 768px) { justify-content: flex-start; }
+      @media (max-width: 768px) {
+        justify-content: flex-start;
+      }
     }
   }
 
@@ -442,7 +452,9 @@
         box-shadow: 0 0 0 3px var(--color-primary-subtle);
       }
 
-      &::placeholder { color: var(--color-text-muted); }
+      &::placeholder {
+        color: var(--color-text-muted);
+      }
 
       &:disabled {
         background: var(--color-background);
@@ -456,7 +468,9 @@
       gap: 10px;
       margin-top: 10px;
 
-      @media (max-width: 480px) { flex-direction: column; }
+      @media (max-width: 480px) {
+        flex-direction: column;
+      }
     }
   }
 
@@ -567,8 +581,17 @@
 
 .tickets-list,
 .messages-container {
-  &::-webkit-scrollbar        { width: 4px; }
-  &::-webkit-scrollbar-track  { background: transparent; }
-  &::-webkit-scrollbar-thumb  { background: var(--color-border); border-radius: 2px; }
-  &::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+  }
 }

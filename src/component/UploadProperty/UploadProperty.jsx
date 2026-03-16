@@ -110,7 +110,10 @@ export default function UploadPropertyWizard ({
   const fileRef  = useRef(null)
   const dropRef  = useRef(null)
 
-  useEffect(() => () => { mounted.current = false }, [])
+  useEffect(() => {
+    mounted.current = true          // re-arm on every mount (fixes React Strict Mode double-invoke)
+    return () => { mounted.current = false }
+  }, [])
 
   // Load plan info on mount
   useEffect(() => {
@@ -192,7 +195,7 @@ export default function UploadPropertyWizard ({
       } catch (err) {
         flash(err.message || 'Failed to load', 'error')
       } finally {
-        if (mounted.current) setEditing(false)
+        setEditing(false)
       }
     }
     load()

@@ -84,7 +84,7 @@ export default function AdminLayout ({ children }) {
   useEffect(() => {
     if (!user) return
     const savedUserId = localStorage.getItem('ep_session_user')
-    const savedPage   = localStorage.getItem('ep_activePage')
+    const savedPage = localStorage.getItem('ep_activePage')
     if (savedUserId === String(user._id) && savedPage) {
       setActivePage(savedPage)
     } else {
@@ -119,11 +119,11 @@ export default function AdminLayout ({ children }) {
     }
   }, [isLoggedIn, isLoading, router])
 
-  // ✅ Read accountStatus + kycStatus — auto-open setup overlay for pending property-owners / artisans
+  // ✅ Read accountStatus + kycStatus — auto-open setup overlay for pending PROPERTY_OWNERs / artisans
   useEffect(() => {
     if (!user) return
     const status = user?.accountStatus
-    const gatedRoles = ['property-owner', 'artisan']
+    const gatedRoles = ['PROPERTY_OWNER', 'artisan']
     if (gatedRoles.includes(user?.role) && status && status !== 'active') {
       setAccountStatus(status)
       setShowAccountSetup(true) // immediately show setup flow, don't wait for banner click
@@ -318,8 +318,8 @@ export default function AdminLayout ({ children }) {
   const renderPage = () => {
     // Admin Roles (for main dashboard access)
     const adminRoles = [
-      'super-admin',
-      'sub-admin',
+      'SUPER_ADMIN',
+      'SUB_ADMIN',
       'property-admin',
       'artisan-admin',
       'sub-property-admin',
@@ -327,7 +327,7 @@ export default function AdminLayout ({ children }) {
     ]
 
     // Support ticket admin roles (ONLY these can access SupportTicketAdmin)
-    const supportAdminRoles = ['super-admin', 'support-admin']
+    const supportAdminRoles = ['SUPER_ADMIN', 'SUPPORT_ADMIN']
 
     const isAdmin = adminRoles.includes(userRole)
     const isSupportAdmin = supportAdminRoles.includes(userRole)
@@ -343,7 +343,7 @@ export default function AdminLayout ({ children }) {
       }
     }
 
-    // Help page - super-admin should see admin dashboard, not form
+    // Help page - SUPER_ADMIN should see admin dashboard, not form
     if (activePage === 'Help') {
       if (isSupportAdmin) {
         return <SupportTicketAdmin userRole={userRole} />
@@ -352,7 +352,7 @@ export default function AdminLayout ({ children }) {
       }
     }
 
-    // Create Ticket - super-admin should see admin dashboard, not form
+    // Create Ticket - SUPER_ADMIN should see admin dashboard, not form
     if (activePage === 'CreateTicket') {
       if (isSupportAdmin) {
         return <SupportTicketAdmin userRole={userRole} />
@@ -387,7 +387,7 @@ export default function AdminLayout ({ children }) {
         case 'Payments':
           return <Finance />
         case 'Payouts':
-          return <Finance initialTab="Payouts" />
+          return <Finance initialTab='Payouts' />
         case 'PaymentMethod':
           return <PaymentMethod />
         case 'Documents':
@@ -423,7 +423,10 @@ export default function AdminLayout ({ children }) {
             <KYCForm
               userRole={user?.role}
               existingKyc={user?.kyc}
-              onSuccess={() => { setKycStatus('pending'); setActivePage('Dashboard') }}
+              onSuccess={() => {
+                setKycStatus('pending')
+                setActivePage('Dashboard')
+              }}
             />
           )
         default:
@@ -432,10 +435,17 @@ export default function AdminLayout ({ children }) {
     }
 
     // Property Owner Pages
-    if (userRole === 'property-owner') {
+    if (userRole === 'PROPERTY_OWNER') {
       switch (activePage) {
         case 'Dashboard':
-          return <PropertyOwnerDashboard onRouteChange={page => { setActivePage(page); localStorage.setItem('ep_activePage', page) }} />
+          return (
+            <PropertyOwnerDashboard
+              onRouteChange={page => {
+                setActivePage(page)
+                localStorage.setItem('ep_activePage', page)
+              }}
+            />
+          )
         case 'MyProperties':
           return <MyProperties />
         case 'PropertyUpload':
@@ -459,7 +469,10 @@ export default function AdminLayout ({ children }) {
             <KYCForm
               userRole={user?.role}
               existingKyc={user?.kyc}
-              onSuccess={() => { setKycStatus('pending'); setActivePage('Dashboard') }}
+              onSuccess={() => {
+                setKycStatus('pending')
+                setActivePage('Dashboard')
+              }}
             />
           )
         default:
@@ -495,7 +508,10 @@ export default function AdminLayout ({ children }) {
             <KYCForm
               userRole={user?.role}
               existingKyc={user?.kyc}
-              onSuccess={() => { setKycStatus('pending'); setActivePage('Dashboard') }}
+              onSuccess={() => {
+                setKycStatus('pending')
+                setActivePage('Dashboard')
+              }}
             />
           )
         default:
@@ -531,7 +547,10 @@ export default function AdminLayout ({ children }) {
             <KYCForm
               userRole={user?.role}
               existingKyc={user?.kyc}
-              onSuccess={() => { setKycStatus('pending'); setActivePage('Dashboard') }}
+              onSuccess={() => {
+                setKycStatus('pending')
+                setActivePage('Dashboard')
+              }}
             />
           )
         default:
@@ -602,7 +621,10 @@ export default function AdminLayout ({ children }) {
         userRole={userRole}
         collapsed={sidebarCollapsed}
         mobileOpen={mobileSidebarOpen}
-        onRouteChange={page => { setActivePage(page); localStorage.setItem('ep_activePage', page) }}
+        onRouteChange={page => {
+          setActivePage(page)
+          localStorage.setItem('ep_activePage', page)
+        }}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         onToggleCollapse={() => setSidebarCollapsed(s => !s)}
         supportTicketCount={supportTicketCount}
@@ -626,26 +648,38 @@ export default function AdminLayout ({ children }) {
         />
 
         {/* KYC Banner — not submitted or rejected */}
-        {kycStatus && ['not_submitted', 'rejected'].includes(kycStatus) && activePage !== 'KYCVerification' && (
-          <div className='account-pending-banner account-pending-banner--kyc'>
-            <div className='apb-content'>
-              <span className='apb-icon'>{kycStatus === 'rejected' ? '⚠️' : '🪪'}</span>
-              <div>
-                <strong>
-                  {kycStatus === 'rejected' ? 'KYC Rejected — Resubmit Required' : 'Identity Verification Pending'}
-                </strong>
-                <span>
-                  {kycStatus === 'rejected'
-                    ? ' — Your documents were not accepted. Please resubmit with clearer images.'
-                    : ' — Verify your identity to unlock full platform features.'}
+        {kycStatus &&
+          ['not_submitted', 'rejected'].includes(kycStatus) &&
+          activePage !== 'KYCVerification' && (
+            <div className='account-pending-banner account-pending-banner--kyc'>
+              <div className='apb-content'>
+                <span className='apb-icon'>
+                  {kycStatus === 'rejected' ? '⚠️' : '🪪'}
                 </span>
+                <div>
+                  <strong>
+                    {kycStatus === 'rejected'
+                      ? 'KYC Rejected — Resubmit Required'
+                      : 'Identity Verification Pending'}
+                  </strong>
+                  <span>
+                    {kycStatus === 'rejected'
+                      ? ' — Your documents were not accepted. Please resubmit with clearer images.'
+                      : ' — Verify your identity to unlock full platform features.'}
+                  </span>
+                </div>
               </div>
+              <button
+                className='apb-btn'
+                onClick={() => {
+                  setActivePage('KYCVerification')
+                  localStorage.setItem('ep_activePage', 'KYCVerification')
+                }}
+              >
+                {kycStatus === 'rejected' ? 'Resubmit KYC →' : 'Verify Now →'}
+              </button>
             </div>
-            <button className='apb-btn' onClick={() => { setActivePage('KYCVerification'); localStorage.setItem('ep_activePage', 'KYCVerification') }}>
-              {kycStatus === 'rejected' ? 'Resubmit KYC →' : 'Verify Now →'}
-            </button>
-          </div>
-        )}
+          )}
 
         {/* KYC Under Review Banner */}
         {kycStatus === 'pending' && activePage !== 'KYCVerification' && (
@@ -654,7 +688,11 @@ export default function AdminLayout ({ children }) {
               <span className='apb-icon'>🔍</span>
               <div>
                 <strong>KYC Under Review</strong>
-                <span> — Your identity documents have been submitted and are being reviewed. We will notify you within 24–48 hours.</span>
+                <span>
+                  {' '}
+                  — Your identity documents have been submitted and are being
+                  reviewed. We will notify you within 24–48 hours.
+                </span>
               </div>
             </div>
           </div>
@@ -678,7 +716,10 @@ export default function AdminLayout ({ children }) {
                 </span>
               </div>
             </div>
-            <button className='apb-btn' onClick={() => setShowAccountSetup(true)}>
+            <button
+              className='apb-btn'
+              onClick={() => setShowAccountSetup(true)}
+            >
               Complete Setup →
             </button>
           </div>

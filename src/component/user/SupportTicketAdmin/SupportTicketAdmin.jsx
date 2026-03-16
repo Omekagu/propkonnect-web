@@ -15,7 +15,7 @@ export default function SupportTicketAdmin ({ userRole }) {
 
   // Check if user has permission to access admin dashboard
   useEffect(() => {
-    const supportAdminRoles = ['super-admin', 'support-admin']
+    const supportAdminRoles = ['SUPER_ADMIN', 'SUPPORT_ADMIN']
     if (!supportAdminRoles.includes(userRole)) {
       setUnauthorized(true)
     }
@@ -214,7 +214,7 @@ export default function SupportTicketAdmin ({ userRole }) {
   }
 
   return (
-    <div className='support-admin-container'>
+    <div className='SUPPORT_ADMIN-container'>
       {/* Error Alert */}
       {error && (
         <div className='error-alert'>

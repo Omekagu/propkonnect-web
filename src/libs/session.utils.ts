@@ -243,8 +243,8 @@ export const useSessionManager = (
 export const getSessionConfigByRole = (role: string): SessionConfig => {
   switch (role) {
     case 'admin':
-    case 'super-admin':
-    case 'sub-admin':
+    case 'SUPER_ADMIN':
+    case 'SUB_ADMIN':
     case 'property-admin':
       // Admins get longer sessions
       return EXTENDED_SESSION_CONFIG
@@ -255,7 +255,7 @@ export const getSessionConfigByRole = (role: string): SessionConfig => {
       return DEFAULT_SESSION_CONFIG
 
     case 'artisan':
-    case 'property-owner':
+    case 'PROPERTY_OWNER':
       // Artisans and property owners get standard sessions
       return DEFAULT_SESSION_CONFIG
 

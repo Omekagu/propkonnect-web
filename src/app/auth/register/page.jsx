@@ -6,7 +6,7 @@ import './register.scss'
 import axios from 'axios'
 
 export default function Register () {
-  const [userType, setUserType] = useState(null) // 'property-owner' or 'artisan'
+  const [userType, setUserType] = useState(null) // 'PROPERTY_OWNER' or 'artisan'
   const [step, setStep] = useState(1) // Multi-step form
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -161,7 +161,7 @@ export default function Register () {
         setStep(2)
       }
     } else if (step === 2) {
-      if (userType === 'property-owner') {
+      if (userType === 'PROPERTY_OWNER') {
         if (validatePropertyOwnerInfo()) {
           setStep(3)
         }
@@ -187,12 +187,12 @@ export default function Register () {
 
     try {
       const endpoint =
-        userType === 'property-owner'
-          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register/property-owner`
+        userType === 'PROPERTY_OWNER'
+          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register/PROPERTY_OWNER`
           : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register/artisan`
 
       const payload =
-        userType === 'property-owner'
+        userType === 'PROPERTY_OWNER'
           ? {
               ...formData,
               ...propertyOwnerData
@@ -240,7 +240,7 @@ export default function Register () {
           <p className='register-subtitle'>
             {!userType
               ? 'Choose your account type to get started'
-              : userType === 'property-owner'
+              : userType === 'PROPERTY_OWNER'
               ? 'Register as a Property Owner'
               : 'Register as an Artisan'}
           </p>
@@ -250,9 +250,9 @@ export default function Register () {
         {!userType ? (
           <div className='user-type-selection'>
             <button
-              className='user-type-card property-owner-card'
+              className='user-type-card PROPERTY_OWNER-card'
               onClick={() => {
-                setUserType('property-owner')
+                setUserType('PROPERTY_OWNER')
                 setStep(1)
               }}
             >
@@ -424,12 +424,12 @@ export default function Register () {
               {step === 2 && (
                 <div className='form-step'>
                   <h2 className='step-title'>
-                    {userType === 'property-owner'
+                    {userType === 'PROPERTY_OWNER'
                       ? 'Business Information'
                       : 'Professional Information'}
                   </h2>
 
-                  {userType === 'property-owner' ? (
+                  {userType === 'PROPERTY_OWNER' ? (
                     <>
                       <div className='form-group'>
                         <label>Company Name *</label>
@@ -579,12 +579,12 @@ export default function Register () {
 
                   <div className='review-section'>
                     <h3>
-                      {userType === 'property-owner'
+                      {userType === 'PROPERTY_OWNER'
                         ? 'Business Details'
                         : 'Professional Details'}
                     </h3>
                     <div className='review-grid'>
-                      {userType === 'property-owner' ? (
+                      {userType === 'PROPERTY_OWNER' ? (
                         <>
                           <div className='review-item'>
                             <span className='review-label'>Company Name</span>

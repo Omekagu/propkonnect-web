@@ -76,7 +76,7 @@ export default function Sidebar ({
   const roleBasedNavigation = useMemo(() => {
     const navigationMap = {
       // Super Admin - Full platform management
-      'super-admin': {
+      SUPER_ADMIN: {
         brand: `${process.env.NEXT_PUBLIC_APP_NAME} ADMIN`,
         nav: [
           {
@@ -170,7 +170,7 @@ export default function Sidebar ({
       },
 
       // Property Owner
-      'property-owner': {
+      PROPERTY_OWNER: {
         brand: `${process.env.NEXT_PUBLIC_APP_NAME} OWNER`,
         nav: [
           {
@@ -496,14 +496,32 @@ export default function Sidebar ({
     }
 
     const roleToUse = user?.role || userRole
+    const baseNav = navigationMap[roleToUse] || {
+      brand: process.env.NEXT_PUBLIC_APP_NAME || 'propnekt',
+      nav: [],
+      account: []
+    }
 
-    return (
-      navigationMap[roleToUse] || {
-        brand: process.env.NEXT_PUBLIC_APP_NAME || 'propnekt',
-        nav: [],
-        account: []
-      }
-    )
+    // Adjust KYCVerification nav item label to reflect current status
+    const kycStatus = user?.kyc?.status
+    if (kycStatus) {
+      const kycLabel =
+        kycStatus === 'approved'
+          ? 'Identity Verified ✓'
+          : kycStatus === 'pending'
+          ? 'KYC Under Review…'
+          : kycStatus === 'under_review'
+          ? 'KYC Under Review…'
+          : kycStatus === 'rejected'
+          ? 'KYC Rejected — Resubmit'
+          : 'Identity Verification'
+
+      baseNav.nav = baseNav.nav.map(item =>
+        item.key === 'KYCVerification' ? { ...item, label: kycLabel } : item
+      )
+    }
+
+    return baseNav
   }, [user, userRole])
 
   const handleClick = key => {

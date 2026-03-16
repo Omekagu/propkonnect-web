@@ -113,7 +113,7 @@ const EnhancedUserManagement = () => {
     // User type filter (owner vs artisan)
     if (userTypeFilter !== 'all') {
       result = result.filter(user => {
-        if (userTypeFilter === 'property-owner') {
+        if (userTypeFilter === 'PROPERTY_OWNER') {
           return !user.artisanProfile?.isActive
         }
         if (userTypeFilter === 'artisan') {
@@ -194,7 +194,7 @@ const EnhancedUserManagement = () => {
       return 'Artisan'
     }
     if (user.properties?.length > 0) {
-      return 'Property-Owner'
+      return 'PROPERTY_OWNER'
     }
     return 'User'
   }
@@ -426,7 +426,7 @@ const EnhancedUserManagement = () => {
             className='filter-select'
           >
             <option value='all'>All Roles</option>
-            <option value='super-admin'>Super Admin</option>
+            <option value='SUPER_ADMIN'>Super Admin</option>
             <option value='admin'>Admin</option>
             <option value='user'>User</option>
             <option value='artisan'>Artisan</option>
@@ -944,7 +944,7 @@ const EnhancedUserManagement = () => {
                     <option value='user'>User</option>
                     <option value='artisan'>Artisan</option>
                     <option value='admin'>Admin</option>
-                    <option value='super-admin'>Super Admin</option>
+                    <option value='SUPER_ADMIN'>Super Admin</option>
                   </select>
                 </div>
                 <div className='form-group'>
@@ -1047,7 +1047,7 @@ const EnhancedUserManagement = () => {
                   <option value='user'>User</option>
                   <option value='artisan'>Artisan</option>
                   <option value='admin'>Admin</option>
-                  <option value='super-admin'>Super Admin</option>
+                  <option value='SUPER_ADMIN'>Super Admin</option>
                 </select>
               </div>
               <div className='modal-actions'>

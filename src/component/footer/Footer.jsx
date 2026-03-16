@@ -11,21 +11,25 @@ export default function Footer () {
   useEffect(() => {
     fetch(`${API}/api/platform-config`)
       .then(r => r.json())
-      .then(d => { if (d?.config?.branding) setBranding(d.config.branding) })
+      .then(d => {
+        if (d?.config?.branding) setBranding(d.config.branding)
+      })
       .catch(() => {})
   }, [])
 
-  const appName      = branding?.appName      || APP_NAME_FALLBACK
-  const tagline      = branding?.footerTagline || "Nigeria's most trusted platform for buying, renting, booking shortlets, and hiring artisans."
-  const logoUrl      = branding?.logoUrl       || ''
-  const social       = branding?.socialLinks   || {}
+  const appName = branding?.appName || APP_NAME_FALLBACK
+  const tagline =
+    branding?.footerTagline ||
+    "Nigeria's most trusted platform for buying, renting, booking shortlets, and hiring artisans."
+  const logoUrl = branding?.logoUrl || ''
+  const social = branding?.socialLinks || {}
 
   const socialLinks = [
-    { key: 'twitter',   label: '𝕏',  href: social.twitter   },
-    { key: 'instagram', label: '📸', href: social.instagram  },
-    { key: 'facebook',  label: 'f',  href: social.facebook   },
-    { key: 'linkedin',  label: 'in', href: social.linkedin   },
-    { key: 'whatsapp',  label: '💬', href: social.whatsapp   }
+    { key: 'twitter', label: '𝕏', href: social.twitter },
+    { key: 'instagram', label: '📸', href: social.instagram },
+    { key: 'facebook', label: 'f', href: social.facebook },
+    { key: 'linkedin', label: 'in', href: social.linkedin },
+    { key: 'whatsapp', label: '💬', href: social.whatsapp }
   ].filter(s => s.href)
 
   return (
@@ -33,16 +37,30 @@ export default function Footer () {
       <div className='lp-footer__inner'>
         <div className='lp-footer__brand'>
           <a className='lp-footer__logo' href='/'>
-            {logoUrl
-              ? <img src={logoUrl} alt={appName} style={{ height: 30, width: 'auto', objectFit: 'contain' }} />
-              : <><span className='lp-nav__logo-icon'>P</span><span>{appName}</span></>
-            }
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={appName}
+                style={{ height: 30, width: 'auto', objectFit: 'contain' }}
+              />
+            ) : (
+              <>
+                <span className='lp-nav__logo-icon'>P</span>
+                <span>{appName}</span>
+              </>
+            )}
           </a>
           <p>{tagline}</p>
           {socialLinks.length > 0 && (
             <div className='lp-footer__socials'>
               {socialLinks.map(s => (
-                <a key={s.key} className='lp-footer__social' href={s.href} target='_blank' rel='noopener noreferrer'>
+                <a
+                  key={s.key}
+                  className='lp-footer__social'
+                  href={s.href}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
                   {s.label}
                 </a>
               ))}
@@ -51,7 +69,9 @@ export default function Footer () {
           {socialLinks.length === 0 && (
             <div className='lp-footer__socials'>
               {['𝕏', 'in', 'f', '▶'].map(s => (
-                <a key={s} className='lp-footer__social' href='#'>{s}</a>
+                <a key={s} className='lp-footer__social' href='#'>
+                  {s}
+                </a>
               ))}
             </div>
           )}
@@ -70,7 +90,7 @@ export default function Footer () {
           <h4>Services</h4>
           <a href='/search?type=artisan'>Find Artisans</a>
           <a href='/auth/register?role=artisan'>Join as Artisan</a>
-          <a href='/auth/register?role=property-owner'>List a Property</a>
+          <a href='/auth/register?role=PROPERTY_OWNER'>List a Property</a>
           <a href='/auth/register'>Sign Up</a>
         </div>
 
@@ -93,7 +113,9 @@ export default function Footer () {
       </div>
 
       <div className='lp-footer__bottom'>
-        <p>© {new Date().getFullYear()} {appName}. All rights reserved.</p>
+        <p>
+          © {new Date().getFullYear()} {appName}. All rights reserved.
+        </p>
         <p>Built in Nigeria 🇳🇬 for Africa</p>
       </div>
     </footer>

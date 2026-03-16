@@ -23,35 +23,43 @@ import './AdminPermissions.scss'
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 
 const ROLE_COLORS = {
-  'super-admin':        { bg: '#fff0f0', text: '#c0392b', border: '#f5c6c6' },
-  'sub-admin':          { bg: '#fff8f0', text: '#d35400', border: '#fdd5b0' },
-  'property-admin':     { bg: '#f0f4ff', text: '#003580', border: '#b8cbf5' },
+  SUPER_ADMIN: { bg: '#fff0f0', text: '#c0392b', border: '#f5c6c6' },
+  SUB_ADMIN: { bg: '#fff8f0', text: '#d35400', border: '#fdd5b0' },
+  'property-admin': { bg: '#f0f4ff', text: '#003580', border: '#b8cbf5' },
   'sub-property-admin': { bg: '#f0f8ff', text: '#0071c2', border: '#b3d9f7' },
-  'artisan-admin':      { bg: '#f0fff4', text: '#1a6b3a', border: '#b0e8c4' },
-  'sub-artisan-admin':  { bg: '#f5fff0', text: '#2e7d32', border: '#c3e9c5' },
-  'support-admin':      { bg: '#fdf0ff', text: '#7b1fa2', border: '#e1b0f5' },
+  'artisan-admin': { bg: '#f0fff4', text: '#1a6b3a', border: '#b0e8c4' },
+  'sub-artisan-admin': { bg: '#f5fff0', text: '#2e7d32', border: '#c3e9c5' },
+  SUPPORT_ADMIN: { bg: '#fdf0ff', text: '#7b1fa2', border: '#e1b0f5' }
 }
 
 const ROLE_LABELS = {
-  'super-admin':        'Super Admin',
-  'sub-admin':          'Sub Admin',
-  'property-admin':     'Property Admin',
+  SUPER_ADMIN: 'Super Admin',
+  SUB_ADMIN: 'Sub Admin',
+  'property-admin': 'Property Admin',
   'sub-property-admin': 'Sub Property Admin',
-  'artisan-admin':      'Artisan Admin',
-  'sub-artisan-admin':  'Sub Artisan Admin',
-  'support-admin':      'Support Admin',
+  'artisan-admin': 'Artisan Admin',
+  'sub-artisan-admin': 'Sub Artisan Admin',
+  SUPPORT_ADMIN: 'Support Admin'
 }
 
 // ─── ROLE BADGE ───────────────────────────────────────────────────────────────
 
-function RoleBadge({ role }) {
-  const style = ROLE_COLORS[role] || { bg: '#f5f5f5', text: '#555', border: '#ddd' }
+function RoleBadge ({ role }) {
+  const style = ROLE_COLORS[role] || {
+    bg: '#f5f5f5',
+    text: '#555',
+    border: '#ddd'
+  }
   return (
     <span
       className='role-badge'
-      style={{ background: style.bg, color: style.text, borderColor: style.border }}
+      style={{
+        background: style.bg,
+        color: style.text,
+        borderColor: style.border
+      }}
     >
-      {role === 'super-admin' && <Crown size={11} />}
+      {role === 'SUPER_ADMIN' && <Crown size={11} />}
       {ROLE_LABELS[role] || role}
     </span>
   )
@@ -59,7 +67,16 @@ function RoleBadge({ role }) {
 
 // ─── PERMISSION CHECKBOX GROUP ────────────────────────────────────────────────
 
-function PermissionGroup({ group, permissions, labels, effective, defaults, custom, onChange, readOnly }) {
+function PermissionGroup ({
+  group,
+  permissions,
+  labels,
+  effective,
+  defaults,
+  custom,
+  onChange,
+  readOnly
+}) {
   const [collapsed, setCollapsed] = useState(false)
   const allChecked = permissions.every(p => effective.includes(p))
   const someChecked = permissions.some(p => effective.includes(p))
@@ -80,16 +97,26 @@ function PermissionGroup({ group, permissions, labels, effective, defaults, cust
       <div className='perm-group-header' onClick={() => setCollapsed(c => !c)}>
         <button
           type='button'
-          className={`perm-group-toggle ${allChecked ? 'all' : someChecked ? 'some' : ''}`}
-          onClick={e => { e.stopPropagation(); toggleAll() }}
+          className={`perm-group-toggle ${
+            allChecked ? 'all' : someChecked ? 'some' : ''
+          }`}
+          onClick={e => {
+            e.stopPropagation()
+            toggleAll()
+          }}
           disabled={readOnly}
           title={allChecked ? 'Deselect all' : 'Select all'}
         >
-          {allChecked ? <Check size={12} /> : someChecked ? <span className='dash' /> : null}
+          {allChecked ? (
+            <Check size={12} />
+          ) : someChecked ? (
+            <span className='dash' />
+          ) : null}
         </button>
         <span className='perm-group-name'>{group}</span>
         <span className='perm-group-count'>
-          {permissions.filter(p => effective.includes(p)).length}/{permissions.length}
+          {permissions.filter(p => effective.includes(p)).length}/
+          {permissions.length}
         </span>
         {collapsed ? <ChevronDown size={15} /> : <ChevronUp size={15} />}
       </div>
@@ -97,8 +124,8 @@ function PermissionGroup({ group, permissions, labels, effective, defaults, cust
       {!collapsed && (
         <div className='perm-list'>
           {permissions.map(perm => {
-            const isDefault  = defaults.includes(perm)
-            const isCustom   = custom.includes(perm)
+            const isDefault = defaults.includes(perm)
+            const isCustom = custom.includes(perm)
             const isEffective = effective.includes(perm)
 
             const toggle = () => {
@@ -111,16 +138,23 @@ function PermissionGroup({ group, permissions, labels, effective, defaults, cust
             }
 
             return (
-              <label key={perm} className={`perm-row ${isDefault ? 'is-default' : ''}`}>
+              <label
+                key={perm}
+                className={`perm-row ${isDefault ? 'is-default' : ''}`}
+              >
                 <span
-                  className={`perm-check ${isEffective ? 'checked' : ''} ${isDefault ? 'locked' : ''}`}
+                  className={`perm-check ${isEffective ? 'checked' : ''} ${
+                    isDefault ? 'locked' : ''
+                  }`}
                   onClick={toggle}
                 >
                   {isEffective && <Check size={11} />}
                 </span>
                 <span className='perm-label'>{labels[perm] || perm}</span>
-                {isDefault && <span className='perm-tag default'>role default</span>}
-                {isCustom  && <span className='perm-tag custom'>custom</span>}
+                {isDefault && (
+                  <span className='perm-tag default'>role default</span>
+                )}
+                {isCustom && <span className='perm-tag custom'>custom</span>}
               </label>
             )
           })}
@@ -132,27 +166,34 @@ function PermissionGroup({ group, permissions, labels, effective, defaults, cust
 
 // ─── ADMIN ROW / EDITOR ───────────────────────────────────────────────────────
 
-function AdminRow({ admin, schema, currentUserRole, onSaved }) {
-  const [open,    setOpen]    = useState(false)
-  const [custom,  setCustom]  = useState(admin.customPermissions || [])
-  const [saving,  setSaving]  = useState(false)
-  const [notice,  setNotice]  = useState(null)
+function AdminRow ({ admin, schema, currentUserRole, onSaved }) {
+  const [open, setOpen] = useState(false)
+  const [custom, setCustom] = useState(admin.customPermissions || [])
+  const [saving, setSaving] = useState(false)
+  const [notice, setNotice] = useState(null)
 
   const effective = [...new Set([...(admin.roleDefaults || []), ...custom])]
-  const isDirty   = JSON.stringify([...custom].sort()) !==
-                    JSON.stringify([...(admin.customPermissions || [])].sort())
+  const isDirty =
+    JSON.stringify([...custom].sort()) !==
+    JSON.stringify([...(admin.customPermissions || [])].sort())
 
-  const readOnly  = currentUserRole !== 'super-admin' && admin.role === 'super-admin'
+  const readOnly =
+    currentUserRole !== 'SUPER_ADMIN' && admin.role === 'SUPER_ADMIN'
 
   const save = async () => {
     setSaving(true)
     setNotice(null)
     try {
-      await api.put(`/api/admin/permissions/${admin._id}`, { customPermissions: custom })
+      await api.put(`/api/admin/permissions/${admin._id}`, {
+        customPermissions: custom
+      })
       setNotice({ type: 'success', msg: 'Permissions saved' })
       onSaved(admin._id, custom)
     } catch (err) {
-      setNotice({ type: 'error', msg: err.response?.data?.msg || 'Failed to save' })
+      setNotice({
+        type: 'error',
+        msg: err.response?.data?.msg || 'Failed to save'
+      })
     } finally {
       setSaving(false)
     }
@@ -166,7 +207,10 @@ function AdminRow({ admin, schema, currentUserRole, onSaved }) {
       setNotice({ type: 'success', msg: 'Reset to role defaults' })
       onSaved(admin._id, [])
     } catch (err) {
-      setNotice({ type: 'error', msg: err.response?.data?.msg || 'Failed to reset' })
+      setNotice({
+        type: 'error',
+        msg: err.response?.data?.msg || 'Failed to reset'
+      })
     } finally {
       setSaving(false)
     }
@@ -177,10 +221,13 @@ function AdminRow({ admin, schema, currentUserRole, onSaved }) {
       {/* ── Row summary ── */}
       <div className='admin-row-summary' onClick={() => setOpen(o => !o)}>
         <div className='admin-avatar'>
-          {admin.firstName?.[0]}{admin.lastName?.[0]}
+          {admin.firstName?.[0]}
+          {admin.lastName?.[0]}
         </div>
         <div className='admin-info'>
-          <span className='admin-name'>{admin.firstName} {admin.lastName}</span>
+          <span className='admin-name'>
+            {admin.firstName} {admin.lastName}
+          </span>
           <span className='admin-email'>{admin.email}</span>
         </div>
         <RoleBadge role={admin.role} />
@@ -205,14 +252,24 @@ function AdminRow({ admin, schema, currentUserRole, onSaved }) {
 
           {notice && (
             <div className={`editor-notice ${notice.type}`}>
-              {notice.type === 'success' ? <Check size={15} /> : <AlertCircle size={15} />}
+              {notice.type === 'success' ? (
+                <Check size={15} />
+              ) : (
+                <AlertCircle size={15} />
+              )}
               {notice.msg}
             </div>
           )}
 
           <div className='editor-legend'>
-            <span><span className='perm-tag default'>role default</span> — inherited from role, always active</span>
-            <span><span className='perm-tag custom'>custom</span> — extra permission you granted</span>
+            <span>
+              <span className='perm-tag default'>role default</span> — inherited
+              from role, always active
+            </span>
+            <span>
+              <span className='perm-tag custom'>custom</span> — extra permission
+              you granted
+            </span>
           </div>
 
           <div className='perm-groups'>
@@ -247,7 +304,11 @@ function AdminRow({ admin, schema, currentUserRole, onSaved }) {
                 onClick={save}
                 disabled={saving || !isDirty}
               >
-                {saving ? <Loader2 size={14} className='spin' /> : <Save size={14} />}
+                {saving ? (
+                  <Loader2 size={14} className='spin' />
+                ) : (
+                  <Save size={14} />
+                )}
                 {saving ? 'Saving…' : 'Save permissions'}
               </button>
             </div>
@@ -260,15 +321,15 @@ function AdminRow({ admin, schema, currentUserRole, onSaved }) {
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
-export default function AdminPermissions({ currentUser }) {
-  const [schema,  setSchema]  = useState(null)
-  const [admins,  setAdmins]  = useState([])
-  const [total,   setTotal]   = useState(0)
+export default function AdminPermissions ({ currentUser }) {
+  const [schema, setSchema] = useState(null)
+  const [admins, setAdmins] = useState([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState(null)
-  const [search,  setSearch]  = useState('')
+  const [error, setError] = useState(null)
+  const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
-  const [page,    setPage]    = useState(1)
+  const [page, setPage] = useState(1)
   const LIMIT = 15
 
   const loadSchema = useCallback(async () => {
@@ -281,8 +342,8 @@ export default function AdminPermissions({ currentUser }) {
     setError(null)
     try {
       const params = new URLSearchParams({ page, limit: LIMIT })
-      if (search)     params.set('search', search)
-      if (roleFilter) params.set('role',   roleFilter)
+      if (search) params.set('search', search)
+      if (roleFilter) params.set('role', roleFilter)
 
       const res = await api.get(`/api/admin/permissions/admins?${params}`)
       setAdmins(res.data.data)
@@ -294,15 +355,27 @@ export default function AdminPermissions({ currentUser }) {
     }
   }, [page, search, roleFilter])
 
-  useEffect(() => { loadSchema() }, [loadSchema])
-  useEffect(() => { loadAdmins() }, [loadAdmins])
+  useEffect(() => {
+    loadSchema()
+  }, [loadSchema])
+  useEffect(() => {
+    loadAdmins()
+  }, [loadAdmins])
 
   const handleSaved = (userId, newCustom) => {
-    setAdmins(prev => prev.map(a =>
-      a._id === userId
-        ? { ...a, customPermissions: newCustom, effectivePermissions: [...new Set([...(a.roleDefaults || []), ...newCustom])] }
-        : a
-    ))
+    setAdmins(prev =>
+      prev.map(a =>
+        a._id === userId
+          ? {
+              ...a,
+              customPermissions: newCustom,
+              effectivePermissions: [
+                ...new Set([...(a.roleDefaults || []), ...newCustom])
+              ]
+            }
+          : a
+      )
+    )
   }
 
   const totalPages = Math.ceil(total / LIMIT)
@@ -334,10 +407,19 @@ export default function AdminPermissions({ currentUser }) {
             type='text'
             placeholder='Search by name or email…'
             value={search}
-            onChange={e => { setSearch(e.target.value); setPage(1) }}
+            onChange={e => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
           />
           {search && (
-            <button type='button' onClick={() => { setSearch(''); setPage(1) }}>
+            <button
+              type='button'
+              onClick={() => {
+                setSearch('')
+                setPage(1)
+              }}
+            >
               <X size={14} />
             </button>
           )}
@@ -347,11 +429,16 @@ export default function AdminPermissions({ currentUser }) {
           <Filter size={15} />
           <select
             value={roleFilter}
-            onChange={e => { setRoleFilter(e.target.value); setPage(1) }}
+            onChange={e => {
+              setRoleFilter(e.target.value)
+              setPage(1)
+            }}
           >
             <option value=''>All admin roles</option>
             {schema?.adminRoles?.map(r => (
-              <option key={r} value={r}>{ROLE_LABELS[r] || r}</option>
+              <option key={r} value={r}>
+                {ROLE_LABELS[r] || r}
+              </option>
             ))}
           </select>
         </div>
@@ -369,7 +456,9 @@ export default function AdminPermissions({ currentUser }) {
         <div className='ap-error'>
           <AlertCircle size={18} />
           {error}
-          <button type='button' onClick={loadAdmins}>Retry</button>
+          <button type='button' onClick={loadAdmins}>
+            Retry
+          </button>
         </div>
       )}
 
@@ -403,7 +492,9 @@ export default function AdminPermissions({ currentUser }) {
               >
                 Previous
               </button>
-              <span>Page {page} of {totalPages}</span>
+              <span>
+                Page {page} of {totalPages}
+              </span>
               <button
                 type='button'
                 disabled={page >= totalPages}

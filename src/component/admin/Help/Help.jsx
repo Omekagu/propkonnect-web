@@ -102,7 +102,7 @@ export default function SupportTicketAdmin () {
   }
 
   return (
-    <div className='support-admin-container'>
+    <div className='SUPPORT_ADMIN-container'>
       <header className='admin-header'>
         <div className='header-content'>
           <h1>Support Tickets</h1>
