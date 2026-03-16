@@ -211,6 +211,15 @@
   --max-width: 1280px;
   --content-width: 1100px;
 
+  // ── Dark-surface tokens (used by admin shell; light defaults) ──
+  --color-surface-elevated: #e4ecdf;       // card/panel elevation in light
+  --color-primary-emphasis: var(--color-primary); // active-state text in light
+  --color-header-bg: rgba(255, 255, 255, 0.94);   // frosted-glass header
+  --color-overlay: rgba(15, 23, 42, 0.5);         // modal/backdrop tint
+  --color-section-label: #8a9bb0;                 // sidebar section headers
+  --color-nav-active-bg: rgba(11, 61, 40, 0.08);  // active nav row bg
+  --color-nav-active-bg-end: rgba(11, 61, 40, 0.03); // active nav row gradient end
+
   // ── Legacy dark-theme component aliases (light remapping) ─────
   // These remap old dark-theme variable names used by migrated
   // component SCSS files so they render correctly in the light layout.
@@ -445,6 +454,15 @@ video {
     --error-bg: rgba(239, 68, 68, 0.15);
     --info-bg: rgba(15, 96, 64, 0.18);
 
+    // Dark-surface tokens (overrides for dark mode)
+    --color-surface-elevated: #334155;
+    --color-primary-emphasis: #4ade80;      // bright green readable on dark bg
+    --color-header-bg: rgba(9, 14, 31, 0.94);
+    --color-overlay: rgba(15, 23, 42, 0.6);
+    --color-section-label: #334155;
+    --color-nav-active-bg: rgba(15, 96, 64, 0.16);
+    --color-nav-active-bg-end: rgba(15, 96, 64, 0.05);
+
     // Shadows — deeper in dark
     --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.4);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -533,6 +551,15 @@ html[data-theme='dark'] {
     --warning-bg: rgba(245, 158, 11, 0.15);
     --error-bg: rgba(239, 68, 68, 0.15);
     --info-bg: rgba(15, 96, 64, 0.18);
+
+    // Dark-surface tokens (overrides for dark mode)
+    --color-surface-elevated: #334155;
+    --color-primary-emphasis: #4ade80;
+    --color-header-bg: rgba(9, 14, 31, 0.94);
+    --color-overlay: rgba(15, 23, 42, 0.6);
+    --color-section-label: #334155;
+    --color-nav-active-bg: rgba(15, 96, 64, 0.16);
+    --color-nav-active-bg-end: rgba(15, 96, 64, 0.05);
 
     // Shadows — deeper in dark
     --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.4);

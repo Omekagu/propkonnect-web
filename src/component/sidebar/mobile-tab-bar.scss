@@ -1,0 +1,293 @@
+// ============================================================
+// MobileTabBar — bottom tab navigation (mobile only)
+// Visible only on screens < 900px
+// ============================================================
+
+// ── Bottom tab bar ────────────────────────────────────────────
+.mob-tab-bar {
+  display: none; // hidden on desktop — shown via media query below
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 110;
+  height: 68px;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+  align-items: center;
+  justify-content: space-around;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--color-primary) 0%,
+      var(--color-accent) 50%,
+      transparent 100%
+    );
+    opacity: 0.5;
+  }
+
+  @media (max-width: 900px) {
+    display: flex;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+html[data-theme='dark'] .mob-tab-bar {
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+// ── Individual tab button ─────────────────────────────────────
+.mob-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  position: relative;
+  transition: color 180ms var(--ease), transform 120ms var(--ease);
+  -webkit-tap-highlight-color: transparent;
+  border-radius: var(--radius-md);
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  // ── Active state ──────────────────────────────────────────
+  &--active {
+    color: var(--color-primary-emphasis);
+
+    .mob-tab__icon {
+      color: var(--color-primary-emphasis);
+    }
+  }
+
+  // ── Center (primary action) tab ───────────────────────────
+  &--center {
+    .mob-tab__icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-full);
+      background: var(--gradient-brand);
+      color: var(--color-text-inverse);
+      box-shadow: 0 4px 16px rgba(11, 61, 40, 0.35);
+      margin-top: -18px;
+      border: 3px solid var(--color-surface);
+      transition: box-shadow 180ms var(--ease), transform 120ms var(--ease);
+    }
+
+    &:active .mob-tab__icon {
+      transform: scale(0.93);
+    }
+
+    .mob-tab__label {
+      font-size: 10px;
+      color: var(--color-primary-emphasis);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .mob-tab__icon {
+        box-shadow: 0 4px 16px rgba(11, 61, 40, 0.6);
+      }
+    }
+  }
+
+  // Center active overrides
+  &--center.mob-tab--active {
+    .mob-tab__icon {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+      box-shadow: 0 4px 20px rgba(196, 229, 60, 0.35);
+    }
+  }
+}
+
+html[data-theme='dark'] .mob-tab--center .mob-tab__icon {
+  box-shadow: 0 4px 16px rgba(11, 61, 40, 0.6);
+}
+
+.mob-tab__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  transition: color 180ms var(--ease);
+
+  svg {
+    display: block;
+  }
+}
+
+.mob-tab__label {
+  font-size: 10px;
+  font-weight: 500;
+  font-family: var(--font);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 56px;
+}
+
+// Active indicator dot
+.mob-tab__dot {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}
+
+// ── More sheet backdrop ────────────────────────────────────────
+.mob-more-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  z-index: 115;
+  backdrop-filter: blur(4px);
+  animation: mobFadeIn 180ms var(--ease);
+}
+
+// ── More sheet (slides up from bottom) ────────────────────────
+.mob-more-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 68px;
+  z-index: 120;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-top: 1px solid var(--color-border);
+  padding: 12px 0 env(safe-area-inset-bottom, 16px);
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.15);
+  animation: mobSlideUp 240ms var(--ease-out);
+
+  @media (prefers-color-scheme: dark) {
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+  }
+}
+
+html[data-theme='dark'] .mob-more-sheet {
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.mob-more-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  margin: 0 auto 16px;
+}
+
+.mob-more-heading {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-section-label);
+  padding: 0 20px 8px;
+  margin: 0;
+  line-height: 1;
+}
+
+.mob-more-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+// ── More sheet row ─────────────────────────────────────────────
+.mob-more-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 13px 20px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  text-align: left;
+  transition: background 140ms var(--ease), color 140ms var(--ease);
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    background: var(--color-surface-hover);
+  }
+
+  &--active {
+    color: var(--color-primary-emphasis);
+    background: var(--color-primary-light);
+
+    .mob-more-item__icon {
+      color: var(--color-primary-emphasis);
+    }
+  }
+}
+
+.mob-more-item__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+
+  @media (prefers-color-scheme: dark) {
+    background: var(--color-surface-elevated);
+  }
+}
+
+html[data-theme='dark'] .mob-more-item__icon {
+  background: var(--color-surface-elevated);
+}
+
+.mob-more-item__label {
+  flex: 1;
+}
+
+.mob-more-item__chevron {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+// ── Animations ────────────────────────────────────────────────
+@keyframes mobFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes mobSlideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}

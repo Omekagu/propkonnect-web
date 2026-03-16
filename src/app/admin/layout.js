@@ -50,7 +50,9 @@ import FinanceDashboard from '@/component/tenant/Finance/Finance'
 import PlatformSettings from '../../component/admin/PlatformSettings/PlatformSettings.jsx'
 import EmailTemplates from '../../component/admin/EmailTemplates/EmailTemplates.jsx'
 import AdminPermissions from '../../component/admin/AdminPermissions/AdminPermissions.jsx'
+import KYCQueue from '../../component/admin/KYCQueue/KYCQueue.jsx'
 import AccountSetup from '../../component/AccountSetup/AccountSetup.jsx'
+import MobileTabBar from '../../component/sidebar/MobileTabBar.jsx'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
@@ -411,6 +413,8 @@ export default function AdminLayout ({ children }) {
           return <EmailTemplates />
         case 'AdminPermissions':
           return <AdminPermissions currentUser={user} />
+        case 'KYCQueue':
+          return <KYCQueue />
         default:
           return <AdminDashboard />
       }
@@ -614,6 +618,18 @@ export default function AdminLayout ({ children }) {
           {renderPage()}
         </main>
       </div>
+
+      {/* Mobile bottom tab bar — replaces sidebar on small screens */}
+      {isMobile && (
+        <MobileTabBar
+          userRole={userRole}
+          activePage={activePage}
+          onNavigate={page => {
+            setActivePage(page)
+            localStorage.setItem('ep_activePage', page)
+          }}
+        />
+      )}
     </div>
   )
 }

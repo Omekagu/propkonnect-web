@@ -32,6 +32,11 @@
   flex: 1;
   padding: 24px 28px;
   overflow: auto;
+
+  // Room for the mobile tab bar
+  @media (max-width: 900px) {
+    padding: 16px 16px calc(68px + env(safe-area-inset-bottom, 0px) + 16px);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -52,8 +57,8 @@
   transition: width 220ms var(--ease);
 
   @media (prefers-color-scheme: dark) {
-    background: var(--color-text-primary);
-    border-right-color: #1e293b;
+    background: var(--color-surface);
+    border-right-color: var(--color-border);
   }
 
   // ── Collapsed ──────────────────────────────────────────────
@@ -118,7 +123,7 @@
   scrollbar-color: var(--color-border) transparent;
 
   @media (prefers-color-scheme: dark) {
-    scrollbar-color: #1e293b transparent;
+    scrollbar-color: var(--color-surface-hover) transparent;
   }
 
   &::-webkit-scrollbar {
@@ -132,7 +137,7 @@
     border-radius: var(--radius-full);
 
     @media (prefers-color-scheme: dark) {
-      background: #1e293b;
+      background: var(--color-surface-hover);
     }
   }
 }
@@ -181,7 +186,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    background: linear-gradient(135deg, #010c05 0%, #0b3d28 100%);
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
   }
 }
 
@@ -271,7 +276,7 @@
     color: var(--color-primary);
 
     @media (prefers-color-scheme: dark) {
-      background: #1e293b;
+      background: var(--color-surface-hover);
       color: var(--color-primary-mid);
     }
   }
@@ -293,7 +298,7 @@
     padding-bottom: 10px;
 
     @media (prefers-color-scheme: dark) {
-      border-top-color: #1e293b;
+      border-top-color: var(--color-border);
     }
   }
 }
@@ -304,7 +309,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #b0bec5;
+  color: var(--color-section-label);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -319,7 +324,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    color: #334155;
+    color: var(--color-section-label);
   }
 }
 
@@ -339,31 +344,31 @@
   &.active .nav-link {
     background: linear-gradient(
       90deg,
-      rgba(11, 61, 40, 0.1) 0%,
-      rgba(11, 61, 40, 0.03) 100%
+      var(--color-nav-active-bg) 0%,
+      var(--color-nav-active-bg-end) 100%
     );
-    color: var(--color-primary);
+    color: var(--color-primary-emphasis);
     font-weight: 600;
     border-left: 3px solid var(--color-accent);
     padding-left: 9px;
     margin-left: 0;
-    box-shadow: inset 0 0 0 1px rgba(11, 61, 40, 0.08);
+    box-shadow: inset 0 0 0 1px var(--color-primary-subtle);
 
     .icon {
-      color: var(--color-primary);
+      color: var(--color-primary-emphasis);
     }
 
     @media (prefers-color-scheme: dark) {
       background: linear-gradient(
         90deg,
-        rgba(15, 96, 64, 0.16) 0%,
-        rgba(15, 96, 64, 0.05) 100%
+        var(--color-nav-active-bg) 0%,
+        var(--color-nav-active-bg-end) 100%
       );
-      color: #4ade80;
+      color: var(--color-primary-emphasis);
       border-left-color: var(--color-accent);
-      box-shadow: inset 0 0 0 1px rgba(196, 229, 60, 0.12);
+      box-shadow: inset 0 0 0 1px var(--color-accent-subtle);
       .icon {
-        color: #4ade80;
+        color: var(--color-primary-emphasis);
       }
     }
   }
@@ -394,7 +399,7 @@
 
     @media (prefers-color-scheme: dark) {
       background: rgba(255, 255, 255, 0.04);
-      color: #cbd5e1;
+      color: var(--color-text-primary);
       .icon {
         color: var(--color-text-muted);
       }
@@ -441,7 +446,7 @@
 .mobile-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--color-overlay);
   backdrop-filter: blur(4px);
   z-index: 99;
   border: none;
@@ -461,7 +466,7 @@
   height: 64px;
   padding: 0 20px;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--color-header-bg);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--color-surface-hover);
@@ -485,9 +490,9 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    background: rgba(9, 14, 31, 0.94);
-    border-bottom-color: #1e293b;
-    box-shadow: 0 1px 0 #1e293b, 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: var(--color-header-bg);
+    border-bottom-color: var(--color-border);
+    box-shadow: 0 1px 0 var(--color-border), 0 4px 20px rgba(0, 0, 0, 0.3);
 
     &::after {
       opacity: 0.4;
@@ -522,8 +527,8 @@
     color: var(--color-text-primary);
 
     @media (prefers-color-scheme: dark) {
-      background: #1e293b;
-      color: var(--color-surface-hover);
+      background: var(--color-surface-hover);
+      color: var(--color-text-primary);
     }
   }
 
@@ -568,15 +573,15 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      background: #1e293b;
+      background: var(--color-surface-hover);
       border-color: var(--color-primary-mid);
-      box-shadow: 0 0 0 3px rgba(15, 96, 64, 0.18);
+      box-shadow: 0 0 0 3px var(--color-primary-subtle);
     }
   }
 
   @media (prefers-color-scheme: dark) {
-    background: var(--color-text-primary);
-    border-color: #1e293b;
+    background: var(--color-surface);
+    border-color: var(--color-border);
     svg {
       color: var(--color-text-muted);
     }
@@ -611,6 +616,26 @@
   margin-left: auto;
 }
 
+// ── Theme toggle button ────────────────────────────────────────
+// Inherits .header-icon-btn sizing but adds brand accent on active/dark
+.theme-toggle-btn {
+  // Light mode: neutral
+  background: transparent;
+  color: var(--color-text-muted);
+
+  &:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  // Brand accent ring when in dark mode (handled via html[data-theme] below)
+  &[data-active='true'],
+  &.active {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+}
+
 // ── Icon buttons ──────────────────────────────────────────────
 .header-icon-btn {
   position: relative;
@@ -632,8 +657,8 @@
     color: var(--color-text-primary);
 
     @media (prefers-color-scheme: dark) {
-      background: #1e293b;
-      color: var(--color-surface-hover);
+      background: var(--color-surface-hover);
+      color: var(--color-text-primary);
     }
   }
 
@@ -696,8 +721,8 @@
   z-index: 200;
 
   @media (prefers-color-scheme: dark) {
-    background: var(--color-text-primary);
-    border-color: #1e293b;
+    background: var(--color-surface);
+    border-color: var(--color-border);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
   }
 
@@ -712,7 +737,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 18px 12px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-header-bg);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-surface-hover);
   flex-shrink: 0;
@@ -721,8 +746,8 @@
   z-index: 1;
 
   @media (prefers-color-scheme: dark) {
-    background: rgba(15, 23, 42, 0.95);
-    border-bottom-color: #1e293b;
+    background: var(--color-header-bg);
+    border-bottom-color: var(--color-border);
   }
 }
 
@@ -757,10 +782,10 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    color: #4ade80;
-    background: rgba(15, 96, 64, 0.14);
+    color: var(--color-primary-emphasis);
+    background: var(--color-primary-subtle);
     &:hover {
-      background: rgba(15, 96, 64, 0.22);
+      background: var(--color-primary-light);
     }
   }
 }
@@ -773,10 +798,10 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    color: #f87171;
-    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-error);
+    background: var(--color-error-bg);
     &:hover {
-      background: rgba(239, 68, 68, 0.18);
+      background: var(--color-error-bg);
     }
   }
 }
@@ -807,7 +832,7 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      background: #1e293b;
+      background: var(--color-surface-hover);
     }
   }
 
@@ -817,13 +842,13 @@
     background: var(--color-primary-light);
 
     @media (prefers-color-scheme: dark) {
-      background: rgba(15, 96, 64, 0.1);
+      background: var(--color-primary-subtle);
       border-left-color: var(--color-accent);
     }
   }
 
   @media (prefers-color-scheme: dark) {
-    border-bottom-color: #1e293b;
+    border-bottom-color: var(--color-border);
   }
 }
 
@@ -866,7 +891,7 @@
   color: var(--color-text-muted);
 
   @media (prefers-color-scheme: dark) {
-    color: #334155;
+    color: var(--color-section-label);
   }
 }
 
@@ -891,8 +916,8 @@
     color: var(--color-error);
 
     @media (prefers-color-scheme: dark) {
-      background: rgba(239, 68, 68, 0.12);
-      color: #f87171;
+      background: var(--color-error-bg);
+      color: var(--color-error);
     }
   }
 }
@@ -906,9 +931,9 @@
   gap: 10px;
 
   svg {
-    color: #cbd5e1;
+    color: var(--color-text-muted);
     @media (prefers-color-scheme: dark) {
-      color: #334155;
+      color: var(--color-section-label);
     }
   }
 
@@ -945,8 +970,8 @@
     border-color: var(--color-border);
 
     @media (prefers-color-scheme: dark) {
-      background: #1e293b;
-      border-color: #334155;
+      background: var(--color-surface-hover);
+      border-color: var(--color-surface-elevated);
     }
   }
 }
@@ -984,7 +1009,7 @@
     display: none;
   }
   @media (prefers-color-scheme: dark) {
-    color: #cbd5e1;
+    color: var(--color-text-primary);
   }
 }
 
@@ -1011,8 +1036,8 @@
   z-index: 200;
 
   @media (prefers-color-scheme: dark) {
-    background: var(--color-text-primary);
-    border-color: #1e293b;
+    background: var(--color-surface);
+    border-color: var(--color-border);
     box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 }
@@ -1026,8 +1051,8 @@
   border-bottom: 1px solid var(--color-surface-hover);
 
   @media (prefers-color-scheme: dark) {
-    background: #1e293b;
-    border-bottom-color: #334155;
+    background: var(--color-surface-hover);
+    border-bottom-color: var(--color-surface-elevated);
   }
 }
 
@@ -1095,8 +1120,8 @@
   margin: 0;
 
   @media (prefers-color-scheme: dark) {
-    background: rgba(15, 96, 64, 0.18);
-    color: #4ade80;
+    background: var(--color-primary-light);
+    color: var(--color-primary-emphasis);
   }
 }
 
@@ -1106,7 +1131,7 @@
   margin: 4px 0;
 
   @media (prefers-color-scheme: dark) {
-    background: #1e293b;
+    background: var(--color-surface-hover);
   }
 }
 
@@ -1138,8 +1163,8 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      background: #1e293b;
-      color: var(--color-border);
+      background: var(--color-surface-hover);
+      color: var(--color-text-primary);
       svg {
         color: var(--color-text-muted);
       }
@@ -1160,10 +1185,10 @@
       }
 
       @media (prefers-color-scheme: dark) {
-        background: rgba(239, 68, 68, 0.1);
-        color: #f87171;
+        background: var(--color-error-bg);
+        color: var(--color-error);
         svg {
-          color: #f87171;
+          color: var(--color-error);
         }
       }
     }
@@ -1224,7 +1249,7 @@
 .logout-confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--color-overlay);
   backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
@@ -1310,10 +1335,10 @@
       }
 
       @media (prefers-color-scheme: dark) {
-        background: #1e293b;
+        background: var(--color-surface-hover);
         color: var(--color-text-muted);
         &:hover {
-          background: #334155;
+          background: var(--color-surface-elevated);
         }
       }
     }
@@ -1365,6 +1390,21 @@
 // RESPONSIVE
 // ─────────────────────────────────────────────────────────────
 @media (max-width: 900px) {
+  // Hide hamburger — mobile tab bar handles navigation
+  .menu-toggle {
+    display: none;
+  }
+  // Slim header on mobile
+  .app-header {
+    height: 52px;
+    padding: 0 14px;
+  }
+  .header-left {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
   .admin-sidebar {
     transform: translateX(-100%);
     transition: transform 220ms var(--ease), width 220ms var(--ease);
@@ -1394,20 +1434,25 @@
 }
 
 // ── Dark Mode — programmatic toggle (data-theme="dark") ──────
-// Mirrors all @media (prefers-color-scheme: dark) rules so the
-// manual toggle in the header works independently of OS setting.
+// Since html[data-theme="dark"] overrides :root tokens in index.scss,
+// all components automatically pick up the correct dark values via
+// var(--color-*) tokens. Only structural/exception overrides are needed here.
 html[data-theme='dark'] {
   .admin-sidebar {
-    background: var(--color-text-primary);
-    border-right-color: #1e293b;
-    scrollbar-color: #1e293b transparent;
+    background: var(--color-surface);
+    border-right-color: var(--color-border);
+    scrollbar-color: var(--color-surface-hover) transparent;
     &::-webkit-scrollbar-thumb {
-      background: #1e293b;
+      background: var(--color-surface-hover);
     }
   }
 
+  .sidebar-top {
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+  }
+
   .sidebar-logo-text {
-    color: var(--color-surface-hover);
+    color: var(--color-text-primary);
   }
   .sidebar-role-label {
     color: var(--color-text-secondary);
@@ -1415,238 +1460,200 @@ html[data-theme='dark'] {
   .collapse-btn {
     color: var(--color-text-muted);
     &:hover {
-      background: #1e293b;
+      background: var(--color-surface-hover);
       color: var(--color-primary-mid);
     }
   }
+  .section-title,
   .section-label {
-    border-top-color: #1e293b;
-    color: #334155;
+    color: var(--color-section-label);
+    border-top-color: var(--color-border);
   }
 
   .nav-item {
     color: var(--color-text-muted);
-    .icon {
-      color: var(--color-text-secondary);
-    }
+    .icon { color: var(--color-text-secondary); }
     &:hover {
       background: rgba(255, 255, 255, 0.04);
-      color: #cbd5e1;
-      .icon {
-        color: var(--color-text-muted);
-      }
+      color: var(--color-text-primary);
+      .icon { color: var(--color-text-muted); }
     }
-    &.active {
+    &.active .nav-link {
       background: linear-gradient(
         90deg,
-        rgba(15, 96, 64, 0.16) 0%,
-        rgba(15, 96, 64, 0.05) 100%
+        var(--color-nav-active-bg) 0%,
+        var(--color-nav-active-bg-end) 100%
       );
-      color: #4ade80;
+      color: var(--color-primary-emphasis);
       border-left-color: var(--color-accent);
-      .icon {
-        color: #4ade80;
-      }
+      box-shadow: inset 0 0 0 1px var(--color-accent-subtle);
+      .icon { color: var(--color-primary-emphasis); }
     }
   }
   .badge {
-    background: #1e293b;
+    background: var(--color-surface-hover);
   }
-  .sidebar-gradient {
-    background: linear-gradient(135deg, #010c05 0%, #0b3d28 100%);
+  .sidebar-inner,
+  .sidebar-section.account {
+    border-top-color: var(--color-border);
   }
 
   .app-header {
-    background: rgba(9, 14, 31, 0.94);
-    border-bottom-color: #1e293b;
-    box-shadow: 0 1px 0 #1e293b, 0 4px 20px rgba(0, 0, 0, 0.3);
-    &::after {
-      opacity: 0.4;
-    }
+    background: var(--color-header-bg);
+    border-bottom-color: var(--color-border);
+    box-shadow: 0 1px 0 var(--color-border), 0 4px 20px rgba(0, 0, 0, 0.3);
+    &::after { opacity: 0.4; }
   }
 
   .menu-toggle {
-    background: #1e293b;
-    color: var(--color-surface-hover);
+    background: var(--color-surface-hover);
+    color: var(--color-text-primary);
+    &:hover {
+      background: var(--color-surface-elevated);
+      color: var(--color-text-primary);
+    }
   }
-  .header-page-title .page-title-text {
-    color: var(--color-text-muted);
-  }
+
   .header-icon-btn {
     color: var(--color-text-muted);
-    svg {
-      color: var(--color-text-secondary);
-    }
+    svg { color: var(--color-text-secondary); }
     &:hover {
-      background: #1e293b;
-      color: var(--color-surface-hover);
-      svg {
-        color: var(--color-surface-hover);
-      }
+      background: var(--color-surface-hover);
+      color: var(--color-text-primary);
+      svg { color: var(--color-text-primary); }
     }
   }
-  .search-bar {
-    background: var(--color-text-primary);
-    border-color: #1e293b;
-    svg {
-      color: var(--color-text-muted);
+
+  // Theme toggle — accent highlight in dark
+  .theme-toggle-btn {
+    background: var(--color-primary-subtle);
+    color: var(--color-accent);
+    &:hover {
+      background: var(--color-primary-light);
+      color: var(--color-accent);
     }
+  }
+
+  .search-bar {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    svg { color: var(--color-text-muted); }
     &:focus-within {
-      background: #1e293b;
+      background: var(--color-surface-hover);
       border-color: var(--color-primary-mid);
-      box-shadow: 0 0 0 3px rgba(15, 96, 64, 0.18);
+      box-shadow: 0 0 0 3px var(--color-primary-subtle);
     }
   }
   .search-input {
-    color: var(--color-surface-hover);
-    &::placeholder {
-      color: var(--color-text-secondary);
-    }
+    color: var(--color-text-primary);
+    &::placeholder { color: var(--color-text-muted); }
   }
+
   .user-menu-btn {
     &:hover {
-      background: #1e293b;
-      color: var(--color-surface-hover);
+      background: var(--color-surface-hover);
+      border-color: var(--color-border);
     }
   }
-  .user-name {
-    color: #cbd5e1;
-  }
+  .user-name { color: var(--color-text-primary); }
+
   .notification-badge {
     background: var(--color-error);
-    color: #fff;
+    color: var(--color-text-inverse);
   }
 
   .notif-dropdown,
   .user-menu-dropdown {
-    background: var(--color-text-primary);
-    border-color: #1e293b;
+    background: var(--color-surface);
+    border-color: var(--color-border);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
   }
   .notif-header {
-    background: rgba(15, 23, 42, 0.95);
-    border-bottom-color: #1e293b;
+    background: var(--color-header-bg);
+    border-bottom-color: var(--color-border);
   }
-  .notif-title {
-    color: var(--color-surface-hover);
-  }
+  .notif-title { color: var(--color-text-primary); }
   .notif-action-btn {
-    color: #4ade80;
-    background: rgba(15, 96, 64, 0.14);
-    &:hover {
-      background: rgba(15, 96, 64, 0.22);
-    }
+    color: var(--color-primary-emphasis);
+    background: var(--color-primary-subtle);
+    &:hover { background: var(--color-primary-light); }
   }
   .notif-clear-btn {
-    color: #f87171;
-    background: rgba(239, 68, 68, 0.1);
-    &:hover {
-      background: rgba(239, 68, 68, 0.18);
-    }
+    color: var(--color-error);
+    background: var(--color-error-bg);
+    &:hover { background: var(--color-error-bg); }
   }
   .notif-item {
-    border-bottom-color: #1e293b;
-    &:hover {
-      background: #1e293b;
-    }
+    border-bottom-color: var(--color-border);
+    &:hover { background: var(--color-surface-hover); }
     &.notif-unread {
-      background: rgba(15, 96, 64, 0.1);
+      background: var(--color-primary-subtle);
       border-left-color: var(--color-accent);
     }
   }
-  .notif-item-title {
-    color: var(--color-border);
-  }
-  .notif-item-msg {
-    color: var(--color-text-secondary);
-  }
-  .notif-item-time {
-    color: #334155;
-  }
+  .notif-item-title { color: var(--color-text-primary); }
+  .notif-item-msg   { color: var(--color-text-secondary); }
+  .notif-item-time  { color: var(--color-section-label); }
   .notif-delete-btn {
     color: var(--color-text-secondary);
     &:hover {
-      background: rgba(239, 68, 68, 0.12);
-      color: #f87171;
+      background: var(--color-error-bg);
+      color: var(--color-error);
     }
   }
   .notif-empty {
-    svg {
-      color: #334155;
-    }
-    p {
-      color: var(--color-text-secondary);
-    }
+    svg { color: var(--color-section-label); }
+    p   { color: var(--color-text-secondary); }
   }
 
   .user-info {
-    background: #1e293b;
-    border-bottom-color: #334155;
+    background: var(--color-surface-hover);
+    border-bottom-color: var(--color-surface-elevated);
   }
   .user-avatar,
   .user-avatar-large {
-    background: linear-gradient(135deg, #0b3d28, #1a8055);
-    color: #fff;
+    background: var(--gradient-brand);
+    color: var(--color-text-inverse);
   }
   .user-fullname,
-  .user-name-text {
-    color: var(--color-surface-hover);
-  }
-  .user-email {
-    color: var(--color-text-secondary);
-  }
+  .user-name-text { color: var(--color-text-primary); }
+  .user-email     { color: var(--color-text-secondary); }
   .user-role {
-    background: rgba(15, 96, 64, 0.18);
-    color: #4ade80;
+    background: var(--color-primary-light);
+    color: var(--color-primary-emphasis);
   }
-  .menu-divider {
-    background: #1e293b;
-  }
+  .menu-divider { background: var(--color-border); }
   .menu-item {
     color: var(--color-text-muted);
-    svg {
-      color: var(--color-text-secondary);
-    }
+    svg { color: var(--color-text-secondary); }
     &:hover {
-      background: #1e293b;
-      color: var(--color-border);
-      svg {
-        color: var(--color-text-muted);
-      }
+      background: var(--color-surface-hover);
+      color: var(--color-text-primary);
+      svg { color: var(--color-text-muted); }
     }
     &.menu-item-danger {
       &:hover {
-        background: rgba(239, 68, 68, 0.1);
-        color: #f87171;
-        svg {
-          color: #f87171;
-        }
+        background: var(--color-error-bg);
+        color: var(--color-error);
+        svg { color: var(--color-error); }
       }
     }
   }
 
   .session-warning-modal,
   .logout-confirm-modal {
-    background: var(--color-text-primary);
+    background: var(--color-surface);
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
-    h3 {
-      color: var(--color-surface-hover);
-    }
-    p {
-      color: var(--color-text-secondary);
-    }
+    h3 { color: var(--color-text-primary); }
+    p  { color: var(--color-text-secondary); }
     .btn-secondary {
-      background: #1e293b;
+      background: var(--color-surface-hover);
       color: var(--color-text-muted);
-      &:hover {
-        background: #334155;
-      }
+      &:hover { background: var(--color-surface-elevated); }
     }
   }
-  .warning-icon-bg {
-    background: rgba(245, 158, 11, 0.12);
-  }
+  .warning-icon-bg,
   .confirm-icon-bg {
-    background: rgba(245, 158, 11, 0.12);
+    background: var(--color-warning-bg);
   }
 }

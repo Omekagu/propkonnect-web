@@ -19,7 +19,8 @@ import {
   AreaChart,
   Area
 } from 'recharts'
-import { FiRefreshCw, FiDownload, FiTrendingUp, FiUsers, FiHome, FiTool } from 'react-icons/fi'
+import { FiRefreshCw, FiDownload, FiTrendingUp, FiUsers, FiHome, FiTool, FiLock } from 'react-icons/fi'
+import { useAuth } from '@/hooks/useAuth'
 import './Report.scss'
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL
@@ -44,16 +45,21 @@ function StatBox ({ label, value, sub, color = '#3b82f6' }) {
   )
 }
 
+const ADMIN_ROLES = ['super-admin', 'sub-admin', 'property-admin', 'artisan-admin', 'sub-property-admin', 'sub-artisan-admin', 'support-admin']
+
 export default function Report () {
+  const { user } = useAuth()
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('overview')
 
+  const isAdmin = ADMIN_ROLES.includes(user?.role)
   const token =
     typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
 
   const fetchStats = useCallback(async () => {
+    if (!isAdmin || !token) { setLoading(false); return }
     setLoading(true)
     setError(null)
     try {
@@ -66,9 +72,18 @@ export default function Report () {
     } finally {
       setLoading(false)
     }
-  }, [token])
+  }, [token, isAdmin])
 
   useEffect(() => { fetchStats() }, [fetchStats])
+
+  if (!isAdmin) {
+    return (
+      <div className='rpt-loader'>
+        <FiLock size={32} style={{ color: '#94a3b8', marginBottom: 12 }} />
+        <p style={{ color: '#64748b', fontSize: 14 }}>Platform reports are only available to administrators.</p>
+      </div>
+    )
+  }
 
   if (loading) {
     return (

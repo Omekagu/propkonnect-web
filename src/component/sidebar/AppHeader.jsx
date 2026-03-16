@@ -168,9 +168,9 @@ export default function AppHeader ({
                     <p>No notifications</p>
                   </div>
                 ) : (
-                  notifications.map(notif => (
+                  [...new Map(notifications.map(n => [n._id ?? n.id, n])).values()].map((notif, i) => (
                     <div
-                      key={notif._id}
+                      key={notif._id ?? notif.id ?? i}
                       className={`notif-item ${!notif.isRead ? 'notif-unread' : ''}`}
                       onClick={() => handleNotifClick(notif)}
                     >
@@ -204,7 +204,7 @@ export default function AppHeader ({
         </div>
 
         {/* Theme Toggle */}
-        <button className='header-icon-btn' onClick={onToggleTheme} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+        <button className={`header-icon-btn theme-toggle-btn${isDark ? ' active' : ''}`} onClick={onToggleTheme} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
           {isDark ? (
             // Sun icon — click to go light
             <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor'>

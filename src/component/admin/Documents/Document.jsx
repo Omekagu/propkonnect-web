@@ -58,10 +58,13 @@ export default function Document () {
   const isOwner  = user?.role === 'property-owner'
 
   useEffect(() => {
+    if (!user) return
+    const token = localStorage.getItem('authToken')
+    if (!token) return
     const endpoint = isTenant
       ? `${API}/api/leases/my`
       : `${API}/api/leases/landlord`
-    axios.get(endpoint, { withCredentials: true })
+    axios.get(endpoint, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => {
         const data = isTenant
           ? (res.data?.leases || res.data?.data || (res.data?.lease ? [res.data.lease] : []))
@@ -70,7 +73,7 @@ export default function Document () {
       })
       .catch(() => setLeases([]))
       .finally(() => setLoading(false))
-  }, [isTenant])
+  }, [user, isTenant])
 
   const filtered = leases.filter(l => {
     const prop   = l.property || {}

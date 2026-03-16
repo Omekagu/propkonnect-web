@@ -37,6 +37,19 @@ export function useNotifications (token) {
     }
   }, [token])
 
+  // ── Dedup helper ──────────────────────────────────────────────────────────
+
+  const mergeUnique = (existing, incoming) => {
+    const map = new Map(existing.map(n => [n._id ?? n.id, n]))
+    let added = 0
+    const arr = Array.isArray(incoming) ? incoming : [incoming]
+    arr.forEach(n => {
+      const key = n._id ?? n.id
+      if (key && !map.has(key)) { map.set(key, n); added++ }
+    })
+    return { list: [...map.values()].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)), added }
+  }
+
   // ── Real-time socket ──────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -51,9 +64,24 @@ export function useNotifications (token) {
 
     socketRef.current = socket
 
+    // New real-time notification
     socket.on('notification:new', (notif) => {
-      setNotifications(prev => [notif, ...prev])
-      setUnreadCount(prev => prev + 1)
+      setNotifications(prev => {
+        const { list, added } = mergeUnique(prev, notif)
+        if (added > 0) setUnreadCount(c => c + added)
+        return list
+      })
+    })
+
+    // Pending notifications delivered on reconnect
+    socket.on('pending:notifications', (pending) => {
+      if (!Array.isArray(pending) || pending.length === 0) return
+      setNotifications(prev => {
+        const { list } = mergeUnique(prev, pending)
+        const newUnread = pending.filter(n => !n.read && !n.isRead).length
+        if (newUnread > 0) setUnreadCount(c => c + newUnread)
+        return list
+      })
     })
 
     return () => {

@@ -27,7 +27,8 @@ import {
   Wrench,
   ClipboardList,
   Award,
-  Search
+  Search,
+  ScanFace
 } from 'lucide-react'
 import axios from 'axios'
 
@@ -147,6 +148,11 @@ export default function Sidebar ({
             key: 'AdminPermissions',
             label: 'Permissions & RBAC',
             icon: <Shield strokeWidth={0.75} />
+          },
+          {
+            key: 'KYCQueue',
+            label: 'KYC Approval Queue',
+            icon: <ScanFace strokeWidth={0.75} />
           }
         ],
         account: [

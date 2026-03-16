@@ -132,7 +132,7 @@
       }
 
       &.card-orange .stat-icon {
-        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        background: linear-gradient(135deg, var(--color-warning, #d97706) 0%, #fbbf24 100%);
       }
 
       .stat-content {
@@ -162,7 +162,7 @@
           color: #64748b;
 
           &.positive {
-            color: #10b981;
+            color: var(--color-success);
           }
         }
       }
@@ -541,13 +541,13 @@
           text-transform: capitalize;
 
           &.active {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
+            background: var(--color-success-bg);
+            color: var(--color-success);
           }
 
           &.pending {
             background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
+            color: var(--color-warning, #d97706);
           }
 
           &.sold {
@@ -667,15 +667,15 @@
               transition: all 0.2s ease;
 
               &.status-pending {
-                border-color: #f59e0b;
-                color: #f59e0b;
+                border-color: var(--color-warning, #d97706);
+                color: var(--color-warning, #d97706);
                 background: rgba(245, 158, 11, 0.05);
               }
 
               &.status-approved {
-                border-color: #10b981;
-                color: #10b981;
-                background: rgba(16, 185, 129, 0.05);
+                border-color: var(--color-success);
+                color: var(--color-success);
+                background: var(--color-success-bg);
               }
 
               &.status-rejected {
@@ -884,12 +884,12 @@
 
                 &.status-pending {
                   background: rgba(245, 158, 11, 0.1);
-                  color: #f59e0b;
+                  color: var(--color-warning, #d97706);
                 }
 
                 &.status-approved {
-                  background: rgba(16, 185, 129, 0.1);
-                  color: #10b981;
+                  background: var(--color-success-bg);
+                  color: var(--color-success);
                 }
 
                 &.status-rejected {
@@ -949,7 +949,7 @@
                 transition: all 0.2s ease;
 
                 &.btn-approve {
-                  background: #10b981;
+                  background: var(--color-success);
                   color: white;
 
                   &:hover {
