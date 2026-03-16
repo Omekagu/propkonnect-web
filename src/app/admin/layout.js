@@ -180,6 +180,23 @@ export default function AdminLayout ({ children }) {
     }
   }, [user?._id])
 
+  // ✅ Fetch live KYC status — keeps kycStatus in sync even after admin approves/rejects
+  // while the user is already logged in (localStorage would otherwise be stale).
+  useEffect(() => {
+    if (!isLoggedIn || !token) return
+    const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
+    fetch(`${API}/api/kyc/status`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.success && data.kyc?.status) {
+          setKycStatus(data.kyc.status)
+        }
+      })
+      .catch(() => {})
+  }, [isLoggedIn, token])
+
   // ✅ Fetch support ticket count
   useEffect(() => {
     if (!isLoggedIn || !user) return

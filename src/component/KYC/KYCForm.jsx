@@ -16,7 +16,7 @@
  * POST /api/kyc/submit
  */
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import {
   Shield,
   User,
@@ -167,60 +167,82 @@ function KYCStatusView ({
             {kyc.documentType && (
               <div className='kyc-sv-preview-row'>
                 <span>Document Type</span>
-                <strong>{DOC_TYPES.find(d => d.value === kyc.documentType)?.label || kyc.documentType}</strong>
+                <strong>
+                  {DOC_TYPES.find(d => d.value === kyc.documentType)?.label ||
+                    kyc.documentType}
+                </strong>
               </div>
             )}
             {kyc.documentNumber && (
               <div className='kyc-sv-preview-row'>
                 <span>Document Number</span>
-                <strong>{'•'.repeat(Math.max(0, (kyc.documentNumber.length || 4) - 4)) + kyc.documentNumber.slice(-4)}</strong>
+                <strong>
+                  {'•'.repeat(
+                    Math.max(0, (kyc.documentNumber.length || 4) - 4)
+                  ) + kyc.documentNumber.slice(-4)}
+                </strong>
               </div>
             )}
             {(kyc.hasDocFront || kyc.documentFrontUrl) && (
               <div className='kyc-sv-preview-row'>
                 <span>Document Front</span>
-                <strong className='check'><CheckCircle size={13} /> Uploaded</strong>
+                <strong className='check'>
+                  <CheckCircle size={13} /> Uploaded
+                </strong>
               </div>
             )}
             {(kyc.hasDocBack || kyc.documentBackUrl) && (
               <div className='kyc-sv-preview-row'>
                 <span>Document Back</span>
-                <strong className='check'><CheckCircle size={13} /> Uploaded</strong>
+                <strong className='check'>
+                  <CheckCircle size={13} /> Uploaded
+                </strong>
               </div>
             )}
             {(kyc.hasSelfie || kyc.selfieUrl) && (
               <div className='kyc-sv-preview-row'>
                 <span>Selfie</span>
-                <strong className='check'><CheckCircle size={13} /> Uploaded</strong>
+                <strong className='check'>
+                  <CheckCircle size={13} /> Uploaded
+                </strong>
               </div>
             )}
             {kyc.gender && (
               <div className='kyc-sv-preview-row'>
                 <span>Gender</span>
-                <strong style={{ textTransform: 'capitalize' }}>{kyc.gender.replace('_', ' ')}</strong>
+                <strong style={{ textTransform: 'capitalize' }}>
+                  {kyc.gender.replace('_', ' ')}
+                </strong>
               </div>
             )}
             {kyc.dateOfBirth && (
               <div className='kyc-sv-preview-row'>
                 <span>Date of Birth</span>
-                <strong>{new Date(kyc.dateOfBirth).toLocaleDateString()}</strong>
+                <strong>
+                  {new Date(kyc.dateOfBirth).toLocaleDateString()}
+                </strong>
               </div>
             )}
             {kyc.maritalStatus && (
               <div className='kyc-sv-preview-row'>
                 <span>Marital Status</span>
-                <strong style={{ textTransform: 'capitalize' }}>{kyc.maritalStatus}</strong>
+                <strong style={{ textTransform: 'capitalize' }}>
+                  {kyc.maritalStatus}
+                </strong>
               </div>
             )}
             {kyc.nextOfKin?.fullName && (
               <div className='kyc-sv-preview-row'>
                 <span>Next of Kin</span>
-                <strong>{kyc.nextOfKin.fullName} ({kyc.nextOfKin.relationship})</strong>
+                <strong>
+                  {kyc.nextOfKin.fullName} ({kyc.nextOfKin.relationship})
+                </strong>
               </div>
             )}
           </div>
           <p className='kyc-sv-preview-locked'>
-            <Shield size={13} /> Submission locked while under review. You cannot edit this information until a decision is made.
+            <Shield size={13} /> Submission locked while under review. You
+            cannot edit this information until a decision is made.
           </p>
         </div>
 
@@ -245,9 +267,7 @@ function KYCStatusView ({
           Your identity has been successfully verified. You have full access to
           all platform features.
         </p>
-        <div className='kyc-sv-badge kyc-sv-badge--approved'>
-          ✓ Approved
-        </div>
+        <div className='kyc-sv-badge kyc-sv-badge--approved'>✓ Approved</div>
         {verificationNote && <p className='kyc-sv-note'>{verificationNote}</p>}
 
         {/* Read-only preview of submitted data */}
@@ -258,55 +278,73 @@ function KYCStatusView ({
               <div className='kyc-sv-preview-row'>
                 <span>Document Type</span>
                 <strong style={{ textTransform: 'capitalize' }}>
-                  {DOC_TYPES.find(d => d.value === kyc.documentType)?.label || kyc.documentType}
+                  {DOC_TYPES.find(d => d.value === kyc.documentType)?.label ||
+                    kyc.documentType}
                 </strong>
               </div>
             )}
             {kyc.documentNumber && (
               <div className='kyc-sv-preview-row'>
                 <span>Document Number</span>
-                <strong>{'•'.repeat(Math.max(0, (kyc.documentNumber.length || 4) - 4)) + (kyc.documentNumber || '').slice(-4)}</strong>
+                <strong>
+                  {'•'.repeat(
+                    Math.max(0, (kyc.documentNumber.length || 4) - 4)
+                  ) + (kyc.documentNumber || '').slice(-4)}
+                </strong>
               </div>
             )}
             {(kyc.hasDocFront || kyc.documentFrontUrl) && (
               <div className='kyc-sv-preview-row'>
                 <span>Document Front</span>
-                <strong className='check'><CheckCircle size={13} /> Uploaded</strong>
+                <strong className='check'>
+                  <CheckCircle size={13} /> Uploaded
+                </strong>
               </div>
             )}
             {(kyc.hasDocBack || kyc.documentBackUrl) && (
               <div className='kyc-sv-preview-row'>
                 <span>Document Back</span>
-                <strong className='check'><CheckCircle size={13} /> Uploaded</strong>
+                <strong className='check'>
+                  <CheckCircle size={13} /> Uploaded
+                </strong>
               </div>
             )}
             {(kyc.hasSelfie || kyc.selfieUrl) && (
               <div className='kyc-sv-preview-row'>
                 <span>Selfie</span>
-                <strong className='check'><CheckCircle size={13} /> Uploaded</strong>
+                <strong className='check'>
+                  <CheckCircle size={13} /> Uploaded
+                </strong>
               </div>
             )}
             {kyc.gender && (
               <div className='kyc-sv-preview-row'>
                 <span>Gender</span>
-                <strong style={{ textTransform: 'capitalize' }}>{kyc.gender.replace('_', ' ')}</strong>
+                <strong style={{ textTransform: 'capitalize' }}>
+                  {kyc.gender.replace('_', ' ')}
+                </strong>
               </div>
             )}
             {kyc.dateOfBirth && (
               <div className='kyc-sv-preview-row'>
                 <span>Date of Birth</span>
-                <strong>{new Date(kyc.dateOfBirth).toLocaleDateString()}</strong>
+                <strong>
+                  {new Date(kyc.dateOfBirth).toLocaleDateString()}
+                </strong>
               </div>
             )}
             {kyc.nextOfKin?.fullName && (
               <div className='kyc-sv-preview-row'>
                 <span>Next of Kin</span>
-                <strong>{kyc.nextOfKin.fullName} ({kyc.nextOfKin.relationship})</strong>
+                <strong>
+                  {kyc.nextOfKin.fullName} ({kyc.nextOfKin.relationship})
+                </strong>
               </div>
             )}
           </div>
           <p className='kyc-sv-preview-locked'>
-            <Shield size={13} /> This information is verified and cannot be edited. Contact support if you need to update your details.
+            <Shield size={13} /> This information is verified and cannot be
+            edited. Contact support if you need to update your details.
           </p>
         </div>
 
@@ -330,7 +368,7 @@ export default function KYCForm ({
   onCancel,
   onSkip,
   existingKyc = null,
-  status: statusProp = null   // explicit override — takes priority over existingKyc.status
+  status: statusProp = null // explicit override — takes priority over existingKyc.status
 }) {
   const isStrict = STRICT_ROLES.includes(userRole)
 
@@ -351,6 +389,36 @@ export default function KYCForm ({
   const [currentStep, setCurrentStep] = useState(steps[0].id)
   const [toast, setToast] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+
+  // ── Live KYC status fetch — overrides stale localStorage/prop data ────────────
+  // Always fetches the current status from the server on mount so that
+  // admin approvals/rejections are reflected immediately without a re-login.
+  const [liveStatus, setLiveStatus] = useState(
+    statusProp || existingKyc?.status || null
+  )
+  const [liveKyc, setLiveKyc] = useState(existingKyc)
+  const [statusLoading, setStatusLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    api
+      .get('/api/kyc/status')
+      .then(res => {
+        if (!cancelled && res.data?.success) {
+          setLiveStatus(res.data.kyc?.status || null)
+          setLiveKyc(prev => ({ ...(prev || {}), ...res.data.kyc }))
+        }
+      })
+      .catch(() => {
+        /* use prop values as fallback */
+      })
+      .finally(() => {
+        if (!cancelled) setStatusLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // ── Form state ────────────────────────────────────────────────────────────────
   const [dateOfBirth, setDateOfBirth] = useState(
@@ -477,9 +545,11 @@ export default function KYCForm ({
         })
       }
       // Use /resubmit only when admin cancelled; otherwise /submit (handles not_submitted + rejected)
-      const endpoint = existingKyc?.status === 'cancelled' ? '/api/kyc/resubmit' : '/api/kyc/submit'
+      const endpoint =
+        kycStatus === 'cancelled' ? '/api/kyc/resubmit' : '/api/kyc/submit'
       const res = await api.post(endpoint, body)
       if (res.data?.success) {
+        setLiveStatus('pending') // immediately lock — no re-fetch needed
         onSuccess?.()
       } else {
         flash(res.data?.message || 'Submission failed — please try again.')
@@ -493,21 +563,38 @@ export default function KYCForm ({
     }
   }
 
-  // ── Status view — shown when KYC is in a non-editable / locked state ─────────
-  // statusProp (from layout state) takes priority over existingKyc.status (localStorage, may be stale)
-  // pending + under_review = waiting for admin → locked
-  // approved = verified → read-only preview
-  // rejected + cancelled = user must resubmit → fall through to form with alert
-  const kycStatus = statusProp || existingKyc?.status
-  if (kycStatus && ['pending', 'under_review', 'approved'].includes(kycStatus)) {
+  // ── Status gate — uses live API data (always accurate) ───────────────────────
+  // liveStatus is fetched from server on mount; falls back to props while loading
+  const kycStatus = liveStatus // what the server says right now
+  const kycData = liveKyc // most up-to-date kyc data
+
+  // Show spinner while first fetch is in flight (avoids flash of wrong state)
+  if (statusLoading) {
+    return (
+      <div className='kyc-form'>
+        <div className='kyc-status-loading'>
+          <Loader2 size={28} className='spin' />
+          <p>Loading verification status…</p>
+        </div>
+      </div>
+    )
+  }
+
+  // pending / under_review → locked in-progress view
+  // approved              → read-only preview
+  // rejected / cancelled  → fall through to form with alert banner
+  if (
+    kycStatus &&
+    ['pending', 'under_review', 'approved'].includes(kycStatus)
+  ) {
     return (
       <div className='kyc-form'>
         <KYCStatusView
           status={kycStatus}
-          existingKyc={existingKyc}
-          rejectionReason={existingKyc?.rejectionReason}
-          verificationNote={existingKyc?.verificationNote}
-          cancellationReason={existingKyc?.cancellationReason}
+          existingKyc={kycData}
+          rejectionReason={kycData?.rejectionReason}
+          verificationNote={kycData?.verificationNote}
+          cancellationReason={kycData?.cancellationReason}
           onCancel={onCancel}
         />
       </div>
@@ -537,8 +624,8 @@ export default function KYCForm ({
           <XCircle size={18} />
           <div>
             <strong>Your KYC was declined.</strong>
-            {existingKyc?.rejectionReason && (
-              <span> Reason: {existingKyc.rejectionReason}.</span>
+            {kycData?.rejectionReason && (
+              <span> Reason: {kycData.rejectionReason}.</span>
             )}
             <span> Please correct your information and resubmit below.</span>
           </div>
@@ -551,8 +638,8 @@ export default function KYCForm ({
           <AlertCircle size={18} />
           <div>
             <strong>Your previous KYC was cancelled.</strong>
-            {existingKyc?.cancellationReason && (
-              <span> Reason: {existingKyc.cancellationReason}.</span>
+            {kycData?.cancellationReason && (
+              <span> Reason: {kycData.cancellationReason}.</span>
             )}
             <span> Please resubmit your documents below.</span>
           </div>
@@ -1005,7 +1092,11 @@ export default function KYCForm ({
           </button>
         ) : onSkip && !kycStatus ? (
           // Only show Skip on first step for not_submitted users
-          <button className='kyc-form-btn-skip' onClick={onSkip} disabled={submitting}>
+          <button
+            className='kyc-form-btn-skip'
+            onClick={onSkip}
+            disabled={submitting}
+          >
             Skip for now
           </button>
         ) : (
