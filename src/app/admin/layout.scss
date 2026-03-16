@@ -1,4 +1,53 @@
 
+// ── KYC Gate ─────────────────────────────────────────────────────────────────
+.kyc-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px;
+  gap: 16px;
+  min-height: 60vh;
+
+  .kyc-gate-icon {
+    font-size: 52px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .kyc-gate-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  .kyc-gate-desc {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    max-width: 440px;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .kyc-gate-btn {
+    margin-top: 8px;
+    padding: 12px 32px;
+    border-radius: 12px;
+    border: none;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(11,61,40,0.25);
+    transition: background 0.2s;
+
+    &:hover { background: var(--color-primary-mid, #0F6040); }
+  }
+}
+
 // ── Mobile tab bar — add bottom clearance to main content ────
 @media (max-width: 900px) {
   .admin-content {
@@ -356,4 +405,8 @@ html[data-theme="dark"] {
     &.alert-info { background: rgba(5,36,24,0.92); color: #a7f3d0; border-bottom-color: rgba(15,96,64,0.4); svg { color: var(--color-primary-emphasis); } }
   }
   .account-setup-wrapper { background: #020617; }
+  .kyc-gate {
+    .kyc-gate-title { color: #f1f5f9; }
+    .kyc-gate-desc { color: #94a3b8; }
+  }
 }

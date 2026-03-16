@@ -60,6 +60,34 @@ import { useNotifications } from '@/hooks/useNotifications'
 import { useTheme } from '@/hooks/useTheme'
 import './layout.scss'
 
+// ── KYC Gate — blocks access to action pages until KYC is approved ────────────
+function KycGate ({ kycStatus, onVerify, children }) {
+  if (kycStatus === 'approved') return children
+
+  const isPending = kycStatus === 'pending' || kycStatus === 'under_review'
+
+  return (
+    <div className='kyc-gate'>
+      <div className='kyc-gate-icon'>
+        {isPending ? '🔍' : '🪪'}
+      </div>
+      <h2 className='kyc-gate-title'>
+        {isPending ? 'Identity Verification In Progress' : 'Identity Verification Required'}
+      </h2>
+      <p className='kyc-gate-desc'>
+        {isPending
+          ? 'Your KYC documents are currently under review by our compliance team. This feature will be unlocked once your identity is verified.'
+          : 'You need to complete identity verification (KYC) before accessing this feature. This ensures the safety and trust of all users on the platform.'}
+      </p>
+      {!isPending && (
+        <button className='kyc-gate-btn' onClick={onVerify}>
+          Complete Verification →
+        </button>
+      )}
+    </div>
+  )
+}
+
 export default function AdminLayout ({ children }) {
   const router = useRouter()
   const { isLoggedIn, isLoading, user, logout, checkAuth, token } = useAuth()
@@ -332,6 +360,19 @@ export default function AdminLayout ({ children }) {
     )
   }
 
+  // ── KYC gate helper — wraps pages that require verified identity ─────────────
+  const gated = (component) => (
+    <KycGate
+      kycStatus={kycStatus}
+      onVerify={() => {
+        setActivePage('KYCVerification')
+        localStorage.setItem('ep_activePage', 'KYCVerification')
+      }}
+    >
+      {component}
+    </KycGate>
+  )
+
   // ✅ Role-based page rendering with proper support ticket routing
   const renderPage = () => {
     // Admin Roles (for main dashboard access)
@@ -441,6 +482,7 @@ export default function AdminLayout ({ children }) {
             <KYCForm
               userRole={user?.role}
               existingKyc={user?.kyc}
+              status={kycStatus}
               onSuccess={() => {
                 setKycStatus('pending')
                 sessionStorage.removeItem('ep_kyc_skipped')
@@ -477,21 +519,21 @@ export default function AdminLayout ({ children }) {
             />
           )
         case 'MyProperties':
-          return <MyProperties />
+          return gated(<MyProperties />)
         case 'PropertyUpload':
-          return <UploadProperty />
+          return gated(<UploadProperty />)
         case 'Tenants':
-          return <Tenant />
+          return gated(<Tenant />)
         case 'Maintenance':
-          return <Maintenance />
+          return gated(<Maintenance />)
         case 'Payments':
-          return <PropertyOwnerPayments />
+          return gated(<PropertyOwnerPayments />)
         case 'Documents':
-          return <Document />
+          return gated(<Document />)
         case 'Reports':
           return <Report />
         case 'FindArtisan':
-          return <FindArtisan />
+          return gated(<FindArtisan />)
         case 'Settings':
           return <Settings />
         case 'KYCVerification':
@@ -499,6 +541,7 @@ export default function AdminLayout ({ children }) {
             <KYCForm
               userRole={user?.role}
               existingKyc={user?.kyc}
+              status={kycStatus}
               onSuccess={() => {
                 setKycStatus('pending')
                 sessionStorage.removeItem('ep_kyc_skipped')
@@ -528,19 +571,19 @@ export default function AdminLayout ({ children }) {
         case 'Dashboard':
           return <ArtisanDashboard />
         case 'AvailableJobs':
-          return <AvailableJobs />
+          return gated(<AvailableJobs />)
         case 'ActiveJobs':
-          return <ActiveJobs />
+          return gated(<ActiveJobs />)
         case 'JobHistory':
-          return <JobHistory />
+          return gated(<JobHistory />)
         case 'Earnings':
-          return <Earnings />
+          return gated(<Earnings />)
         case 'Schedule':
-          return <Schedule />
+          return gated(<Schedule />)
         case 'Portfolio':
-          return <Portfolio />
+          return gated(<Portfolio />)
         case 'Certifications':
-          return <Certifications />
+          return gated(<Certifications />)
         case 'Profile':
           return <Settings />
         case 'Settings':
@@ -550,6 +593,7 @@ export default function AdminLayout ({ children }) {
             <KYCForm
               userRole={user?.role}
               existingKyc={user?.kyc}
+              status={kycStatus}
               onSuccess={() => {
                 setKycStatus('pending')
                 sessionStorage.removeItem('ep_kyc_skipped')
@@ -579,19 +623,19 @@ export default function AdminLayout ({ children }) {
         case 'Dashboard':
           return <TenantDashboard />
         case 'Finance':
-          return <FinanceDashboard />
+          return gated(<FinanceDashboard />)
         case 'FindArtisan':
-          return <FindArtisan />
+          return gated(<FindArtisan />)
         case 'MyHome':
-          return <MyHome />
+          return gated(<MyHome />)
         case 'Payments':
-          return <TenantPayments />
+          return gated(<TenantPayments />)
         case 'Maintenance':
-          return <TenantMaintenance />
+          return gated(<TenantMaintenance />)
         case 'Documents':
-          return <Document />
+          return gated(<Document />)
         case 'Messages':
-          return <Messages />
+          return gated(<Messages />)
         case 'Profile':
           return <Settings />
         case 'Settings':
@@ -601,6 +645,7 @@ export default function AdminLayout ({ children }) {
             <KYCForm
               userRole={user?.role}
               existingKyc={user?.kyc}
+              status={kycStatus}
               onSuccess={() => {
                 setKycStatus('pending')
                 sessionStorage.removeItem('ep_kyc_skipped')

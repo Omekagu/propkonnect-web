@@ -140,6 +140,7 @@ function KYCStatusView ({
   onCancel
 }) {
   if (status === 'pending' || status === 'under_review') {
+    const kyc = existingKyc || {}
     return (
       <div className='kyc-status-view'>
         <div className='kyc-sv-icon kyc-sv-icon--pending'>
@@ -152,12 +153,77 @@ function KYCStatusView ({
           <strong>24–48 hours</strong>.
         </p>
         <div className='kyc-sv-badge kyc-sv-badge--pending'>
-          Status: {status === 'under_review' ? 'Under Review' : 'Pending Review'}
+          {status === 'under_review' ? '🔍 Under Review' : '⏳ Pending Review'}
         </div>
         <p className='kyc-sv-hint'>
           No action needed. You will receive an email and platform notification
           when your KYC is approved or if any documents need to be resubmitted.
         </p>
+
+        {/* Preview of submitted data — read-only */}
+        <div className='kyc-sv-preview'>
+          <div className='kyc-sv-preview-title'>Your Submitted Information</div>
+          <div className='kyc-sv-preview-rows'>
+            {kyc.documentType && (
+              <div className='kyc-sv-preview-row'>
+                <span>Document Type</span>
+                <strong>{DOC_TYPES.find(d => d.value === kyc.documentType)?.label || kyc.documentType}</strong>
+              </div>
+            )}
+            {kyc.documentNumber && (
+              <div className='kyc-sv-preview-row'>
+                <span>Document Number</span>
+                <strong>{'•'.repeat(Math.max(0, (kyc.documentNumber.length || 4) - 4)) + kyc.documentNumber.slice(-4)}</strong>
+              </div>
+            )}
+            {(kyc.hasDocFront || kyc.documentFrontUrl) && (
+              <div className='kyc-sv-preview-row'>
+                <span>Document Front</span>
+                <strong className='check'><CheckCircle size={13} /> Uploaded</strong>
+              </div>
+            )}
+            {(kyc.hasDocBack || kyc.documentBackUrl) && (
+              <div className='kyc-sv-preview-row'>
+                <span>Document Back</span>
+                <strong className='check'><CheckCircle size={13} /> Uploaded</strong>
+              </div>
+            )}
+            {(kyc.hasSelfie || kyc.selfieUrl) && (
+              <div className='kyc-sv-preview-row'>
+                <span>Selfie</span>
+                <strong className='check'><CheckCircle size={13} /> Uploaded</strong>
+              </div>
+            )}
+            {kyc.gender && (
+              <div className='kyc-sv-preview-row'>
+                <span>Gender</span>
+                <strong style={{ textTransform: 'capitalize' }}>{kyc.gender.replace('_', ' ')}</strong>
+              </div>
+            )}
+            {kyc.dateOfBirth && (
+              <div className='kyc-sv-preview-row'>
+                <span>Date of Birth</span>
+                <strong>{new Date(kyc.dateOfBirth).toLocaleDateString()}</strong>
+              </div>
+            )}
+            {kyc.maritalStatus && (
+              <div className='kyc-sv-preview-row'>
+                <span>Marital Status</span>
+                <strong style={{ textTransform: 'capitalize' }}>{kyc.maritalStatus}</strong>
+              </div>
+            )}
+            {kyc.nextOfKin?.fullName && (
+              <div className='kyc-sv-preview-row'>
+                <span>Next of Kin</span>
+                <strong>{kyc.nextOfKin.fullName} ({kyc.nextOfKin.relationship})</strong>
+              </div>
+            )}
+          </div>
+          <p className='kyc-sv-preview-locked'>
+            <Shield size={13} /> Submission locked while under review. You cannot edit this information until a decision is made.
+          </p>
+        </div>
+
         {onCancel && (
           <button className='kyc-sv-btn-outline' onClick={onCancel}>
             Back to Dashboard
@@ -263,7 +329,8 @@ export default function KYCForm ({
   onSuccess,
   onCancel,
   onSkip,
-  existingKyc = null
+  existingKyc = null,
+  status: statusProp = null   // explicit override — takes priority over existingKyc.status
 }) {
   const isStrict = STRICT_ROLES.includes(userRole)
 
@@ -427,10 +494,11 @@ export default function KYCForm ({
   }
 
   // ── Status view — shown when KYC is in a non-editable / locked state ─────────
+  // statusProp (from layout state) takes priority over existingKyc.status (localStorage, may be stale)
   // pending + under_review = waiting for admin → locked
   // approved = verified → read-only preview
   // rejected + cancelled = user must resubmit → fall through to form with alert
-  const kycStatus = existingKyc?.status
+  const kycStatus = statusProp || existingKyc?.status
   if (kycStatus && ['pending', 'under_review', 'approved'].includes(kycStatus)) {
     return (
       <div className='kyc-form'>
