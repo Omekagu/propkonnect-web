@@ -687,7 +687,10 @@ export default function Dashboard ({ onRouteChange }) {
               </span>
               Refresh
             </button>
-            <button className='od-btn od-btn--primary'>
+            <button
+              className='od-btn od-btn--primary'
+              onClick={() => onRouteChange?.('PropertyUpload')}
+            >
               <Icon.Plus /> Add Property
             </button>
           </div>
@@ -807,7 +810,10 @@ export default function Dashboard ({ onRouteChange }) {
                     <p className='od-empty__desc'>
                       Add your first property to start managing your portfolio.
                     </p>
-                    <button className='od-btn od-btn--primary'>
+                    <button
+                      className='od-btn od-btn--primary'
+                      onClick={() => onRouteChange?.('PropertyUpload')}
+                    >
                       <Icon.Plus /> Add Your First Property
                     </button>
                   </div>

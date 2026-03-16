@@ -8,6 +8,24 @@
   margin: 0 auto;
   position: relative;
 
+  // ── Cancelled alert ──────────────────────────────────────────
+  .kyc-cancelled-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fff7ed;
+    border: 1.5px solid #fed7aa;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    color: #9a3412;
+    line-height: 1.5;
+
+    svg { flex-shrink: 0; margin-top: 2px; color: #ea580c; }
+    strong { color: #7c2d12; }
+  }
+
   // ── Toast ────────────────────────────────────────────────────
   .kyc-form-toast {
     position: fixed;

@@ -209,11 +209,6 @@ export default function Sidebar ({
             icon: <ClipboardMinus strokeWidth={0.75} />
           },
           {
-            key: 'Reports',
-            label: 'Reports',
-            icon: <MessageSquareWarning strokeWidth={0.75} />
-          },
-          {
             key: 'FindArtisan',
             label: 'Find Artisan',
             icon: <Wrench strokeWidth={0.75} />

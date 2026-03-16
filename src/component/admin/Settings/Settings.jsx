@@ -94,18 +94,26 @@ function SaveBar ({ dirty, onSave, onDiscard, saving }) {
 
 // ─── Tab Panels ───────────────────────────────────────────────────────────────
 
-function ProfileTab ({ data, onChange, onAvatarUpload }) {
+function ProfileTab ({ data, onChange, onAvatarUpload, locked, onUnlock }) {
   const fileRef = useRef(null)
 
   function handleFileChange (e) {
     const file = e.target.files?.[0]
     if (file) onAvatarUpload(file)
-    // reset so the same file can be re-selected
     e.target.value = ''
   }
 
   return (
     <div className='tab-panel'>
+      {locked && (
+        <div className='tab-panel__edit-bar'>
+          <span className='tab-panel__edit-hint'>Viewing saved settings</span>
+          <button className='btn btn--ghost btn--sm' onClick={onUnlock}>
+            Edit
+          </button>
+        </div>
+      )}
+
       <SectionBlock
         title='Personal Information'
         description='Your name and contact details shown to tenants and agents.'
@@ -130,22 +138,24 @@ function ProfileTab ({ data, onChange, onAvatarUpload }) {
               </>
             )}
           </div>
-          <div className='avatar-row__actions'>
-            <input
-              ref={fileRef}
-              type='file'
-              accept='image/*'
-              style={{ display: 'none' }}
-              onChange={handleFileChange}
-            />
-            <button
-              className='btn btn--ghost btn--sm'
-              onClick={() => fileRef.current?.click()}
-            >
-              Upload photo
-            </button>
-            <button className='btn btn--danger-ghost btn--sm'>Remove</button>
-          </div>
+          {!locked && (
+            <div className='avatar-row__actions'>
+              <input
+                ref={fileRef}
+                type='file'
+                accept='image/*'
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+              />
+              <button
+                className='btn btn--ghost btn--sm'
+                onClick={() => fileRef.current?.click()}
+              >
+                Upload photo
+              </button>
+              <button className='btn btn--danger-ghost btn--sm'>Remove</button>
+            </div>
+          )}
         </div>
 
         <div className='two-col'>
@@ -153,6 +163,7 @@ function ProfileTab ({ data, onChange, onAvatarUpload }) {
             <input
               className='input'
               value={data.firstName}
+              disabled={locked}
               onChange={e => onChange('firstName', e.target.value)}
             />
           </FieldGroup>
@@ -160,6 +171,7 @@ function ProfileTab ({ data, onChange, onAvatarUpload }) {
             <input
               className='input'
               value={data.lastName}
+              disabled={locked}
               onChange={e => onChange('lastName', e.target.value)}
             />
           </FieldGroup>
@@ -173,6 +185,7 @@ function ProfileTab ({ data, onChange, onAvatarUpload }) {
             className='input'
             type='email'
             value={data.email}
+            disabled={locked}
             onChange={e => onChange('email', e.target.value)}
           />
         </FieldGroup>
@@ -183,6 +196,7 @@ function ProfileTab ({ data, onChange, onAvatarUpload }) {
               className='input'
               type='tel'
               value={data.phone}
+              disabled={locked}
               onChange={e => onChange('phone', e.target.value)}
             />
           </FieldGroup>
@@ -190,6 +204,7 @@ function ProfileTab ({ data, onChange, onAvatarUpload }) {
             <select
               className='input input--select'
               value={data.timezone}
+              disabled={locked}
               onChange={e => onChange('timezone', e.target.value)}
             >
               <option value='America/New_York'>Eastern Time (ET)</option>
@@ -211,6 +226,7 @@ function ProfileTab ({ data, onChange, onAvatarUpload }) {
           <input
             className='input'
             value={data.company}
+            disabled={locked}
             onChange={e => onChange('company', e.target.value)}
             placeholder='e.g. King Properties LLC'
           />
@@ -220,39 +236,42 @@ function ProfileTab ({ data, onChange, onAvatarUpload }) {
             <input
               className='input'
               value={data.taxId}
+              disabled={locked}
               onChange={e => onChange('taxId', e.target.value)}
               placeholder='XX-XXXXXXX'
             />
           </FieldGroup>
-          <FieldGroup label='License Number' hint='Optional'>
+          <FieldGroup label='Business Address'>
             <input
               className='input'
-              value={data.licenseNo}
-              onChange={e => onChange('licenseNo', e.target.value)}
+              value={data.businessAddress}
+              disabled={locked}
+              onChange={e => onChange('businessAddress', e.target.value)}
+              placeholder='Street, City, State, ZIP'
             />
           </FieldGroup>
         </div>
-        <FieldGroup label='Business Address'>
-          <input
-            className='input'
-            value={data.businessAddress}
-            onChange={e => onChange('businessAddress', e.target.value)}
-            placeholder='Street, City, State, ZIP'
-          />
-        </FieldGroup>
       </SectionBlock>
     </div>
   )
 }
 
-function NotificationsTab ({ data, onChange }) {
+function NotificationsTab ({ data, onChange, locked, onUnlock }) {
   const channel = key => ({
     checked: data[key] ?? false,
-    onChange: v => onChange(key, v)
+    onChange: locked ? () => {} : v => onChange(key, v)
   })
 
   return (
     <div className='tab-panel'>
+      {locked && (
+        <div className='tab-panel__edit-bar'>
+          <span className='tab-panel__edit-hint'>Viewing saved settings</span>
+          <button className='btn btn--ghost btn--sm' onClick={onUnlock}>
+            Edit
+          </button>
+        </div>
+      )}
       <SectionBlock
         title='Rent & Payments'
         description='Alerts related to rent collection and financial events.'
@@ -1150,9 +1169,23 @@ function SecurityTab ({
   )
 }
 
-function PreferencesTab ({ data, onChange }) {
+function PreferencesTab ({ data, onChange, locked, onUnlock }) {
+  const tog = key => ({
+    checked: data[key] ?? false,
+    onChange: locked ? () => {} : v => onChange(key, v)
+  })
+
   return (
     <div className='tab-panel'>
+      {locked && (
+        <div className='tab-panel__edit-bar'>
+          <span className='tab-panel__edit-hint'>Viewing saved settings</span>
+          <button className='btn btn--ghost btn--sm' onClick={onUnlock}>
+            Edit
+          </button>
+        </div>
+      )}
+
       <SectionBlock
         title='Display & Locale'
         description='Customize how the dashboard looks and formats data.'
@@ -1161,6 +1194,7 @@ function PreferencesTab ({ data, onChange }) {
           <select
             className='input input--select'
             value={data.currency}
+            disabled={locked}
             onChange={e => onChange('currency', e.target.value)}
           >
             <option value='USD'>USD — US Dollar</option>
@@ -1175,6 +1209,7 @@ function PreferencesTab ({ data, onChange }) {
           <select
             className='input input--select'
             value={data.dateFormat}
+            disabled={locked}
             onChange={e => onChange('dateFormat', e.target.value)}
           >
             <option value='MM/DD/YYYY'>MM/DD/YYYY</option>
@@ -1191,7 +1226,8 @@ function PreferencesTab ({ data, onChange }) {
                 className={`theme-btn ${
                   data.theme === t ? 'theme-btn--active' : ''
                 }`}
-                onClick={() => onChange('theme', t)}
+                disabled={locked}
+                onClick={() => !locked && onChange('theme', t)}
               >
                 {t === 'dark' ? '🌙' : t === 'light' ? '☀️' : '⚙️'}
                 <span>{t.charAt(0).toUpperCase() + t.slice(1)}</span>
@@ -1209,6 +1245,7 @@ function PreferencesTab ({ data, onChange }) {
           <select
             className='input input--select'
             value={data.defaultPropertyView}
+            disabled={locked}
             onChange={e => onChange('defaultPropertyView', e.target.value)}
           >
             <option value='grid'>Grid</option>
@@ -1219,14 +1256,12 @@ function PreferencesTab ({ data, onChange }) {
         <Toggle
           label='Show vacant properties first'
           description='Pin un-tenanted units to the top of all lists.'
-          checked={data.vacantFirst}
-          onChange={v => onChange('vacantFirst', v)}
+          {...tog('vacantFirst')}
         />
         <Toggle
           label='Compact sidebar'
           description='Collapse navigation labels by default.'
-          checked={data.compactSidebar}
-          onChange={v => onChange('compactSidebar', v)}
+          {...tog('compactSidebar')}
         />
       </SectionBlock>
 
@@ -1234,20 +1269,14 @@ function PreferencesTab ({ data, onChange }) {
         title='Privacy'
         description='Control what data is visible to tenants and agents.'
       >
-        <Toggle
-          label='Show phone number to tenants'
-          checked={data.showPhone}
-          onChange={v => onChange('showPhone', v)}
-        />
+        <Toggle label='Show phone number to tenants' {...tog('showPhone')} />
         <Toggle
           label='Show company name on lease agreements'
-          checked={data.showCompany}
-          onChange={v => onChange('showCompany', v)}
+          {...tog('showCompany')}
         />
         <Toggle
           label='Allow agents to contact me directly'
-          checked={data.allowAgentContact}
-          onChange={v => onChange('allowAgentContact', v)}
+          {...tog('allowAgentContact')}
         />
       </SectionBlock>
     </div>
@@ -1263,8 +1292,19 @@ export default function Settings () {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
+  // Per-tab editing mode: locked by default; user unlocks to edit, locks again on save/discard
+  const [editingTabs, setEditingTabs] = useState({})
 
-  const dirty = JSON.stringify(formData) !== JSON.stringify(savedData)
+  const isEditing = !!editingTabs[activeTab]
+  const dirty = isEditing && JSON.stringify(formData) !== JSON.stringify(savedData)
+
+  function unlockTab (tab) {
+    setEditingTabs(prev => ({ ...prev, [tab]: true }))
+  }
+
+  function lockTab (tab) {
+    setEditingTabs(prev => ({ ...prev, [tab]: false }))
+  }
 
   function showToast (msg, type = 'success') {
     setToast({ msg, type })
@@ -1302,7 +1342,6 @@ export default function Settings () {
           timezone: p.preferences?.timezone ?? 'Africa/Lagos',
           company: p.propertyOwnerProfile?.companyName ?? '',
           taxId: p.propertyOwnerProfile?.taxId ?? '',
-          licenseNo: '',
           businessAddress: '',
           avatar: p.avatar ?? '',
 
@@ -1379,7 +1418,6 @@ export default function Settings () {
           timezone: formData.timezone,
           company: formData.company,
           tax_id: formData.taxId,
-          license_no: formData.licenseNo,
           business_address: formData.businessAddress
         })
       } else if (activeTab === 'notifications') {
@@ -1455,6 +1493,7 @@ export default function Settings () {
       if (res && !res.success) throw new Error(res.message || 'Save failed.')
 
       setSavedData({ ...formData })
+      lockTab(activeTab)
       showToast('Settings saved successfully.')
     } catch (err) {
       showToast(err.message || 'Failed to save settings.', 'error')
@@ -1465,6 +1504,7 @@ export default function Settings () {
 
   function handleDiscard () {
     setFormData({ ...savedData })
+    lockTab(activeTab)
   }
 
   // ─── Avatar upload ───────────────────────────────────────────────────────────
@@ -1478,7 +1518,7 @@ export default function Settings () {
       if (!result?.url) throw new Error('Upload failed — no URL returned')
 
       // 2. Save the URL to the user profile via the avatar endpoint
-      const res = await apiCall('POST', '/api/settings/profile/avatar', { url: result.url })
+      const res = await apiFetch('POST', '/api/settings/profile/avatar', { url: result.url })
       if (!res.success) throw new Error(res.message)
 
       setFormData(prev => ({ ...prev, avatar: result.url }))
@@ -1615,7 +1655,12 @@ export default function Settings () {
     )
   }
 
-  const tabProps = { data: formData, onChange: handleChange }
+  const tabProps = {
+    data: formData,
+    onChange: handleChange,
+    locked: !isEditing,
+    onUnlock: () => unlockTab(activeTab)
+  }
 
   return (
     <div className='settings'>
@@ -1653,11 +1698,12 @@ export default function Settings () {
           )}
           {activeTab === 'notifications' && <NotificationsTab {...tabProps} />}
           {activeTab === 'billing' && (
-            <BillingTab {...tabProps} onLinkBank={handleLinkBank} />
+            <BillingTab data={formData} onChange={handleChange} onLinkBank={handleLinkBank} />
           )}
           {activeTab === 'security' && (
             <SecurityTab
-              {...tabProps}
+              data={formData}
+              onChange={handleChange}
               sessions={sessions}
               onPasswordChange={handlePasswordChange}
               onRevokeSession={handleRevokeSession}

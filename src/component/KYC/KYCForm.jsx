@@ -136,18 +136,9 @@ function KYCStatusView ({
   status,
   rejectionReason,
   verificationNote,
-  onResubmit,
+  cancellationReason,
   onCancel
 }) {
-  const fmt = d =>
-    d
-      ? new Date(d).toLocaleDateString('en-NG', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
-        })
-      : null
-
   if (status === 'pending' || status === 'under_review') {
     return (
       <div className='kyc-status-view'>
@@ -218,19 +209,15 @@ function KYCStatusView ({
           Status: Rejected
         </div>
         <p className='kyc-sv-hint'>
-          Please resubmit with clearer documents addressing the rejection reason
-          above.
+          Our compliance team will review your submission and may reach out to
+          you directly. You will be notified if you are able to resubmit.
+          Contact <strong>support@propnect.com</strong> if you have questions.
         </p>
-        <div className='kyc-sv-actions'>
-          <button className='kyc-sv-btn-primary' onClick={onResubmit}>
-            <RefreshCw size={15} /> Resubmit KYC
+        {onCancel && (
+          <button className='kyc-sv-btn-outline' onClick={onCancel}>
+            Back to Dashboard
           </button>
-          {onCancel && (
-            <button className='kyc-sv-btn-outline' onClick={onCancel}>
-              Cancel
-            </button>
-          )}
-        </div>
+        )}
       </div>
     )
   }
@@ -247,7 +234,6 @@ export default function KYCForm ({
   existingKyc = null
 }) {
   const isStrict = STRICT_ROLES.includes(userRole)
-  const [forceResubmit, setForceResubmit] = useState(false)
 
   // Steps: strict = [1,2,3,4,5], basic = [2,5] (mapped to 1,2 for progress bar)
   const steps = isStrict
@@ -391,9 +377,9 @@ export default function KYCForm ({
           }
         })
       }
-      // Use /resubmit endpoint when previous status was rejected
-      const wasRejected = existingKyc?.status === 'rejected'
-      const endpoint = wasRejected ? '/api/kyc/resubmit' : '/api/kyc/submit'
+      // Use /resubmit endpoint when admin has cancelled the previous submission
+      const wasCancelled = existingKyc?.status === 'cancelled'
+      const endpoint = wasCancelled ? '/api/kyc/resubmit' : '/api/kyc/submit'
       const res = await api.post(endpoint, body)
       if (res.data?.success) {
         onSuccess?.()
@@ -412,7 +398,6 @@ export default function KYCForm ({
   // ── Status view — shown when KYC is already in a non-editable state ──────────
   const kycStatus = existingKyc?.status
   if (
-    !forceResubmit &&
     kycStatus &&
     ['pending', 'under_review', 'approved', 'rejected'].includes(kycStatus)
   ) {
@@ -422,7 +407,7 @@ export default function KYCForm ({
           status={kycStatus}
           rejectionReason={existingKyc?.rejectionReason}
           verificationNote={existingKyc?.verificationNote}
-          onResubmit={() => setForceResubmit(true)}
+          cancellationReason={existingKyc?.cancellationReason}
           onCancel={onCancel}
         />
       </div>
@@ -443,6 +428,20 @@ export default function KYCForm ({
             <AlertCircle size={15} />
           )}
           {toast.msg}
+        </div>
+      )}
+
+      {/* Cancelled alert — shown when admin cancelled a previous submission */}
+      {kycStatus === 'cancelled' && (
+        <div className='kyc-cancelled-alert'>
+          <AlertCircle size={18} />
+          <div>
+            <strong>Your previous KYC was cancelled.</strong>
+            {existingKyc?.cancellationReason && (
+              <span> Reason: {existingKyc.cancellationReason}.</span>
+            )}
+            <span> Please resubmit your documents below.</span>
+          </div>
         </div>
       )}
 
