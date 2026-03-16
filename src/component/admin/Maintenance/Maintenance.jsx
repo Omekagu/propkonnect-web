@@ -70,11 +70,18 @@ export default function Maintenance () {
   const [expanded, setExpanded] = useState(null)
   const [msg, setMsg] = useState(null)
 
-  useEffect(() => { fetchRequests() }, [])
+  const authHeader = () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
+    return token ? { Authorization: `Bearer ${token}` } : {}
+  }
+
+  useEffect(() => {
+    if (user) fetchRequests()
+  }, [user])
 
   async function fetchRequests () {
     try {
-      const { data } = await axios.get(`${API}/api/service-requests`, { withCredentials: true })
+      const { data } = await axios.get(`${API}/api/service-requests`, { headers: authHeader() })
       setRequests(data.requests || data.data || data || [])
     } catch { setRequests([]) }
     setLoading(false)
@@ -82,7 +89,7 @@ export default function Maintenance () {
 
   async function markComplete (id) {
     try {
-      await axios.post(`${API}/api/service-requests/${id}/complete`, {}, { withCredentials: true })
+      await axios.post(`${API}/api/service-requests/${id}/complete`, {}, { headers: authHeader() })
       setMsg({ type: 'success', text: 'Request marked as completed.' })
       fetchRequests()
     } catch (e) {
@@ -93,7 +100,7 @@ export default function Maintenance () {
   async function cancelRequest (id) {
     if (!confirm('Cancel this maintenance request?')) return
     try {
-      await axios.post(`${API}/api/service-requests/${id}/cancel`, {}, { withCredentials: true })
+      await axios.post(`${API}/api/service-requests/${id}/cancel`, {}, { headers: authHeader() })
       setMsg({ type: 'success', text: 'Request cancelled.' })
       fetchRequests()
     } catch (e) {

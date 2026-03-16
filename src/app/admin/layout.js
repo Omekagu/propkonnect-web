@@ -51,6 +51,7 @@ import PlatformSettings from '../../component/admin/PlatformSettings/PlatformSet
 import EmailTemplates from '../../component/admin/EmailTemplates/EmailTemplates.jsx'
 import AdminPermissions from '../../component/admin/AdminPermissions/AdminPermissions.jsx'
 import KYCQueue from '../../component/admin/KYCQueue/KYCQueue.jsx'
+import KYCForm from '../../component/KYC/KYCForm.jsx'
 import AccountSetup from '../../component/AccountSetup/AccountSetup.jsx'
 import MobileTabBar from '../../component/sidebar/MobileTabBar.jsx'
 import { useRouter } from 'next/navigation'
@@ -99,6 +100,7 @@ export default function AdminLayout ({ children }) {
   const [supportTicketCount, setSupportTicketCount] = useState(0)
   const [accountStatus, setAccountStatus] = useState(null) // 'pending_kyc' | 'pending_payment_setup' | 'active'
   const [showAccountSetup, setShowAccountSetup] = useState(false)
+  const [kycStatus, setKycStatus] = useState(null) // user's kyc.status
 
   // Session timeout timer reference
   const sessionTimeoutRef = React.useRef(null)
@@ -117,7 +119,7 @@ export default function AdminLayout ({ children }) {
     }
   }, [isLoggedIn, isLoading, router])
 
-  // ✅ Read accountStatus — auto-open setup overlay for pending property-owners / artisans
+  // ✅ Read accountStatus + kycStatus — auto-open setup overlay for pending property-owners / artisans
   useEffect(() => {
     if (!user) return
     const status = user?.accountStatus
@@ -129,6 +131,7 @@ export default function AdminLayout ({ children }) {
       setAccountStatus('active')
       setShowAccountSetup(false)
     }
+    setKycStatus(user?.kyc?.status || null)
   }, [user])
 
   // ✅ Fetch support ticket count
@@ -415,6 +418,14 @@ export default function AdminLayout ({ children }) {
           return <AdminPermissions currentUser={user} />
         case 'KYCQueue':
           return <KYCQueue />
+        case 'KYCVerification':
+          return (
+            <KYCForm
+              userRole={user?.role}
+              existingKyc={user?.kyc}
+              onSuccess={() => { setKycStatus('pending'); setActivePage('Dashboard') }}
+            />
+          )
         default:
           return <AdminDashboard />
       }
@@ -443,6 +454,14 @@ export default function AdminLayout ({ children }) {
           return <FindArtisan />
         case 'Settings':
           return <Settings />
+        case 'KYCVerification':
+          return (
+            <KYCForm
+              userRole={user?.role}
+              existingKyc={user?.kyc}
+              onSuccess={() => { setKycStatus('pending'); setActivePage('Dashboard') }}
+            />
+          )
         default:
           return <PropertyOwnerDashboard />
       }
@@ -471,6 +490,14 @@ export default function AdminLayout ({ children }) {
           return <Settings />
         case 'Settings':
           return <Settings />
+        case 'KYCVerification':
+          return (
+            <KYCForm
+              userRole={user?.role}
+              existingKyc={user?.kyc}
+              onSuccess={() => { setKycStatus('pending'); setActivePage('Dashboard') }}
+            />
+          )
         default:
           return <ArtisanDashboard />
       }
@@ -499,6 +526,14 @@ export default function AdminLayout ({ children }) {
           return <Settings />
         case 'Settings':
           return <Settings />
+        case 'KYCVerification':
+          return (
+            <KYCForm
+              userRole={user?.role}
+              existingKyc={user?.kyc}
+              onSuccess={() => { setKycStatus('pending'); setActivePage('Dashboard') }}
+            />
+          )
         default:
           return <TenantDashboard />
       }
@@ -525,30 +560,6 @@ export default function AdminLayout ({ children }) {
 
   return (
     <div className='admin-shell'>
-      {/* Account Pending Banner — shown for property-owner / artisan with incomplete setup */}
-      {accountStatus && accountStatus !== 'active' && !showAccountSetup && (
-        <div className='account-pending-banner'>
-          <div className='apb-content'>
-            <span className='apb-icon'>🔐</span>
-            <div>
-              <strong>
-                {accountStatus === 'pending_kyc'
-                  ? 'Complete Identity Verification (KYC)'
-                  : 'Connect Your Payout Account'}
-              </strong>
-              <span>
-                {accountStatus === 'pending_kyc'
-                  ? ' — Verify your identity to list properties and receive payments.'
-                  : ' — Link your bank account to receive payments from tenants and buyers.'}
-              </span>
-            </div>
-          </div>
-          <button className='apb-btn' onClick={() => setShowAccountSetup(true)}>
-            Complete Setup →
-          </button>
-        </div>
-      )}
-
       {/* Session Warning Modal */}
       {sessionWarning && (
         <div className='session-warning-overlay'>
@@ -613,6 +624,65 @@ export default function AdminLayout ({ children }) {
           onDeleteNotification={deleteNotif}
           onClearAll={clearAllNotifs}
         />
+
+        {/* KYC Banner — not submitted or rejected */}
+        {kycStatus && ['not_submitted', 'rejected'].includes(kycStatus) && activePage !== 'KYCVerification' && (
+          <div className='account-pending-banner account-pending-banner--kyc'>
+            <div className='apb-content'>
+              <span className='apb-icon'>{kycStatus === 'rejected' ? '⚠️' : '🪪'}</span>
+              <div>
+                <strong>
+                  {kycStatus === 'rejected' ? 'KYC Rejected — Resubmit Required' : 'Identity Verification Pending'}
+                </strong>
+                <span>
+                  {kycStatus === 'rejected'
+                    ? ' — Your documents were not accepted. Please resubmit with clearer images.'
+                    : ' — Verify your identity to unlock full platform features.'}
+                </span>
+              </div>
+            </div>
+            <button className='apb-btn' onClick={() => { setActivePage('KYCVerification'); localStorage.setItem('ep_activePage', 'KYCVerification') }}>
+              {kycStatus === 'rejected' ? 'Resubmit KYC →' : 'Verify Now →'}
+            </button>
+          </div>
+        )}
+
+        {/* KYC Under Review Banner */}
+        {kycStatus === 'pending' && activePage !== 'KYCVerification' && (
+          <div className='account-pending-banner account-pending-banner--info'>
+            <div className='apb-content'>
+              <span className='apb-icon'>🔍</span>
+              <div>
+                <strong>KYC Under Review</strong>
+                <span> — Your identity documents have been submitted and are being reviewed. We will notify you within 24–48 hours.</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Account Pending Banner — incomplete payment/KYC setup */}
+        {accountStatus && accountStatus !== 'active' && !showAccountSetup && (
+          <div className='account-pending-banner'>
+            <div className='apb-content'>
+              <span className='apb-icon'>🔐</span>
+              <div>
+                <strong>
+                  {accountStatus === 'pending_kyc'
+                    ? 'Complete Identity Verification (KYC)'
+                    : 'Connect Your Payout Account'}
+                </strong>
+                <span>
+                  {accountStatus === 'pending_kyc'
+                    ? ' — Verify your identity to list properties and receive payments.'
+                    : ' — Link your bank account to receive payments from tenants and buyers.'}
+                </span>
+              </div>
+            </div>
+            <button className='apb-btn' onClick={() => setShowAccountSetup(true)}>
+              Complete Setup →
+            </button>
+          </div>
+        )}
 
         <main className='admin-content' role='main'>
           {renderPage()}

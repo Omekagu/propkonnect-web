@@ -174,6 +174,11 @@ export default function Sidebar ({
         brand: `${process.env.NEXT_PUBLIC_APP_NAME} OWNER`,
         nav: [
           {
+            key: 'KYCVerification',
+            label: 'Identity Verification',
+            icon: <ScanFace strokeWidth={0.75} />
+          },
+          {
             key: 'Dashboard',
             label: 'Dashboard',
             icon: <LayoutDashboard strokeWidth={0.75} />
@@ -302,6 +307,11 @@ export default function Sidebar ({
             icon: <LayoutDashboard strokeWidth={0.75} />
           },
           {
+            key: 'KYCVerification',
+            label: 'Identity Verification',
+            icon: <ScanFace strokeWidth={0.75} />
+          },
+          {
             key: 'AvailableJobs',
             label: 'Available Jobs',
             icon: <Briefcase strokeWidth={0.75} />
@@ -418,6 +428,11 @@ export default function Sidebar ({
             key: 'Dashboard',
             label: 'Dashboard',
             icon: <LayoutDashboard strokeWidth={0.75} />
+          },
+          {
+            key: 'KYCVerification',
+            label: 'Identity Verification',
+            icon: <ScanFace strokeWidth={0.75} />
           },
           {
             key: 'MyLease',

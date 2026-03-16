@@ -64,7 +64,7 @@
         margin: 0;
         font-size: 2rem;
         font-weight: 800;
-        color: #1e293b;
+        color: var(--color-text-primary);
         letter-spacing: -0.025em;
       }
 
@@ -132,7 +132,7 @@
       }
 
       &.card-orange .stat-icon {
-        background: linear-gradient(135deg, var(--color-warning, #d97706) 0%, #fbbf24 100%);
+        background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning) 100%);
       }
 
       .stat-content {
@@ -141,7 +141,7 @@
         h3 {
           font-size: 1.875rem;
           font-weight: 800;
-          color: #1e293b;
+          color: var(--color-text-primary);
           margin: 0 0 0.25rem 0;
           line-height: 1;
         }
@@ -193,7 +193,7 @@
       margin-bottom: -2px;
 
       &:hover {
-        color: #1e293b;
+        color: var(--color-text-primary);
       }
 
       &.active {
@@ -258,7 +258,7 @@
         background: transparent;
         font-size: 0.9375rem;
         font-weight: 600;
-        color: #1e293b;
+        color: var(--color-text-primary);
         cursor: pointer;
 
         &:focus {
@@ -321,7 +321,7 @@
         margin: 0 0 0.5rem 0;
         font-size: 1.25rem;
         font-weight: 700;
-        color: #1e293b;
+        color: var(--color-text-primary);
       }
 
       p {
@@ -425,7 +425,7 @@
           margin: 0;
           font-size: 1.125rem;
           font-weight: 700;
-          color: #1e293b;
+          color: var(--color-text-primary);
           line-height: 1.4;
           flex: 1;
         }
@@ -445,7 +445,7 @@
 
           &:hover {
             background: #e2e8f0;
-            color: #1e293b;
+            color: var(--color-text-primary);
           }
         }
 
@@ -469,7 +469,7 @@
             padding: 0.875rem 1rem;
             border: none;
             background: transparent;
-            color: #1e293b;
+            color: var(--color-text-primary);
             font-size: 0.9375rem;
             font-weight: 500;
             cursor: pointer;
@@ -599,7 +599,7 @@
 
           td {
             padding: 1.25rem;
-            color: #1e293b;
+            color: var(--color-text-primary);
             font-size: 0.9375rem;
 
             .applicant-info {
@@ -628,7 +628,7 @@
 
               .applicant-name {
                 font-weight: 600;
-                color: #1e293b;
+                color: var(--color-text-primary);
               }
 
               .applicant-email {
@@ -640,7 +640,7 @@
             .property-info {
               .property-name {
                 font-weight: 600;
-                color: #1e293b;
+                color: var(--color-text-primary);
                 margin-bottom: 0.25rem;
               }
 
@@ -715,7 +715,7 @@
 
                 &:hover {
                   background: #f1f5f9;
-                  color: #1e293b;
+                  color: var(--color-text-primary);
                   transform: translateY(-2px);
                 }
 
@@ -792,7 +792,7 @@
         h3 {
           font-size: 1.5rem;
           font-weight: 700;
-          color: #1e293b;
+          color: var(--color-text-primary);
           margin: 0;
         }
 
@@ -811,7 +811,7 @@
 
           &:hover {
             background: #e2e8f0;
-            color: #1e293b;
+            color: var(--color-text-primary);
           }
         }
       }
@@ -865,7 +865,7 @@
                 h4 {
                   margin: 0 0 0.25rem 0;
                   font-weight: 600;
-                  color: #1e293b;
+                  color: var(--color-text-primary);
                 }
 
                 p {
@@ -920,7 +920,7 @@
                 strong {
                   display: block;
                   margin-bottom: 0.5rem;
-                  color: #1e293b;
+                  color: var(--color-text-primary);
                 }
 
                 p {
@@ -1024,7 +1024,7 @@
           margin: 0 0 1rem 0;
           font-size: 1.125rem;
           font-weight: 700;
-          color: #1e293b;
+          color: var(--color-text-primary);
           padding-bottom: 0.75rem;
           border-bottom: 2px solid #e2e8f0;
         }
@@ -1046,7 +1046,7 @@
 
             .value {
               font-weight: 600;
-              color: #1e293b;
+              color: var(--color-text-primary);
             }
           }
         }

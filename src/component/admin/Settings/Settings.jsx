@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { uploadAvatar as uploadAvatarToCloudinary } from '@/libs/cloudinaryUpload'
 import './Settings.scss'
 
 // ─── Tab config ───────────────────────────────────────────────────────────────
@@ -27,19 +28,6 @@ async function apiFetch (method, path, body) {
   if (body !== undefined) opts.body = JSON.stringify(body)
 
   const res = await fetch(`${API_BASE}${path}`, opts)
-  return res.json()
-}
-
-async function apiUpload (path, formData) {
-  const token = getToken()
-  const headers = {}
-  if (token) headers.Authorization = `Bearer ${token}`
-
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers,
-    body: formData
-  })
   return res.json()
 }
 
@@ -1480,14 +1468,21 @@ export default function Settings () {
   }
 
   // ─── Avatar upload ───────────────────────────────────────────────────────────
+  // Upload directly to Cloudinary (unsigned preset — no API key needed on server),
+  // then save the returned URL to the user profile via the backend.
   async function handleAvatarUpload (file) {
     try {
-      const fd = new FormData()
-      fd.append('avatar', file)
-      const res = await apiUpload('/api/settings/profile/avatar', fd)
+      showToast('Uploading…')
+      // 1. Direct upload to Cloudinary from the browser
+      const result = await uploadAvatarToCloudinary(file)
+      if (!result?.url) throw new Error('Upload failed — no URL returned')
+
+      // 2. Save the URL to the user profile via the avatar endpoint
+      const res = await apiCall('POST', '/api/settings/profile/avatar', { url: result.url })
       if (!res.success) throw new Error(res.message)
-      setFormData(prev => ({ ...prev, avatar: res.avatar_url }))
-      setSavedData(prev => ({ ...prev, avatar: res.avatar_url }))
+
+      setFormData(prev => ({ ...prev, avatar: result.url }))
+      setSavedData(prev => ({ ...prev, avatar: result.url }))
       showToast('Avatar updated.')
     } catch (err) {
       showToast(err.message || 'Avatar upload failed.', 'error')

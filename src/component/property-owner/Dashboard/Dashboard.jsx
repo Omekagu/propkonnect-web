@@ -451,7 +451,7 @@ function StatCard ({ icon: IconComp, label, value, sub, accent, loading }) {
 }
 
 // ─── PROPERTY ROW ─────────────────────────────────────────────────────────────
-function PropertyRow ({ property }) {
+function PropertyRow ({ property, onEdit }) {
   const { label, cls } = statusMeta(property.status)
   const img = property.images?.[0] || property.media?.[0]?.url || null
   const price =
@@ -494,7 +494,7 @@ function PropertyRow ({ property }) {
         <span className={`od-badge ${cls}`}>{label}</span>
       </div>
       <div className='od-prop-row__actions'>
-        <button className='od-prop-row__btn' title='Edit'>
+        <button className='od-prop-row__btn' title='Edit' onClick={() => onEdit?.(property)}>
           <Icon.Edit />
         </button>
         <button className='od-prop-row__btn' title='View'>
@@ -814,7 +814,17 @@ export default function Dashboard ({ onRouteChange }) {
                 )}
 
                 {!loading &&
-                  recent.map(p => <PropertyRow key={p._id} property={p} />)}
+                  recent.map(p => (
+                    <PropertyRow
+                      key={p._id}
+                      property={p}
+                      onEdit={prop => {
+                        localStorage.setItem('ep_pendingEditId', prop._id)
+                        onRouteChange?.('MyProperties')
+                        localStorage.setItem('ep_activePage', 'MyProperties')
+                      }}
+                    />
+                  ))}
               </div>
             </section>
 

@@ -18,6 +18,8 @@
   position: sticky;
   top: 0;
   z-index: 200;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -50,6 +52,15 @@
     transition: background .2s;
     &:hover { background: rgba(255,255,255,.3); }
   }
+}
+
+// KYC banner variants
+.account-pending-banner--kyc {
+  background: linear-gradient(90deg, #7c2d12, #b45309) !important; // amber/orange = warning
+}
+
+.account-pending-banner--info {
+  background: linear-gradient(90deg, #1e3a5f, #1d4ed8) !important; // blue = info
 }
 
 // ── Session Warning Modal ─────────────────────────────────────

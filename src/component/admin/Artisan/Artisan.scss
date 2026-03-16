@@ -56,13 +56,13 @@ $transition: all 0.3s ease;
 
   &.alert-danger {
     background-color: var(--color-error-bg);
-    color: #991b1b;
+    color: var(--color-error);
     border: 1px solid var(--color-error-bg);
   }
 
   &.alert-success {
     background-color: var(--color-success-bg);
-    color: #166534;
+    color: var(--color-success);
     border: 1px solid var(--color-success-bg);
   }
 
@@ -385,7 +385,7 @@ $transition: all 0.3s ease;
 
     &.unverified {
       background-color: var(--color-warning-bg);
-      color: #92400e;
+      color: var(--color-warning);
     }
   }
 

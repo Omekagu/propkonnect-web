@@ -680,6 +680,17 @@ export default function MyProperties () {
   const [selectedTier, setSelectedTier] = useState('single')
   const [editPropertyId, setEditPropertyId] = useState(null)
 
+  // ── Pick up pending edit from Dashboard ──────────────────────────────────
+  useEffect(() => {
+    const pendingId = localStorage.getItem('ep_pendingEditId')
+    if (pendingId) {
+      localStorage.removeItem('ep_pendingEditId')
+      setEditPropertyId(pendingId)
+      setSelectedTier('single') // will be overridden by wizard's own fetch
+      setPageView('wizard')
+    }
+  }, [])
+
   // ── Data ─────────────────────────────────────────────────────────────────
   const [properties, setProperties] = useState([])
   const [loadingList, setLoadingList] = useState(false)

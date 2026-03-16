@@ -16,7 +16,7 @@
     }
 
     .add-btn {
-      background: var(--color-text-primary);
+      background: var(--color-primary);
       color: var(--color-surface);
       border: none;
       border-radius: var(--radius-sm);
@@ -25,7 +25,7 @@
       transition: 0.3s;
 
       &:hover {
-        background: #000;
+        background: var(--color-primary-mid);
       }
     }
   }
@@ -35,17 +35,17 @@
     border-collapse: collapse;
 
     th {
-      background: #f0f3f8;
+      background: var(--color-background);
       text-align: left;
       padding: 0.8rem;
       font-weight: 600;
-      color: #333;
+      color: var(--color-text-primary);
     }
 
     td {
       padding: 0.8rem;
-      border-bottom: 1px solid #eee;
-      color: #555;
+      border-bottom: 1px solid var(--color-border-light);
+      color: var(--color-text-secondary);
     }
 
     .status {
@@ -61,7 +61,7 @@
 
       &.pending {
         background: var(--color-warning-bg);
-        color: #ca8a04;
+        color: var(--color-warning);
       }
     }
 
@@ -76,13 +76,13 @@
       transition: 0.3s;
 
       &.btn-view {
-        background: #e0f2fe;
-        color: #0369a1;
+        background: var(--color-primary-light);
+        color: var(--color-primary);
       }
 
       &.btn-edit {
         background: var(--color-warning-bg);
-        color: #ca8a04;
+        color: var(--color-warning);
       }
 
       &.btn-delete {
