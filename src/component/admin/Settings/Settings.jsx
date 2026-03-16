@@ -463,7 +463,35 @@ function BillingTab ({ data, onChange }) {
       })
       if (!res.success)
         throw new Error(res.msg || 'Failed to save bank account')
-      setBillingMsg({ text: 'Payout account updated successfully.', ok: true })
+
+      const newStatus = res.accountStatus || 'active'
+
+      // Persist updated accountStatus + paystackSetup into localStorage so
+      // useAuth picks up the change without requiring a re-login.
+      try {
+        const raw = localStorage.getItem('userData')
+        if (raw) {
+          const u = JSON.parse(raw)
+          u.accountStatus = newStatus
+          u.paystackSetup = {
+            ...(u.paystackSetup || {}),
+            bankVerified: true,
+            bankName,
+            accountName,
+            completedAt: new Date().toISOString()
+          }
+          localStorage.setItem('userData', JSON.stringify(u))
+          // Notify useAuth hook so the layout re-evaluates the banner
+          const tok = localStorage.getItem('authToken')
+          window.dispatchEvent(
+            new CustomEvent('authStatusChanged', {
+              detail: { status: 'login', token: tok, userData: u }
+            })
+          )
+        }
+      } catch { /* non-critical */ }
+
+      setBillingMsg({ text: 'Payout account linked successfully.', ok: true })
       setSetupStatus(prev => ({
         ...prev,
         paymentSetup: {
@@ -472,7 +500,7 @@ function BillingTab ({ data, onChange }) {
           bankName,
           accountName
         },
-        accountStatus: res.accountStatus || prev?.accountStatus
+        accountStatus: newStatus
       }))
       setShowBankUpdate(false)
       setAccountNumber('')
@@ -1292,18 +1320,20 @@ export default function Settings () {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
-  // Per-tab editing mode: locked by default; user unlocks to edit, locks again on save/discard
-  const [editingTabs, setEditingTabs] = useState({})
+  // Per-tab locked state: tabs start OPEN (editable); only become locked after a
+  // successful save. lockedTabs[tab] = true means "view mode after save".
+  const [lockedTabs, setLockedTabs] = useState({})
 
-  const isEditing = !!editingTabs[activeTab]
+  // A tab is in view mode only if it has been explicitly locked (saved at least once)
+  const isEditing = lockedTabs[activeTab] !== true
   const dirty = isEditing && JSON.stringify(formData) !== JSON.stringify(savedData)
 
   function unlockTab (tab) {
-    setEditingTabs(prev => ({ ...prev, [tab]: true }))
+    setLockedTabs(prev => ({ ...prev, [tab]: false }))
   }
 
   function lockTab (tab) {
-    setEditingTabs(prev => ({ ...prev, [tab]: false }))
+    setLockedTabs(prev => ({ ...prev, [tab]: true }))
   }
 
   function showToast (msg, type = 'success') {
@@ -1504,7 +1534,8 @@ export default function Settings () {
 
   function handleDiscard () {
     setFormData({ ...savedData })
-    lockTab(activeTab)
+    // Only lock if this tab has been saved before (i.e. it was in edit mode from "Edit" click)
+    if (lockedTabs[activeTab] === false) lockTab(activeTab)
   }
 
   // ─── Avatar upload ───────────────────────────────────────────────────────────

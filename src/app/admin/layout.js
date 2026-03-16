@@ -131,8 +131,26 @@ export default function AdminLayout ({ children }) {
       setAccountStatus('active')
       setShowAccountSetup(false)
     }
-    setKycStatus(user?.kyc?.status || null)
-  }, [user])
+    const ks = user?.kyc?.status || 'not_submitted'
+    setKycStatus(ks)
+
+    // ── KYC onboarding: first-time nudge ─────────────────────────────────────
+    // Admins are not required to submit KYC — skip this redirect for them.
+    const adminRolesList = ['SUPER_ADMIN', 'SUB_ADMIN', 'SUPPORT_ADMIN', 'property-admin', 'artisan-admin', 'sub-property-admin', 'sub-artisan-admin']
+    const isAdminRole = adminRolesList.includes(user.role)
+
+    if (!isAdminRole) {
+      const skipped = sessionStorage.getItem('ep_kyc_skipped')
+      if (!skipped && (!ks || ks === 'not_submitted')) {
+        const savedPage = localStorage.getItem('ep_activePage')
+        // Only redirect if they're landing on Dashboard (not returning to another page)
+        if (!savedPage || savedPage === 'Dashboard') {
+          setActivePage('KYCVerification')
+          localStorage.setItem('ep_activePage', 'KYCVerification')
+        }
+      }
+    }
+  }, [user?._id])
 
   // ✅ Fetch support ticket count
   useEffect(() => {
@@ -425,7 +443,19 @@ export default function AdminLayout ({ children }) {
               existingKyc={user?.kyc}
               onSuccess={() => {
                 setKycStatus('pending')
+                sessionStorage.removeItem('ep_kyc_skipped')
                 setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
+              }}
+              onSkip={() => {
+                sessionStorage.setItem('ep_kyc_skipped', '1')
+                setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
+              }}
+              onCancel={() => {
+                sessionStorage.setItem('ep_kyc_skipped', '1')
+                setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
               }}
             />
           )
@@ -471,7 +501,19 @@ export default function AdminLayout ({ children }) {
               existingKyc={user?.kyc}
               onSuccess={() => {
                 setKycStatus('pending')
+                sessionStorage.removeItem('ep_kyc_skipped')
                 setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
+              }}
+              onSkip={() => {
+                sessionStorage.setItem('ep_kyc_skipped', '1')
+                setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
+              }}
+              onCancel={() => {
+                sessionStorage.setItem('ep_kyc_skipped', '1')
+                setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
               }}
             />
           )
@@ -510,7 +552,19 @@ export default function AdminLayout ({ children }) {
               existingKyc={user?.kyc}
               onSuccess={() => {
                 setKycStatus('pending')
+                sessionStorage.removeItem('ep_kyc_skipped')
                 setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
+              }}
+              onSkip={() => {
+                sessionStorage.setItem('ep_kyc_skipped', '1')
+                setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
+              }}
+              onCancel={() => {
+                sessionStorage.setItem('ep_kyc_skipped', '1')
+                setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
               }}
             />
           )
@@ -549,7 +603,19 @@ export default function AdminLayout ({ children }) {
               existingKyc={user?.kyc}
               onSuccess={() => {
                 setKycStatus('pending')
+                sessionStorage.removeItem('ep_kyc_skipped')
                 setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
+              }}
+              onSkip={() => {
+                sessionStorage.setItem('ep_kyc_skipped', '1')
+                setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
+              }}
+              onCancel={() => {
+                sessionStorage.setItem('ep_kyc_skipped', '1')
+                setActivePage('Dashboard')
+                localStorage.setItem('ep_activePage', 'Dashboard')
               }}
             />
           )
@@ -619,6 +685,7 @@ export default function AdminLayout ({ children }) {
 
       <Sidebar
         userRole={userRole}
+        user={user}
         collapsed={sidebarCollapsed}
         mobileOpen={mobileSidebarOpen}
         onRouteChange={page => {
@@ -647,24 +714,28 @@ export default function AdminLayout ({ children }) {
           onClearAll={clearAllNotifs}
         />
 
-        {/* KYC Banner — not submitted or rejected */}
+        {/* KYC Banner — not submitted, rejected, or cancelled */}
         {kycStatus &&
-          ['not_submitted', 'rejected'].includes(kycStatus) &&
+          ['not_submitted', 'rejected', 'cancelled'].includes(kycStatus) &&
           activePage !== 'KYCVerification' && (
             <div className='account-pending-banner account-pending-banner--kyc'>
               <div className='apb-content'>
                 <span className='apb-icon'>
-                  {kycStatus === 'rejected' ? '⚠️' : '🪪'}
+                  {kycStatus === 'rejected' ? '⚠️' : kycStatus === 'cancelled' ? '🔄' : '🪪'}
                 </span>
                 <div>
                   <strong>
                     {kycStatus === 'rejected'
-                      ? 'KYC Rejected — Resubmit Required'
+                      ? 'KYC Declined — Resubmit Required'
+                      : kycStatus === 'cancelled'
+                      ? 'KYC Cancelled — Please Resubmit'
                       : 'Identity Verification Pending'}
                   </strong>
                   <span>
                     {kycStatus === 'rejected'
-                      ? ' — Your documents were not accepted. Please resubmit with clearer images.'
+                      ? ' — Your documents were not accepted. Correct the details and resubmit.'
+                      : kycStatus === 'cancelled'
+                      ? ' — Your previous submission was cancelled. Please submit new documents.'
                       : ' — Verify your identity to unlock full platform features.'}
                   </span>
                 </div>
@@ -676,7 +747,7 @@ export default function AdminLayout ({ children }) {
                   localStorage.setItem('ep_activePage', 'KYCVerification')
                 }}
               >
-                {kycStatus === 'rejected' ? 'Resubmit KYC →' : 'Verify Now →'}
+                {kycStatus === 'rejected' ? 'Resubmit KYC →' : kycStatus === 'cancelled' ? 'Resubmit →' : 'Verify Now →'}
               </button>
             </div>
           )}

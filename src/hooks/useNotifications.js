@@ -26,12 +26,17 @@ export function useNotifications (token) {
       const res = await fetch(`${API}/api/notifications?limit=30`, {
         headers: authHeader()
       })
+      if (res.status === 401) {
+        // Token expired / invalid — trigger logout so user is redirected to login
+        window.dispatchEvent(new CustomEvent('authStatusChanged', { detail: { status: 'logout' } }))
+        return
+      }
       if (!res.ok) return
       const data = await res.json()
       setNotifications(data.notifications || [])
       setUnreadCount(data.unreadCount || 0)
     } catch (err) {
-      console.warn('[useNotifications] fetch error:', err.message)
+      // Network error — ignore silently (offline, server restarting, etc.)
     } finally {
       setLoading(false)
     }

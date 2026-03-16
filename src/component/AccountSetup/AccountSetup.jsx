@@ -139,13 +139,24 @@ export default function AccountSetup ({ onComplete, initialStatus = 'pending_kyc
       if (res.data?.success) {
         flash('Payment account configured!')
         setStep(3)
-        // Update local storage so app knows account is active
+        // Update local storage + notify useAuth so banner disappears without reload
         try {
-          const stored = localStorage.getItem('userData') || localStorage.getItem('user')
-          if (stored) {
-            const u = JSON.parse(stored)
+          const raw = localStorage.getItem('userData') || localStorage.getItem('user')
+          if (raw) {
+            const u = JSON.parse(raw)
             u.accountStatus = res.data.accountStatus || 'active'
+            u.paystackSetup = {
+              ...(u.paystackSetup || {}),
+              bankVerified: true,
+              bankName: banks.find(b => b.code === bankCode)?.name || bankName,
+              accountName,
+              completedAt: new Date().toISOString()
+            }
             localStorage.setItem('userData', JSON.stringify(u))
+            const tok = localStorage.getItem('authToken')
+            window.dispatchEvent(new CustomEvent('authStatusChanged', {
+              detail: { status: 'login', token: tok, userData: u }
+            }))
           }
         } catch { /* ignore */ }
         if (res.data?.accountStatus === 'active') onComplete?.('active')

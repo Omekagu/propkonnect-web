@@ -30,7 +30,6 @@ import {
   Search,
   ScanFace
 } from 'lucide-react'
-import axios from 'axios'
 
 export default function Sidebar ({
   collapsed = false,
@@ -38,38 +37,15 @@ export default function Sidebar ({
   onCloseMobile = () => {},
   onToggleCollapse = () => {},
   onRouteChange = () => {},
-  userRole = '' // better default
+  userRole = '',
+  user = null // passed from layout — no internal fetch needed
 }) {
   const [activeKey, setActiveKey] = useState('Dashboard')
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
 
   // Restore active page on mount
   useEffect(() => {
     const saved = localStorage.getItem('ep_activePage')
     if (saved) setActiveKey(saved)
-  }, [])
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const authToken = localStorage.getItem('authToken')
-      if (!authToken) return setLoading(false)
-
-      try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/id`,
-          {
-            headers: { Authorization: `Bearer ${authToken}` }
-          }
-        )
-        setUser(res.data.user)
-      } catch (err) {
-        console.error('Failed to fetch user:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchUser()
   }, [])
 
   // Define navigation items for each role
@@ -525,9 +501,6 @@ export default function Sidebar ({
     onRouteChange(key)
     if (mobileOpen) onCloseMobile()
   }
-  if (loading) {
-    return <div className='admin-sidebar'>Loading...</div>
-  }
 
   // Get label for brand subtext
   const activeLabel =
@@ -549,26 +522,26 @@ export default function Sidebar ({
         <div className='sidebar-top'>
           <div className='brand' title={roleBasedNavigation.brand}>
             <div className='brand-logo' aria-hidden='true'>
-              <HousePlus strokeWidth={0.75} onClick={onToggleCollapse} />
+              <HousePlus strokeWidth={0.75} />
             </div>
             {!collapsed && (
               <div className='brand-text'>
                 <strong>{roleBasedNavigation.brand}</strong>
                 {activeLabel && (
-                  <small className='active-tag'>/ {activeLabel}</small>
+                  <small className='active-tag'> {activeLabel}</small>
                 )}
               </div>
             )}
           </div>
 
-          <button
+          {/* <button
             className='collapse-btn'
-            onClick={onToggleCollapse}
+            // onClick={onToggleCollapse}
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={collapsed ? 'Expand' : 'Collapse'}
           >
             <ChevronsRightLeft strokeWidth={0.75} />
-          </button>
+          </button> */}
         </div>
 
         {/* === Menu Section === */}

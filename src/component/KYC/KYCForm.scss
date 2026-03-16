@@ -445,6 +445,45 @@
     &:disabled { opacity: 0.5; cursor: not-allowed; }
   }
 
+  // ── Skip button ──────────────────────────────────────────────
+  .kyc-form-btn-skip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+
+    &:hover { color: var(--color-text-secondary); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+
+  // ── Rejection alert ──────────────────────────────────────────
+  .kyc-rejected-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fef2f2;
+    border: 1.5px solid #fecaca;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    color: #991b1b;
+    line-height: 1.5;
+
+    svg { flex-shrink: 0; margin-top: 2px; color: #dc2626; }
+    strong { color: #7f1d1d; }
+  }
+
   .kyc-form-btn-next,
   .kyc-form-btn-submit {
     display: inline-flex;
@@ -542,6 +581,62 @@
 .kyc-sv-hint {
   font-size: 12px !important;
   color: var(--color-text-muted) !important;
+}
+
+.kyc-sv-preview {
+  width: 100%;
+  max-width: 460px;
+  margin-top: 4px;
+  text-align: left;
+
+  .kyc-sv-preview-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+  }
+
+  .kyc-sv-preview-rows {
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .kyc-sv-preview-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 13px;
+
+    &:last-child { border-bottom: none; }
+
+    span { color: var(--color-text-muted); }
+    strong {
+      color: var(--color-text-primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      &.check { color: #059669; }
+    }
+  }
+
+  .kyc-sv-preview-locked {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    font-style: italic;
+
+    svg { flex-shrink: 0; color: var(--color-primary); }
+  }
 }
 
 .kyc-sv-actions {

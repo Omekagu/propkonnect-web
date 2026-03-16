@@ -116,7 +116,7 @@ export default function Footer () {
         <p>
           © {new Date().getFullYear()} {appName}. All rights reserved.
         </p>
-        <p>Built in Nigeria 🇳🇬 for Africa</p>
+        <p>Built By SPAHTECHNOLOGIES 🇳🇬 </p>
       </div>
     </footer>
   )
