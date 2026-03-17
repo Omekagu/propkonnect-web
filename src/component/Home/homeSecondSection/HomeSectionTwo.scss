@@ -80,7 +80,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #c9a96e;
+        background: #d4f04c;
         color: var(--color-surface);
         width: 70px;
         height: 70px;
@@ -110,16 +110,16 @@
 
       &:hover {
         transform: translateY(-8px);
-        background: #c9a96e;
+        background: #d4f04c;
         color: var(--color-surface);
 
         &::before {
-          background: #c9a96e;
+          background: #d4f04c;
         }
 
         .icon-wrapper {
           background: var(--color-surface);
-          color: #c9a96e;
+          color: #d4f04c;
         }
 
         h3,

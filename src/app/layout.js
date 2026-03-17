@@ -3,106 +3,201 @@ import './index.scss'
 import Script from 'next/script'
 import { ReviewsProvider } from '@/context/ReviewsProvider'
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'propnekt'
-const APP_URL  = process.env.NEXT_PUBLIC_APP_URL  || 'https://propnekt.com'
-const APP_DESC = process.env.NEXT_PUBLIC_APP_DESCRIPTION || 'Find your dream home.'
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'Propnekt'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://propnekt.com'
+const APP_DESC =
+  process.env.NEXT_PUBLIC_APP_DESCRIPTION || 'Find your dream home.'
 const APP_SLUG = APP_NAME.toLowerCase()
 
-const SCHEMA_ORG = JSON.stringify({
+// ─── Schema 1: Organization ──────────────────────────────────────────────────
+// Tells Google who you are, your logo, and your social profiles.
+// This powers the Knowledge Panel on the right side of brand searches.
+const SCHEMA_ORGANIZATION = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: APP_NAME,
   url: APP_URL,
-  logo: `${APP_URL}/logo.png`,
+  logo: {
+    '@type': 'ImageObject',
+    url: `${APP_URL}/logo.png`, // must be absolute URL
+    width: 512,
+    height: 512
+  },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+234-000-000-0000', // ← replace with your number
+    contactType: 'customer service',
+    areaServed: 'NG',
+    availableLanguage: 'English'
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'NG',
+    addressLocality: 'Lagos' // ← replace with your city
+  },
   sameAs: [
     `https://facebook.com/${APP_SLUG}`,
     `https://instagram.com/${APP_SLUG}`,
-    `https://twitter.com/${APP_SLUG}`
+    `https://twitter.com/${APP_SLUG}`,
+    `https://linkedin.com/company/${APP_SLUG}`
   ]
 })
 
+// ─── Schema 2: WebSite (Sitelinks Searchbox) ─────────────────────────────────
+// This is what makes Google show sub-links (like Booking.com's "Find a Flight",
+// "Book Now", etc.) and a search box beneath your result.
+const SCHEMA_WEBSITE = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: APP_NAME,
+  url: APP_URL,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${APP_URL}/search?q={search_term_string}` // ← update with your search URL pattern
+    },
+    'query-input': 'required name=search_term_string'
+  }
+})
+
+// ─── Metadata ─────────────────────────────────────────────────────────────────
 export const metadata = {
   metadataBase: new URL(APP_URL),
 
   title: {
     default: `${APP_NAME} – Real Estate Solutions`,
-    template: '%s | %s',
-    append: APP_NAME
+    // FIX: Only one %s placeholder — the page title replaces %s
+    template: `%s | ${APP_NAME}`
   },
 
-  description: `${APP_DESC} Find your dream home with ${APP_NAME}. Buy, sell or rent properties easily.`,
+  description: `${APP_DESC} Find your dream home with ${APP_NAME}. Buy, sell or rent verified properties across Nigeria easily.`,
 
   keywords: [
-    'real estate',
-    'property for sale',
-    'buy house',
-    'rent house',
     'real estate Nigeria',
-    'property listing',
-    'apartments',
-    'homes',
-    'artisans',
+    'property for sale Lagos',
+    'buy house Nigeria',
+    'rent apartment Lagos',
+    'property listing Nigeria',
+    'luxury real estate',
+    'land for sale Nigeria',
     'property management',
-    'luxury real estate'
+    'homes for rent',
+    'artisan services'
   ],
 
-  authors: [{ name: APP_NAME }],
-
+  authors: [{ name: APP_NAME, url: APP_URL }],
   creator: `${APP_NAME} Team`,
+  publisher: APP_NAME,
 
+  // ─── Open Graph ─────────────────────────────────────────────────────────────
+  // This controls the preview when your link is shared on WhatsApp,
+  // Facebook, LinkedIn, Slack, iMessage, etc.
   openGraph: {
     type: 'website',
-    locale: 'en_US',
+    locale: 'en_NG', // Nigerian locale
     url: APP_URL,
     title: `${APP_NAME} – Real Estate Solutions`,
-    description: `${APP_DESC} Find your dream home with ${APP_NAME}. Buy, sell or rent properties easily.`,
+    description: `${APP_DESC} Find your dream home with ${APP_NAME}. Buy, sell or rent verified properties across Nigeria.`,
     siteName: APP_NAME,
     images: [
       {
-        url: '/images/seo-banner.jpg',
+        // FIX: absolute URL — relative URLs break WhatsApp, Slack, LinkedIn previews
+        url: `${APP_URL}/images/seo-banner.jpg`,
         width: 1200,
         height: 630,
-        alt: `${APP_NAME} Real Estate`
+        alt: `${APP_NAME} – Find Properties in Nigeria`,
+        type: 'image/jpeg'
       }
     ]
   },
 
+  // ─── Twitter / X Card ───────────────────────────────────────────────────────
+  // summary_large_image = big banner preview. Google also reads this.
   twitter: {
     card: 'summary_large_image',
+    site: `@${APP_SLUG}`,
+    creator: `@${APP_SLUG}`,
     title: `${APP_NAME} – Real Estate Solutions`,
     description: `${APP_DESC} Find your dream home with ${APP_NAME}. Buy, sell or rent properties easily.`,
-    images: ['/images/seo-banner.jpg']
+    images: [`${APP_URL}/images/seo-banner.jpg`] // FIX: absolute URL
   },
 
+  // ─── Robots ─────────────────────────────────────────────────────────────────
   robots: {
     index: true,
     follow: true,
     googleBot: {
       index: true,
-      follow: true
+      follow: true,
+      'max-image-preview': 'large', // allows Google to show large image previews
+      'max-snippet': -1, // allows full snippet length
+      'max-video-preview': -1
     }
   },
 
+  // ─── Icons ──────────────────────────────────────────────────────────────────
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png'
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon-16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icon-32.png', sizes: '32x32', type: 'image/png' }
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/safari-pinned-tab.svg',
+        color: '#your-brand-color'
+      }
+    ]
+  },
+
+  // ─── Manifest ───────────────────────────────────────────────────────────────
+  manifest: '/site.webmanifest',
+
+  // ─── Verification ───────────────────────────────────────────────────────────
+  // Paste your codes from Google Search Console and Bing Webmaster Tools
+  verification: {
+    google: 'YOUR_GOOGLE_SITE_VERIFICATION_CODE', // from Google Search Console
+    other: {
+      'msvalidate.01': 'YOUR_BING_VERIFICATION_CODE' // from Bing Webmaster Tools
+    }
+  },
+
+  // ─── Alternates ─────────────────────────────────────────────────────────────
+  alternates: {
+    canonical: APP_URL
   }
 }
 
+// ─── Root Layout ──────────────────────────────────────────────────────────────
 export default function RootLayout ({ children }) {
   return (
-    <html lang='en'>
+    <html lang='en-NG'>
+      {' '}
+      {/* Nigerian English locale */}
       <head>
+        {/* Payment SDK */}
         <Script
           src='https://sdk.monnify.com/plugin/monnify.js'
           strategy='beforeInteractive'
         />
 
+        {/* Schema: Organization — powers Knowledge Panel */}
         <Script
-          id='schema-org'
+          id='schema-organization'
           type='application/ld+json'
           strategy='afterInteractive'
-          dangerouslySetInnerHTML={{ __html: SCHEMA_ORG }}
+          dangerouslySetInnerHTML={{ __html: SCHEMA_ORGANIZATION }}
+        />
+
+        {/* Schema: WebSite — powers Sitelinks + Searchbox in Google */}
+        <Script
+          id='schema-website'
+          type='application/ld+json'
+          strategy='afterInteractive'
+          dangerouslySetInnerHTML={{ __html: SCHEMA_WEBSITE }}
         />
       </head>
       <body>

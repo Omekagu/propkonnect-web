@@ -18,4 +18,4 @@ Disallow: /artisan-dashboard/
 Disallow: /api/
 Disallow: /payment/
 
-Sitemap: https://estateproperties.ng/sitemap.xml
+Sitemap: https://propnekt.com/sitemap.xml

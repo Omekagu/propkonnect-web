@@ -61,8 +61,8 @@
       margin-bottom: 1rem;
 
       span {
-        color: #c9a96e;
-        background: linear-gradient(90deg, #c9a96e, #e2c89a);
+        color: #d4f04c;
+        background: linear-gradient(90deg, #d4f04c, #e2c89a);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
@@ -117,7 +117,7 @@
 
         &:focus {
           background: var(--color-surface);
-          box-shadow: 0 0 0 2px #c9a96e, 0 4px 10px rgba(0, 191, 166, 0.2);
+          box-shadow: 0 0 0 2px #d4f04c, 0 4px 10px rgba(0, 191, 166, 0.2);
         }
       }
 
@@ -127,7 +127,7 @@
         min-width: 100px;
 
         &:focus {
-          box-shadow: 0 0 0 2px #c9a96e;
+          box-shadow: 0 0 0 2px #d4f04c;
         }
       }
 
@@ -137,7 +137,7 @@
         font-size: 19px;
         justify-content: center;
         gap: 0.4rem;
-        background: linear-gradient(90deg, #c9a96e, #e2c89a);
+        background: linear-gradient(90deg, #d4f04c, #e2c89a);
         color: var(--color-surface);
         border: none;
         border-radius: var(--radius-md);
@@ -152,7 +152,7 @@
         }
 
         &:hover {
-          background: linear-gradient(90deg, #e2c89a, #c9a96e);
+          background: linear-gradient(90deg, #e2c89a, #d4f04c);
           box-shadow: 0 6px 20px rgba(0, 191, 166, 0.45);
 
           svg {
