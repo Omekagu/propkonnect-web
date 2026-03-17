@@ -34,7 +34,7 @@
 .rpt-btn-icon {
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   display: flex;
@@ -44,7 +44,9 @@
   color: var(--color-text-muted);
   transition: background 0.15s;
 
-  &:hover { background: var(--color-surface-hover); }
+  &:hover {
+    background: var(--color-surface-hover);
+  }
 }
 
 .rpt-btn {
@@ -53,7 +55,7 @@
   gap: 6px;
   padding: 0 14px;
   height: 36px;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   border: none;
   background: var(--color-primary-mid);
   color: var(--color-surface);
@@ -62,7 +64,9 @@
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: var(--color-primary-mid); }
+  &:hover {
+    background: var(--color-primary-mid);
+  }
 }
 
 // ── Tabs ─────────────────────────────────────────────────────────────────────
@@ -89,11 +93,14 @@
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  //r(--radius-sm) var(--radius-sm) 0 0;
   white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
 
-  &:hover { color: var(--color-text-primary); background: var(--color-surface-hover); }
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--color-surface-hover);
+  }
 
   &.active {
     color: var(--color-primary-mid);
@@ -109,8 +116,14 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // ── Stats Grid ───────────────────────────────────────────────────────────────
@@ -125,9 +138,9 @@
 .rpt-stat-box {
   background: var(--color-surface);
   border: 1px solid #e8edf4;
-  border-radius: var(--radius-md);
+
   padding: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .rpt-stat-value {
@@ -167,9 +180,9 @@
 .rpt-chart-card {
   background: var(--color-surface);
   border: 1px solid #e8edf4;
-  border-radius: var(--radius-md);
+
   padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 
   h3 {
     margin: 0 0 16px;
@@ -178,9 +191,13 @@
     color: var(--color-text-primary);
   }
 
-  &.rpt-wide { grid-column: span 1; }
+  &.rpt-wide {
+    grid-column: span 1;
+  }
 
-  &.rpt-narrow { grid-column: span 1; }
+  &.rpt-narrow {
+    grid-column: span 1;
+  }
 
   &.rpt-callout {
     display: flex;
@@ -239,13 +256,15 @@
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    border-radius: var(--radius-sm);
+    //r(--radius-sm);
     border: none;
     background: var(--color-error);
     color: var(--color-surface);
     font-size: 13px;
     cursor: pointer;
-    &:hover { background: var(--color-error); }
+    &:hover {
+      background: var(--color-error);
+    }
   }
 }
 
@@ -254,6 +273,10 @@
 @media print {
   .rpt-btn-icon,
   .rpt-btn,
-  .rpt-tabs { display: none; }
-  .rpt-section { page-break-inside: avoid; }
+  .rpt-tabs {
+    display: none;
+  }
+  .rpt-section {
+    page-break-inside: avoid;
+  }
 }

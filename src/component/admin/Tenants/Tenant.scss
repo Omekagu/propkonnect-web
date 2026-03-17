@@ -1,6 +1,6 @@
 .user-section {
   background: var(--color-surface);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
   padding: 2rem;
   box-shadow: 0 5px 12px rgba(0, 0, 0, 0.05);
 
@@ -19,7 +19,7 @@
       background: var(--color-primary);
       color: var(--color-surface);
       border: none;
-      border-radius: var(--radius-sm);
+      //r(--radius-sm);
       padding: 0.5rem 1rem;
       cursor: pointer;
       transition: 0.3s;
@@ -50,7 +50,7 @@
 
     .status {
       padding: 0.3rem 0.8rem;
-      border-radius: var(--radius-sm);
+      //r(--radius-sm);
       font-size: 0.85rem;
       font-weight: 500;
 
@@ -67,7 +67,7 @@
 
     button {
       border: none;
-      border-radius: var(--radius-sm);
+      //r(--radius-sm);
       padding: 0.3rem 0.6rem;
       margin-right: 0.4rem;
       cursor: pointer;

@@ -943,7 +943,7 @@
 //         h1 {
 //           font-size: 2rem;
 //           font-weight: 700;
-//           color: #0f172a;
+//           color: #0f6040;
 //           margin-bottom: 0.5rem;
 //           line-height: 1.2;
 
@@ -967,7 +967,7 @@
 //           align-items: center;
 //           gap: 0.5rem;
 //           padding: 0.75rem 1.25rem;
-//           border-radius: 10px;
+//           
 //           font-weight: 500;
 //           font-size: 0.9rem;
 //           cursor: pointer;
@@ -982,7 +982,7 @@
 
 //         .btn-secondary {
 //           background: white;
-//           color: #0f172a;
+//           color: #0f6040;
 //           border: 2px solid #e2e8f0;
 
 //           &:hover {
@@ -1036,7 +1036,7 @@
 //       border: none;
 //       background: transparent;
 //       color: #6b7280;
-//       border-radius: 10px;
+//       
 //       cursor: pointer;
 //       transition: all 0.15s ease;
 //       font-size: 0.875rem;
@@ -1172,7 +1172,7 @@
 //         h3 {
 //           font-size: 2rem;
 //           font-weight: 700;
-//           color: #0f172a;
+//           color: #0f6040;
 //           margin-bottom: 0.25rem;
 //         }
 
@@ -1216,7 +1216,7 @@
 //       h2 {
 //         font-size: 1.75rem;
 //         font-weight: 700;
-//         color: #0f172a;
+//         color: #0f6040;
 //       }
 
 //       .btn-text {
@@ -1295,7 +1295,7 @@
 //         h4 {
 //           font-size: 1.125rem;
 //           font-weight: 700;
-//           color: #0f172a;
+//           color: #0f6040;
 //           margin-bottom: 0.5rem;
 //           line-height: 1.4;
 //         }
@@ -1358,7 +1358,7 @@
 //           width: 100%;
 //           padding: 0.75rem 0.75rem 0.75rem 2.75rem;
 //           border: 2px solid #e2e8f0;
-//           border-radius: 10px;
+//           
 //           font-size: 0.95rem;
 //           transition: all 0.15s ease;
 //           background: white;
@@ -1374,7 +1374,7 @@
 //       select {
 //         padding: 0.75rem 1.25rem;
 //         border: 2px solid #e2e8f0;
-//         border-radius: 10px;
+//         
 //         background: white;
 //         font-size: 0.95rem;
 //         font-weight: 500;
@@ -1407,7 +1407,7 @@
 //       border-collapse: collapse;
 
 //       thead {
-//         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+//         background: linear-gradient(135deg, #0f6040 0%, #1e293b 100%);
 
 //         tr th {
 //           padding: 1.25rem;
@@ -1435,7 +1435,7 @@
 
 //           td {
 //             padding: 1.25rem;
-//             color: #0f172a;
+//             color: #0f6040;
 //             font-size: 0.95rem;
 
 //             &.amount {
@@ -1452,7 +1452,7 @@
 //               img {
 //                 width: 50px;
 //                 height: 50px;
-//                 border-radius: 10px;
+//                 
 //                 object-fit: cover;
 //               }
 //             }
@@ -1515,7 +1515,7 @@
 //   .status-select {
 //     padding: 0.5rem 1rem;
 //     border: 2px solid #e2e8f0;
-//     border-radius: 10px;
+//     
 //     font-size: 0.875rem;
 //     font-weight: 600;
 //     cursor: pointer;
@@ -1559,7 +1559,7 @@
 //       width: 36px;
 //       height: 36px;
 //       border: none;
-//       border-radius: 10px;
+//       
 //       display: flex;
 //       align-items: center;
 //       justify-content: center;
@@ -1645,7 +1645,7 @@
 
 //         h4 {
 //           font-weight: 600;
-//           color: #0f172a;
+//           color: #0f6040;
 //         }
 
 //         p {
@@ -1658,7 +1658,7 @@
 //         width: 36px;
 //         height: 36px;
 //         border: none;
-//         border-radius: 10px;
+//         
 //         background: #f6f7fb;
 //         color: #6b7280;
 //         cursor: pointer;
@@ -1675,7 +1675,7 @@
 //     }
 
 //     .message-content {
-//       color: #0f172a;
+//       color: #0f6040;
 //       line-height: 1.6;
 //     }
 //   }
@@ -1712,7 +1712,7 @@
 
 //       h4 {
 //         font-weight: 600;
-//         color: #0f172a;
+//         color: #0f6040;
 //         margin-bottom: 0.25rem;
 //       }
 
@@ -1733,7 +1733,7 @@
 //       width: 32px;
 //       height: 32px;
 //       border: none;
-//       border-radius: 10px;
+//       
 //       background: transparent;
 //       color: #6b7280;
 //       cursor: pointer;
@@ -1807,14 +1807,14 @@
 //         h3 {
 //           font-size: 1.5rem;
 //           font-weight: 700;
-//           color: #0f172a;
+//           color: #0f6040;
 //         }
 
 //         button {
 //           width: 36px;
 //           height: 36px;
 //           border: none;
-//           border-radius: 10px;
+//           
 //           background: #f6f7fb;
 //           color: #6b7280;
 //           cursor: pointer;
@@ -1838,7 +1838,7 @@
 //         pre {
 //           background: #f6f7fb;
 //           padding: 1.25rem;
-//           border-radius: 10px;
+//           
 //           overflow-x: auto;
 //           font-size: 0.875rem;
 //           line-height: 1.6;

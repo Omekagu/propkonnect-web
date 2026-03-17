@@ -220,7 +220,7 @@ html[data-theme='dark'] .mp-page {
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  border-radius: var(--mp-radius-sm);
+  //r(--mp-radius-sm);
   border: 1.5px solid transparent;
   font-family: 'DM Sans', sans-serif;
   font-size: 13.5px;
@@ -279,7 +279,7 @@ html[data-theme='dark'] .mp-page {
 
 .mp-btn--icon {
   padding: 9px;
-  border-radius: var(--mp-radius-sm);
+  //r(--mp-radius-sm);
   border: 1.5px solid var(--mp-border);
   background: var(--mp-white);
   color: var(--mp-slate-3);
@@ -324,7 +324,7 @@ html[data-theme='dark'] .mp-page {
 .mp-stat {
   background: var(--mp-white);
   border: 1px solid var(--mp-border-soft);
-  border-radius: var(--mp-radius-sm);
+  //r(--mp-radius-sm);
   padding: 16px 18px;
   transition: all 0.25s var(--mp-ease);
   cursor: default;
@@ -415,7 +415,7 @@ html[data-theme='dark'] .mp-page {
   gap: 8px;
   padding: 9px 14px;
   border: 1.5px solid var(--mp-border);
-  border-radius: var(--mp-radius-sm);
+  //r(--mp-radius-sm);
   background: var(--mp-white);
   flex: 1;
   min-width: 220px;
@@ -450,7 +450,7 @@ html[data-theme='dark'] .mp-page {
 .mp-select {
   padding: 9px 14px;
   border: 1.5px solid var(--mp-border);
-  border-radius: var(--mp-radius-sm);
+  //r(--mp-radius-sm);
   background: var(--mp-white);
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
@@ -566,7 +566,7 @@ html[data-theme='dark'] .mp-page {
 .mp-card {
   background: var(--mp-white);
   border: 1px solid var(--mp-border-soft);
-  border-radius: var(--mp-radius);
+  //r(--mp-radius);
   overflow: hidden;
   position: relative;
   transition: all 0.3s var(--mp-ease);
@@ -599,7 +599,7 @@ html[data-theme='dark'] .mp-page {
       width: 200px;
       height: 160px;
       flex-shrink: 0;
-      border-radius: var(--mp-radius) 0 0 var(--mp-radius);
+      //r(--mp-radius) 0 0 var(--mp-radius);
     }
 
     .mp-card__body {
@@ -1115,7 +1115,7 @@ html[data-theme='dark'] .mp-page {
 .mp-modal__close {
   width: 34px;
   height: 34px;
-  border-radius: 10px;
+
   border: 1.5px solid var(--mp-border);
   background: transparent;
   display: flex;
@@ -1150,7 +1150,7 @@ html[data-theme='dark'] .mp-page {
 
 .mp-tier-card {
   border: 2px solid var(--mp-border);
-  border-radius: var(--mp-radius);
+  //r(--mp-radius);
   padding: 22px 22px 18px;
   cursor: pointer;
   transition: all 0.25s var(--mp-ease);

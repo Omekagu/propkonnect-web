@@ -17,7 +17,7 @@
   display: inline-block;
   padding: 0.35rem 1rem;
   background: var(--primary-light);
-  border-radius: var(--radius-full);
+
   color: var(--primary-mid);
   font-size: 0.75rem;
   font-weight: 700;
@@ -30,7 +30,7 @@
 .lp-tab {
   padding: 0.45rem 1.1rem;
   border: 1.5px solid var(--border);
-  border-radius: var(--radius-full);
+
   font-size: 0.85rem;
   font-weight: 600;
   background: var(--surface);
@@ -58,7 +58,7 @@
   padding: 0.9rem 2rem;
   background: var(--cta);
   border: none;
-  border-radius: var(--radius-md);
+
   color: var(--cta-text);
   font-size: 1rem;
   font-weight: 700;
@@ -80,7 +80,7 @@
   padding: 0.9rem 2rem;
   background: transparent;
   border: 2px solid var(--primary);
-  border-radius: var(--radius-md);
+
   color: var(--primary);
   font-size: 1rem;
   font-weight: 700;
@@ -100,7 +100,7 @@
   padding: 0.9rem 2rem;
   background: rgba(255, 255, 255, 0.12);
   border: 1.5px solid rgba(255, 255, 255, 0.4);
-  border-radius: var(--radius-md);
+
   color: #fff;
   font-size: 1rem;
   font-weight: 600;
@@ -152,7 +152,7 @@
     width: 34px;
     height: 34px;
     background: var(--cta);
-    border-radius: 10px;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -210,7 +210,7 @@
     padding: 0.5rem 1.2rem;
     background: transparent;
     border: 1.5px solid rgba(255, 255, 255, 0.4);
-    border-radius: var(--radius-md);
+
     color: #fff;
     font-size: 0.875rem;
     font-weight: 600;
@@ -227,7 +227,7 @@
     padding: 0.5rem 1.35rem;
     background: var(--cta);
     border: none;
-    border-radius: var(--radius-md);
+
     color: var(--cta-text);
     font-size: 0.875rem;
     font-weight: 700;
@@ -270,9 +270,16 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
       transform-origin: center;
     }
-    &.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    &.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-    &.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    &.open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    &.open span:nth-child(2) {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    &.open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
   }
 
   // ── Mobile backdrop ───────────────────────────────────────────
@@ -293,7 +300,9 @@
     @media (max-width: 900px) {
       display: block;
       pointer-events: none;
-      &.visible { pointer-events: all; }
+      &.visible {
+        pointer-events: all;
+      }
     }
   }
 
@@ -313,9 +322,13 @@
     overflow-y: auto;
     box-shadow: -8px 0 40px rgba(0, 0, 0, 0.35);
 
-    &.open { transform: translateX(0); }
+    &.open {
+      transform: translateX(0);
+    }
 
-    @media (max-width: 900px) { display: flex; }
+    @media (max-width: 900px) {
+      display: flex;
+    }
   }
 
   &__drawer-header {
@@ -329,7 +342,7 @@
   &__drawer-close {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-md);
+
     color: #fff;
     width: 36px;
     height: 36px;
@@ -340,7 +353,9 @@
     transition: background 0.2s;
     flex-shrink: 0;
 
-    &:hover { background: rgba(255, 255, 255, 0.2); }
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
   }
 
   &__logo-img {
@@ -400,7 +415,7 @@
     padding: 0.85rem;
     background: transparent;
     border: 1.5px solid rgba(255, 255, 255, 0.35);
-    border-radius: var(--radius-md);
+
     color: #fff;
     font-size: 0.95rem;
     font-weight: 600;
@@ -408,7 +423,10 @@
     transition: all 0.2s;
     text-align: center;
 
-    &:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.6); }
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
   }
 
   &__drawer-btn-cta {
@@ -416,7 +434,7 @@
     padding: 0.9rem;
     background: var(--cta);
     border: none;
-    border-radius: var(--radius-md);
+
     color: var(--cta-text);
     font-size: 0.95rem;
     font-weight: 700;
@@ -425,7 +443,10 @@
     text-align: center;
     box-shadow: 0 4px 14px rgba(196, 229, 60, 0.4);
 
-    &:hover { background: var(--cta-hover); transform: translateY(-1px); }
+    &:hover {
+      background: var(--cta-hover);
+      transform: translateY(-1px);
+    }
   }
 
   &__drawer-trust {
@@ -514,7 +535,7 @@
 // ── Search Widget ─────────────────────────────────────────────
 .lp-search {
   background: #fff;
-  border-radius: var(--radius-xl);
+  //r(--radius-xl);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   max-width: 800px;
   overflow: hidden;
@@ -527,7 +548,9 @@
     padding: 0 0.25rem;
     overflow-x: auto;
     scrollbar-width: none;
-    &::-webkit-scrollbar { display: none; }
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   &__tab {
@@ -577,10 +600,16 @@
     transition: background 0.15s;
     min-height: 64px;
 
-    &:hover { background: var(--surface-2); }
+    &:hover {
+      background: var(--surface-2);
+    }
 
-    &--location { flex: 2; }
-    &--type     { flex: 1; }
+    &--location {
+      flex: 2;
+    }
+    &--type {
+      flex: 1;
+    }
 
     @media (max-width: 700px) {
       border-right: none;
@@ -649,9 +678,13 @@
     min-width: 130px;
     justify-content: center;
 
-    &:hover { background: var(--cta-hover); }
+    &:hover {
+      background: var(--cta-hover);
+    }
 
-    svg { flex-shrink: 0; }
+    svg {
+      flex-shrink: 0;
+    }
 
     @media (max-width: 700px) {
       padding: 1rem 1.5rem;
@@ -669,23 +702,37 @@
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
 
-  @media (max-width: 700px) { grid-template-columns: 1fr; }
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .lp-card--skeleton {
   height: 340px;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(90deg, var(--border) 25%, var(--surface-2) 50%, var(--border) 75%);
+  //r(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--border) 25%,
+    var(--surface-2) 50%,
+    var(--border) 75%
+  );
   background-size: 200% 100%;
   animation: lp-shimmer 1.4s ease infinite;
   cursor: default;
 
-  &:hover { transform: none; box-shadow: none; }
+  &:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 @keyframes lp-shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 // ── Artisan verified badge ───────────────────────────────────────
@@ -759,7 +806,7 @@
   padding: 1.25rem 1.5rem;
   background: var(--surface);
   border: 1.5px solid var(--border);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
   cursor: pointer;
   transition: all 0.2s;
   min-width: 100px;
@@ -845,7 +892,7 @@
 .lp-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
   overflow: hidden;
   cursor: pointer;
   transition: all 0.28s var(--ease);
@@ -879,7 +926,7 @@
     top: 10px;
     left: 10px;
     padding: 0.3rem 0.8rem;
-    border-radius: var(--radius-full);
+
     font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -893,7 +940,11 @@
       background: var(--primary);
     }
     &--shortlet {
-      background: linear-gradient(135deg, var(--primary-mid) 0%, var(--primary) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--primary-mid) 0%,
+        var(--primary) 100%
+      );
     }
     &--other {
       background: var(--primary);
@@ -908,7 +959,7 @@
     height: 34px;
     background: rgba(255, 255, 255, 0.92);
     border: none;
-    border-radius: var(--radius-full);
+
     font-size: 1rem;
     cursor: pointer;
     display: flex;
@@ -1038,7 +1089,7 @@
 
 .lp-loc {
   position: relative;
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
   overflow: hidden;
   cursor: pointer;
   height: 220px;
@@ -1151,7 +1202,7 @@
 .lp-artisan-card {
   background: var(--bg);
   border: 1.5px solid var(--border);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
   padding: 1.1rem 1.25rem;
   transition: all 0.2s;
 
@@ -1185,7 +1236,7 @@
     width: 46px;
     height: 46px;
     background: var(--primary-light);
-    border-radius: var(--radius-full);
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1197,7 +1248,7 @@
     padding: 0.25rem 0.7rem;
     background: var(--cta);
     color: var(--cta-text);
-    border-radius: var(--radius-full);
+
     font-size: 0.72rem;
     font-weight: 700;
     white-space: nowrap;
@@ -1264,7 +1315,7 @@
     height: 52px;
     background: var(--cta);
     color: var(--cta-text);
-    border-radius: var(--radius-full);
+
     font-size: 1rem;
     font-weight: 900;
     margin: 0 auto 1rem;
@@ -1334,7 +1385,7 @@
 .lp-review {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  //r(--radius-xl);
   padding: 2rem;
   transition: all 0.28s;
   box-shadow: var(--shadow-card);
@@ -1369,7 +1420,7 @@
     width: 46px;
     height: 46px;
     background: var(--primary-light);
-    border-radius: var(--radius-full);
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1514,7 +1565,7 @@
     height: 36px;
     background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-md);
+
     display: flex;
     align-items: center;
     justify-content: center;

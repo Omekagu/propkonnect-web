@@ -33,19 +33,27 @@
 
 .alert {
   padding: 12px 16px;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   margin-bottom: 16px;
   font-size: 14px;
 
-  &.success { background: var(--color-success-bg); color: var(--color-success); border: 1px solid var(--color-success-bg); }
-  &.error   { background: var(--color-error-bg); color: var(--color-error); border: 1px solid var(--color-error-bg); }
+  &.success {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid var(--color-success-bg);
+  }
+  &.error {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+    border: 1px solid var(--color-error-bg);
+  }
 }
 
 .card {
   background: var(--color-surface);
-  border-radius: var(--radius-md);
+
   border: 1px solid var(--color-border-light);
-  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   margin-bottom: 12px;
   overflow: hidden;
 }
@@ -54,7 +62,11 @@
   padding: 20px;
   margin-bottom: 20px;
 
-  h3 { margin: 0 0 16px; font-size: 16px; font-weight: 700; }
+  h3 {
+    margin: 0 0 16px;
+    font-size: 16px;
+    font-weight: 700;
+  }
 
   .form-grid {
     display: grid;
@@ -69,11 +81,15 @@
       font-weight: 600;
       color: var(--color-text-secondary);
 
-      &.full { grid-column: 1 / -1; }
+      &.full {
+        grid-column: 1 / -1;
+      }
 
-      input, select, textarea {
+      input,
+      select,
+      textarea {
         padding: 8px 12px;
-        border-radius: var(--radius-sm);
+        //r(--radius-sm);
         border: 1px solid var(--color-border-light);
         font-size: 14px;
         font-family: inherit;
@@ -93,7 +109,9 @@
   text-align: center;
   padding: 60px 20px;
   color: var(--color-text-muted);
-  p { margin: 12px 0 20px; }
+  p {
+    margin: 12px 0 20px;
+  }
 }
 
 .request-card {
@@ -104,7 +122,9 @@
     padding: 14px 18px;
     cursor: pointer;
     user-select: none;
-    &:hover { background: #fafafa; }
+    &:hover {
+      background: #fafafa;
+    }
   }
 
   .card-left {
@@ -116,7 +136,7 @@
   .status-dot {
     width: 10px;
     height: 10px;
-    border-radius: var(--radius-full);
+
     flex-shrink: 0;
   }
 
@@ -140,7 +160,9 @@
     color: var(--color-text-muted);
   }
 
-  .date { font-size: 12px; }
+  .date {
+    font-size: 12px;
+  }
 
   .card-body {
     padding: 14px 18px 18px;
@@ -154,7 +176,8 @@
     margin-bottom: 12px;
   }
 
-  .artisan-info, .bid-info {
+  .artisan-info,
+  .bid-info {
     font-size: 13px;
     color: var(--color-text-secondary);
     margin-bottom: 8px;
@@ -164,19 +187,24 @@
 .badge {
   font-size: 11px;
   padding: 2px 8px;
-  border-radius: var(--radius-full);
+
   font-weight: 600;
   background: #f3f4f6;
   color: var(--color-text-secondary);
 
-  &.muted  { color: var(--color-text-muted); }
-  &.urgent { background: var(--color-warning-bg); color: var(--color-warning); }
+  &.muted {
+    color: var(--color-text-muted);
+  }
+  &.urgent {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+  }
 }
 
 .confirm-section {
   background: var(--color-success-bg);
   border: 1px solid var(--color-success-bg);
-  border-radius: var(--radius-md);
+
   padding: 14px 16px;
   margin-top: 14px;
 
@@ -198,7 +226,10 @@
   flex-wrap: wrap;
   font-size: 14px;
 
-  .stars { display: flex; gap: 4px; }
+  .stars {
+    display: flex;
+    gap: 4px;
+  }
 
   .star-btn {
     background: none;
@@ -225,13 +256,19 @@
   background: var(--color-primary-mid);
   color: var(--color-surface);
   border: none;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
 
-  &.small { padding: 6px 14px; font-size: 13px; }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &.small {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .btn-success {
@@ -242,11 +279,14 @@
   background: var(--color-success);
   color: var(--color-surface);
   border: none;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .btn-ghost {
@@ -257,13 +297,18 @@
   background: #f3f4f6;
   color: var(--color-text-secondary);
   border: none;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
 }
 
 @media (max-width: 600px) {
-  .request-form .form-grid { grid-template-columns: 1fr; }
-  .maintenance-header { flex-direction: column; gap: 12px; }
+  .request-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .maintenance-header {
+    flex-direction: column;
+    gap: 12px;
+  }
 }

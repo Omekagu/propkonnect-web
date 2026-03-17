@@ -35,7 +35,7 @@ $desktop: 1024px;
 .SUPPORT_ADMIN-container {
   min-height: 100vh;
   background: var(--color-surface);
-  border-radius: var(--radius-md);
+
   color: $text-primary;
   display: flex;
   flex-direction: column;
@@ -45,7 +45,7 @@ $desktop: 1024px;
 // Header
 .admin-header {
   background: var(--color-surface);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  //r(--radius-md) var(--radius-md) 0 0;
   border-bottom: 1px solid $border-color;
   padding: $spacing-2xl;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -145,7 +145,7 @@ $desktop: 1024px;
       border: 1px solid $border-color;
       width: 36px;
       height: 36px;
-      border-radius: var(--radius-xs);
+
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -175,7 +175,7 @@ $desktop: 1024px;
       width: 100%;
       padding: $spacing-md;
       border: 1px solid $border-color;
-      border-radius: var(--radius-sm);
+      //r(--radius-sm);
       font-size: 0.95rem;
       background: $bg-primary;
       color: $text-primary;
@@ -205,7 +205,7 @@ $desktop: 1024px;
       background: none;
       border: 1px solid $border-color;
       padding: $spacing-sm $spacing-md;
-      border-radius: var(--radius-xs);
+
       cursor: pointer;
       font-size: 0.85rem;
       font-weight: 500;
@@ -246,7 +246,7 @@ $desktop: 1024px;
       background: var(--color-surface);
 
       border: 1px solid $border-color;
-      border-radius: var(--radius-sm);
+      //r(--radius-sm);
       cursor: pointer;
       transition: $transition;
 
@@ -402,7 +402,7 @@ $desktop: 1024px;
 
       .message {
         padding: $spacing-md;
-        border-radius: var(--radius-sm);
+        //r(--radius-sm);
         max-width: 80%;
 
         &.user-message {
@@ -454,7 +454,7 @@ $desktop: 1024px;
       min-height: 100px;
       padding: $spacing-md;
       border: 1px solid $border-color;
-      border-radius: var(--radius-sm);
+      //r(--radius-sm);
       font-size: 0.95rem;
       color: $text-primary;
       resize: vertical;
@@ -522,7 +522,7 @@ $desktop: 1024px;
 .btn {
   padding: $spacing-md $spacing-lg;
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -568,7 +568,7 @@ $desktop: 1024px;
 .status-badge {
   display: inline-block;
   padding: 0.375rem $spacing-md;
-  border-radius: var(--radius-xs);
+
   font-size: 0.75rem;
   font-weight: 600;
   color: white;
@@ -580,7 +580,7 @@ $desktop: 1024px;
 .priority-badge {
   display: inline-block;
   padding: 0.375rem $spacing-md;
-  border-radius: var(--radius-xs);
+
   font-size: 0.75rem;
   font-weight: 600;
   color: white;
@@ -600,7 +600,6 @@ $desktop: 1024px;
 
 ::-webkit-scrollbar-thumb {
   background: $border-color;
-  border-radius: var(--radius-xs);
 
   &:hover {
     background: rgba(255, 255, 255, 0.15);

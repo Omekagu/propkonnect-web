@@ -1,13 +1,12 @@
-
 // ─── Tokens (scoped — inherits globals from index.scss) ───────────────────────
 .find-artisan,
 .find-artisan * {
-  --bg:        var(--color-background);
-  --bg-card:   var(--color-surface);
+  --bg: var(--color-background);
+  --bg-card: var(--color-surface);
   --bg-raised: var(--color-surface-hover);
-  --bg-ov:     rgba(0, 0, 0, 0.5);
+  --bg-ov: rgba(0, 0, 0, 0.5);
 
-  --border:    var(--color-border);
+  --border: var(--color-border);
   --border-md: var(--color-border);
 
   --ink-1: var(--color-text-primary);
@@ -15,24 +14,24 @@
   --ink-3: var(--color-text-muted);
   --ink-4: var(--color-text-muted);
 
-  --brand:    var(--color-primary);
+  --brand: var(--color-primary);
   --brand-lt: var(--color-primary-subtle);
   --brand-dk: var(--color-primary-dark);
 
-  --green:    var(--color-success);
+  --green: var(--color-success);
   --green-lt: var(--color-success-bg);
-  --red:      var(--color-error);
-  --red-lt:   var(--color-error-bg);
-  --amber:    var(--color-warning);
+  --red: var(--color-error);
+  --red-lt: var(--color-error-bg);
+  --amber: var(--color-warning);
   --amber-lt: var(--color-warning-bg);
 
   --nav-w: 240px;
-  --r:     var(--radius-md);
-  --r-sm:  var(--radius-sm);
-  --r-lg:  var(--radius-lg);
+  --r: var(--radius-md);
+  --r-sm: var(--radius-sm);
+  --r-lg: var(--radius-lg);
 
   --sh-sm: var(--shadow-xs);
-  --sh:    var(--shadow-sm);
+  --sh: var(--shadow-sm);
   --sh-lg: var(--shadow-lg);
 }
 
@@ -89,7 +88,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--ink-3);
@@ -219,7 +218,7 @@
   align-items: center;
   gap: 10px;
   padding: 13px 18px;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   font-size: 0.875rem;
   font-weight: 500;
   z-index: 9999;
@@ -351,7 +350,7 @@
   &__input {
     background: var(--bg-card);
     border: 1.5px solid var(--border-md);
-    border-radius: var(--r-sm);
+    //r(--r-sm);
     padding: 11px 14px;
     font-size: 0.9rem;
     color: var(--ink-1);
@@ -405,7 +404,7 @@
   width: 44px;
   background: var(--brand);
   color: #fff;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   font-size: 1rem;
   display: flex;
   align-items: center;
@@ -474,7 +473,7 @@
   align-items: center;
   gap: 5px;
   padding: 14px 8px;
-  border-radius: var(--r);
+  //r(--r);
   border: 1.5px solid var(--border-md);
   background: var(--bg-raised);
   transition: all 0.14s var(--ease);
@@ -517,7 +516,7 @@
   padding: 14px;
   background: var(--brand);
   color: #fff;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -555,7 +554,7 @@
 
 .req-card {
   background: var(--bg-card);
-  border-radius: var(--r);
+  //r(--r);
   padding: 20px;
   border: 1.5px solid var(--border);
   box-shadow: var(--sh-sm);
@@ -654,7 +653,7 @@
   width: 100%;
   height: 92vh;
   max-width: 520px;
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  //r(--r-lg) var(--r-lg) 0 0;
   padding: 26px 22px;
   overflow-y: auto;
   display: flex;
@@ -683,7 +682,7 @@
     font-size: 1rem;
     color: var(--ink-3);
     padding: 5px 9px;
-    border-radius: var(--r-sm);
+    //r(--r-sm);
     transition: background 0.12s;
     &:hover {
       background: var(--bg-raised);
@@ -695,7 +694,7 @@
     color: var(--ink-3);
     background: var(--bg-raised);
     border: 1px solid var(--border);
-    border-radius: var(--r-sm);
+    //r(--r-sm);
     padding: 10px 14px;
     strong {
       color: var(--brand);
@@ -722,7 +721,7 @@
 .bid-card {
   background: var(--bg-raised);
   border: 1.5px solid var(--border);
-  border-radius: var(--r);
+  //r(--r);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -796,7 +795,7 @@
   line-height: 1.5;
   background: var(--bg-card);
   padding: 10px 12px;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   font-style: italic;
 }
 .bid-date {
@@ -816,7 +815,7 @@
   align-items: center;
   gap: 5px;
   padding: 6px 11px;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   background: var(--brand-lt);
   color: var(--brand);
   font-size: 0.76rem;
@@ -828,7 +827,7 @@
 }
 .btn-decline {
   padding: 6px 11px;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   border: 1.5px solid var(--red);
   color: var(--red);
   font-size: 0.76rem;
@@ -840,7 +839,7 @@
 }
 .btn-accept {
   padding: 6px 11px;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   background: var(--green);
   color: #fff;
   font-size: 0.76rem;
@@ -910,7 +909,7 @@
   font-weight: 600;
   color: var(--brand);
   padding: 6px 10px;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   transition: background 0.12s;
   flex-shrink: 0;
   &:hover {
@@ -1077,7 +1076,7 @@
   background: var(--green);
   color: #fff;
   padding: 9px 14px;
-  border-radius: var(--r-sm);
+  //r(--r-sm);
   font-size: 0.82rem;
   font-weight: 700;
   margin-top: 6px;
@@ -1116,7 +1115,7 @@
     flex: 1;
     background: var(--bg-raised);
     border: 1.5px solid var(--border-md);
-    border-radius: var(--r-sm);
+    //r(--r-sm);
     padding: 9px 12px;
     font-size: 0.9rem;
     color: var(--ink-1);
@@ -1129,7 +1128,7 @@
     background: var(--brand);
     color: #fff;
     padding: 9px 15px;
-    border-radius: var(--r-sm);
+    //r(--r-sm);
     font-size: 0.8rem;
     font-weight: 700;
     transition: opacity 0.12s;
@@ -1243,7 +1242,7 @@
   .drawer {
     max-height: 100vh;
     height: 100vh;
-    border-radius: var(--r-lg) 0 0 var(--r-lg);
+    //r(--r-lg) 0 0 var(--r-lg);
     animation: drawer-right 0.28s var(--ease);
   }
 }
@@ -1332,7 +1331,7 @@
   .drawer {
     max-height: 92vh;
     height: auto;
-    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    //r(--r-lg) var(--r-lg) 0 0;
     animation: drawer-up 0.28s var(--ease);
     padding: 20px 14px;
   }

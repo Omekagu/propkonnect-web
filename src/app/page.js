@@ -13,7 +13,11 @@ const APP_NAME_FALLBACK = process.env.NEXT_PUBLIC_APP_NAME || 'propnekt'
 const FALLBACK_LISTINGS = [
   {
     _id: '1',
-    images: [{ url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80' }],
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80'
+      }
+    ],
     purpose: 'for rent',
     category: 'Apartment',
     title: '3-Bed Luxury Apartment',
@@ -26,7 +30,11 @@ const FALLBACK_LISTINGS = [
   },
   {
     _id: '2',
-    images: [{ url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80' }],
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80'
+      }
+    ],
     purpose: 'for sale',
     category: 'House',
     title: '5-Bed Detached Duplex',
@@ -39,7 +47,11 @@ const FALLBACK_LISTINGS = [
   },
   {
     _id: '3',
-    images: [{ url: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80' }],
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80'
+      }
+    ],
     purpose: 'shortlet',
     category: 'Shortlet',
     title: 'Modern Studio Suite',
@@ -52,7 +64,11 @@ const FALLBACK_LISTINGS = [
   },
   {
     _id: '4',
-    images: [{ url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80' }],
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80'
+      }
+    ],
     purpose: 'for sale',
     category: 'House',
     title: '4-Bed Semi-Detached',
@@ -65,7 +81,11 @@ const FALLBACK_LISTINGS = [
   },
   {
     _id: '5',
-    images: [{ url: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=600&q=80' }],
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=600&q=80'
+      }
+    ],
     purpose: 'for rent',
     category: 'Apartment',
     title: '2-Bed Serviced Flat',
@@ -78,7 +98,11 @@ const FALLBACK_LISTINGS = [
   },
   {
     _id: '6',
-    images: [{ url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' }],
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'
+      }
+    ],
     purpose: 'shortlet',
     category: 'Hotel',
     title: 'Executive Hotel Suite',
@@ -92,9 +116,33 @@ const FALLBACK_LISTINGS = [
 ]
 
 const FALLBACK_ARTISANS = [
-  { _id: 'a1', firstName: 'Chukwuemeka', lastName: 'P.', artisanProfile: { specialization: 'Master Electrician' }, stats: { averageRating: 4.9, completedJobs: 312 }, status: { verified: true }, plan: { name: 'pro' } },
-  { _id: 'a2', firstName: 'Aminu', lastName: 'D.', artisanProfile: { specialization: 'Plumbing Specialist' }, stats: { averageRating: 4.8, completedJobs: 201 }, status: { verified: true }, plan: { name: 'pro' } },
-  { _id: 'a3', firstName: 'Ngozi', lastName: 'A.', artisanProfile: { specialization: 'Interior Painter' }, stats: { averageRating: 4.9, completedJobs: 178 }, status: { verified: true }, plan: { name: 'pro' } }
+  {
+    _id: 'a1',
+    firstName: 'Chukwuemeka',
+    lastName: 'P.',
+    artisanProfile: { specialization: 'Master Electrician' },
+    stats: { averageRating: 4.9, completedJobs: 312 },
+    status: { verified: true },
+    plan: { name: 'pro' }
+  },
+  {
+    _id: 'a2',
+    firstName: 'Aminu',
+    lastName: 'D.',
+    artisanProfile: { specialization: 'Plumbing Specialist' },
+    stats: { averageRating: 4.8, completedJobs: 201 },
+    status: { verified: true },
+    plan: { name: 'pro' }
+  },
+  {
+    _id: 'a3',
+    firstName: 'Ngozi',
+    lastName: 'A.',
+    artisanProfile: { specialization: 'Interior Painter' },
+    stats: { averageRating: 4.9, completedJobs: 178 },
+    status: { verified: true },
+    plan: { name: 'pro' }
+  }
 ]
 
 const CATEGORIES = [
@@ -108,30 +156,92 @@ const CATEGORIES = [
 ]
 
 const LOCATIONS = [
-  { city: 'Lagos', listings: '4,200+', image: 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=400&q=80' },
-  { city: 'Abuja', listings: '2,800+', image: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80' },
-  { city: 'Port Harcourt', listings: '1,100+', image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&q=80' },
-  { city: 'Ibadan', listings: '900+', image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=80' }
+  {
+    city: 'Lagos',
+    listings: '4,200+',
+    image:
+      'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=400&q=80'
+  },
+  {
+    city: 'Abuja',
+    listings: '2,800+',
+    image:
+      'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80'
+  },
+  {
+    city: 'Port Harcourt',
+    listings: '1,100+',
+    image:
+      'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&q=80'
+  },
+  {
+    city: 'Ibadan',
+    listings: '900+',
+    image:
+      'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=80'
+  }
 ]
 
 const TESTIMONIALS = [
-  { name: 'Adaeze Okafor', role: 'Property Buyer', avatar: '👩🏾', stars: 5, text: 'Found my dream duplex in Lekki within a week. The platform is incredibly smooth and the team was super responsive throughout.' },
-  { name: 'Emeka Eze', role: 'Verified Artisan – Electrician', avatar: '👨🏿‍🔧', stars: 5, text: 'My bookings tripled after joining. The escrow payment system gives both me and my clients peace of mind on every job.' },
-  { name: 'Fatima Abdullahi', role: 'Property Owner', avatar: '👩🏾‍💼', stars: 5, text: 'Listed my apartments and had tenants within days. The dashboard makes managing multiple properties effortless.' }
+  {
+    name: 'Adaeze Okafor',
+    role: 'Property Buyer',
+    avatar: '👩🏾',
+    stars: 5,
+    text: 'Found my dream duplex in Lekki within a week. The platform is incredibly smooth and the team was super responsive throughout.'
+  },
+  {
+    name: 'Emeka Eze',
+    role: 'Verified Artisan – Electrician',
+    avatar: '👨🏿‍🔧',
+    stars: 5,
+    text: 'My bookings tripled after joining. The escrow payment system gives both me and my clients peace of mind on every job.'
+  },
+  {
+    name: 'Fatima Abdullahi',
+    role: 'Property Owner',
+    avatar: '👩🏾‍💼',
+    stars: 5,
+    text: 'Listed my apartments and had tenants within days. The dashboard makes managing multiple properties effortless.'
+  }
 ]
 
 const HOW_IT_WORKS = [
-  { step: '01', icon: '📝', title: 'Create Your Profile', desc: 'Sign up in seconds as a buyer, renter, owner, or artisan — no paperwork upfront.' },
-  { step: '02', icon: '🔍', title: 'Search & Filter', desc: 'Use smart filters: location, price, property type, beds/baths, and more.' },
-  { step: '03', icon: '💬', title: 'Connect & Book', desc: 'Chat in real time, schedule viewings, and book directly with verified owners.' },
-  { step: '04', icon: '🔐', title: 'Pay Safely', desc: 'Escrow-secured payments protect every transaction — money only releases on satisfaction.' }
+  {
+    step: '01',
+    icon: '📝',
+    title: 'Create Your Profile',
+    desc: 'Sign up in seconds as a buyer, renter, owner, or artisan — no paperwork upfront.'
+  },
+  {
+    step: '02',
+    icon: '🔍',
+    title: 'Search & Filter',
+    desc: 'Use smart filters: location, price, property type, beds/baths, and more.'
+  },
+  {
+    step: '03',
+    icon: '💬',
+    title: 'Connect & Book',
+    desc: 'Chat in real time, schedule viewings, and book directly with verified owners.'
+  },
+  {
+    step: '04',
+    icon: '🔐',
+    title: 'Pay Safely',
+    desc: 'Escrow-secured payments protect every transaction — money only releases on satisfaction.'
+  }
 ]
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatPrice (price, purpose) {
   if (!price) return '—'
-  const fmt = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(price)
+  const fmt = new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    maximumFractionDigits: 0
+  }).format(price)
   const p = (purpose || '').toLowerCase()
   if (p.includes('rent')) return `${fmt}/mo`
   if (p.includes('shortlet')) return `${fmt}/night`
@@ -161,19 +271,19 @@ function artisanTradeIcon (spec) {
 
 export default function LandingPage () {
   const router = useRouter()
-  const [scrolled, setScrolled]           = useState(false)
-  const [searchTab, setSearchTab]         = useState('rent')
-  const [location, setLocation]           = useState('')
-  const [propertyType, setPropertyType]   = useState('')
-  const [listingTab, setListingTab]       = useState('all')
-  const [savedCards, setSavedCards]       = useState(new Set())
+  const [scrolled, setScrolled] = useState(false)
+  const [searchTab, setSearchTab] = useState('rent')
+  const [location, setLocation] = useState('')
+  const [propertyType, setPropertyType] = useState('')
+  const [listingTab, setListingTab] = useState('all')
+  const [savedCards, setSavedCards] = useState(new Set())
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Data from API
-  const [branding, setBranding]           = useState(null)
-  const [properties, setProperties]       = useState(FALLBACK_LISTINGS)
-  const [artisans, setArtisans]           = useState(FALLBACK_ARTISANS)
-  const [loadingProps, setLoadingProps]   = useState(false)
+  const [branding, setBranding] = useState(null)
+  const [properties, setProperties] = useState(FALLBACK_LISTINGS)
+  const [artisans, setArtisans] = useState(FALLBACK_ARTISANS)
+  const [loadingProps, setLoadingProps] = useState(false)
 
   const heroRef = useRef(null)
   const mobileMenuRef = useRef(null)
@@ -181,13 +291,17 @@ export default function LandingPage () {
   // ── Fetch platform config + data ─────────────────────────────────────────
   useEffect(() => {
     // Platform branding
-    axios.get(`${API}/api/platform-config`)
-      .then(r => { if (r.data?.config?.branding) setBranding(r.data.config.branding) })
+    axios
+      .get(`${API}/api/platform-config`)
+      .then(r => {
+        if (r.data?.config?.branding) setBranding(r.data.config.branding)
+      })
       .catch(() => {}) // silently fall back to defaults
 
     // Featured properties (published, public, latest 6)
     setLoadingProps(true)
-    axios.get(`${API}/api/properties/all?limit=6&sort=-createdAt`)
+    axios
+      .get(`${API}/api/properties/all?limit=6&sort=-createdAt`)
       .then(r => {
         if (r.data?.properties?.length) setProperties(r.data.properties)
       })
@@ -195,7 +309,8 @@ export default function LandingPage () {
       .finally(() => setLoadingProps(false))
 
     // Premium / top-rated artisans
-    axios.get(`${API}/api/artisan?topRated=true`)
+    axios
+      .get(`${API}/api/artisan?topRated=true`)
       .then(r => {
         if (r.data?.artisans?.length) setArtisans(r.data.artisans.slice(0, 4))
       })
@@ -203,11 +318,16 @@ export default function LandingPage () {
   }, [])
 
   // Derived branding values
-  const appName     = branding?.appName     || APP_NAME_FALLBACK
-  const heroTitle   = branding?.heroTitle   || 'Find Your Perfect Property in Nigeria'
-  const heroSub     = branding?.heroSubtitle || 'Buy, rent, or book a shortlet — all with escrow-secured payments and verified listings.'
-  const heroImage   = branding?.heroImageUrl || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1800&q=80'
-  const stats       = branding?.statsBar || {}
+  const appName = branding?.appName || APP_NAME_FALLBACK
+  const heroTitle =
+    branding?.heroTitle || 'Find Your Perfect Property in Nigeria'
+  const heroSub =
+    branding?.heroSubtitle ||
+    'Buy, rent, or book a shortlet — all with escrow-secured payments and verified listings.'
+  const heroImage =
+    branding?.heroImageUrl ||
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1800&q=80'
+  const stats = branding?.statsBar || {}
 
   // ── Scroll handler ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -231,7 +351,9 @@ export default function LandingPage () {
   // Lock body scroll when mobile menu open
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [mobileMenuOpen])
 
   const handleSearch = useCallback(() => {
@@ -242,51 +364,82 @@ export default function LandingPage () {
     router.push(`/search?${params.toString()}`)
   }, [location, propertyType, searchTab, router])
 
-  const toggleSave = useCallback(id =>
-    setSavedCards(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    }), [])
+  const toggleSave = useCallback(
+    id =>
+      setSavedCards(prev => {
+        const next = new Set(prev)
+        next.has(id) ? next.delete(id) : next.add(id)
+        return next
+      }),
+    []
+  )
 
   const closeMobile = () => setMobileMenuOpen(false)
 
-  const filteredListings = listingTab === 'all'
-    ? properties
-    : properties.filter(p => {
-        const label = purposeLabel(p.purpose).type
-        return label === listingTab
-      })
+  const filteredListings =
+    listingTab === 'all'
+      ? properties
+      : properties.filter(p => {
+          const label = purposeLabel(p.purpose).type
+          return label === listingTab
+        })
 
-  const scrollTo = id => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  const scrollTo = id =>
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
   return (
     <div className='lp'>
-
       {/* ── Navbar ── */}
-      <nav className={`lp-nav${scrolled ? ' lp-nav--scrolled' : ''}`} ref={mobileMenuRef}>
+      <nav
+        className={`lp-nav${scrolled ? ' lp-nav--scrolled' : ''}`}
+        ref={mobileMenuRef}
+      >
         <div className='lp-nav__inner'>
           {/* Logo */}
           <a className='lp-nav__logo' href='/'>
-            {branding?.logoUrl
-              ? <img src={branding.logoUrl} alt={appName} className='lp-nav__logo-img' />
-              : <><span className='lp-nav__logo-icon'>P</span><span className='lp-nav__logo-text'>{appName}</span></>
-            }
+            {branding?.logoUrl ? (
+              <img
+                src={branding.logoUrl}
+                alt={appName}
+                className='lp-nav__logo-img'
+              />
+            ) : (
+              <>
+                <span className='lp-nav__logo-icon'>P</span>
+                <span className='lp-nav__logo-text'>{appName}</span>
+              </>
+            )}
           </a>
 
           {/* Desktop links */}
           <div className='lp-nav__links'>
             <a onClick={() => scrollTo('listings')}>Buy &amp; Rent</a>
             <a href='/search?intent=shortlet'>Shortlets</a>
-            <a onClick={() => { scrollTo('artisans') }}>Artisans</a>
+            <a
+              onClick={() => {
+                scrollTo('artisans')
+              }}
+            >
+              Artisans
+            </a>
             <a onClick={() => scrollTo('how-it-works')}>How It Works</a>
             <a href='/about'>About</a>
           </div>
 
           {/* Desktop actions */}
           <div className='lp-nav__actions'>
-            <button className='lp-nav__btn-ghost' onClick={() => router.push('/auth/login')}>Sign In</button>
-            <button className='lp-nav__btn-cta' onClick={() => router.push('/auth/register')}>List Property</button>
+            <button
+              className='lp-nav__btn-ghost'
+              onClick={() => router.push('/auth/login')}
+            >
+              Sign In
+            </button>
+            <button
+              className='lp-nav__btn-cta'
+              onClick={() => router.push('/auth/register')}
+            >
+              Sign Up
+            </button>
           </div>
 
           {/* Hamburger */}
@@ -296,7 +449,9 @@ export default function LandingPage () {
             aria-label='Toggle menu'
             aria-expanded={mobileMenuOpen}
           >
-            <span /><span /><span />
+            <span />
+            <span />
+            <span />
           </button>
         </div>
 
@@ -310,13 +465,32 @@ export default function LandingPage () {
         <div className={`lp-nav__drawer${mobileMenuOpen ? ' open' : ''}`}>
           <div className='lp-nav__drawer-header'>
             <a className='lp-nav__logo' href='/' onClick={closeMobile}>
-              {branding?.logoUrl
-                ? <img src={branding.logoUrl} alt={appName} className='lp-nav__logo-img' />
-                : <><span className='lp-nav__logo-icon'>P</span><span className='lp-nav__logo-text'>{appName}</span></>
-              }
+              {branding?.logoUrl ? (
+                <img
+                  src={branding.logoUrl}
+                  alt={appName}
+                  className='lp-nav__logo-img'
+                />
+              ) : (
+                <>
+                  <span className='lp-nav__logo-icon'>P</span>
+                  <span className='lp-nav__logo-text'>{appName}</span>
+                </>
+              )}
             </a>
-            <button className='lp-nav__drawer-close' onClick={closeMobile} aria-label='Close menu'>
-              <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5'>
+            <button
+              className='lp-nav__drawer-close'
+              onClick={closeMobile}
+              aria-label='Close menu'
+            >
+              <svg
+                width='20'
+                height='20'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2.5'
+              >
                 <path d='M18 6 6 18M6 6l12 12' />
               </svg>
             </button>
@@ -332,10 +506,20 @@ export default function LandingPage () {
             <a href='/search?intent=shortlet' onClick={closeMobile}>
               <span className='lp-nav__drawer-icon'>🛏️</span> Shortlets
             </a>
-            <a onClick={() => { scrollTo('artisans'); closeMobile() }}>
+            <a
+              onClick={() => {
+                scrollTo('artisans')
+                closeMobile()
+              }}
+            >
               <span className='lp-nav__drawer-icon'>🔧</span> Artisans
             </a>
-            <a onClick={() => { scrollTo('how-it-works'); closeMobile() }}>
+            <a
+              onClick={() => {
+                scrollTo('how-it-works')
+                closeMobile()
+              }}
+            >
               <span className='lp-nav__drawer-icon'>💡</span> How It Works
             </a>
             <a href='/about' onClick={closeMobile}>
@@ -348,15 +532,27 @@ export default function LandingPage () {
           <div className='lp-nav__drawer-actions'>
             <button
               className='lp-nav__drawer-btn-ghost'
-              onClick={() => { router.push('/auth/login'); closeMobile() }}
-            >Sign In</button>
+              onClick={() => {
+                router.push('/auth/login')
+                closeMobile()
+              }}
+            >
+              Sign In
+            </button>
             <button
               className='lp-nav__drawer-btn-cta'
-              onClick={() => { router.push('/auth/register'); closeMobile() }}
-            >List Property Free</button>
+              onClick={() => {
+                router.push('/auth/register')
+                closeMobile()
+              }}
+            >
+              Sign Up
+            </button>
           </div>
 
-          <p className='lp-nav__drawer-trust'>✓ Free to join &nbsp;·&nbsp; ✓ Verified listings</p>
+          <p className='lp-nav__drawer-trust'>
+            ✓ Free to join &nbsp;·&nbsp; ✓ Verified listings
+          </p>
         </div>
       </nav>
 
@@ -369,7 +565,8 @@ export default function LandingPage () {
 
         <div className='lp-hero__content'>
           <p className='lp-hero__eyebrow'>
-            {stats.verifiedUsers || '50,000+'} verified users · {stats.activeListings || '10,000+'} listings
+            {stats.verifiedUsers || '50,000+'} verified users ·{' '}
+            {stats.activeListings || '10,000+'} listings
           </p>
           <h1 className='lp-hero__title'>
             {heroTitle.includes(' ') ? (
@@ -377,7 +574,9 @@ export default function LandingPage () {
                 {heroTitle.split(' ').slice(0, 3).join(' ')}{' '}
                 <span>{heroTitle.split(' ').slice(3).join(' ')}</span>
               </>
-            ) : heroTitle}
+            ) : (
+              heroTitle
+            )}
           </h1>
           <p className='lp-hero__sub'>{heroSub}</p>
 
@@ -392,9 +591,13 @@ export default function LandingPage () {
               ].map(t => (
                 <button
                   key={t.key}
-                  className={`lp-search__tab${searchTab === t.key ? ' active' : ''}`}
+                  className={`lp-search__tab${
+                    searchTab === t.key ? ' active' : ''
+                  }`}
                   onClick={() => setSearchTab(t.key)}
-                >{t.label}</button>
+                >
+                  {t.label}
+                </button>
               ))}
             </div>
 
@@ -402,10 +605,18 @@ export default function LandingPage () {
               <div className='lp-search__field lp-search__field--location'>
                 <span className='lp-search__icon'>📍</span>
                 <div className='lp-search__field-inner'>
-                  <label>{searchTab === 'artisan' ? 'Where do you need help?' : 'Where do you want to stay?'}</label>
+                  <label>
+                    {searchTab === 'artisan'
+                      ? 'Where do you need help?'
+                      : 'Where do you want to stay?'}
+                  </label>
                   <input
                     type='text'
-                    placeholder={searchTab === 'artisan' ? 'Lagos, Abuja, Port Harcourt...' : 'City, neighbourhood or address...'}
+                    placeholder={
+                      searchTab === 'artisan'
+                        ? 'Lagos, Abuja, Port Harcourt...'
+                        : 'City, neighbourhood or address...'
+                    }
                     value={location}
                     onChange={e => setLocation(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSearch()}
@@ -414,10 +625,17 @@ export default function LandingPage () {
               </div>
 
               <div className='lp-search__field lp-search__field--type'>
-                <span className='lp-search__icon'>{searchTab === 'artisan' ? '🔧' : '🏠'}</span>
+                <span className='lp-search__icon'>
+                  {searchTab === 'artisan' ? '🔧' : '🏠'}
+                </span>
                 <div className='lp-search__field-inner'>
-                  <label>{searchTab === 'artisan' ? 'Service Type' : 'Property Type'}</label>
-                  <select value={propertyType} onChange={e => setPropertyType(e.target.value)}>
+                  <label>
+                    {searchTab === 'artisan' ? 'Service Type' : 'Property Type'}
+                  </label>
+                  <select
+                    value={propertyType}
+                    onChange={e => setPropertyType(e.target.value)}
+                  >
                     {searchTab === 'artisan' ? (
                       <>
                         <option value=''>Any Service</option>
@@ -443,8 +661,16 @@ export default function LandingPage () {
               </div>
 
               <button className='lp-search__btn' onClick={handleSearch}>
-                <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5'>
-                  <circle cx='11' cy='11' r='8' /><path d='m21 21-4.35-4.35' />
+                <svg
+                  width='18'
+                  height='18'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2.5'
+                >
+                  <circle cx='11' cy='11' r='8' />
+                  <path d='m21 21-4.35-4.35' />
                 </svg>
                 <span>Search</span>
               </button>
@@ -456,11 +682,37 @@ export default function LandingPage () {
       {/* ── Trust Strip ── */}
       <div className='lp-trust'>
         <div className='lp-trust__inner'>
-          <div className='lp-trust__item'><span>✅</span><span><strong>Verified</strong> listings only</span></div>
-          <div className='lp-trust__item'><span>🔐</span><span><strong>Escrow</strong> on all payments</span></div>
-          <div className='lp-trust__item'><span>⭐</span><span><strong>{stats.avgRating || '4.9/5'}</strong> avg rating</span></div>
-          <div className='lp-trust__item'><span>🏘️</span><span><strong>{stats.activeListings || '10,000+'}</strong> active listings</span></div>
-          <div className='lp-trust__item'><span>⚡</span><span><strong>Real-time</strong> chat &amp; booking</span></div>
+          <div className='lp-trust__item'>
+            <span>✅</span>
+            <span>
+              <strong>Verified</strong> listings only
+            </span>
+          </div>
+          <div className='lp-trust__item'>
+            <span>🔐</span>
+            <span>
+              <strong>Escrow</strong> on all payments
+            </span>
+          </div>
+          <div className='lp-trust__item'>
+            <span>⭐</span>
+            <span>
+              <strong>{stats.avgRating || '4.9/5'}</strong> avg rating
+            </span>
+          </div>
+          <div className='lp-trust__item'>
+            <span>🏘️</span>
+            <span>
+              <strong>{stats.activeListings || '10,000+'}</strong> active
+              listings
+            </span>
+          </div>
+          <div className='lp-trust__item'>
+            <span>⚡</span>
+            <span>
+              <strong>Real-time</strong> chat &amp; booking
+            </span>
+          </div>
         </div>
       </div>
 
@@ -489,7 +741,9 @@ export default function LandingPage () {
           <div className='lp-listings__header'>
             <div>
               <h2 className='lp-listings__title'>Featured Properties</h2>
-              <p className='lp-listings__sub'>Handpicked verified listings across Nigeria</p>
+              <p className='lp-listings__sub'>
+                Handpicked verified listings across Nigeria
+              </p>
             </div>
             <div className='lp-listings__tabs'>
               {[
@@ -502,62 +756,109 @@ export default function LandingPage () {
                   key={t.key}
                   className={`lp-tab${listingTab === t.key ? ' active' : ''}`}
                   onClick={() => setListingTab(t.key)}
-                >{t.label}</button>
+                >
+                  {t.label}
+                </button>
               ))}
             </div>
           </div>
 
           {loadingProps ? (
             <div className='lp-cards-loading'>
-              {[1, 2, 3].map(i => <div key={i} className='lp-card lp-card--skeleton' />)}
+              {[1, 2, 3].map(i => (
+                <div key={i} className='lp-card lp-card--skeleton' />
+              ))}
             </div>
           ) : (
             <div className='lp-cards'>
-              {(filteredListings.length ? filteredListings : properties).slice(0, 6).map(listing => {
-                const { label, type } = purposeLabel(listing.purpose)
-                const img = listing.images?.[0]?.url || listing.images?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80'
-                const loc = [listing.city, listing.state].filter(Boolean).join(', ') || listing.location || ''
-                const id = listing._id || listing.id
-                return (
-                  <div
-                    key={id}
-                    className='lp-card'
-                    onClick={() => router.push(listing.isFallback ? '/search' : `/property/${id}`)}
-                  >
-                    <div className='lp-card__img-wrap'>
-                      <img src={img} alt={listing.title} loading='lazy' />
-                      <span className={`lp-card__badge lp-card__badge--${type}`}>{label}</span>
-                      <button
-                        className={`lp-card__save${savedCards.has(id) ? ' saved' : ''}`}
-                        onClick={e => { e.stopPropagation(); toggleSave(id) }}
-                        aria-label='Save property'
-                      >{savedCards.has(id) ? '❤️' : '🤍'}</button>
-                    </div>
-                    <div className='lp-card__body'>
-                      <h3 className='lp-card__title'>{listing.title}</h3>
-                      {loc && <p className='lp-card__loc'>📍 {loc}</p>}
-                      <div className='lp-card__stats'>
-                        {listing.bedrooms  != null && <span>🛏 {listing.bedrooms} bed{listing.bedrooms !== 1 ? 's' : ''}</span>}
-                        {listing.bathrooms != null && <span>🚿 {listing.bathrooms} bath{listing.bathrooms !== 1 ? 's' : ''}</span>}
-                        {listing.category  && <span>🏷 {listing.category}</span>}
+              {(filteredListings.length ? filteredListings : properties)
+                .slice(0, 6)
+                .map(listing => {
+                  const { label, type } = purposeLabel(listing.purpose)
+                  const img =
+                    listing.images?.[0]?.url ||
+                    listing.images?.[0] ||
+                    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80'
+                  const loc =
+                    [listing.city, listing.state].filter(Boolean).join(', ') ||
+                    listing.location ||
+                    ''
+                  const id = listing._id || listing.id
+                  return (
+                    <div
+                      key={id}
+                      className='lp-card'
+                      onClick={() =>
+                        router.push(
+                          listing.isFallback ? '/search' : `/property/${id}`
+                        )
+                      }
+                    >
+                      <div className='lp-card__img-wrap'>
+                        <img src={img} alt={listing.title} loading='lazy' />
+                        <span
+                          className={`lp-card__badge lp-card__badge--${type}`}
+                        >
+                          {label}
+                        </span>
+                        <button
+                          className={`lp-card__save${
+                            savedCards.has(id) ? ' saved' : ''
+                          }`}
+                          onClick={e => {
+                            e.stopPropagation()
+                            toggleSave(id)
+                          }}
+                          aria-label='Save property'
+                        >
+                          {savedCards.has(id) ? '❤️' : '🤍'}
+                        </button>
                       </div>
-                      <div className='lp-card__footer'>
-                        <div className='lp-card__price'>{formatPrice(listing.price, listing.purpose)}</div>
-                        {listing.stats?.averageRating > 0 && (
-                          <div className='lp-card__rating'>
-                            ⭐ <strong>{listing.stats.averageRating.toFixed(1)}</strong>
+                      <div className='lp-card__body'>
+                        <h3 className='lp-card__title'>{listing.title}</h3>
+                        {loc && <p className='lp-card__loc'>📍 {loc}</p>}
+                        <div className='lp-card__stats'>
+                          {listing.bedrooms != null && (
+                            <span>
+                              🛏 {listing.bedrooms} bed
+                              {listing.bedrooms !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                          {listing.bathrooms != null && (
+                            <span>
+                              🚿 {listing.bathrooms} bath
+                              {listing.bathrooms !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                          {listing.category && (
+                            <span>🏷 {listing.category}</span>
+                          )}
+                        </div>
+                        <div className='lp-card__footer'>
+                          <div className='lp-card__price'>
+                            {formatPrice(listing.price, listing.purpose)}
                           </div>
-                        )}
+                          {listing.stats?.averageRating > 0 && (
+                            <div className='lp-card__rating'>
+                              ⭐{' '}
+                              <strong>
+                                {listing.stats.averageRating.toFixed(1)}
+                              </strong>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
             </div>
           )}
 
           <div className='lp-listings__cta'>
-            <button className='lp-btn-outline' onClick={() => router.push('/search')}>
+            <button
+              className='lp-btn-outline'
+              onClick={() => router.push('/search')}
+            >
               Explore All Properties →
             </button>
           </div>
@@ -568,10 +869,16 @@ export default function LandingPage () {
       <section className='lp-locations'>
         <div className='lp-locations__inner'>
           <h2 className='lp-locations__title'>Popular Destinations</h2>
-          <p className='lp-locations__sub'>Browse thousands of listings in Nigeria's top cities</p>
+          <p className='lp-locations__sub'>
+            Browse thousands of listings in Nigeria's top cities
+          </p>
           <div className='lp-locations__grid'>
             {LOCATIONS.map(loc => (
-              <div key={loc.city} className='lp-loc' onClick={() => router.push(`/search?location=${loc.city}`)}>
+              <div
+                key={loc.city}
+                className='lp-loc'
+                onClick={() => router.push(`/search?location=${loc.city}`)}
+              >
                 <img src={loc.image} alt={loc.city} loading='lazy' />
                 <div className='lp-loc__overlay' />
                 <div className='lp-loc__info'>
@@ -589,10 +896,15 @@ export default function LandingPage () {
         <div className='lp-artisan__inner'>
           <div className='lp-artisan__text'>
             <span className='lp-tag'>Service Marketplace</span>
-            <h2>Find Trusted Artisans<br />for Any Job</h2>
+            <h2>
+              Find Trusted Artisans
+              <br />
+              for Any Job
+            </h2>
             <p>
-              Hire verified plumbers, electricians, painters, cleaners, and 20+ more trades —
-              with rated profiles, upfront quotes, and escrow-protected payments.
+              Hire verified plumbers, electricians, painters, cleaners, and 20+
+              more trades — with rated profiles, upfront quotes, and
+              escrow-protected payments.
             </p>
             <ul className='lp-artisan__perks'>
               <li>✅ Background-checked &amp; certified</li>
@@ -600,18 +912,26 @@ export default function LandingPage () {
               <li>✅ Escrow payment — pay on completion</li>
               <li>✅ Real-time messaging &amp; scheduling</li>
             </ul>
-            <button className='lp-btn-lime' onClick={() => router.push('/search?type=artisan')}>
+            <button
+              className='lp-btn-lime'
+              onClick={() => router.push('/search?type=artisan')}
+            >
               Find an Artisan →
             </button>
           </div>
 
           <div className='lp-artisan__cards'>
             {artisans.map(a => {
-              const name = `${a.firstName || ''} ${(a.lastName || '').charAt(0)}.`.trim()
+              const name = `${a.firstName || ''} ${(a.lastName || '').charAt(
+                0
+              )}.`.trim()
               const spec = a.artisanProfile?.specialization || 'Artisan'
               const rating = a.stats?.averageRating || 0
               const jobs = a.stats?.completedJobs || 0
-              const isTopRated = rating >= 4.8 || a.plan?.name === 'pro' || a.plan?.name === 'enterprise'
+              const isTopRated =
+                rating >= 4.8 ||
+                a.plan?.name === 'pro' ||
+                a.plan?.name === 'enterprise'
               return (
                 <div
                   key={a._id}
@@ -619,7 +939,9 @@ export default function LandingPage () {
                   onClick={() => router.push('/search?type=artisan')}
                 >
                   <div className='lp-artisan-card__head'>
-                    <span className='lp-artisan-card__avatar'>{artisanTradeIcon(spec)}</span>
+                    <span className='lp-artisan-card__avatar'>
+                      {artisanTradeIcon(spec)}
+                    </span>
                     <div>
                       <h4>{name}</h4>
                       <p>{spec}</p>
@@ -631,7 +953,11 @@ export default function LandingPage () {
                   <div className='lp-artisan-card__foot'>
                     {rating > 0 && <span>⭐ {rating.toFixed(1)}</span>}
                     {jobs > 0 && <span>{jobs} jobs</span>}
-                    {a.status?.verified && <span className='lp-artisan-card__verified'>✓ Verified</span>}
+                    {a.status?.verified && (
+                      <span className='lp-artisan-card__verified'>
+                        ✓ Verified
+                      </span>
+                    )}
                   </div>
                 </div>
               )
@@ -652,7 +978,9 @@ export default function LandingPage () {
                 <div className='lp-step__icon'>{s.icon}</div>
                 <h3>{s.title}</h3>
                 <p>{s.desc}</p>
-                {i < HOW_IT_WORKS.length - 1 && <div className='lp-step__arrow'>→</div>}
+                {i < HOW_IT_WORKS.length - 1 && (
+                  <div className='lp-step__arrow'>→</div>
+                )}
               </div>
             ))}
           </div>
@@ -686,10 +1014,23 @@ export default function LandingPage () {
       <section className='lp-cta'>
         <div className='lp-cta__inner'>
           <h2>Ready to Find Your Perfect Property?</h2>
-          <p>Join {stats.verifiedUsers || '50,000+'} users already buying, renting, and connecting on {appName}</p>
+          <p>
+            Join {stats.verifiedUsers || '50,000+'} users already buying,
+            renting, and connecting on {appName}
+          </p>
           <div className='lp-cta__btns'>
-            <button className='lp-btn-lime' onClick={() => router.push('/auth/register')}>Get Started Free →</button>
-            <button className='lp-btn-ghost-white' onClick={() => router.push('/search')}>Browse Listings</button>
+            <button
+              className='lp-btn-lime'
+              onClick={() => router.push('/auth/register')}
+            >
+              Get Started Free →
+            </button>
+            <button
+              className='lp-btn-ghost-white'
+              onClick={() => router.push('/search')}
+            >
+              Browse Listings
+            </button>
           </div>
           <div className='lp-cta__trust'>
             <span>✓ Free to join</span>
@@ -698,7 +1039,6 @@ export default function LandingPage () {
           </div>
         </div>
       </section>
-
     </div>
   )
 }

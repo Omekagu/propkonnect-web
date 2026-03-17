@@ -2,9 +2,20 @@
   padding: 24px;
 }
 
-.fin-header { margin-bottom: 20px; }
-.fin-title { font-size: 22px; font-weight: 700; color: var(--color-text-primary); margin: 0 0 4px; }
-.fin-subtitle { font-size: 14px; color: var(--color-text-muted); margin: 0; }
+.fin-header {
+  margin-bottom: 20px;
+}
+.fin-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 4px;
+}
+.fin-subtitle {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
 
 .fin-tabs {
   display: flex;
@@ -22,12 +33,24 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
   transition: color 0.15s;
-  &:hover { color: var(--color-primary-mid); }
-  &--active { color: var(--color-primary-mid); border-bottom-color: var(--color-primary-mid); font-weight: 600; }
+  &:hover {
+    color: var(--color-primary-mid);
+  }
+  &--active {
+    color: var(--color-primary-mid);
+    border-bottom-color: var(--color-primary-mid);
+    font-weight: 600;
+  }
 }
 
-.fin-tab-content { padding: 8px 0; }
-.fin-tab-desc { font-size: 14px; color: var(--color-text-muted); margin-bottom: 16px; }
+.fin-tab-content {
+  padding: 8px 0;
+}
+.fin-tab-desc {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
 
 .fin-kpi-grid {
   display: grid;
@@ -38,21 +61,39 @@
 .fin-kpi {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+
   padding: 16px;
 }
-.fin-kpi-label { font-size: 12px; color: var(--color-text-muted); font-weight: 500; margin-bottom: 6px; }
-.fin-kpi-value { font-size: 22px; font-weight: 700; line-height: 1; }
-.fin-kpi-sub { font-size: 11px; color: var(--color-text-muted); margin-top: 4px; }
+.fin-kpi-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.fin-kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+.fin-kpi-sub {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
 
 .fin-chart-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+
   padding: 20px;
   margin-bottom: 24px;
 }
-.fin-chart-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin: 0 0 16px; }
+.fin-chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 16px;
+}
 
 .fin-toolbar {
   display: flex;
@@ -62,18 +103,27 @@
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
-.fin-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.fin-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 .fin-select {
   padding: 8px 12px;
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-size: 13px;
   color: var(--color-text-secondary);
   background: var(--color-surface);
   outline: none;
-  &:focus { border-color: var(--color-primary-mid); }
+  &:focus {
+    border-color: var(--color-primary-mid);
+  }
 }
-.fin-total-label { font-size: 13px; color: var(--color-text-muted); }
+.fin-total-label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
 
 .fin-table {
   width: 100%;
@@ -81,7 +131,7 @@
   font-size: 13px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+
   overflow: hidden;
   th {
     background: var(--color-surface-hover);
@@ -99,20 +149,36 @@
     border-bottom: 1px solid var(--color-surface-hover);
     color: var(--color-text-primary);
   }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--color-surface-hover); }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  tr:hover td {
+    background: var(--color-surface-hover);
+  }
 }
-.fin-empty-td { text-align: center; color: var(--color-text-muted); padding: 32px 0; }
-.fin-mono { font-family: var(--font-mono); font-size: 12px; }
-.fin-amount { font-weight: 600; }
+.fin-empty-td {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 32px 0;
+}
+.fin-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.fin-amount {
+  font-weight: 600;
+}
 
 .fin-badge {
   display: inline-block;
   padding: 3px 8px;
-  border-radius: var(--radius-full);
+
   font-size: 11px;
   font-weight: 600;
-  &--role { background: var(--color-primary-light); color: var(--color-primary-mid); }
+  &--role {
+    background: var(--color-primary-light);
+    color: var(--color-primary-mid);
+  }
 }
 
 .fin-pagination {
@@ -127,7 +193,7 @@
 
 .fin-btn {
   padding: 8px 14px;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -136,17 +202,31 @@
     background: var(--color-surface);
     border-color: var(--color-border-light);
     color: var(--color-text-secondary);
-    &:hover:not(:disabled) { border-color: var(--color-primary-mid); color: var(--color-primary-mid); }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    &:hover:not(:disabled) {
+      border-color: var(--color-primary-mid);
+      color: var(--color-primary-mid);
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
   &--danger {
     background: var(--color-error-bg);
     border-color: var(--color-error-bg);
     color: var(--color-error);
-    &:hover:not(:disabled) { background: var(--color-error-bg); }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    &:hover:not(:disabled) {
+      background: var(--color-error-bg);
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
-  &--sm { padding: 4px 10px; font-size: 12px; }
+  &--sm {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
 }
 
 .fin-loading {
@@ -162,18 +242,29 @@
   background: var(--color-primary-mid);
   color: var(--color-surface);
   border-color: var(--color-primary-mid);
-  &:hover:not(:disabled) { background: var(--color-primary); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) {
+    background: var(--color-primary);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
-.fin-muted { color: var(--color-text-muted); font-size: 12px; }
-.fin-badge--warn { background: var(--color-warning-bg); color: var(--color-accent-dark); }
+.fin-muted {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+.fin-badge--warn {
+  background: var(--color-warning-bg);
+  color: var(--color-accent-dark);
+}
 
 // Confirm dialog overlay
 .fin-confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,15 +272,27 @@
 }
 .fin-confirm-modal {
   background: var(--color-surface);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
   padding: 28px 32px;
   max-width: 420px;
   width: 90%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
-  h4 { font-size: 18px; font-weight: 700; margin: 0 0 12px; color: var(--color-text-primary); }
-  p { font-size: 14px; color: var(--color-text-secondary); margin: 0 0 8px; }
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: var(--color-text-primary);
+  }
+  p {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 0 0 8px;
+  }
 }
-.fin-confirm-sub { font-size: 12px !important; color: var(--color-text-muted) !important; }
+.fin-confirm-sub {
+  font-size: 12px !important;
+  color: var(--color-text-muted) !important;
+}
 .fin-confirm-actions {
   display: flex;
   gap: 10px;
@@ -200,10 +303,18 @@
 // Toast notification
 .fin-toast {
   padding: 12px 16px;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 14px;
-  &--success { background: var(--color-success-bg); color: var(--color-success); border: 1px solid var(--color-success-bg); }
-  &--error   { background: var(--color-error-bg); color: var(--color-error); border: 1px solid var(--color-error-bg); }
+  &--success {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid var(--color-success-bg);
+  }
+  &--error {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+    border: 1px solid var(--color-error-bg);
+  }
 }

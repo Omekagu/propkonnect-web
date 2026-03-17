@@ -81,7 +81,7 @@
       align-items: center;
       gap: 0.8rem;
       background: rgba(255, 255, 255, 0.12);
-      border-radius: var(--radius-lg);
+      //r(--radius-lg);
       padding: 1rem;
       backdrop-filter: blur(16px) saturate(160%);
       -webkit-backdrop-filter: blur(16px) saturate(160%);
@@ -102,7 +102,7 @@
       option {
         padding: 0.9rem 1.1rem;
         border: none;
-        border-radius: var(--radius-md);
+
         outline: none;
         font-size: 1rem;
         transition: all 0.3s ease;
@@ -140,7 +140,7 @@
         background: linear-gradient(90deg, #d4f04c, #e2c89a);
         color: var(--color-surface);
         border: none;
-        border-radius: var(--radius-md);
+
         padding: 0.9rem 1.6rem;
         font-weight: 600;
         cursor: pointer;

@@ -28,7 +28,7 @@
       background: var(--color-accent);
       color: var(--cta-text);
       border: none;
-      border-radius: var(--radius-sm);
+
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -55,7 +55,6 @@
         width: 100%;
         padding: 0.75rem 1rem;
         border: 1px solid var(--color-border);
-        border-radius: var(--radius-sm);
         font-size: 0.95rem;
         background: var(--color-surface);
         color: var(--color-text-primary);
@@ -82,7 +81,6 @@
         padding: 0.5rem 1rem;
         background: var(--color-surface);
         border: 1px solid var(--color-border);
-        border-radius: var(--radius-xs);
         cursor: pointer;
         font-weight: 500;
         color: var(--color-text-muted);
@@ -123,7 +121,6 @@
       padding: 2rem;
       text-align: center;
       background: var(--color-surface);
-      border-radius: var(--radius-md);
       border: 1px solid var(--color-border);
     }
 
@@ -151,7 +148,6 @@
         background: var(--color-accent);
         color: var(--cta-text);
         text-decoration: none;
-        border-radius: var(--radius-sm);
         display: inline-block;
         border: none;
         cursor: pointer;
@@ -168,7 +164,6 @@
       padding: 1.5rem;
       background: var(--color-surface);
       border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
       cursor: pointer;
       transition: all 0.3s ease;
 
@@ -206,7 +201,6 @@
 
         .status-badge {
           padding: 0.375rem 0.75rem;
-          border-radius: var(--radius-xs);
           font-size: 0.75rem;
           font-weight: 600;
           color: var(--color-surface);
@@ -234,7 +228,6 @@
   .ticket-detail-panel {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
     padding: 2rem;
     display: flex;
     flex-direction: column;
@@ -279,7 +272,6 @@
       gap: 1.5rem;
       padding: 1rem;
       background: var(--color-surface-hover);
-      border-radius: var(--radius-sm);
 
       @media (max-width: 768px) {
         grid-template-columns: 1fr;
@@ -329,7 +321,6 @@
 
         .message {
           padding: 1rem;
-          border-radius: var(--radius-sm);
           background: var(--color-surface-hover);
 
           &.user-message {
@@ -377,7 +368,6 @@
         min-height: 100px;
         padding: 1rem;
         border: 1px solid var(--color-border);
-        border-radius: var(--radius-sm);
         font-size: 0.95rem;
         color: var(--color-text-primary);
         background: var(--color-surface-hover);
@@ -408,7 +398,6 @@
         background: var(--color-accent);
         color: var(--cta-text);
         border: none;
-        border-radius: var(--radius-sm);
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -430,7 +419,6 @@
       padding: 1.5rem;
       background: var(--color-warning-bg);
       border: 1px solid rgba(245, 158, 11, 0.2);
-      border-radius: var(--radius-sm);
       text-align: center;
 
       p {
@@ -465,7 +453,6 @@
       padding: 1rem;
       background: var(--color-success-bg);
       border: 1px solid rgba(16, 185, 129, 0.2);
-      border-radius: var(--radius-sm);
       text-align: center;
 
       p {

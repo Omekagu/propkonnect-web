@@ -21,12 +21,20 @@
 // Toast
 .ps-toast {
   padding: 12px 16px;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 16px;
-  &--success { background: var(--color-success-bg); color: #065f46; border: 1px solid #6ee7b7; }
-  &--error   { background: var(--color-error-bg); color: var(--color-error); border: 1px solid var(--color-error-bg); }
+  &--success {
+    background: var(--color-success-bg);
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+  &--error {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+    border: 1px solid var(--color-error-bg);
+  }
 }
 
 // Tabs
@@ -48,7 +56,9 @@
   margin-bottom: -2px;
   white-space: nowrap;
   transition: color 0.15s;
-  &:hover { color: var(--color-primary-mid); }
+  &:hover {
+    color: var(--color-primary-mid);
+  }
   &--active {
     color: var(--color-primary-mid);
     border-bottom-color: var(--color-primary-mid);
@@ -85,19 +95,25 @@
 .ps-hint {
   font-size: 12px;
   color: var(--color-text-muted);
-  &--block { display: block; margin-top: 2px; }
+  &--block {
+    display: block;
+    margin-top: 2px;
+  }
 }
 .ps-input {
   padding: 9px 12px;
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-size: 14px;
   color: var(--color-text-primary);
   background: var(--color-surface);
   max-width: 480px;
   width: 100%;
   outline: none;
-  &:focus { border-color: var(--color-primary-mid); box-shadow: 0 0 0 3px var(--color-primary-subtle); }
+  &:focus {
+    border-color: var(--color-primary-mid);
+    box-shadow: 0 0 0 3px var(--color-primary-subtle);
+  }
 }
 
 // Branding-specific layout helpers
@@ -117,7 +133,9 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 
-  @media (max-width: 640px) { grid-template-columns: 1fr; }
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 // Toggle
@@ -134,12 +152,14 @@
   width: 44px;
   height: 24px;
   border: none;
-  border-radius: var(--radius-full);
+
   background: var(--color-border-light);
   cursor: pointer;
   transition: background 0.2s;
   flex-shrink: 0;
-  &--on { background: var(--color-primary-mid); }
+  &--on {
+    background: var(--color-primary-mid);
+  }
 }
 .ps-toggle-knob {
   position: absolute;
@@ -150,14 +170,16 @@
   border-radius: 50%;
   background: var(--color-surface);
   transition: left 0.2s;
-  .ps-toggle--on & { left: 23px; }
+  .ps-toggle--on & {
+    left: 23px;
+  }
 }
 
 // Button
 .ps-btn {
   padding: 10px 24px;
   border: none;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -165,8 +187,13 @@
   &--primary {
     background: var(--color-primary-mid);
     color: var(--color-surface);
-    &:hover:not(:disabled) { background: var(--color-primary); }
-    &:disabled { opacity: 0.6; cursor: not-allowed; }
+    &:hover:not(:disabled) {
+      background: var(--color-primary);
+    }
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   }
 }
 
@@ -179,7 +206,7 @@
 }
 .ps-tier-card {
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+
   padding: 16px;
   background: var(--color-surface-hover);
   display: flex;
@@ -210,7 +237,11 @@
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 // ── Subscription Plans grid ──────────────────────────────────────────────────
 .ps-form-desc {
@@ -229,7 +260,7 @@
 
 .ps-plan-card {
   border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
+
   padding: 18px;
   background: var(--color-surface);
 
@@ -238,8 +269,21 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 14px;
-    .ps-plan-name { flex: 1; font-weight: 700; font-size: 15px; border: none; padding: 4px 6px; }
-    .ps-plan-id { font-size: 11px; color: var(--color-text-muted); font-weight: 600; text-transform: uppercase; background: var(--color-surface-hover); padding: 3px 8px; border-radius: var(--radius-xs); }
+    .ps-plan-name {
+      flex: 1;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      padding: 4px 6px;
+    }
+    .ps-plan-id {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      background: var(--color-surface-hover);
+      padding: 3px 8px;
+    }
   }
 
   .ps-plan-fields {
@@ -252,59 +296,127 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
-      label { font-size: 11px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .4px; }
+      label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
     }
   }
 
   .ps-plan-features {
-    label { font-size: 11px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .4px; display: block; margin-bottom: 8px; }
-    .ps-feat-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .ps-feat-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
     .ps-feat-chip {
       padding: 4px 10px;
       border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-xl);
+      //r(--radius-xl);
       font-size: 11px;
       cursor: pointer;
       color: var(--color-text-muted);
       background: var(--color-surface);
-      transition: all .2s;
+      transition: all 0.2s;
       font-weight: 500;
-      &.on { border-color: var(--color-primary-mid); color: var(--color-primary-mid); background: var(--color-primary-light); }
-      &:hover:not(.on) { border-color: var(--color-primary-light); }
+      &.on {
+        border-color: var(--color-primary-mid);
+        color: var(--color-primary-mid);
+        background: var(--color-primary-light);
+      }
+      &:hover:not(.on) {
+        border-color: var(--color-primary-light);
+      }
     }
   }
 }
 
 // ── Dark Mode ─────────────────────────────────────────────────────────────────
 @mixin ps-dark {
-  .ps-title, .ps-section-title, .ps-tier-name { color: var(--color-text-primary, #f1f5f9); }
-  .ps-subtitle, .ps-hint, .ps-loading, .ps-form-desc { color: var(--color-text-muted, #64748b); }
-  .ps-label { color: var(--color-text-secondary, #94a3b8); }
-  .ps-tabs { border-bottom-color: var(--color-border, #1e293b); }
-  .ps-tab { color: var(--color-text-muted, #64748b); }
-  .ps-section-title { border-bottom-color: var(--color-border, #1e293b); }
-  .ps-toggle-row { border-bottom-color: var(--color-border, #1e293b); }
-  .ps-toggle { background: var(--color-surface-elevated); }
+  .ps-title,
+  .ps-section-title,
+  .ps-tier-name {
+    color: var(--color-text-primary, #f1f5f9);
+  }
+  .ps-subtitle,
+  .ps-hint,
+  .ps-loading,
+  .ps-form-desc {
+    color: var(--color-text-muted, #64748b);
+  }
+  .ps-label {
+    color: var(--color-text-secondary, #94a3b8);
+  }
+  .ps-tabs {
+    border-bottom-color: var(--color-border, #1e293b);
+  }
+  .ps-tab {
+    color: var(--color-text-muted, #64748b);
+  }
+  .ps-section-title {
+    border-bottom-color: var(--color-border, #1e293b);
+  }
+  .ps-toggle-row {
+    border-bottom-color: var(--color-border, #1e293b);
+  }
+  .ps-toggle {
+    background: var(--color-surface-elevated);
+  }
   .ps-input {
-    background: var(--color-surface, #0f172a);
+    background: var(--color-surface, #0f6040);
     border-color: var(--color-border, #1e293b);
     color: var(--color-text-primary, #f1f5f9);
   }
   .ps-tier-card {
-    background: var(--color-surface, #0f172a);
+    background: var(--color-surface, #0f6040);
     border-color: var(--color-border, #1e293b);
   }
-  .ps-tier-name { border-bottom-color: var(--color-border, #1e293b); }
-  .ps-spinner { border-color: var(--color-border, #1e293b); border-top-color: var(--color-primary-mid); }
-  .ps-plan-card {
-    background: var(--color-surface, #0f172a);
+  .ps-tier-name {
+    border-bottom-color: var(--color-border, #1e293b);
+  }
+  .ps-spinner {
     border-color: var(--color-border, #1e293b);
-    .ps-plan-id { background: var(--color-surface-hover); color: var(--color-text-muted); }
-    .ps-plan-field label, .ps-plan-features label { color: var(--color-text-muted); }
-    .ps-feat-chip { background: var(--color-surface-hover); border-color: var(--color-surface-elevated); color: var(--color-text-muted); }
-    .ps-feat-chip.on { background: var(--color-primary-light); border-color: var(--color-primary-mid); color: var(--color-primary-mid); }
+    border-top-color: var(--color-primary-mid);
+  }
+  .ps-plan-card {
+    background: var(--color-surface, #0f6040);
+    border-color: var(--color-border, #1e293b);
+    .ps-plan-id {
+      background: var(--color-surface-hover);
+      color: var(--color-text-muted);
+    }
+    .ps-plan-field label,
+    .ps-plan-features label {
+      color: var(--color-text-muted);
+    }
+    .ps-feat-chip {
+      background: var(--color-surface-hover);
+      border-color: var(--color-surface-elevated);
+      color: var(--color-text-muted);
+    }
+    .ps-feat-chip.on {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary-mid);
+      color: var(--color-primary-mid);
+    }
   }
 }
 
-@media (prefers-color-scheme: dark) { @include ps-dark; }
-html[data-theme="dark"] { @include ps-dark; }
+@media (prefers-color-scheme: dark) {
+  @include ps-dark;
+}
+html[data-theme='dark'] {
+  @include ps-dark;
+}

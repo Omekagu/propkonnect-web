@@ -63,7 +63,7 @@
       .btn-icon {
         width: 44px;
         height: 44px;
-        border-radius: var(--radius-md);
+
         background: var(--color-surface);
         border: 1.5px solid var(--color-border);
         color: var(--color-text-secondary);
@@ -89,7 +89,7 @@
           var(--color-primary-mid) 100%
         );
         border: none;
-        border-radius: var(--radius-md);
+
         color: var(--color-surface);
         font-weight: 600;
         font-size: 0.9rem;
@@ -121,7 +121,7 @@
   .stat-card {
     background: var(--color-surface);
     border: 1.5px solid var(--color-border-light);
-    border-radius: var(--radius-lg);
+    //r(--radius-lg);
     padding: 1.25rem;
     text-align: center;
     transition: var(--transition);
@@ -190,7 +190,7 @@
 .filters-section {
   background: var(--color-surface);
   border: 1.5px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
 
@@ -211,7 +211,7 @@
       padding: 0.75rem 1rem 0.75rem 2.75rem;
       background: var(--color-background);
       border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-md);
+
       color: var(--color-text-primary);
       font-size: 0.9rem;
       transition: var(--transition);
@@ -266,7 +266,6 @@
     padding: 0.875rem 1rem;
     background: #fff7f7;
     border: 1.5px solid var(--color-error-bg);
-    border-radius: var(--radius-md);
 
     span {
       flex: 1;
@@ -279,7 +278,7 @@
       padding: 0.55rem 1rem;
       background: var(--color-error);
       border: none;
-      border-radius: var(--radius-sm);
+      //r(--radius-sm);
       color: var(--color-surface);
       font-weight: 600;
       font-size: 0.875rem;
@@ -323,7 +322,7 @@
 .user-card {
   background: var(--color-surface);
   border: 1.5px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
   overflow: hidden;
   transition: var(--transition);
   cursor: pointer;
@@ -372,7 +371,7 @@
       .avatar {
         width: 52px;
         height: 52px;
-        border-radius: var(--radius-md);
+
         background: linear-gradient(
           135deg,
           var(--color-primary) 0%,
@@ -415,7 +414,7 @@
     .menu-button .btn-menu {
       width: 30px;
       height: 30px;
-      border-radius: var(--radius-sm);
+      //r(--radius-sm);
       background: transparent;
       border: none;
       color: var(--color-text-muted);
@@ -460,7 +459,7 @@
       .role-badge,
       .verify-badge {
         padding: 0.25rem 0.625rem;
-        border-radius: var(--radius-full);
+
         font-size: 0.72rem;
         font-weight: 600;
         display: inline-flex;
@@ -550,7 +549,7 @@
       padding: 0.5rem;
       border: 1.5px solid var(--color-border);
       background: var(--color-surface);
-      border-radius: var(--radius-sm);
+      //r(--radius-sm);
       color: var(--color-text-muted);
       cursor: pointer;
       transition: var(--transition);
@@ -599,7 +598,7 @@
   text-align: center;
   background: var(--color-surface);
   border: 1.5px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
 }
 
 .spinner {
@@ -628,7 +627,7 @@
     padding: 0.65rem 1.25rem;
     background: var(--color-primary);
     border: none;
-    border-radius: var(--radius-sm);
+    //r(--radius-sm);
     color: var(--color-surface);
     font-weight: 600;
     cursor: pointer;
@@ -651,7 +650,7 @@
   padding: 1.25rem;
   background: var(--color-surface);
   border: 1.5px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
 
   .page-btn {
     padding: 0.65rem 1.25rem;
@@ -702,7 +701,7 @@
 
   .modal {
     background: var(--color-surface);
-    border-radius: var(--radius-xl);
+    //r(--radius-xl);
     width: 100%;
     max-width: 600px;
     max-height: 90vh;
@@ -735,7 +734,7 @@
         border: none;
         width: 32px;
         height: 32px;
-        border-radius: var(--radius-sm);
+        //r(--radius-sm);
         font-size: 1.25rem;
         color: var(--color-text-muted);
         cursor: pointer;
@@ -834,7 +833,7 @@
       flex: 1;
       padding: 0.75rem 1.25rem;
       border: none;
-      border-radius: var(--radius-md);
+
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
@@ -892,13 +891,13 @@
   margin-bottom: 1.5rem;
   padding: 1.25rem;
   background: var(--color-background);
-  border-radius: var(--radius-md);
+
   border: 1px solid var(--color-border-light);
 
   .detail-avatar {
     width: 72px;
     height: 72px;
-    border-radius: var(--radius-lg);
+    //r(--radius-lg);
     background: linear-gradient(
       135deg,
       var(--color-primary),
@@ -937,7 +936,7 @@
       .badge-role,
       .badge-status {
         padding: 0.25rem 0.6rem;
-        border-radius: var(--radius-full);
+
         font-size: 0.75rem;
         font-weight: 600;
       }

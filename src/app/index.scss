@@ -212,13 +212,18 @@
   --content-width: 1100px;
 
   // ── Dark-surface tokens (used by admin shell; light defaults) ──
-  --color-surface-elevated: #e4ecdf;       // card/panel elevation in light
+  --color-surface-elevated: #e4ecdf; // card/panel elevation in light
   --color-primary-emphasis: var(--color-primary); // active-state text in light
-  --color-header-bg: rgba(255, 255, 255, 0.94);   // frosted-glass header
-  --color-overlay: rgba(15, 23, 42, 0.5);         // modal/backdrop tint
-  --color-section-label: #8a9bb0;                 // sidebar section headers
-  --color-nav-active-bg: rgba(11, 61, 40, 0.08);  // active nav row bg
-  --color-nav-active-bg-end: rgba(11, 61, 40, 0.03); // active nav row gradient end
+  --color-header-bg: rgba(255, 255, 255, 0.94); // frosted-glass header
+  --color-overlay: rgba(15, 23, 42, 0.5); // modal/backdrop tint
+  --color-section-label: #8a9bb0; // sidebar section headers
+  --color-nav-active-bg: rgba(11, 61, 40, 0.08); // active nav row bg
+  --color-nav-active-bg-end: rgba(
+    11,
+    61,
+    40,
+    0.03
+  ); // active nav row gradient end
 
   // ── Legacy dark-theme component aliases (light remapping) ─────
   // These remap old dark-theme variable names used by migrated
@@ -334,7 +339,7 @@ select {
   color: var(--color-text-primary);
   background: var(--color-surface);
   border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
+
   outline: none;
   transition: border-color var(--transition-fast),
     box-shadow var(--transition-fast);
@@ -369,11 +374,9 @@ video {
 }
 ::-webkit-scrollbar-track {
   background: var(--color-border-light);
-  border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
-  border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
@@ -383,7 +386,6 @@ video {
 :focus-visible {
   outline: 2px solid var(--color-primary-mid);
   outline-offset: 2px;
-  border-radius: var(--radius-xs);
 }
 
 // ── Text Selection ───────────────────────────────────────────
@@ -414,29 +416,29 @@ video {
 @media (prefers-color-scheme: dark) {
   :root {
     // Backgrounds
-    --color-background: #020617;
-    --color-surface: #0f172a;
+    --color-background: #0f6040;
+    --color-surface: #0f6040;
     --color-surface-hover: #1e293b;
     --color-border: #1e293b;
-    --color-border-light: #0f172a;
+    --color-border-light: #0f6040;
 
     // Legacy aliases
-    --bg: #020617;
-    --surface: #0f172a;
+    --bg: #0f6040;
+    --surface: #0f6040;
     --surface-2: #1e293b;
     --border: #1e293b;
-    --border-light: #0f172a;
+    --border-light: #0f6040;
 
     // Text
     --color-text-primary: #f1f5f9;
     --color-text-secondary: #94a3b8;
     --color-text-muted: #64748b;
-    --color-text-inverse: #0f172a;
+    --color-text-inverse: #0f6040;
 
     --text: #f1f5f9;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    --text-inverse: #0f172a;
+    --text-inverse: #0f6040;
 
     // Primary tints — propnekt green in dark
     --color-primary-light: rgba(15, 96, 64, 0.22);
@@ -456,7 +458,7 @@ video {
 
     // Dark-surface tokens (overrides for dark mode)
     --color-surface-elevated: #334155;
-    --color-primary-emphasis: #4ade80;      // bright green readable on dark bg
+    --color-primary-emphasis: #4ade80; // bright green readable on dark bg
     --color-header-bg: rgba(9, 14, 31, 0.94);
     --color-overlay: rgba(15, 23, 42, 0.6);
     --color-section-label: #334155;
@@ -492,7 +494,7 @@ video {
 
   // Scrollbar in dark
   ::-webkit-scrollbar-track {
-    background: #0f172a;
+    background: #0f6040;
   }
   ::-webkit-scrollbar-thumb {
     background: #334155;
@@ -512,29 +514,29 @@ video {
 html[data-theme='dark'] {
   :root {
     // Backgrounds
-    --color-background: #020617;
-    --color-surface: #0f172a;
+    --color-background: #0f6040;
+    --color-surface: #0f6040;
     --color-surface-hover: #1e293b;
     --color-border: #1e293b;
-    --color-border-light: #0f172a;
+    --color-border-light: #0f6040;
 
     // Legacy aliases
-    --bg: #020617;
-    --surface: #0f172a;
+    --bg: #0f6040;
+    --surface: #0f6040;
     --surface-2: #1e293b;
     --border: #1e293b;
-    --border-light: #0f172a;
+    --border-light: #0f6040;
 
     // Text
     --color-text-primary: #f1f5f9;
     --color-text-secondary: #94a3b8;
     --color-text-muted: #64748b;
-    --color-text-inverse: #0f172a;
+    --color-text-inverse: #0f6040;
 
     --text: #f1f5f9;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    --text-inverse: #0f172a;
+    --text-inverse: #0f6040;
 
     // Primary tints — propnekt green in dark
     --color-primary-light: rgba(15, 96, 64, 0.22);
@@ -572,19 +574,19 @@ html[data-theme='dark'] {
     // Legacy dark-theme component aliases remapped for dark
     --text-dark: #f1f5f9;
     --text-gray: #94a3b8;
-    --bg-light: #020617;
-    --bg-white: #0f172a;
-    --bg-dark: #020617;
+    --bg-light: #0f6040;
+    --bg-white: #0f6040;
+    --bg-dark: #0f6040;
     --bg-darker: #010409;
     --surface-light: #1e293b;
-    --bg-surface: #0f172a;
+    --bg-surface: #0f6040;
     --bg-raised: #1e293b;
     --bg-hover: rgba(255, 255, 255, 0.06);
     --text-1: #f1f5f9;
     --text-2: #94a3b8;
     --text-3: #64748b;
     --border-mid: #1e293b;
-    --color-surface: #0f172a;
+    --color-surface: #0f6040;
   }
 
   body {
@@ -605,7 +607,7 @@ html[data-theme='dark'] {
   }
 
   ::-webkit-scrollbar-track {
-    background: #0f172a;
+    background: #0f6040;
   }
   ::-webkit-scrollbar-thumb {
     background: #334155;

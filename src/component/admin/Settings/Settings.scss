@@ -1,4 +1,3 @@
-
 // ─── Settings uses global design tokens from index.scss ──────────────────────
 
 .settings {
@@ -71,7 +70,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   border: none;
   background: transparent;
   color: var(--text-2);
@@ -131,7 +130,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 14px;
-    background: var(--color-surface-hover, rgba(0,0,0,.04));
+    background: var(--color-surface-hover, rgba(0, 0, 0, 0.04));
     border-radius: 8px;
     margin-bottom: 4px;
   }
@@ -147,7 +146,7 @@
 .input--select:disabled {
   opacity: 0.65;
   cursor: not-allowed;
-  background: var(--color-surface-hover, rgba(0,0,0,.03));
+  background: var(--color-surface-hover, rgba(0, 0, 0, 0.03));
 }
 
 // ─── Section Block ────────────────────────────────────────────────────────────
@@ -231,7 +230,7 @@
   width: 100%;
   background: var(--bg-raised);
   border: 1px solid var(--border-mid);
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   padding: 10px 14px;
   color: var(--text-1);
   font-family: var(--font-body);
@@ -337,7 +336,7 @@
   gap: 20px;
   padding: 16px;
   background: var(--bg-raised);
-  border-radius: var(--radius);
+  //r(--radius);
   border: 1px solid var(--border);
 
   &__actions {
@@ -371,7 +370,7 @@
   justify-content: center;
   gap: 6px;
   padding: 10px 20px;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   border: none;
   font-family: var(--font-body);
   font-size: 0.85rem;
@@ -439,7 +438,7 @@
   padding: 20px;
   background: var(--bg-raised);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  //r(--radius);
 }
 
 // ─── Bank Card ───────────────────────────────────────────────────────────────
@@ -450,7 +449,7 @@
   padding: 16px 20px;
   background: var(--bg-raised);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  //r(--radius);
 
   &__icon {
     font-size: 1.6rem;
@@ -482,7 +481,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 20px;
-  border-radius: var(--radius);
+  //r(--radius);
   border: 1px solid var(--border);
 
   &--active {
@@ -532,7 +531,7 @@
 // ─── Fee Table ───────────────────────────────────────────────────────────────
 .fee-table {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  //r(--radius);
   overflow: hidden;
 }
 
@@ -581,7 +580,7 @@
   padding: 12px 16px;
   background: var(--bg-raised);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
 
   &__icon {
     font-size: 1.2rem;
@@ -621,7 +620,7 @@
 // ─── Danger Zone ─────────────────────────────────────────────────────────────
 .danger-zone {
   border: 1px solid rgba(224, 91, 91, 0.2);
-  border-radius: var(--radius);
+  //r(--radius);
   overflow: hidden;
 
   &__item {
@@ -664,7 +663,7 @@
   padding: 12px 18px;
   background: var(--bg-raised);
   border: 1px solid var(--border-mid);
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   color: var(--text-2);
   font-family: var(--font-body);
   font-size: 0.78rem;
@@ -697,7 +696,7 @@
   padding: 14px 22px;
   background: var(--bg-raised);
   border: 1px solid var(--border-mid);
-  border-radius: var(--radius-lg);
+  //r(--radius-lg);
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent-glow);
   z-index: 100;
   white-space: nowrap;
@@ -735,7 +734,7 @@
   background: var(--success-muted);
   border: 1px solid rgba(91, 207, 176, 0.3);
   color: var(--success);
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-size: 0.85rem;
   font-weight: 500;
   z-index: 200;
@@ -794,10 +793,18 @@
 // ─── Billing inline message ───────────────────────────────────────────────────
 .billing-msg {
   padding: 10px 16px;
-  border-radius: var(--radius-sm);
+  //r(--radius-sm);
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 16px;
-  &--ok  { background: var(--color-success-bg); color: #065f46; border: 1px solid #a7f3d0; }
-  &--err { background: var(--color-error-bg); color: #991b1b; border: 1px solid var(--color-error-bg); }
+  &--ok {
+    background: var(--color-success-bg);
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+  &--err {
+    background: var(--color-error-bg);
+    color: #991b1b;
+    border: 1px solid var(--color-error-bg);
+  }
 }

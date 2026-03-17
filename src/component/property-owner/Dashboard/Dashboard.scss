@@ -231,7 +231,7 @@ html[data-theme='dark'] .od-page {
   align-items: center;
   gap: 7px;
   padding: 10px 20px;
-  border-radius: var(--od-r-sm);
+  //r(--od-r-sm);
   border: 1.5px solid transparent;
   font-family: 'DM Sans', sans-serif;
   font-size: 13.5px;
@@ -333,7 +333,7 @@ html[data-theme='dark'] .od-page {
 .od-stat {
   background: var(--od-card);
   border: 1px solid var(--od-border);
-  border-radius: var(--od-r);
+  //r(--od-r);
   padding: 20px 20px 16px;
   display: flex;
   gap: 14px;
@@ -350,7 +350,7 @@ html[data-theme='dark'] .od-page {
     left: 0;
     right: 0;
     height: 2px;
-    border-radius: var(--od-r) var(--od-r) 0 0;
+    //r(--od-r) var(--od-r) 0 0;
     opacity: 0;
     transition: opacity 0.3s;
   }
@@ -486,7 +486,7 @@ html[data-theme='dark'] .od-page {
 .od-panel {
   background: var(--od-card);
   border: 1px solid var(--od-border);
-  border-radius: var(--od-r);
+  //r(--od-r);
   padding: 24px;
 
   &--sm {
@@ -553,7 +553,7 @@ html[data-theme='dark'] .od-page {
   align-items: center;
   gap: 14px;
   padding: 12px 14px;
-  border-radius: var(--od-r-sm);
+  //r(--od-r-sm);
   transition: background 0.2s;
 
   &:hover {
@@ -584,7 +584,7 @@ html[data-theme='dark'] .od-page {
 .od-prop-row__thumb {
   width: 56px;
   height: 56px;
-  border-radius: 10px;
+
   overflow: hidden;
   flex-shrink: 0;
   background: var(--od-raised);
@@ -756,7 +756,7 @@ html[data-theme='dark'] .od-page {
   align-items: center;
   gap: 14px;
   padding: 11px 14px;
-  border-radius: var(--od-r-sm);
+  //r(--od-r-sm);
   transition: background 0.2s;
 
   &:hover {
@@ -894,7 +894,7 @@ html[data-theme='dark'] .od-page {
   align-items: center;
   gap: 12px;
   padding: 13px 14px;
-  border-radius: var(--od-r-sm);
+  //r(--od-r-sm);
   border: 1px solid var(--od-border);
   background: transparent;
   width: 100%;
@@ -1030,7 +1030,7 @@ html[data-theme='dark'] .od-page {
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border-radius: var(--od-r-sm);
+  //r(--od-r-sm);
   transition: background 0.18s;
 
   &:hover {
@@ -1096,7 +1096,7 @@ html[data-theme='dark'] .od-page {
     var(--od-card) 100%
   );
   border: 1px solid var(--od-border-gold);
-  border-radius: var(--od-r);
+  //r(--od-r);
   padding: 24px;
   text-align: center;
   position: relative;

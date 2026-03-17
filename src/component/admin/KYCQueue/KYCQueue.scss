@@ -101,7 +101,7 @@
   .stat-icon {
     width: 38px;
     height: 38px;
-    border-radius: 10px;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -167,7 +167,7 @@
     width: 100%;
     padding: 9px 14px 9px 36px;
     border: 1px solid var(--color-border);
-    border-radius: 10px;
+
     background: var(--color-surface);
     font-size: 13px;
     color: var(--color-text-primary);
@@ -195,7 +195,7 @@
   select {
     padding: 9px 32px 9px 12px;
     border: 1px solid var(--color-border);
-    border-radius: 10px;
+
     background: var(--color-surface);
     font-size: 13px;
     color: var(--color-text-primary);
@@ -399,7 +399,7 @@
   align-items: center;
   gap: 6px;
   padding: 9px 18px;
-  border-radius: 10px;
+
   border: none;
   font-size: 13px;
   font-weight: 600;
@@ -622,7 +622,7 @@
     width: 100%;
     max-height: 280px;
     object-fit: contain;
-    border-radius: 10px;
+
     border: 1px solid var(--color-border);
     background: var(--color-background);
   }
@@ -643,7 +643,7 @@
     width: 100%;
     padding: 10px 14px;
     border: 1px solid var(--color-border);
-    border-radius: 10px;
+
     background: var(--color-background);
     font-size: 13px;
     color: var(--color-text-primary);
@@ -770,7 +770,7 @@
   width: 100%;
   height: 100px;
   object-fit: cover;
-  border-radius: 10px;
+
   border: 1px solid var(--color-border);
   background: var(--color-background);
   display: block;
@@ -804,7 +804,7 @@
     width: 100%;
     padding: 9px 12px;
     border: 1px solid var(--color-border);
-    border-radius: 10px;
+
     background: var(--color-background);
     font-size: 13px;
     color: var(--color-text-primary);
@@ -883,7 +883,7 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px 14px;
-  border-radius: 10px;
+
   background: rgba(239, 68, 68, 0.06);
   border: 1px solid rgba(239, 68, 68, 0.15);
   color: #dc2626;
