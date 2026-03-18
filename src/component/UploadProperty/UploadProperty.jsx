@@ -96,6 +96,7 @@ const mkBlankForm = () => ({
   visibility: 'public',
   premiere: false,
   paymentPlans: [{ id: 'out', name: 'Outright', installments: [{ dueInDays: 0, percent: 100 }] }],
+  cautionFee: { required: false, amount: '', description: '' },
   seoTitle: '', seoDescription: '',
   propertySpaceType: null,
   buildingCharacteristics: [],
@@ -218,6 +219,7 @@ export default function UploadPropertyWizard ({
           visibility: p.visibility||'public',
           premiere: !!p.premiere,
           paymentPlans: Array.isArray(p.paymentPlans) && p.paymentPlans.length ? p.paymentPlans : [{ id:'out',name:'Outright',installments:[{dueInDays:0,percent:100}] }],
+          cautionFee: p.cautionFee ? { required: p.cautionFee.required || false, amount: p.cautionFee.amount ? String(p.cautionFee.amount) : '', description: p.cautionFee.description || '' } : { required: false, amount: '', description: '' },
           seoTitle: p.seoTitle||'',
           seoDescription: p.seoDescription||'',
           propertySpaceType: p.propertySpaceType || null,
@@ -595,7 +597,10 @@ export default function UploadPropertyWizard ({
         amenitiesDetailed: Object.keys(form.amenitiesDetailed||{}).length ? form.amenitiesDetailed : undefined,
         languagesSpoken:  form.languagesSpoken?.length ? form.languagesSpoken : undefined,
         nearbyPlaces:     form.nearbyPlaces?.length ? form.nearbyPlaces : undefined,
-        houseRules:       form.houseRules || undefined
+        houseRules:       form.houseRules || undefined,
+        cautionFee:       (form.cautionFee?.required && form.cautionFee?.amount)
+          ? { required: true, amount: Number(form.cautionFee.amount), currency: form.currency || 'NGN', description: form.cautionFee.description || undefined }
+          : undefined
       }
 
       const isEdit = !!form._id
@@ -921,9 +926,61 @@ export default function UploadPropertyWizard ({
               )}
             </div>
 
+            {/* Caution / Security deposit — not for Land */}
+            {form.category !== 'Land' && (
+              <>
+                <hr className='wz-divider' />
+                <p style={{ fontSize:14, fontWeight:700, marginBottom:4 }}>Caution / Security Deposit</p>
+                <p style={{ fontSize:12, color:'#666', marginBottom:12 }}>A refundable deposit held in escrow and returned to the tenant/guest after checkout if no damage is reported.</p>
+
+                <div className='wz-row' style={{ alignItems:'center', gap:12, marginBottom:12 }}>
+                  <label className='wz-toggle-label' style={{ display:'flex', alignItems:'center', gap:8, cursor:'pointer', fontSize:14 }}>
+                    <input
+                      type='checkbox'
+                      checked={!!form.cautionFee?.required}
+                      onChange={e => set('cautionFee', { ...form.cautionFee, required: e.target.checked })}
+                      style={{ width:16, height:16 }}
+                    />
+                    This property requires a caution fee
+                  </label>
+                </div>
+
+                {form.cautionFee?.required && (
+                  <div className='wz-row c2'>
+                    <div className='wz-field'>
+                      <label>Caution Fee Amount ({form.currency})</label>
+                      <input
+                        type='number'
+                        min='0'
+                        value={form.cautionFee?.amount || ''}
+                        onChange={e => set('cautionFee', { ...form.cautionFee, amount: e.target.value })}
+                        placeholder='e.g. 50000'
+                      />
+                    </div>
+                    <div className='wz-field'>
+                      <label>Terms / Description (optional)</label>
+                      <input
+                        type='text'
+                        value={form.cautionFee?.description || ''}
+                        onChange={e => set('cautionFee', { ...form.cautionFee, description: e.target.value })}
+                        placeholder='e.g. Refunded within 7 days of checkout'
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             <hr className='wz-divider' />
 
-            <p style={{ fontSize:14, fontWeight:700, marginBottom:12 }}>Payment Plans</p>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+              <p style={{ fontSize:14, fontWeight:700, margin:0 }}>Payment Plans</p>
+              <div style={{ display:'flex', gap:6 }}>
+                <button className='wz-preset-btn' title='50% now, 50% on handover' onClick={() => setPayPlans(p => [...p, { id:`plan_${Date.now()}`, name:'50/50 Split', installments:[{dueInDays:0,percent:50},{dueInDays:30,percent:50}] }])}>+ 50/50</button>
+                <button className='wz-preset-btn' title='30% now, 30% in 30 days, 40% on handover' onClick={() => setPayPlans(p => [...p, { id:`plan_${Date.now()}`, name:'3-Part Payment', installments:[{dueInDays:0,percent:30},{dueInDays:30,percent:30},{dueInDays:60,percent:40}] }])}>+ 30/30/40</button>
+                <button className='wz-preset-btn' title='4 equal quarterly payments' onClick={() => setPayPlans(p => [...p, { id:`plan_${Date.now()}`, name:'Quarterly', installments:[{dueInDays:0,percent:25},{dueInDays:90,percent:25},{dueInDays:180,percent:25},{dueInDays:270,percent:25}] }])}>+ Quarterly</button>
+              </div>
+            </div>
             <div className='wz-plan-list'>
               {payPlans.map((plan, pi) => (
                 <div key={pi} className='wz-plan-item'>

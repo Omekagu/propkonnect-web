@@ -188,6 +188,7 @@ export default function PropertyDetails () {
   const complianceScore = property?.compliance?.score ?? 0
   const complianceVerified = property?.compliance?.verified ?? false
   const escrowStatus = property?.escrow?.status || 'none'
+  const cautionFee = property?.cautionFee?.required ? property.cautionFee : null
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -433,6 +434,26 @@ export default function PropertyDetails () {
                 </div>
               )}
 
+              {/* Host info */}
+              {property.hostInfo && (property.hostInfo.bio || property.hostInfo.neighborhoodInfo || property.hostInfo.propertyInfo) && (
+                <div className='pd-card'>
+                  <h3>About the Host</h3>
+                  {property.hostInfo.bio && <p style={{ fontSize:14, lineHeight:1.7, color:'#444', marginBottom: property.hostInfo.neighborhoodInfo || property.hostInfo.propertyInfo ? 12 : 0 }}>{property.hostInfo.bio}</p>}
+                  {property.hostInfo.propertyInfo && (
+                    <div style={{ marginBottom: property.hostInfo.neighborhoodInfo ? 12 : 0 }}>
+                      <h4 style={{ fontSize:13, fontWeight:700, marginBottom:4 }}>About the Property</h4>
+                      <p style={{ fontSize:13, color:'#555', lineHeight:1.6 }}>{property.hostInfo.propertyInfo}</p>
+                    </div>
+                  )}
+                  {property.hostInfo.neighborhoodInfo && (
+                    <div>
+                      <h4 style={{ fontSize:13, fontWeight:700, marginBottom:4 }}>About the Neighbourhood</h4>
+                      <p style={{ fontSize:13, color:'#555', lineHeight:1.6 }}>{property.hostInfo.neighborhoodInfo}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Features & amenities */}
               {featureList.length > 0 && (
                 <div className='pd-card'>
@@ -581,7 +602,11 @@ export default function PropertyDetails () {
                   </>}
                   <div className='pd-detail'><span>Location</span><strong>{[property.city, property.state, property.country].filter(Boolean).join(', ') || property.location || '—'}</strong></div>
                   <div className='pd-detail'><span>Currency</span><strong>{currency}</strong></div>
+                  {property.sizeSqm && <div className='pd-detail'><span>Size (sqm)</span><strong>{property.sizeSqm} sqm</strong></div>}
+                  {property.maxRooms && <div className='pd-detail'><span>Max Rooms</span><strong>{property.maxRooms}</strong></div>}
+                  {property.propertySpaceType && <div className='pd-detail'><span>Space Type</span><strong>{property.propertySpaceType.replace(/_/g, ' ')}</strong></div>}
                   {property.premiere && <div className='pd-detail'><span>Premiere</span><strong>✓</strong></div>}
+                  {property.averageRating > 0 && <div className='pd-detail'><span>Rating</span><strong>{'★'.repeat(Math.round(property.averageRating))} {property.averageRating.toFixed(1)} ({property.reviewCount || 0} reviews)</strong></div>}
                   {property.createdAt && <div className='pd-detail'><span>Listed</span><strong>{new Date(property.createdAt).toLocaleDateString()}</strong></div>}
                   {property.publishedAt && <div className='pd-detail'><span>Published</span><strong>{new Date(property.publishedAt).toLocaleDateString()}</strong></div>}
                   {property.viewCount > 0 && <div className='pd-detail'><span>Views</span><strong><Eye size={12} /> {property.viewCount.toLocaleString()}</strong></div>}
@@ -942,6 +967,18 @@ export default function PropertyDetails () {
               </div>
             </div>
 
+            {/* Caution fee — shown prominently so guest knows before booking */}
+            {cautionFee && (
+              <div className='pd-caution-notice'>
+                <Shield size={13} />
+                <div>
+                  <span className='pd-caution-notice__label'>Refundable Caution Fee</span>
+                  <span className='pd-caution-notice__amount'>{fmt(cautionFee.amount, cautionFee.currency || currency)}</span>
+                  {cautionFee.description && <p className='pd-caution-notice__desc'>{cautionFee.description}</p>}
+                </div>
+              </div>
+            )}
+
             {isPerNight ? (
               <div className='pd-booking-dates'>
                 <div className='pd-booking-dates__row'>
@@ -975,7 +1012,12 @@ export default function PropertyDetails () {
                   <div className='pd-booking-summary'>
                     <div><span>Nights</span><strong>{nights}</strong></div>
                     <div><span>Per night</span><strong>{fmt(bookingTotal?.perNight || effectivePrice, currency)}</strong></div>
-                    <div className='pd-booking-summary__total'><span>Total</span><strong>{fmt(bookingTotal?.total || 0, currency)}</strong></div>
+                    <div><span>Subtotal</span><strong>{fmt(bookingTotal?.total || 0, currency)}</strong></div>
+                    {cautionFee && <div><span>Caution fee <em style={{fontSize:10,fontWeight:400}}>(refundable)</em></span><strong>{fmt(cautionFee.amount, cautionFee.currency || currency)}</strong></div>}
+                    <div className='pd-booking-summary__total'>
+                      <span>Total charged</span>
+                      <strong>{fmt((bookingTotal?.total || 0) + (cautionFee ? cautionFee.amount : 0), currency)}</strong>
+                    </div>
                   </div>
                 )}
               </div>

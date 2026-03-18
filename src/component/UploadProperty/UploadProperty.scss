@@ -698,6 +698,21 @@
       }
     }
   }
+  .wz-preset-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid var(--wz-primary-mid);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--wz-primary-mid);
+    cursor: pointer;
+    white-space: nowrap;
+    &:hover {
+      background: var(--wz-primary-mid);
+      color: #fff;
+    }
+  }
   .wz-add-plan {
     display: flex;
     align-items: center;
