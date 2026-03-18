@@ -172,11 +172,10 @@ export default function Tenant ({ title = 'Tenants' }) {
   const isOwner = user?.role === 'PROPERTY_OWNER'
 
   useEffect(() => {
-    const endpoint = isAdmin
-      ? `${API}/api/leases/landlord` // admins can see all landlord leases; or use a dedicated admin endpoint if available
-      : `${API}/api/leases/landlord` // PROPERTY_OWNER also uses landlord endpoint
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
+    if (!token) { setLoading(false); return }
     axios
-      .get(endpoint, { withCredentials: true })
+      .get(`${API}/api/leases/landlord`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => {
         const data = res.data?.leases || res.data?.data || []
         setLeases(data)

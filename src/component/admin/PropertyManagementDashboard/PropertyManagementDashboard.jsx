@@ -6,7 +6,11 @@ import usePropertyManagement from '../../../hooks/UsePropertyManagement'
 /**
  * Main dashboard component for property and application management
  */
-const PropertyManagementDashboard = ({ backend, authToken }) => {
+const ADMIN_ROLES = ['SUPER_ADMIN', 'SUB_ADMIN', 'property-admin', 'sub-property-admin']
+
+const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
+  const isAdmin = ADMIN_ROLES.includes(userRole)
+
   const {
     // State
     properties,
@@ -27,6 +31,14 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
     setCategoryFilter,
     statusFilter,
     setStatusFilter,
+    propertyStatusFilter,
+    setPropertyStatusFilter,
+
+    // Reject modal state
+    rejectModal,
+    setRejectModal,
+    rejectReason,
+    setRejectReason,
 
     // Filtered data
     filteredProperties,
@@ -38,6 +50,9 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
     fetchProperties,
     fetchApplications,
     handleDeleteProperty,
+    handleApprove,
+    openRejectModal,
+    handleRejectConfirm,
     viewPropertyDetails,
     viewPropertyApplications,
     updateApplicationStatus,
@@ -122,6 +137,23 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
         </div>
       )}
 
+      {/* Pending review banner — admin only */}
+      {isAdmin && stats.pendingReview > 0 && (
+        <div
+          className='alert alert-warning d-flex align-items-center justify-content-between'
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            setActiveView('properties')
+            setPropertyStatusFilter('pending_review')
+          }}
+        >
+          <span>
+            <strong>{stats.pendingReview}</strong> propert{stats.pendingReview === 1 ? 'y' : 'ies'} pending review
+          </span>
+          <span className='badge bg-warning text-dark'>Review Now →</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className='dashboard-header'>
         <h1>Property Management</h1>
@@ -157,8 +189,18 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
         </div>
         <div className='stat-card'>
           <div className='stat-value'>{stats.activeListings}</div>
-          <div className='stat-label'>Active Listings</div>
+          <div className='stat-label'>Published</div>
         </div>
+        {isAdmin && (
+          <div
+            className='stat-card'
+            style={{ cursor: 'pointer', borderColor: stats.pendingReview > 0 ? '#ffc107' : undefined }}
+            onClick={() => setPropertyStatusFilter(propertyStatusFilter === 'pending_review' ? 'all' : 'pending_review')}
+          >
+            <div className='stat-value'>{stats.pendingReview}</div>
+            <div className='stat-label'>Pending Review</div>
+          </div>
+        )}
         <div className='stat-card'>
           <div className='stat-value'>{stats.totalApplications}</div>
           <div className='stat-label'>Total Applications</div>
@@ -202,6 +244,21 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
                 </option>
               ))}
             </select>
+
+            {isAdmin && (
+              <select
+                value={propertyStatusFilter}
+                onChange={e => setPropertyStatusFilter(e.target.value)}
+                className='form-select'
+              >
+                <option value='all'>All Statuses</option>
+                <option value='pending_review'>Pending Review</option>
+                <option value='published'>Published</option>
+                <option value='draft'>Draft</option>
+                <option value='archived'>Archived</option>
+                <option value='suspended'>Suspended</option>
+              </select>
+            )}
 
             <select
               value={sortBy}
@@ -265,6 +322,20 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
                     <p className='location'>📍 {typeof property.location === 'string' ? property.location : [property.location?.address, property.location?.city, property.location?.state].filter(Boolean).join(', ') || property.city || property.address || ''}</p>
                     <p className='category'>
                       <span className='badge'>{property.category}</span>
+                      {' '}
+                      <span
+                        className='badge'
+                        style={{
+                          backgroundColor:
+                            property.status === 'published' ? '#28a745' :
+                            property.status === 'pending_review' ? '#ffc107' :
+                            property.status === 'archived' ? '#dc3545' :
+                            property.status === 'draft' ? '#6c757d' : '#17a2b8',
+                          color: property.status === 'pending_review' ? '#000' : '#fff'
+                        }}
+                      >
+                        {property.status || 'draft'}
+                      </span>
                     </p>
 
                     <div className='property-specs'>
@@ -289,18 +360,36 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
                     </div>
 
                     <div className='property-actions'>
-                      <button
+                      <a
                         className='btn btn-sm btn-info'
-                        onClick={() => viewPropertyDetails(property)}
+                        href={`/property/${property._id}`}
+                        target='_blank'
+                        rel='noreferrer'
                       >
-                        View Details
-                      </button>
+                        Preview
+                      </a>
                       <button
                         className='btn btn-sm btn-success'
                         onClick={() => viewPropertyApplications(property._id)}
                       >
                         Applications
                       </button>
+                      {isAdmin && property.status === 'pending_review' && (
+                        <>
+                          <button
+                            className='btn btn-sm btn-primary'
+                            onClick={() => handleApprove(property._id)}
+                          >
+                            ✓ Approve
+                          </button>
+                          <button
+                            className='btn btn-sm btn-warning'
+                            onClick={() => openRejectModal(property._id)}
+                          >
+                            ✗ Reject
+                          </button>
+                        </>
+                      )}
                       <button
                         className='btn btn-sm btn-danger'
                         onClick={() => handleDeleteProperty(property._id)}
@@ -391,6 +480,48 @@ const PropertyManagementDashboard = ({ backend, authToken }) => {
               </table>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Reject Reason Modal */}
+      {rejectModal && (
+        <div className='modal-overlay' onClick={() => setRejectModal(false)}>
+          <div className='modal-content' style={{ maxWidth: 420 }} onClick={e => e.stopPropagation()}>
+            <div className='modal-header'>
+              <h5>Reject Property</h5>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {rejectTargetId && (
+                  <a
+                    href={`/property/${rejectTargetId}`}
+                    target='_blank'
+                    rel='noreferrer'
+                    className='btn btn-sm btn-outline-secondary'
+                    style={{ fontSize: 12 }}
+                  >
+                    Open Preview ↗
+                  </a>
+                )}
+                <button className='btn-close' onClick={() => setRejectModal(false)}></button>
+              </div>
+            </div>
+            <div className='modal-body'>
+              <label htmlFor='reject-reason' style={{ fontWeight: 600, marginBottom: 6, display: 'block' }}>
+                Reason for rejection (optional)
+              </label>
+              <textarea
+                id='reject-reason'
+                className='form-control'
+                rows={3}
+                placeholder='e.g. Missing documents, incorrect pricing...'
+                value={rejectReason}
+                onChange={e => setRejectReason(e.target.value)}
+              />
+            </div>
+            <div className='modal-footer'>
+              <button className='btn btn-secondary' onClick={() => setRejectModal(false)}>Cancel</button>
+              <button className='btn btn-danger' onClick={handleRejectConfirm}>Confirm Reject</button>
+            </div>
+          </div>
         </div>
       )}
 

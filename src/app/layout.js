@@ -156,15 +156,6 @@ export const metadata = {
   // ─── Manifest ───────────────────────────────────────────────────────────────
   manifest: '/site.webmanifest',
 
-  // ─── Verification ───────────────────────────────────────────────────────────
-  // Paste your codes from Google Search Console and Bing Webmaster Tools
-  verification: {
-    google: 'YOUR_GOOGLE_SITE_VERIFICATION_CODE', // from Google Search Console
-    other: {
-      'msvalidate.01': 'YOUR_BING_VERIFICATION_CODE' // from Bing Webmaster Tools
-    }
-  },
-
   // ─── Alternates ─────────────────────────────────────────────────────────────
   alternates: {
     canonical: APP_URL
@@ -175,7 +166,6 @@ export const metadata = {
 export default function RootLayout ({ children }) {
   return (
     <html lang='en-NG'>
-      {' '}
       {/* Nigerian English locale */}
       <head>
         {/* Payment SDK */}

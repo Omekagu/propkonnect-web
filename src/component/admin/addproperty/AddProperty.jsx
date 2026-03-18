@@ -3,17 +3,18 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import {
-  Search, Filter, Eye, Trash2, FileText, Users,
-  CheckCircle, XCircle, Clock, MapPin, Home, DollarSign,
+  Search, Filter, Eye, Trash2, FileText,
+  CheckCircle, XCircle, Clock, MapPin, Home,
   Calendar, Download, Plus, X, Check, AlertCircle,
-  Building2, TrendingUp, ArrowUpRight, MoreVertical,
-  ThumbsUp, ThumbsDown
+  Building2, ArrowUpRight, MoreVertical,
+  ThumbsUp, ThumbsDown, Edit3, Upload, UserCheck
 } from 'lucide-react'
 import './addproperty.scss'
 
 const STATUS_OPTIONS = ['pending', 'approved', 'rejected', 'viewing']
 const PROPERTY_CATEGORIES = ['All', 'Apartment', 'House', 'Shortlet', 'Hotel', 'Land', 'Commercial']
 const LISTING_STATUSES = ['all', 'pending_review', 'published', 'draft', 'archived', 'suspended']
+const EDIT_CATEGORIES = ['Apartment', 'House', 'Shortlet', 'Hotel', 'Land', 'Commercial']
 
 const STATUS_LABELS = {
   pending_review: 'Pending Review',
@@ -36,8 +37,24 @@ export default function PropertyManagement () {
   const [modalType, setModalType] = useState('')
   const [modalData, setModalData] = useState(null)
   const [notice, setNotice] = useState(null)
-  const [rejectModal, setRejectModal] = useState(null) // { propertyId, title }
+  const [rejectModal, setRejectModal] = useState(null)
   const [rejectReason, setRejectReason] = useState('')
+
+  // Edit modal state
+  const [editModal, setEditModal] = useState(null) // property object
+  const [editForm, setEditForm] = useState({})
+  const [saving, setSaving] = useState(false)
+
+  // Upload-for-owner modal state
+  const [showUploadForOwner, setShowUploadForOwner] = useState(false)
+  const [owners, setOwners] = useState([])
+  const [ownerSearch, setOwnerSearch] = useState('')
+  const [uploadForm, setUploadForm] = useState({
+    onBehalfOfOwnerId: '', title: '', category: 'Apartment', purpose: 'For Rent',
+    price: '', rentPrice: '', rentFrequency: 'monthly', location: '', city: '', state: '',
+    country: 'Nigeria', description: '', status: 'published'
+  })
+  const [uploading, setUploading] = useState(false)
 
   const backend = process.env.NEXT_PUBLIC_BACKEND_URL || ''
   const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
@@ -47,40 +64,41 @@ export default function PropertyManagement () {
     setTimeout(() => setNotice(null), 3500)
   }, [])
 
-  // ── Fetch ALL properties (admin sees everything via optionalAuth + properties.view_all)
+  const headers = useMemo(() => ({ Authorization: `Bearer ${authToken}` }), [authToken])
+
+  // ── Fetch ALL properties
   const fetchProperties = useCallback(async () => {
     if (!authToken) return
     setLoading(true)
     try {
-      const res = await axios.get(`${backend}/api/properties/all?limit=200`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      })
-      if (res.data?.success) {
-        setProperties(res.data.properties || [])
-      }
+      const res = await axios.get(`${backend}/api/properties/all?limit=200`, { headers })
+      if (res.data?.success) setProperties(res.data.properties || [])
     } catch (err) {
       console.error('Error fetching properties:', err)
       showNotice('Failed to load properties', 'error')
     } finally {
       setLoading(false)
     }
-  }, [backend, authToken, showNotice])
+  }, [backend, authToken, headers, showNotice])
 
+  // ── Fetch applications for all properties
   const fetchApplications = useCallback(async () => {
     if (!authToken || properties.length === 0) return
     setLoading(true)
     try {
       const applicationsData = []
       for (const property of properties) {
-        const res = await axios.get(
-          `${backend}/api/properties/property-applications/property/${property._id}`,
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        )
-        if (res.data?.success && res.data.applications) {
-          applicationsData.push(...res.data.applications.map(app => ({
-            ...app, propertyTitle: property.title, propertyId: property._id
-          })))
-        }
+        try {
+          const res = await axios.get(
+            `${backend}/api/properties/property-applications/property/${property._id}`,
+            { headers }
+          )
+          if (res.data?.success && res.data.applications) {
+            applicationsData.push(...res.data.applications.map(app => ({
+              ...app, propertyTitle: property.title, propertyId: property._id
+            })))
+          }
+        } catch { /* skip individual failures */ }
       }
       setApplications(applicationsData)
     } catch (err) {
@@ -89,7 +107,17 @@ export default function PropertyManagement () {
     } finally {
       setLoading(false)
     }
-  }, [backend, authToken, properties, showNotice])
+  }, [backend, authToken, headers, properties, showNotice])
+
+  // ── Fetch property owners for upload-for-owner
+  const fetchOwners = useCallback(async () => {
+    try {
+      const res = await axios.get(`${backend}/api/user?role=PROPERTY_OWNER&limit=100`, { headers })
+      setOwners(res.data?.users || res.data?.data || [])
+    } catch {
+      // owners list will be empty; admin can type owner ID manually
+    }
+  }, [backend, headers])
 
   useEffect(() => { fetchProperties() }, [fetchProperties])
 
@@ -100,8 +128,7 @@ export default function PropertyManagement () {
   // ── Approve property
   const handleApprove = useCallback(async (id) => {
     try {
-      const res = await axios.patch(`${backend}/api/properties/${id}/approve`, {},
-        { headers: { Authorization: `Bearer ${authToken}` } })
+      const res = await axios.patch(`${backend}/api/properties/${id}/approve`, {}, { headers })
       if (res.data?.success) {
         showNotice('Property approved and published')
         setProperties(prev => prev.map(p => p._id === id ? { ...p, status: 'published' } : p))
@@ -109,7 +136,7 @@ export default function PropertyManagement () {
     } catch (err) {
       showNotice(err.response?.data?.msg || 'Failed to approve', 'error')
     }
-  }, [backend, authToken, showNotice])
+  }, [backend, headers, showNotice])
 
   // ── Reject property
   const handleRejectConfirm = useCallback(async () => {
@@ -117,40 +144,118 @@ export default function PropertyManagement () {
     try {
       const res = await axios.patch(
         `${backend}/api/properties/${rejectModal.propertyId}/reject`,
-        { reason: rejectReason },
-        { headers: { Authorization: `Bearer ${authToken}` } }
+        { reason: rejectReason }, { headers }
       )
       if (res.data?.success) {
         showNotice('Property rejected')
-        setProperties(prev => prev.map(p => p._id === rejectModal.propertyId ? { ...p, status: 'archived' } : p))
+        setProperties(prev => prev.map(p =>
+          p._id === rejectModal.propertyId ? { ...p, status: 'archived' } : p
+        ))
         setRejectModal(null)
         setRejectReason('')
       }
     } catch (err) {
       showNotice(err.response?.data?.msg || 'Failed to reject', 'error')
     }
-  }, [backend, authToken, rejectModal, rejectReason, showNotice])
+  }, [backend, headers, rejectModal, rejectReason, showNotice])
 
-  // ── Delete property
+  // ── Delete (archive) property
   const handleDelete = useCallback(async id => {
     if (!window.confirm('Archive this property?')) return
     try {
-      const res = await axios.delete(`${backend}/api/properties/${id}`,
-        { headers: { Authorization: `Bearer ${authToken}` } })
+      const res = await axios.delete(`${backend}/api/properties/${id}`, { headers })
       if (res.data?.success) {
         showNotice('Property archived')
         setProperties(prev => prev.filter(p => p._id !== id))
       }
     } catch (err) {
-      showNotice('Failed to delete property', 'error')
+      showNotice(err.response?.data?.msg || 'Failed to delete property', 'error')
     }
-  }, [backend, authToken, showNotice])
+  }, [backend, headers, showNotice])
 
+  // ── Open edit modal
+  const openEdit = useCallback((property) => {
+    setEditForm({
+      title: property.title || '',
+      category: property.category || 'Apartment',
+      purpose: property.purpose || 'For Rent',
+      price: property.price || '',
+      rentPrice: property.rentPrice || '',
+      rentFrequency: property.rentFrequency || 'monthly',
+      location: typeof property.location === 'string' ? property.location : property.address || '',
+      city: property.city || '',
+      state: property.state || '',
+      country: property.country || 'Nigeria',
+      description: property.description || '',
+      status: property.status || 'draft',
+      beds: property.beds || property.bedrooms || '',
+      baths: property.baths || property.bathrooms || ''
+    })
+    setEditModal(property)
+  }, [])
+
+  // ── Save edit
+  const handleSaveEdit = useCallback(async () => {
+    if (!editModal) return
+    setSaving(true)
+    try {
+      const res = await axios.put(
+        `${backend}/api/properties/${editModal._id}`,
+        editForm, { headers }
+      )
+      if (res.data?.success) {
+        showNotice('Property updated')
+        setProperties(prev => prev.map(p =>
+          p._id === editModal._id ? { ...p, ...editForm } : p
+        ))
+        setEditModal(null)
+      }
+    } catch (err) {
+      showNotice(err.response?.data?.msg || 'Failed to save', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }, [backend, headers, editModal, editForm, showNotice])
+
+  // ── Upload for owner
+  const openUploadForOwner = useCallback(() => {
+    fetchOwners()
+    setShowUploadForOwner(true)
+  }, [fetchOwners])
+
+  const handleUploadForOwner = useCallback(async () => {
+    if (!uploadForm.onBehalfOfOwnerId) {
+      showNotice('Select an owner first', 'error'); return
+    }
+    if (!uploadForm.title.trim()) {
+      showNotice('Title is required', 'error'); return
+    }
+    setUploading(true)
+    try {
+      const res = await axios.post(`${backend}/api/properties`, uploadForm, { headers })
+      if (res.data?.success) {
+        showNotice('Property created on behalf of owner')
+        setShowUploadForOwner(false)
+        setUploadForm({
+          onBehalfOfOwnerId: '', title: '', category: 'Apartment', purpose: 'For Rent',
+          price: '', rentPrice: '', rentFrequency: 'monthly', location: '', city: '', state: '',
+          country: 'Nigeria', description: '', status: 'published'
+        })
+        fetchProperties()
+      }
+    } catch (err) {
+      showNotice(err.response?.data?.msg || 'Failed to create property', 'error')
+    } finally {
+      setUploading(false)
+    }
+  }, [backend, headers, uploadForm, showNotice, fetchProperties])
+
+  // ── View applications modal
   const viewApplications = useCallback(async propertyId => {
     try {
       const res = await axios.get(
         `${backend}/api/properties/property-applications/property/${propertyId}`,
-        { headers: { Authorization: `Bearer ${authToken}` } }
+        { headers }
       )
       if (res.data?.success) {
         setModalData(res.data.applications || [])
@@ -158,13 +263,13 @@ export default function PropertyManagement () {
         setShowModal(true)
       }
     } catch { showNotice('Failed to load applications', 'error') }
-  }, [backend, authToken, showNotice])
+  }, [backend, headers, showNotice])
 
   const updateApplicationStatus = useCallback(async (appId, status) => {
     try {
       const res = await axios.patch(
         `${backend}/api/properties/property-applications/${appId}/status`,
-        { status }, { headers: { Authorization: `Bearer ${authToken}` } }
+        { status }, { headers }
       )
       if (res.data?.success) {
         showNotice(`Application ${status}`)
@@ -175,18 +280,18 @@ export default function PropertyManagement () {
         }
       }
     } catch { showNotice('Failed to update', 'error') }
-  }, [backend, authToken, applications, showModal, modalType, showNotice, fetchApplications, viewApplications])
+  }, [backend, headers, applications, showModal, modalType, showNotice, fetchApplications, viewApplications])
 
   const deleteApplication = useCallback(async appId => {
     if (!window.confirm('Delete this application?')) return
     try {
       const res = await axios.delete(
         `${backend}/api/properties/property-applications/${appId}`,
-        { headers: { Authorization: `Bearer ${authToken}` } }
+        { headers }
       )
       if (res.data?.success) { showNotice('Application deleted'); fetchApplications() }
     } catch { showNotice('Failed to delete', 'error') }
-  }, [backend, authToken, showNotice, fetchApplications])
+  }, [backend, headers, showNotice, fetchApplications])
 
   // ── Filtered data
   const filteredProperties = useMemo(() => {
@@ -218,6 +323,15 @@ export default function PropertyManagement () {
     pendingApps: applications.filter(a => a.status === 'pending').length
   }), [properties, applications])
 
+  const filteredOwners = useMemo(() => {
+    const q = ownerSearch.toLowerCase()
+    return owners.filter(o =>
+      !q || o.email?.toLowerCase().includes(q) ||
+      o.firstName?.toLowerCase().includes(q) ||
+      o.lastName?.toLowerCase().includes(q)
+    )
+  }, [owners, ownerSearch])
+
   const formatMoney = v => v ? '₦' + Number(v).toLocaleString() : '—'
 
   return (
@@ -230,7 +344,7 @@ export default function PropertyManagement () {
         </div>
       )}
 
-      {/* Reject reason modal */}
+      {/* ── Reject reason modal ── */}
       {rejectModal && (
         <div className='modal-overlay' onClick={() => setRejectModal(null)}>
           <div className='modal-content' style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>
@@ -240,9 +354,7 @@ export default function PropertyManagement () {
             </div>
             <div className='modal-body'>
               <p style={{ marginBottom: 12 }}>Rejecting: <strong>{rejectModal.title}</strong></p>
-              <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
-                Reason (sent to owner)
-              </label>
+              <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Reason (sent to owner)</label>
               <textarea
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
@@ -258,6 +370,210 @@ export default function PropertyManagement () {
         </div>
       )}
 
+      {/* ── Edit property modal ── */}
+      {editModal && (
+        <div className='modal-overlay' onClick={() => setEditModal(null)}>
+          <div className='modal-content modal-large' onClick={e => e.stopPropagation()}>
+            <div className='modal-header'>
+              <h3><Edit3 size={18} style={{ marginRight: 8 }} />Edit Property</h3>
+              <button onClick={() => setEditModal(null)}><X size={20} /></button>
+            </div>
+            <div className='modal-body'>
+              <div className='edit-grid'>
+                <div className='edit-field'>
+                  <label>Title *</label>
+                  <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>Category</label>
+                  <select value={editForm.category} onChange={e => setEditForm(f => ({ ...f, category: e.target.value }))}>
+                    {EDIT_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className='edit-field'>
+                  <label>Purpose</label>
+                  <select value={editForm.purpose} onChange={e => setEditForm(f => ({ ...f, purpose: e.target.value }))}>
+                    <option>For Rent</option><option>For Sale</option><option>Shortlet</option>
+                  </select>
+                </div>
+                <div className='edit-field'>
+                  <label>Status</label>
+                  <select value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}>
+                    <option value='published'>Published</option>
+                    <option value='pending_review'>Pending Review</option>
+                    <option value='draft'>Draft</option>
+                    <option value='archived'>Archived</option>
+                    <option value='suspended'>Suspended</option>
+                  </select>
+                </div>
+                <div className='edit-field'>
+                  <label>Sale Price (₦)</label>
+                  <input type='number' value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>Rent Price (₦)</label>
+                  <input type='number' value={editForm.rentPrice} onChange={e => setEditForm(f => ({ ...f, rentPrice: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>Rent Frequency</label>
+                  <select value={editForm.rentFrequency} onChange={e => setEditForm(f => ({ ...f, rentFrequency: e.target.value }))}>
+                    <option value='daily'>Daily</option><option value='weekly'>Weekly</option>
+                    <option value='monthly'>Monthly</option><option value='yearly'>Yearly</option>
+                  </select>
+                </div>
+                <div className='edit-field'>
+                  <label>Beds</label>
+                  <input type='number' value={editForm.beds} onChange={e => setEditForm(f => ({ ...f, beds: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>Baths</label>
+                  <input type='number' value={editForm.baths} onChange={e => setEditForm(f => ({ ...f, baths: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>Location / Address</label>
+                  <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>City</label>
+                  <input value={editForm.city} onChange={e => setEditForm(f => ({ ...f, city: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>State</label>
+                  <input value={editForm.state} onChange={e => setEditForm(f => ({ ...f, state: e.target.value }))} />
+                </div>
+                <div className='edit-field full-span'>
+                  <label>Description</label>
+                  <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                    rows={3} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e2e8f0', resize: 'vertical' }} />
+                </div>
+              </div>
+
+              {editModal.uploadedByAdmin && (
+                <div style={{ marginTop: 12, padding: '8px 12px', background: '#fff7ed', borderRadius: 8, fontSize: 12, color: '#92400e' }}>
+                  <UserCheck size={13} style={{ marginRight: 4 }} />
+                  Originally uploaded by admin <strong>{editModal.uploadedByAdmin.adminName}</strong> ({editModal.uploadedByAdmin.adminRole}) on behalf of the owner
+                </div>
+              )}
+            </div>
+            <div className='modal-footer' style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', padding: '16px 20px', borderTop: '1px solid #e2e8f0' }}>
+              <button className='btn-secondary' onClick={() => setEditModal(null)}>Cancel</button>
+              <button className='btn-approve' onClick={handleSaveEdit} disabled={saving}>
+                {saving ? 'Saving…' : <><Check size={15} /> Save Changes</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Upload for owner modal ── */}
+      {showUploadForOwner && (
+        <div className='modal-overlay' onClick={() => setShowUploadForOwner(false)}>
+          <div className='modal-content modal-large' onClick={e => e.stopPropagation()}>
+            <div className='modal-header'>
+              <h3><Upload size={18} style={{ marginRight: 8 }} />Upload Property for Owner</h3>
+              <button onClick={() => setShowUploadForOwner(false)}><X size={20} /></button>
+            </div>
+            <div className='modal-body'>
+              <div className='edit-field' style={{ marginBottom: 16 }}>
+                <label>Select Owner *</label>
+                <input
+                  placeholder='Search by email or name…'
+                  value={ownerSearch}
+                  onChange={e => setOwnerSearch(e.target.value)}
+                  style={{ marginBottom: 8 }}
+                />
+                {filteredOwners.length > 0 && (
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, maxHeight: 160, overflowY: 'auto' }}>
+                    {filteredOwners.slice(0, 20).map(o => (
+                      <div
+                        key={o._id}
+                        onClick={() => {
+                          setUploadForm(f => ({ ...f, onBehalfOfOwnerId: o._id }))
+                          setOwnerSearch(`${o.firstName || ''} ${o.lastName || ''} (${o.email})`.trim())
+                        }}
+                        style={{
+                          padding: '8px 12px', cursor: 'pointer', fontSize: 13,
+                          background: uploadForm.onBehalfOfOwnerId === o._id ? '#f0fdf4' : 'transparent',
+                          borderBottom: '1px solid #f1f5f9'
+                        }}
+                      >
+                        <strong>{o.firstName} {o.lastName}</strong> — {o.email}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {owners.length === 0 && (
+                  <p style={{ fontSize: 12, color: '#94a3b8' }}>No owners loaded — enter details and the system will resolve by ID</p>
+                )}
+              </div>
+
+              <div className='edit-grid'>
+                <div className='edit-field full-span'>
+                  <label>Title *</label>
+                  <input value={uploadForm.title} onChange={e => setUploadForm(f => ({ ...f, title: e.target.value }))} placeholder='e.g. 3-Bedroom Apartment in Lekki' />
+                </div>
+                <div className='edit-field'>
+                  <label>Category</label>
+                  <select value={uploadForm.category} onChange={e => setUploadForm(f => ({ ...f, category: e.target.value }))}>
+                    {EDIT_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className='edit-field'>
+                  <label>Purpose</label>
+                  <select value={uploadForm.purpose} onChange={e => setUploadForm(f => ({ ...f, purpose: e.target.value }))}>
+                    <option>For Rent</option><option>For Sale</option><option>Shortlet</option>
+                  </select>
+                </div>
+                <div className='edit-field'>
+                  <label>Publish Status</label>
+                  <select value={uploadForm.status} onChange={e => setUploadForm(f => ({ ...f, status: e.target.value }))}>
+                    <option value='published'>Published (live immediately)</option>
+                    <option value='draft'>Draft (owner reviews first)</option>
+                    <option value='pending_review'>Pending Review</option>
+                  </select>
+                </div>
+                <div className='edit-field'>
+                  <label>Sale Price (₦)</label>
+                  <input type='number' value={uploadForm.price} onChange={e => setUploadForm(f => ({ ...f, price: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>Rent Price (₦)</label>
+                  <input type='number' value={uploadForm.rentPrice} onChange={e => setUploadForm(f => ({ ...f, rentPrice: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>Location / Address</label>
+                  <input value={uploadForm.location} onChange={e => setUploadForm(f => ({ ...f, location: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>City</label>
+                  <input value={uploadForm.city} onChange={e => setUploadForm(f => ({ ...f, city: e.target.value }))} />
+                </div>
+                <div className='edit-field'>
+                  <label>State</label>
+                  <input value={uploadForm.state} onChange={e => setUploadForm(f => ({ ...f, state: e.target.value }))} />
+                </div>
+                <div className='edit-field full-span'>
+                  <label>Description</label>
+                  <textarea value={uploadForm.description} onChange={e => setUploadForm(f => ({ ...f, description: e.target.value }))}
+                    rows={3} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e2e8f0', resize: 'vertical' }} />
+                </div>
+              </div>
+
+              <div style={{ marginTop: 12, padding: '10px 14px', background: '#f0fdf4', borderRadius: 8, fontSize: 12, color: '#166534' }}>
+                <UserCheck size={13} style={{ marginRight: 6 }} />
+                This property will be tagged <strong>uploaded by admin</strong> on behalf of the selected owner. The owner will own the listing and receive notifications.
+              </div>
+            </div>
+            <div className='modal-footer' style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', padding: '16px 20px', borderTop: '1px solid #e2e8f0' }}>
+              <button className='btn-secondary' onClick={() => setShowUploadForOwner(false)}>Cancel</button>
+              <button className='btn-approve' onClick={handleUploadForOwner} disabled={uploading}>
+                {uploading ? 'Creating…' : <><Upload size={15} /> Create Property</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className='page-header'>
         <div className='header-content'>
@@ -266,6 +582,9 @@ export default function PropertyManagement () {
             <p>Review, approve and manage all listings</p>
           </div>
           <div className='header-actions'>
+            <button className='btn-secondary' onClick={openUploadForOwner}>
+              <Upload size={16} /> Upload for Owner
+            </button>
             <button className='btn-secondary' onClick={fetchProperties}>
               <Download size={18} /> Refresh
             </button>
@@ -278,8 +597,7 @@ export default function PropertyManagement () {
         <div className='stat-card card-blue'>
           <div className='stat-icon'><Building2 size={24} /></div>
           <div className='stat-content'>
-            <h3>{stats.total}</h3>
-            <p>Total Listings</p>
+            <h3>{stats.total}</h3><p>Total Listings</p>
             <div className='stat-change positive'><ArrowUpRight size={14} />{stats.published} published</div>
           </div>
         </div>
@@ -294,16 +612,14 @@ export default function PropertyManagement () {
         <div className='stat-card card-green'>
           <div className='stat-icon'><FileText size={24} /></div>
           <div className='stat-content'>
-            <h3>{stats.applications}</h3>
-            <p>Applications</p>
+            <h3>{stats.applications}</h3><p>Applications</p>
             <div className='stat-change'><Clock size={14} />{stats.pendingApps} pending</div>
           </div>
         </div>
         <div className='stat-card card-purple'>
           <div className='stat-icon'><CheckCircle size={24} /></div>
           <div className='stat-content'>
-            <h3>{stats.draft}</h3>
-            <p>Drafts</p>
+            <h3>{stats.draft}</h3><p>Drafts</p>
             <div className='stat-change'>Unpublished</div>
           </div>
         </div>
@@ -353,6 +669,20 @@ export default function PropertyManagement () {
         </div>
       </div>
 
+      {/* ── Pending Review Banner ── */}
+      {activeView === 'properties' && stats.pendingReview > 0 && statusFilter !== 'pending_review' && (
+        <div className='review-banner' onClick={() => setStatusFilter('pending_review')} role='button'>
+          <div className='review-banner__left'>
+            <Clock size={20} />
+            <div>
+              <strong>{stats.pendingReview} {stats.pendingReview === 1 ? 'property' : 'properties'} pending review</strong>
+              <p>Submitted by owners and awaiting your approval before going live</p>
+            </div>
+          </div>
+          <button className='review-banner__cta'>Review Now →</button>
+        </div>
+      )}
+
       {/* Content */}
       <div className='content-area'>
         {loading ? (
@@ -361,6 +691,7 @@ export default function PropertyManagement () {
           <PropertiesView
             properties={filteredProperties}
             onView={p => { setSelectedProperty(p); setModalType('view'); setShowModal(true) }}
+            onEdit={openEdit}
             onViewApplications={viewApplications}
             onDelete={handleDelete}
             onApprove={handleApprove}
@@ -386,6 +717,7 @@ export default function PropertyManagement () {
           onStatusUpdate={updateApplicationStatus}
           onApprove={handleApprove}
           onReject={p => { setRejectModal({ propertyId: p._id, title: p.title }); setShowModal(false) }}
+          onEdit={p => { setShowModal(false); openEdit(p) }}
           formatMoney={formatMoney}
         />
       )}
@@ -393,29 +725,34 @@ export default function PropertyManagement () {
   )
 }
 
-// ── Properties grid ──────────────────────────────────────────────────────────
+// ── Properties grid ───────────────────────────────────────────────────────────
 
-function PropertiesView ({ properties, onView, onViewApplications, onDelete, onApprove, onReject, formatMoney }) {
+function PropertiesView ({ properties, onView, onEdit, onViewApplications, onDelete, onApprove, onReject, formatMoney }) {
   if (properties.length === 0) {
     return (
       <div className='empty-state'>
-        <Building2 size={64} />
-        <h3>No properties found</h3>
-        <p>Try changing your filters</p>
+        <Building2 size={64} /><h3>No properties found</h3><p>Try changing your filters</p>
       </div>
     )
   }
   return (
     <div className='properties-grid'>
       {properties.map(p => (
-        <PropertyCard key={p._id} property={p} onView={() => onView(p)} onViewApplications={() => onViewApplications(p._id)}
-          onDelete={() => onDelete(p._id)} onApprove={() => onApprove(p._id)} onReject={() => onReject(p)} formatMoney={formatMoney} />
+        <PropertyCard key={p._id} property={p}
+          onView={() => onView(p)}
+          onEdit={() => onEdit(p)}
+          onViewApplications={() => onViewApplications(p._id)}
+          onDelete={() => onDelete(p._id)}
+          onApprove={() => onApprove(p._id)}
+          onReject={() => onReject(p)}
+          formatMoney={formatMoney}
+        />
       ))}
     </div>
   )
 }
 
-function PropertyCard ({ property, onView, onViewApplications, onDelete, onApprove, onReject, formatMoney }) {
+function PropertyCard ({ property, onView, onEdit, onViewApplications, onDelete, onApprove, onReject, formatMoney }) {
   const [showActions, setShowActions] = useState(false)
   const firstImage = property.images?.[0] || property.media?.[0]?.url || property.media?.[0]
   const isPending = property.status === 'pending_review'
@@ -430,6 +767,11 @@ function PropertyCard ({ property, onView, onViewApplications, onDelete, onAppro
         <span className={`listing-status-badge status-${property.status || 'draft'}`}>
           {STATUS_LABELS[property.status] || property.status || 'Draft'}
         </span>
+        {property.uploadedByAdmin && (
+          <span className='admin-upload-tag' title={`Uploaded by admin ${property.uploadedByAdmin.adminName}`}>
+            <UserCheck size={11} /> Admin upload
+          </span>
+        )}
       </div>
 
       <div className='property-content'>
@@ -438,9 +780,10 @@ function PropertyCard ({ property, onView, onViewApplications, onDelete, onAppro
           <button className='btn-more' onClick={() => setShowActions(!showActions)}><MoreVertical size={18} /></button>
           {showActions && (
             <div className='actions-menu'>
-              <button onClick={onView}><Eye size={16} /> View Details</button>
-              <button onClick={onViewApplications}><FileText size={16} /> Applications</button>
-              <button onClick={onDelete} className='danger'><Trash2 size={16} /> Archive</button>
+              <button onClick={() => { onView(); setShowActions(false) }}><Eye size={16} /> View Details</button>
+              <button onClick={() => { onEdit(); setShowActions(false) }}><Edit3 size={16} /> Edit</button>
+              <button onClick={() => { onViewApplications(); setShowActions(false) }}><FileText size={16} /> Applications</button>
+              <button onClick={() => { onDelete(); setShowActions(false) }} className='danger'><Trash2 size={16} /> Archive</button>
             </div>
           )}
         </div>
@@ -449,6 +792,18 @@ function PropertyCard ({ property, onView, onViewApplications, onDelete, onAppro
           <MapPin size={14} />
           {typeof property.location === 'string' ? property.location : property.city || property.address || '—'}
         </div>
+
+        {/* Owner info */}
+        {property.ownerInfo && (
+          <div className='property-owner-row'>
+            {property.ownerInfo.avatar
+              ? <img src={property.ownerInfo.avatar} alt='' className='owner-avatar' />
+              : <div className='owner-avatar owner-avatar--initials'>{(property.ownerInfo.name || '?')[0].toUpperCase()}</div>
+            }
+            <span className='owner-name'>{property.ownerInfo.name || property.ownerInfo.email}</span>
+            <span className='owner-role'>{property.ownerInfo.role}</span>
+          </div>
+        )}
 
         <div className='property-details'>
           {property.beds && <span>{property.beds} Beds</span>}
@@ -464,7 +819,15 @@ function PropertyCard ({ property, onView, onViewApplications, onDelete, onAppro
           </div>
         </div>
 
-        {/* Approve / Reject buttons for pending_review */}
+        {/* Quick action row */}
+        <div className='quick-actions'>
+          <button className='qa-btn' onClick={onView} title='View'><Eye size={13} /></button>
+          <button className='qa-btn' onClick={onEdit} title='Edit'><Edit3 size={13} /></button>
+          <button className='qa-btn' onClick={onViewApplications} title='Applications'><FileText size={13} /></button>
+          <button className='qa-btn danger' onClick={onDelete} title='Archive'><Trash2 size={13} /></button>
+        </div>
+
+        {/* Approve / Reject for pending_review */}
         {isPending && (
           <div className='review-actions'>
             <button className='btn-approve' onClick={e => { e.stopPropagation(); onApprove() }}>
@@ -480,7 +843,7 @@ function PropertyCard ({ property, onView, onViewApplications, onDelete, onAppro
   )
 }
 
-// ── Applications table ───────────────────────────────────────────────────────
+// ── Applications table ────────────────────────────────────────────────────────
 
 function ApplicationsView ({ applications, onStatusUpdate, onDelete }) {
   if (applications.length === 0) {
@@ -495,9 +858,7 @@ function ApplicationsView ({ applications, onStatusUpdate, onDelete }) {
     <div className='applications-table'>
       <table>
         <thead>
-          <tr>
-            <th>Applicant</th><th>Property</th><th>Applied</th><th>Status</th><th>Actions</th>
-          </tr>
+          <tr><th>Applicant</th><th>Property</th><th>Applied</th><th>Status</th><th>Actions</th></tr>
         </thead>
         <tbody>
           {applications.map(app => (
@@ -517,11 +878,7 @@ function ApplicationsView ({ applications, onStatusUpdate, onDelete }) {
                   <div className='property-id'>#{app.propertyId?.slice(-8)}</div>
                 </div>
               </td>
-              <td>
-                <div className='date-info'>
-                  <Calendar size={14} />{new Date(app.createdAt).toLocaleDateString()}
-                </div>
-              </td>
+              <td><div className='date-info'><Calendar size={14} />{new Date(app.createdAt).toLocaleDateString()}</div></td>
               <td>
                 <select className={`status-select status-${app.status}`} value={app.status}
                   onChange={e => onStatusUpdate(app._id, e.target.value)}>
@@ -543,9 +900,9 @@ function ApplicationsView ({ applications, onStatusUpdate, onDelete }) {
   )
 }
 
-// ── Detail Modal ─────────────────────────────────────────────────────────────
+// ── Detail Modal ──────────────────────────────────────────────────────────────
 
-function Modal ({ type, data, onClose, onStatusUpdate, onApprove, onReject, formatMoney }) {
+function Modal ({ type, data, onClose, onStatusUpdate, onApprove, onReject, onEdit, formatMoney }) {
   if (type === 'view' && data) {
     const images = data.images || data.media?.map(m => m.url || m) || []
     const isPending = data.status === 'pending_review'
@@ -554,7 +911,12 @@ function Modal ({ type, data, onClose, onStatusUpdate, onApprove, onReject, form
         <div className='modal-content modal-large' onClick={e => e.stopPropagation()}>
           <div className='modal-header'>
             <h3>Property Details</h3>
-            <button onClick={onClose}><X size={24} /></button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className='btn-secondary' style={{ fontSize: 13, padding: '6px 12px' }} onClick={() => onEdit(data)}>
+                <Edit3 size={14} /> Edit
+              </button>
+              <button onClick={onClose}><X size={24} /></button>
+            </div>
           </div>
           <div className='modal-body'>
             {images.length > 0 && (
@@ -602,6 +964,27 @@ function Modal ({ type, data, onClose, onStatusUpdate, onApprove, onReject, form
                 <div className='detail-section full-width'>
                   <h4>Description</h4>
                   <p className='description-text'>{data.description}</p>
+                </div>
+              )}
+              {data.ownerInfo && (
+                <div className='detail-section'>
+                  <h4>Owner</h4>
+                  <div className='detail-items'>
+                    <DetailItem label='Name' value={data.ownerInfo.name} />
+                    <DetailItem label='Email' value={data.ownerInfo.email} />
+                    {data.ownerInfo.phone && <DetailItem label='Phone' value={data.ownerInfo.phone} />}
+                    <DetailItem label='Role' value={data.ownerInfo.role} />
+                  </div>
+                </div>
+              )}
+              {data.uploadedByAdmin && (
+                <div className='detail-section full-width'>
+                  <h4>Upload Info</h4>
+                  <div style={{ padding: '8px 12px', background: '#fff7ed', borderRadius: 8, fontSize: 13 }}>
+                    <UserCheck size={14} style={{ marginRight: 6 }} />
+                    Uploaded by admin <strong>{data.uploadedByAdmin.adminName}</strong> ({data.uploadedByAdmin.adminRole})
+                    {data.uploadedByAdmin.uploadedAt && ` on ${new Date(data.uploadedByAdmin.uploadedAt).toLocaleDateString()}`}
+                  </div>
                 </div>
               )}
             </div>

@@ -145,6 +145,85 @@ export const usePropertyManagement = () => {
     }
   }, [activeView, properties.length, fetchApplications])
 
+  // ── Approve / reject state ─────────────────────────────────────────────
+  const [rejectModal, setRejectModal] = useState(false)
+  const [rejectTargetId, setRejectTargetId] = useState(null)
+  const [rejectReason, setRejectReason] = useState('')
+
+  /**
+   * Approve a pending_review property (admin only)
+   */
+  const handleApprove = useCallback(
+    async propertyId => {
+      try {
+        const res = await axios.patch(
+          `${backend}/api/properties/${propertyId}/approve`,
+          {},
+          { headers: { Authorization: `Bearer ${authToken}` } }
+        )
+        if (res.data?.success) {
+          showNotice('Property approved and published')
+          setProperties(prev =>
+            prev.map(p =>
+              p._id === propertyId ? { ...p, status: 'published' } : p
+            )
+          )
+        } else {
+          showNotice(res.data?.msg || 'Failed to approve property', 'error')
+        }
+      } catch (err) {
+        console.error('Error approving property:', err)
+        showNotice(
+          err.response?.data?.msg || 'Failed to approve property',
+          'error'
+        )
+      }
+    },
+    [backend, authToken, showNotice]
+  )
+
+  /**
+   * Open reject modal for a property
+   */
+  const openRejectModal = useCallback(propertyId => {
+    setRejectTargetId(propertyId)
+    setRejectReason('')
+    setRejectModal(true)
+  }, [])
+
+  /**
+   * Confirm reject with reason (admin only)
+   */
+  const handleRejectConfirm = useCallback(async () => {
+    if (!rejectTargetId) return
+    try {
+      const res = await axios.patch(
+        `${backend}/api/properties/${rejectTargetId}/reject`,
+        { reason: rejectReason },
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      )
+      if (res.data?.success) {
+        showNotice('Property rejected')
+        setProperties(prev =>
+          prev.map(p =>
+            p._id === rejectTargetId ? { ...p, status: 'archived' } : p
+          )
+        )
+        setRejectModal(false)
+        setRejectTargetId(null)
+        setRejectReason('')
+      } else {
+        showNotice(res.data?.msg || 'Failed to reject property', 'error')
+      }
+    } catch (err) {
+      console.error('Error rejecting property:', err)
+      showNotice(
+        err.response?.data?.msg || 'Failed to reject property',
+        'error'
+      )
+    }
+  }, [backend, authToken, rejectTargetId, rejectReason, showNotice])
+
   /**
    * Delete a property
    */
@@ -162,7 +241,7 @@ export const usePropertyManagement = () => {
 
       try {
         const res = await axios.delete(
-          `${backend}/api/properties/property-applications/${propertyId}`,
+          `${backend}/api/properties/${propertyId}`,
           { headers: { Authorization: `Bearer ${authToken}` } }
         )
 
@@ -325,8 +404,11 @@ export const usePropertyManagement = () => {
     [backend, authToken, showModal, modalType, modalData, showNotice]
   )
 
+  // ── Property status filter (for admin review queue) ─────────────────────
+  const [propertyStatusFilter, setPropertyStatusFilter] = useState('all')
+
   /**
-   * Filter properties based on search and category
+   * Filter properties based on search, category, and status
    */
   const filteredProperties = useMemo(() => {
     return properties.filter(p => {
@@ -338,9 +420,12 @@ export const usePropertyManagement = () => {
       const matchesCategory =
         categoryFilter === 'All' || p.category === categoryFilter
 
-      return matchesSearch && matchesCategory
+      const matchesStatus =
+        propertyStatusFilter === 'all' || p.status === propertyStatusFilter
+
+      return matchesSearch && matchesCategory && matchesStatus
     })
-  }, [properties, searchQuery, categoryFilter])
+  }, [properties, searchQuery, categoryFilter, propertyStatusFilter])
 
   /**
    * Filter applications based on search and status
@@ -363,8 +448,9 @@ export const usePropertyManagement = () => {
    */
   const stats = useMemo(() => {
     const activeProperties = properties.filter(
-      p => p.status === 'active' || p.status === 'Standard' || !p.status
+      p => p.status === 'published' || p.status === 'active' || p.status === 'Standard' || !p.status
     )
+    const pendingReviewProperties = properties.filter(p => p.status === 'pending_review')
 
     const pendingApps = applications.filter(a => a.status === 'pending')
     const approvedApps = applications.filter(a => a.status === 'approved')
@@ -378,6 +464,7 @@ export const usePropertyManagement = () => {
     return {
       totalProperties: properties.length,
       activeListings: activeProperties.length,
+      pendingReview: pendingReviewProperties.length,
       inactiveListings: properties.length - activeProperties.length,
       totalApplications: applications.length,
       pendingApplications: pendingApps.length,
@@ -436,10 +523,23 @@ export const usePropertyManagement = () => {
     categories,
     stats,
 
+    // Filters (property status)
+    propertyStatusFilter,
+    setPropertyStatusFilter,
+
+    // Reject modal state
+    rejectModal,
+    setRejectModal,
+    rejectReason,
+    setRejectReason,
+
     // Actions
     fetchProperties,
     fetchApplications,
     handleDeleteProperty,
+    handleApprove,
+    openRejectModal,
+    handleRejectConfirm,
     viewPropertyDetails,
     viewPropertyApplications,
     updateApplicationStatus,

@@ -443,7 +443,7 @@ export default function AdminLayout ({ children }) {
         case 'Dashboard':
           return <AdminDashboard />
         case 'PropertyManagement':
-          return <PropertyManagementDashboard />
+          return <PropertyManagementDashboard userRole={userRole} />
         case 'MyProperties':
           return <MyProperties />
         case 'PropertyUpload':

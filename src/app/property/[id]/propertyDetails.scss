@@ -1087,3 +1087,93 @@
 
   .pd-cta-btn { width: auto; flex: 1; max-width: 200px; }
 }
+
+// ─── Booking.com-style: Amenities by category ─────────────────────────────
+
+.pd-amenities-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.pd-amenity-cat {
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-primary, #0B3D28);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+.pd-amenity-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #374151;
+}
+
+// ─── House Rules ───────────────────────────────────────────────────────────
+
+.pd-rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pd-rule-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+
+  span:first-child { font-weight: 700; font-size: 15px; }
+  em { color: #6b7280; font-style: normal; }
+
+  &.pd-rule--ok {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    span:first-child { color: #16a34a; }
+  }
+  &.pd-rule--no {
+    background: #fef2f2;
+    border-color: #fecaca;
+    span:first-child { color: #dc2626; }
+  }
+}
+
+// ─── Nearby places ─────────────────────────────────────────────────────────
+
+.pd-nearby-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pd-nearby-item {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+
+  &__name { font-size: 14px; font-weight: 600; color: #111; margin-bottom: 3px; }
+  &__cat { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+  &__dist { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--color-primary, #0B3D28); font-weight: 600; }
+}

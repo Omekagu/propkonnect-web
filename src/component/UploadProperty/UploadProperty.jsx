@@ -20,7 +20,8 @@ const STEPS = [
   { id: 4, label: 'Rooms' },
   { id: 5, label: 'Pricing' },
   { id: 6, label: 'Media' },
-  { id: 7, label: 'Publish' }
+  { id: 7, label: 'Policies' },
+  { id: 8, label: 'Publish' }
 ]
 
 const PROPERTY_TYPES = [
@@ -46,6 +47,26 @@ const FEATURES_BY_TYPE = {
 }
 
 const AMENITY_OPTIONS = ['TV', 'AC', 'Fridge', 'Wardrobe', 'Safe', 'Bathtub', 'Balcony', 'WiFi', 'Minibar', 'Kitchenette', 'Workspace']
+
+const AMENITY_CATEGORIES = {
+  'Parking':        ['Free parking on premises', 'Paid parking', 'Street parking', 'EV charging station'],
+  'Internet':       ['Free WiFi', 'WiFi (paid)', 'Wired internet'],
+  'Kitchen':        ['Kitchen', 'Kitchenette', 'Refrigerator', 'Microwave', 'Oven', 'Dishwasher', 'Coffee maker', 'Toaster', 'Electric kettle'],
+  'Bedroom':        ['Extra pillows & blankets', 'Linens provided', 'Wardrobe / Closet', 'Blackout curtains'],
+  'Bathroom':       ['Private bathroom', 'Shared bathroom', 'Bathtub', 'Shower', 'Hair dryer', 'Towels', 'Slippers', 'Toiletries'],
+  'Media & Tech':   ['TV', 'Cable TV', 'Netflix / Streaming', 'DVD Player', 'Radio', 'Telephone'],
+  'Pets':           ['Pets allowed', 'Pet food bowl', 'Pet bed'],
+  'Outdoors':       ['Balcony', 'Terrace', 'Garden', 'BBQ grill', 'Outdoor furniture', 'Swimming pool', 'Hot tub'],
+  'Food & Drink':   ['Breakfast included', 'All meals included', 'In-room dining', 'Bar', 'Restaurant on site'],
+  'Building':       ['Elevator', 'Gym', 'Laundry facilities', 'Business center', '24/7 front desk', 'Concierge', 'ATM'],
+  'Entertainment':  ['Children\'s playground', 'Game room', 'Spa', 'Sauna', 'Bicycle rental'],
+  'Safety':         ['24/7 Security', 'CCTV', 'Smoke alarm', 'Fire extinguisher', 'Safe deposit box', 'Key card access']
+}
+
+const BUILDING_CHARACTERISTICS = ['Apartment Complex', 'Villa', 'Bungalow', 'Duplex', 'Townhouse', 'Penthouse', 'Studio', 'Boutique Hotel', 'Guesthouse', 'Hostel', 'Serviced Apartment']
+const LANGUAGES_LIST = ['English', 'French', 'Arabic', 'Spanish', 'Hausa', 'Yoruba', 'Igbo', 'Swahili', 'Mandarin', 'German', 'Italian', 'Portuguese']
+const PAYMENT_METHODS_LIST = ['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Mobile Money', 'Paystack', 'Stripe', 'Cryptocurrency']
+const NEARBY_CATEGORIES = ['Restaurant', 'Cafe', 'Airport', 'Train Station', 'Bus Stop', 'Hospital', 'Pharmacy', 'Supermarket', 'Shopping Mall', 'Beach', 'Park', 'School', 'Bank', 'ATM', 'Gym', 'Tourist Attraction']
 const COMPLIANCE_DOCS = [
   { key: 'title_deed',     label: 'Title Deed',       desc: 'Proof of ownership' },
   { key: 'land_registry',  label: 'Land Registry',    desc: 'Official land record' },
@@ -75,7 +96,26 @@ const mkBlankForm = () => ({
   visibility: 'public',
   premiere: false,
   paymentPlans: [{ id: 'out', name: 'Outright', installments: [{ dueInDays: 0, percent: 100 }] }],
-  seoTitle: '', seoDescription: ''
+  seoTitle: '', seoDescription: '',
+  propertySpaceType: null,
+  buildingCharacteristics: [],
+  amenitiesDetailed: {},
+  languagesSpoken: [],
+  nearbyPlaces: [],
+  houseRules: {
+    checkIn: { from: '14:00', to: '22:00' },
+    checkOut: { from: '08:00', to: '11:00' },
+    smokingAllowed: false,
+    petsAllowed: false,
+    petCharge: '',
+    childrenAllowed: true,
+    childrenPolicy: '',
+    ageRestriction: '',
+    cribAvailable: false,
+    extraBedAvailable: false,
+    cancellationPolicy: '',
+    paymentMethods: []
+  }
 })
 
 const mkRoomType = () => ({
@@ -179,7 +219,20 @@ export default function UploadPropertyWizard ({
           premiere: !!p.premiere,
           paymentPlans: Array.isArray(p.paymentPlans) && p.paymentPlans.length ? p.paymentPlans : [{ id:'out',name:'Outright',installments:[{dueInDays:0,percent:100}] }],
           seoTitle: p.seoTitle||'',
-          seoDescription: p.seoDescription||''
+          seoDescription: p.seoDescription||'',
+          propertySpaceType: p.propertySpaceType || null,
+          buildingCharacteristics: Array.isArray(p.buildingCharacteristics) ? p.buildingCharacteristics : [],
+          amenitiesDetailed: p.amenitiesDetailed || {},
+          languagesSpoken: Array.isArray(p.languagesSpoken) ? p.languagesSpoken : [],
+          nearbyPlaces: Array.isArray(p.nearbyPlaces) ? p.nearbyPlaces : [],
+          houseRules: p.houseRules || {
+            checkIn: { from: '14:00', to: '22:00' },
+            checkOut: { from: '08:00', to: '11:00' },
+            smokingAllowed: false, petsAllowed: false, petCharge: '',
+            childrenAllowed: true, childrenPolicy: '', ageRestriction: '',
+            cribAvailable: false, extraBedAvailable: false,
+            cancellationPolicy: '', paymentMethods: []
+          }
         })
         if (Array.isArray(p.roomTypes)) {
           setRooms(p.roomTypes.map(rt => ({
@@ -215,6 +268,50 @@ export default function UploadPropertyWizard ({
 
   const toggleFeature = useCallback(f => {
     setForm(p => ({ ...p, features: p.features.includes(f) ? p.features.filter(x => x !== f) : [...p.features, f] }))
+  }, [])
+
+  const setHouseRule = useCallback((field, val) => {
+    setForm(p => ({ ...p, houseRules: { ...p.houseRules, [field]: val } }))
+  }, [])
+
+  const setCheckInOut = useCallback((type, slot, val) => {
+    setForm(p => ({ ...p, houseRules: { ...p.houseRules, [type]: { ...p.houseRules?.[type], [slot]: val } } }))
+  }, [])
+
+  const toggleAmenityDetailed = useCallback((cat, item) => {
+    setForm(p => {
+      const existing = p.amenitiesDetailed?.[cat] || []
+      const next = existing.includes(item) ? existing.filter(x => x !== item) : [...existing, item]
+      return { ...p, amenitiesDetailed: { ...p.amenitiesDetailed, [cat]: next } }
+    })
+  }, [])
+
+  const toggleBuildingChar = useCallback(c => {
+    setForm(p => ({ ...p, buildingCharacteristics: p.buildingCharacteristics?.includes(c) ? p.buildingCharacteristics.filter(x => x !== c) : [...(p.buildingCharacteristics||[]), c] }))
+  }, [])
+
+  const toggleLanguage = useCallback(lang => {
+    setForm(p => ({ ...p, languagesSpoken: p.languagesSpoken?.includes(lang) ? p.languagesSpoken.filter(x => x !== lang) : [...(p.languagesSpoken||[]), lang] }))
+  }, [])
+
+  const togglePaymentMethod = useCallback(method => {
+    setForm(p => {
+      const existing = p.houseRules?.paymentMethods || []
+      const next = existing.includes(method) ? existing.filter(x => x !== method) : [...existing, method]
+      return { ...p, houseRules: { ...p.houseRules, paymentMethods: next } }
+    })
+  }, [])
+
+  const addNearbyPlace = useCallback(() => {
+    setForm(p => ({ ...p, nearbyPlaces: [...(p.nearbyPlaces||[]), { name: '', category: 'Restaurant', distance: '' }] }))
+  }, [])
+
+  const removeNearbyPlace = useCallback(idx => {
+    setForm(p => ({ ...p, nearbyPlaces: (p.nearbyPlaces||[]).filter((_, i) => i !== idx) }))
+  }, [])
+
+  const setNearbyPlace = useCallback((idx, field, val) => {
+    setForm(p => ({ ...p, nearbyPlaces: (p.nearbyPlaces||[]).map((np, i) => i === idx ? { ...np, [field]: val } : np) }))
   }, [])
 
   const isHotelOrShortlet = form.category === 'Hotel' || form.category === 'Shortlet'
@@ -382,7 +479,7 @@ export default function UploadPropertyWizard ({
     if (Object.keys(e).length) { setErrors(e); return }
     // Skip rooms step if not hotel/shortlet
     const nextStep = (step === 3 && !isHotelOrShortlet) ? 5 : step + 1
-    setStep(Math.min(nextStep, 7))
+    setStep(Math.min(nextStep, 8))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -409,7 +506,7 @@ export default function UploadPropertyWizard ({
     if (loading) return
     if (!isDraft) {
       let allErrors = {}
-      for (let s = 1; s <= 7; s++) Object.assign(allErrors, validate(s))
+      for (let s = 1; s <= 8; s++) Object.assign(allErrors, validate(s))
       if (Object.keys(allErrors).length) {
         setErrors(allErrors)
         flash('Fix highlighted errors', 'error')
@@ -492,7 +589,13 @@ export default function UploadPropertyWizard ({
         compliance:   form.compliance,
         escrow:       form.escrow,
         seoTitle:         form.seoTitle     || undefined,
-        seoDescription:   form.seoDescription || undefined
+        seoDescription:   form.seoDescription || undefined,
+        propertySpaceType: form.propertySpaceType || undefined,
+        buildingCharacteristics: form.buildingCharacteristics?.length ? form.buildingCharacteristics : undefined,
+        amenitiesDetailed: Object.keys(form.amenitiesDetailed||{}).length ? form.amenitiesDetailed : undefined,
+        languagesSpoken:  form.languagesSpoken?.length ? form.languagesSpoken : undefined,
+        nearbyPlaces:     form.nearbyPlaces?.length ? form.nearbyPlaces : undefined,
+        houseRules:       form.houseRules || undefined
       }
 
       const isEdit = !!form._id
@@ -886,8 +989,183 @@ export default function UploadPropertyWizard ({
           </div>
         )}
 
-        {/* ── STEP 7: Compliance & Publish ─────────────────────────────── */}
+        {/* ── STEP 7: Policies ─────────────────────────────────────────── */}
         {step === 7 && (
+          <div className='wz-card'>
+            <p className='wz-card-hd'>Property details & rules</p>
+            <p className='wz-card-sub'>All fields are optional — fill in what applies to your listing.</p>
+
+            {/* Space type — only for Apartment / House / Shortlet */}
+            {(form.category === 'Apartment' || form.category === 'House' || form.category === 'Shortlet') && (
+              <div className='wz-field'>
+                <label>Space type</label>
+                <div className='wz-toggle-group'>
+                  {[['entire_place','Entire Place'],['private_room','Private Room'],['shared_room','Shared Room']].map(([v,l]) => (
+                    <button key={v} className={form.propertySpaceType === v ? 'on' : ''} onClick={() => set('propertySpaceType', form.propertySpaceType === v ? null : v)}>{l}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Building type — not for Land */}
+            {form.category !== 'Land' && form.category !== 'Plot' && (
+              <div className='wz-field'>
+                <label>Building type</label>
+                <div className='wz-feat-grid'>
+                  {BUILDING_CHARACTERISTICS.map(c => (
+                    <div key={c} className={`wz-feat${(form.buildingCharacteristics||[]).includes(c)?' on':''}`} onClick={() => toggleBuildingChar(c)}>
+                      {(form.buildingCharacteristics||[]).includes(c) ? <Check size={12}/> : <Plus size={12}/>} {c}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Check-in / Check-out — Hotel & Shortlet only */}
+            {isHotelOrShortlet && (
+              <>
+                <hr className='wz-divider' />
+                <p style={{ fontSize:14, fontWeight:700, marginBottom:12 }}>Check-in & Check-out</p>
+                <div className='wz-row c4'>
+                  <div className='wz-field'>
+                    <label>Check-in from</label>
+                    <input type='time' value={form.houseRules?.checkIn?.from || '14:00'} onChange={e => setCheckInOut('checkIn','from',e.target.value)} />
+                  </div>
+                  <div className='wz-field'>
+                    <label>Check-in until</label>
+                    <input type='time' value={form.houseRules?.checkIn?.to || '22:00'} onChange={e => setCheckInOut('checkIn','to',e.target.value)} />
+                  </div>
+                  <div className='wz-field'>
+                    <label>Check-out from</label>
+                    <input type='time' value={form.houseRules?.checkOut?.from || '08:00'} onChange={e => setCheckInOut('checkOut','from',e.target.value)} />
+                  </div>
+                  <div className='wz-field'>
+                    <label>Check-out until</label>
+                    <input type='time' value={form.houseRules?.checkOut?.to || '11:00'} onChange={e => setCheckInOut('checkOut','to',e.target.value)} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Policy toggles — not for Land or Commercial */}
+            {!isLandOrCommercial && (
+              <>
+                <hr className='wz-divider' />
+                <p style={{ fontSize:14, fontWeight:700, marginBottom:12 }}>House rules</p>
+                <div className='wz-rules-grid'>
+                  {[
+                    ['smokingAllowed', 'Smoking'],
+                    ['petsAllowed', 'Pets allowed'],
+                    ['childrenAllowed', 'Children welcome'],
+                    ...(isHotelOrShortlet ? [['cribAvailable','Crib available'],['extraBedAvailable','Extra bed available']] : [])
+                  ].map(([field, label]) => (
+                    <div key={field} className='wz-rule-row'>
+                      <span>{label}</span>
+                      <div className='wz-toggle-group'>
+                        <button className={form.houseRules?.[field] ? 'on' : ''} onClick={() => setHouseRule(field, true)}>Yes</button>
+                        <button className={!form.houseRules?.[field] ? 'on' : ''} onClick={() => setHouseRule(field, false)}>No</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {form.houseRules?.petsAllowed && (
+                  <div className='wz-field'>
+                    <label>Pet charge <span style={{ fontWeight:400, color:'var(--wz-muted)' }}>(if any)</span></label>
+                    <input value={form.houseRules?.petCharge||''} onChange={e => setHouseRule('petCharge', e.target.value)} placeholder='e.g. ₦5,000 per night' />
+                  </div>
+                )}
+
+                {form.houseRules?.childrenAllowed && (
+                  <div className='wz-field'>
+                    <label>Children policy</label>
+                    <input value={form.houseRules?.childrenPolicy||''} onChange={e => setHouseRule('childrenPolicy', e.target.value)} placeholder='e.g. Children of all ages welcome' />
+                  </div>
+                )}
+
+                {isHotelOrShortlet && (
+                  <div className='wz-field'>
+                    <label>Age restriction</label>
+                    <input value={form.houseRules?.ageRestriction||''} onChange={e => setHouseRule('ageRestriction', e.target.value)} placeholder='e.g. 18+' />
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Cancellation policy — Hotel & Shortlet only */}
+            {isHotelOrShortlet && (
+              <div className='wz-field'>
+                <label>Cancellation policy</label>
+                <textarea value={form.houseRules?.cancellationPolicy||''} onChange={e => setHouseRule('cancellationPolicy', e.target.value)} placeholder='e.g. Free cancellation up to 48 hours before check-in…' style={{ minHeight:70 }} />
+              </div>
+            )}
+
+            {/* Languages — Hotel & Shortlet only */}
+            {isHotelOrShortlet && (
+              <>
+                <hr className='wz-divider' />
+                <p style={{ fontSize:14, fontWeight:700, marginBottom:12 }}>Languages spoken by staff</p>
+                <div className='wz-feat-grid'>
+                  {LANGUAGES_LIST.map(l => (
+                    <div key={l} className={`wz-feat${(form.languagesSpoken||[]).includes(l)?' on':''}`} onClick={() => toggleLanguage(l)}>
+                      {(form.languagesSpoken||[]).includes(l) ? <Check size={12}/> : <Plus size={12}/>} {l}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Detailed amenities — not for Land */}
+            {form.category !== 'Land' && form.category !== 'Plot' && (
+              <>
+                <hr className='wz-divider' />
+                <p style={{ fontSize:14, fontWeight:700, marginBottom:4 }}>Detailed amenities</p>
+                <p style={{ fontSize:12, color:'var(--wz-muted)', marginBottom:16 }}>Select everything available at this property.</p>
+                {Object.entries(AMENITY_CATEGORIES).map(([cat, items]) => (
+                  <div key={cat} className='wz-field' style={{ marginBottom:16 }}>
+                    <label style={{ marginBottom:8 }}>{cat}</label>
+                    <div className='wz-feat-grid'>
+                      {items.map(item => {
+                        const selected = (form.amenitiesDetailed?.[cat] || []).includes(item)
+                        return (
+                          <div key={item} className={`wz-feat${selected?' on':''}`} onClick={() => toggleAmenityDetailed(cat, item)}>
+                            {selected ? <Check size={12}/> : <Plus size={12}/>} {item}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* Nearby places — all types */}
+            <hr className='wz-divider' />
+            <p style={{ fontSize:14, fontWeight:700, marginBottom:12 }}>Nearby places <span style={{ fontWeight:400, color:'var(--wz-muted)' }}>(optional)</span></p>
+            {(form.nearbyPlaces||[]).map((np, i) => (
+              <div key={i} className='wz-row c3' style={{ marginBottom:8, alignItems:'center' }}>
+                <div className='wz-field' style={{ marginBottom:0 }}>
+                  <input value={np.name} onChange={e => setNearbyPlace(i,'name',e.target.value)} placeholder='Place name' />
+                </div>
+                <div className='wz-field' style={{ marginBottom:0 }}>
+                  <select value={np.category} onChange={e => setNearbyPlace(i,'category',e.target.value)}>
+                    {NEARBY_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className='wz-field' style={{ marginBottom:0, display:'flex', gap:8 }}>
+                  <input value={np.distance} onChange={e => setNearbyPlace(i,'distance',e.target.value)} placeholder='e.g. 0.5 km' style={{ flex:1 }} />
+                  <button onClick={() => removeNearbyPlace(i)} style={{ background:'none', border:'1px solid var(--wz-border)', borderRadius:6, padding:'0 10px', cursor:'pointer', color:'var(--wz-error)' }}><Trash2 size={13}/></button>
+                </div>
+              </div>
+            ))}
+            <button className='wz-add-plan' style={{ marginTop:8 }} onClick={addNearbyPlace}>
+              <Plus size={14}/> Add nearby place
+            </button>
+          </div>
+        )}
+
+        {/* ── STEP 8: Compliance & Publish ─────────────────────────────── */}
+        {step === 8 && (
           <>
             {/* Compliance documents */}
             <div className='wz-card'>
@@ -962,6 +1240,16 @@ export default function UploadPropertyWizard ({
                   <div className='wz-rvr'><span>Area</span><span>{form.area ? `${form.area} sqm` : '—'}</span></div>
                   <div className='wz-rvr'><span>Features</span><span>{form.features.length > 0 ? `${form.features.length} selected` : '—'}</span></div>
                 </div>
+                {!isLandOrCommercial && (
+                  <div className='wz-rv-box'>
+                    <h4>Rules</h4>
+                    {isHotelOrShortlet && <div className='wz-rvr'><span>Check-in</span><span>{form.houseRules?.checkIn?.from||'14:00'} – {form.houseRules?.checkIn?.to||'22:00'}</span></div>}
+                    {isHotelOrShortlet && <div className='wz-rvr'><span>Check-out</span><span>{form.houseRules?.checkOut?.from||'08:00'} – {form.houseRules?.checkOut?.to||'11:00'}</span></div>}
+                    <div className='wz-rvr'><span>Pets</span><span>{form.houseRules?.petsAllowed ? '✓ Allowed' : '✗ Not allowed'}</span></div>
+                    <div className='wz-rvr'><span>Smoking</span><span>{form.houseRules?.smokingAllowed ? '✓ Allowed' : '✗ Not allowed'}</span></div>
+                    {form.languagesSpoken?.length > 0 && <div className='wz-rvr'><span>Languages</span><span>{form.languagesSpoken.slice(0,2).join(', ')}{form.languagesSpoken.length > 2 ? ` +${form.languagesSpoken.length-2}` : ''}</span></div>}
+                  </div>
+                )}
                 <div className='wz-rv-box'>
                   <h4>Pricing</h4>
                   {form.price && <div className='wz-rvr'><span>Sale</span><span>{form.currency} {Number(form.price).toLocaleString()}</span></div>}
@@ -1017,12 +1305,12 @@ export default function UploadPropertyWizard ({
             </button>
           )}
           <span className='wz-step-hint'>Step {step} of {STEPS.length}</span>
-          {step < 7 && (
+          {step < 8 && (
             <button className='btn-primary' onClick={next}>
               Continue <ArrowRight size={16} />
             </button>
           )}
-          {step === 7 && (
+          {step === 8 && (
             <>
               <button className='btn-draft' onClick={() => submit(true)} disabled={loading}>
                 {loading ? <Loader2 size={14} className='spin' /> : null} Save Draft

@@ -268,14 +268,29 @@ export default function PropertyDetails () {
 
   const lightboxItem = gallery[thumbIndex] || { url: '/placeholder.jpg', type: 'image' }
 
+  const hasHouseRules = !!(
+    property.houseRules ||
+    (property.amenitiesDetailed && Object.keys(property.amenitiesDetailed).length > 0) ||
+    ((isHotel || isShortlet) && property.languagesSpoken?.length) ||
+    property.nearbyPlaces?.length ||
+    property.buildingCharacteristics?.length
+  )
+
   const TABS = [
     { id: 'overview', label: 'Overview' },
     { id: 'details', label: 'Details' },
+    ...(hasHouseRules ? [{ id: 'policies', label: 'House Rules' }] : []),
     ...(property.units?.length ? [{ id: 'units', label: `Units (${property.units.length})` }] : []),
     ...(property.roomTypes?.length && isPerNight ? [{ id: 'rooms', label: `Room Types (${property.roomTypes.length})` }] : []),
     ...(isLand && property.land ? [{ id: 'land', label: 'Land Info' }] : []),
     ...(property.compliance ? [{ id: 'compliance', label: 'Compliance' }] : [])
   ]
+
+  const AMENITY_CATEGORY_ICONS = {
+    'Parking': Car, 'Internet': Wifi, 'Kitchen': '🍳', 'Bedroom': '🛏',
+    'Bathroom': Droplets, 'Media & Tech': Tv, 'Pets': '🐾', 'Outdoors': Leaf,
+    'Food & Drink': '🍽', 'Building': Building2, 'Entertainment': '🎮', 'Safety': Lock
+  }
 
   return (
     <div className='pd-page'>
@@ -429,6 +444,33 @@ export default function PropertyDetails () {
                         <span>{f}</span>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Detailed amenities by category */}
+              {property.amenitiesDetailed && Object.keys(property.amenitiesDetailed).length > 0 && (
+                <div className='pd-card'>
+                  <h3>Amenities</h3>
+                  <div className='pd-amenities-section'>
+                    {Object.entries(property.amenitiesDetailed).filter(([, items]) => Array.isArray(items) && items.length > 0).map(([cat, items]) => {
+                      const IconComp = AMENITY_CATEGORY_ICONS[cat]
+                      return (
+                        <div key={cat} className='pd-amenity-cat'>
+                          <div className='pd-amenity-cat__title'>
+                            {IconComp && typeof IconComp !== 'string' ? <IconComp size={14} /> : <span>{AMENITY_CATEGORY_ICONS[cat]}</span>}
+                            {cat}
+                          </div>
+                          <div className='pd-amenity-cat__items'>
+                            {items.map(item => (
+                              <div key={item} className='pd-amenity-item'>
+                                <CheckCircle2 size={12} color='#22c55e' /> {item}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -597,6 +639,106 @@ export default function PropertyDetails () {
                     {property.investmentDetails.distributionFrequency && <div className='pd-detail'><span>Distribution</span><strong>{property.investmentDetails.distributionFrequency}</strong></div>}
                     {property.investmentDetails.holdingPeriodDays && <div className='pd-detail'><span>Holding Period</span><strong>{Math.round(property.investmentDetails.holdingPeriodDays / 30)} months</strong></div>}
                     {property.investmentDetails.offeringClosesAt && <div className='pd-detail'><span>Offer Closes</span><strong>{new Date(property.investmentDetails.offeringClosesAt).toLocaleDateString()}</strong></div>}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── POLICIES ─────────────────────────────────────────── */}
+          {activeTab === 'policies' && (
+            <div className='pd-section'>
+              {/* Check-in / Check-out */}
+              {property.houseRules && (
+                <div className='pd-card'>
+                  {/* Check-in/out only relevant for Hotel & Shortlet */}
+                  {(isHotel || isShortlet) && (property.houseRules.checkIn || property.houseRules.checkOut) && (
+                    <>
+                      <h3><Clock size={16} /> Check-in & Check-out</h3>
+                      <div className='pd-details-grid'>
+                        {property.houseRules.checkIn?.from && (
+                          <div className='pd-detail'><span>Check-in from</span><strong>{property.houseRules.checkIn.from}</strong></div>
+                        )}
+                        {property.houseRules.checkIn?.to && (
+                          <div className='pd-detail'><span>Check-in until</span><strong>{property.houseRules.checkIn.to}</strong></div>
+                        )}
+                        {property.houseRules.checkOut?.from && (
+                          <div className='pd-detail'><span>Check-out from</span><strong>{property.houseRules.checkOut.from}</strong></div>
+                        )}
+                        {property.houseRules.checkOut?.to && (
+                          <div className='pd-detail'><span>Check-out until</span><strong>{property.houseRules.checkOut.to}</strong></div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  <h3 style={{ marginTop: (isHotel || isShortlet) ? 20 : 0, fontSize: 15 }}>House Rules</h3>
+                  <div className='pd-rules-list'>
+                    <div className={`pd-rule-item${property.houseRules.smokingAllowed ? ' pd-rule--ok' : ' pd-rule--no'}`}>
+                      <span>{property.houseRules.smokingAllowed ? '✓' : '✗'}</span> Smoking {property.houseRules.smokingAllowed ? 'allowed' : 'not allowed'}
+                    </div>
+                    <div className={`pd-rule-item${property.houseRules.petsAllowed ? ' pd-rule--ok' : ' pd-rule--no'}`}>
+                      <span>{property.houseRules.petsAllowed ? '✓' : '✗'}</span> Pets {property.houseRules.petsAllowed ? 'allowed' : 'not allowed'}
+                      {property.houseRules.petCharge && <em> ({property.houseRules.petCharge})</em>}
+                    </div>
+                    <div className={`pd-rule-item${property.houseRules.childrenAllowed ? ' pd-rule--ok' : ' pd-rule--no'}`}>
+                      <span>{property.houseRules.childrenAllowed ? '✓' : '✗'}</span> Children {property.houseRules.childrenAllowed ? 'welcome' : 'not allowed'}
+                      {property.houseRules.childrenPolicy && <em> — {property.houseRules.childrenPolicy}</em>}
+                    </div>
+                    {property.houseRules.cribAvailable && (
+                      <div className='pd-rule-item pd-rule--ok'><span>✓</span> Crib available on request</div>
+                    )}
+                    {property.houseRules.extraBedAvailable && (
+                      <div className='pd-rule-item pd-rule--ok'><span>✓</span> Extra bed available on request</div>
+                    )}
+                    {property.houseRules.ageRestriction && (
+                      <div className='pd-rule-item'><span>ℹ</span> Age restriction: {property.houseRules.ageRestriction}</div>
+                    )}
+                  </div>
+
+                  {property.houseRules.cancellationPolicy && (
+                    <div style={{ marginTop: 16 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>Cancellation Policy</h4>
+                      <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{property.houseRules.cancellationPolicy}</p>
+                    </div>
+                  )}
+
+                  {/* Payment methods intentionally omitted — managed by PropNect escrow system */}
+                </div>
+              )}
+
+              {/* Languages — Hotel & Shortlet only */}
+              {(isHotel || isShortlet) && property.languagesSpoken?.length > 0 && (
+                <div className='pd-card'>
+                  <h3>Languages Spoken by Staff</h3>
+                  <div className='pd-tags'>
+                    {property.languagesSpoken.map(l => <span key={l} className='pd-tag'>🌐 {l}</span>)}
+                  </div>
+                </div>
+              )}
+
+              {/* Building characteristics */}
+              {property.buildingCharacteristics?.length > 0 && (
+                <div className='pd-card'>
+                  <h3><Building2 size={16} /> Building Type</h3>
+                  <div className='pd-tags'>
+                    {property.buildingCharacteristics.map(c => <span key={c} className='pd-tag'>{c}</span>)}
+                  </div>
+                </div>
+              )}
+
+              {/* Nearby places */}
+              {property.nearbyPlaces?.length > 0 && (
+                <div className='pd-card'>
+                  <h3><MapPin size={16} /> Nearby Places</h3>
+                  <div className='pd-nearby-list'>
+                    {property.nearbyPlaces.map((np, i) => (
+                      <div key={i} className='pd-nearby-item'>
+                        <div className='pd-nearby-item__name'>{np.name}</div>
+                        {np.category && <div className='pd-nearby-item__cat'>{np.category}</div>}
+                        {np.distance && <div className='pd-nearby-item__dist'><MapPin size={11} /> {np.distance}</div>}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}

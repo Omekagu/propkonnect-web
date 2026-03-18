@@ -1126,4 +1126,35 @@
       transform: translateY(0);
     }
   }
+
+  // ── Policies step ──────────────────────────────────────────────────────
+
+  .wz-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--wz-muted);
+    margin-bottom: 10px;
+  }
+
+  .wz-rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .wz-rule-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--wz-bg);
+    border: 1px solid var(--wz-border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
 }
