@@ -70,7 +70,7 @@ const mkBlankForm = () => ({
   features: [], tags: [],
   media: [],
   compliance: { verified: false, score: 0, documents: [] },
-  escrow: { status: 'none' },
+  escrow: { status: 'pending' },
   isDraft: false,
   visibility: 'public',
   premiere: false,
@@ -242,10 +242,13 @@ export default function UploadPropertyWizard ({
     }))
   }, [])
 
-  const addRoomImage = useCallback(async (roomIdx, file) => {
-    if (!file) return
-    const url = URL.createObjectURL(file)
-    setRooms(p => p.map((r, i) => i !== roomIdx ? r : { ...r, media: [...(r.media||[]), { file, url, type:'image' }] }))
+  const addRoomImages = useCallback((roomIdx, files) => {
+    const valid = Array.from(files).filter(f => f?.type?.startsWith('image'))
+    if (!valid.length) return
+    setRooms(p => p.map((r, i) => i !== roomIdx ? r : {
+      ...r,
+      media: [...(r.media||[]), ...valid.map(f => ({ file: f, url: URL.createObjectURL(f), type: 'image' }))]
+    }))
   }, [])
 
   const removeRoomImage = useCallback((roomIdx, imgIdx) => {
@@ -367,7 +370,9 @@ export default function UploadPropertyWizard ({
       if ((form.purpose === 'For Rent' || form.purpose === 'Both') && !form.rentPrice) e.rentPrice = 'Rent price required'
     }
     if (s === 6) {
-      if (!form.media?.length) e.media = 'At least one photo required'
+      // Hotel/Shortlet: property-level media optional if room types have images
+      const roomsHaveImages = isHotelOrShortlet && rooms.some(r => r.media?.length > 0)
+      if (!form.media?.length && !roomsHaveImages) e.media = 'At least one photo required'
     }
     return e
   }, [form, rooms, isHotelOrShortlet, isLandOrCommercial])
@@ -751,7 +756,7 @@ export default function UploadPropertyWizard ({
                   onSet={(f, v) => setRoom(i, f, v)}
                   onRemove={() => removeRoom(i)}
                   onToggleAmenity={a => toggleAmenity(i, a)}
-                  onAddImage={file => addRoomImage(i, file)}
+                  onAddImages={files => addRoomImages(i, files)}
                   onRemoveImage={idx => removeRoomImage(i, idx)}
                 />
               ))}
@@ -919,21 +924,17 @@ export default function UploadPropertyWizard ({
               </div>
             </div>
 
-            {/* Escrow */}
+            {/* Escrow — mandatory, no toggle */}
             <div className='wz-card'>
               <p className='wz-card-hd'>Escrow protection</p>
-              <p className='wz-card-sub'>Enable Paystack escrow to hold funds securely until both parties are satisfied.</p>
+              <p className='wz-card-sub'>All listings on PropNect use Paystack escrow — payments are held securely until both parties confirm.</p>
 
-              <div className={`wz-escrow-card${form.escrow?.status !== 'none'?' on':''}`}>
+              <div className='wz-escrow-card on'>
                 <div className='wz-esc-icon'><Shield size={20} /></div>
                 <div className='wz-esc-body'>
-                  <p className='wz-esc-title'>Enable Escrow</p>
-                  <p className='wz-esc-desc'>Payments are held by Paystack and released to you only after the buyer confirms receipt. Builds trust and reduces disputes.</p>
+                  <p className='wz-esc-title'>Escrow Enabled <Lock size={13} style={{ display:'inline', marginLeft:4, verticalAlign:'middle' }} /></p>
+                  <p className='wz-esc-desc'>Funds are held by Paystack and released to you only after the buyer/tenant confirms satisfaction. This is mandatory to protect all parties.</p>
                 </div>
-                <label className='wz-sw'>
-                  <input type='checkbox' checked={form.escrow?.status !== 'none'} onChange={e => set('escrow', { status: e.target.checked ? 'pending_setup' : 'none' })} />
-                  <span />
-                </label>
               </div>
             </div>
 
@@ -1040,7 +1041,7 @@ export default function UploadPropertyWizard ({
 
 // ─── Room Type Card (sub-component) ──────────────────────────────────────────
 
-function RoomTypeCard ({ room, index, onSet, onRemove, onToggleAmenity, onAddImage, onRemoveImage }) {
+function RoomTypeCard ({ room, index, onSet, onRemove, onToggleAmenity, onAddImages, onRemoveImage }) {
   const imgRef = useRef(null)
 
   return (
@@ -1082,20 +1083,21 @@ function RoomTypeCard ({ room, index, onSet, onRemove, onToggleAmenity, onAddIma
           </div>
         </div>
 
-        {/* Room images */}
+        {/* Room images — multiple allowed */}
         <div className='wz-room-img-section'>
-          <label>Room Photos</label>
-          <input ref={imgRef} type='file' accept='image/*' multiple style={{ display:'none' }} onChange={e => { Array.from(e.target.files||[]).forEach(f => onAddImage(f)); e.target.value='' }} />
+          <label>Room Photos ({(room.media||[]).length} added)</label>
+          <input ref={imgRef} type='file' accept='image/*' multiple style={{ display:'none' }} onChange={e => { onAddImages(e.target.files); e.target.value='' }} />
           <div className='wz-room-imgs'>
             {(room.media||[]).map((m, i) => (
               <div key={i} className='wz-rim-thumb'>
                 <img src={m.url} alt='' />
+                {i === 0 && <span className='wz-rt-cover'>Cover</span>}
                 <button onClick={() => onRemoveImage(i)}><Trash2 size={10} /></button>
               </div>
             ))}
             <div className='wz-rim-add' onClick={() => imgRef.current?.click()}>
               <Plus size={16} />
-              <span>Add</span>
+              <span>Add Photos</span>
             </div>
           </div>
         </div>

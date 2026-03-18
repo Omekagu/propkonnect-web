@@ -42,7 +42,7 @@ const TABS = [
 ]
 
 const PIE_COLORS = [
-  '#3b82f6',
+  '#0f6040',
   '#10b981',
   '#8b5cf6',
   '#f59e0b',
@@ -50,7 +50,7 @@ const PIE_COLORS = [
   '#06b6d4'
 ]
 
-function StatBox ({ label, value, sub, color = '#3b82f6' }) {
+function StatBox ({ label, value, sub, color = '#0f6040' }) {
   return (
     <div className='rpt-stat-box'>
       <p className='rpt-stat-value' style={{ color }}>
@@ -224,7 +224,7 @@ export default function Report () {
               label='Total Properties'
               value={(stats?.totalProperties ?? 0).toLocaleString()}
               sub={`${stats?.activeProperties ?? 0} available`}
-              color='#3b82f6'
+              color='#0f6040'
             />
             <StatBox
               label='Total Revenue'
@@ -335,7 +335,7 @@ export default function Report () {
             <StatBox
               label='Total Users'
               value={(stats?.totalUsers ?? 0).toLocaleString()}
-              color='#3b82f6'
+              color='#0f6040'
             />
             <StatBox
               label='Verified Users'
@@ -431,7 +431,7 @@ export default function Report () {
             <StatBox
               label='Total Transactions'
               value={(stats?.totalTransactions ?? 0).toLocaleString()}
-              color='#3b82f6'
+              color='#0f6040'
             />
           </div>
 
@@ -472,7 +472,7 @@ export default function Report () {
                   <Line
                     type='monotone'
                     dataKey='transactions'
-                    stroke='#3b82f6'
+                    stroke='#0f6040'
                     strokeWidth={2}
                     dot={{ r: 4 }}
                     name='Transactions'
@@ -493,7 +493,7 @@ export default function Report () {
             <StatBox
               label='Total Properties'
               value={(stats?.totalProperties ?? 0).toLocaleString()}
-              color='#3b82f6'
+              color='#0f6040'
             />
             <StatBox
               label='Available'
@@ -523,7 +523,7 @@ export default function Report () {
                     paddingAngle={3}
                     dataKey='value'
                   >
-                    <Cell fill='#3b82f6' />
+                    <Cell fill='#0f6040' />
                     <Cell fill='#e2e8f0' />
                   </Pie>
                   <Tooltip />
@@ -533,7 +533,7 @@ export default function Report () {
             </div>
             <div className='rpt-chart-card rpt-narrow rpt-callout'>
               <h3>Availability Rate</h3>
-              <p className='rpt-big-number' style={{ color: '#3b82f6' }}>
+              <p className='rpt-big-number' style={{ color: '#0f6040' }}>
                 {(stats?.totalProperties ?? 0) > 0
                   ? `${Math.round(
                       ((stats?.activeProperties ?? 0) / stats.totalProperties) *
@@ -561,7 +561,7 @@ export default function Report () {
             <StatBox
               label='Active (Open / In Progress)'
               value={(stats?.openServiceRequests ?? 0).toLocaleString()}
-              color='#3b82f6'
+              color='#0f6040'
             />
             <StatBox
               label='Completed'
@@ -593,7 +593,7 @@ export default function Report () {
                     paddingAngle={3}
                     dataKey='value'
                   >
-                    <Cell fill='#3b82f6' />
+                    <Cell fill='#0f6040' />
                     <Cell fill='#10b981' />
                   </Pie>
                   <Tooltip />

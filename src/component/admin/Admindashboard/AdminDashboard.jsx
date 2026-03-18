@@ -45,7 +45,7 @@ const KPI_CONFIG = [
     key: 'totalProperties',
     label: 'Properties',
     icon: FiHome,
-    color: '#3b82f6',
+    color: '#0f6040',
     bg: 'card-blue',
     sub: stat => `${stat.activeProperties ?? 0} available`,
     growth: null
@@ -71,14 +71,21 @@ const KPI_CONFIG = [
   }
 ]
 
-const PIE_COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4']
+const PIE_COLORS = [
+  '#0f6040',
+  '#10b981',
+  '#8b5cf6',
+  '#f59e0b',
+  '#ec4899',
+  '#06b6d4'
+]
 
 const STATUS_COLOR = {
   completed: '#10b981',
   pending: '#f59e0b',
   rejected: '#ef4444',
   refunded: '#6b7280',
-  open: '#3b82f6',
+  open: '#0f6040',
   'in-progress': '#8b5cf6',
   cancelled: '#ef4444'
 }
@@ -176,8 +183,13 @@ export default function AdminDashboard () {
                 <p className='stat-label'>{cfg.label}</p>
                 <span className='stat-sub'>{cfg.sub(stats || {})}</span>
                 {growth !== null && (
-                  <span className={`stat-growth ${growth >= 0 ? 'positive' : 'negative'}`}>
-                    {growth >= 0 ? '+' : ''}{growth}% vs last month
+                  <span
+                    className={`stat-growth ${
+                      growth >= 0 ? 'positive' : 'negative'
+                    }`}
+                  >
+                    {growth >= 0 ? '+' : ''}
+                    {growth}% vs last month
                   </span>
                 )}
               </div>
@@ -232,7 +244,10 @@ export default function AdminDashboard () {
           <h3 className='chart-title'>Revenue Trend (Last 6 Months)</h3>
           {stats?.monthlyTrend?.length > 0 ? (
             <ResponsiveContainer width='100%' height={220}>
-              <AreaChart data={stats.monthlyTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+              <AreaChart
+                data={stats.monthlyTrend}
+                margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id='revenueGrad' x1='0' y1='0' x2='0' y2='1'>
                     <stop offset='5%' stopColor='#8b5cf6' stopOpacity={0.35} />
@@ -241,7 +256,10 @@ export default function AdminDashboard () {
                 </defs>
                 <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
                 <XAxis dataKey='month' tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`}
+                />
                 <Tooltip formatter={v => `₦${v.toLocaleString()}`} />
                 <Area
                   type='monotone'
@@ -294,12 +312,20 @@ export default function AdminDashboard () {
           <h3 className='chart-title'>New Registrations (Last 6 Months)</h3>
           {stats?.monthlyRegistrationsTrend?.length > 0 ? (
             <ResponsiveContainer width='100%' height={220}>
-              <BarChart data={stats.monthlyRegistrationsTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+              <BarChart
+                data={stats.monthlyRegistrationsTrend}
+                margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
                 <XAxis dataKey='month' tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
                 <Tooltip />
-                <Bar dataKey='newUsers' fill='#10b981' radius={[4, 4, 0, 0]} name='New Users' />
+                <Bar
+                  dataKey='newUsers'
+                  fill='#10b981'
+                  radius={[4, 4, 0, 0]}
+                  name='New Users'
+                />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -312,12 +338,34 @@ export default function AdminDashboard () {
           <h3 className='chart-title'>Listings by Category</h3>
           {stats?.listingsByCategory?.length > 0 ? (
             <ResponsiveContainer width='100%' height={220}>
-              <BarChart data={stats.listingsByCategory} layout='vertical' margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' horizontal={false} />
-                <XAxis type='number' tick={{ fontSize: 11 }} allowDecimals={false} />
-                <YAxis type='category' dataKey='category' tick={{ fontSize: 11 }} width={80} />
+              <BarChart
+                data={stats.listingsByCategory}
+                layout='vertical'
+                margin={{ top: 0, right: 20, left: 10, bottom: 0 }}
+              >
+                <CartesianGrid
+                  strokeDasharray='3 3'
+                  stroke='#f0f0f0'
+                  horizontal={false}
+                />
+                <XAxis
+                  type='number'
+                  tick={{ fontSize: 11 }}
+                  allowDecimals={false}
+                />
+                <YAxis
+                  type='category'
+                  dataKey='category'
+                  tick={{ fontSize: 11 }}
+                  width={80}
+                />
                 <Tooltip />
-                <Bar dataKey='count' fill='#6366f1' radius={[0, 4, 4, 0]} name='Listings' />
+                <Bar
+                  dataKey='count'
+                  fill='#6366f1'
+                  radius={[0, 4, 4, 0]}
+                  name='Listings'
+                />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -346,8 +394,12 @@ export default function AdminDashboard () {
                       ? `${txn.userId.firstName} ${txn.userId.lastName}`
                       : 'Unknown'}
                   </span>
-                  <span className='act-amount'>₦{(txn.amount || 0).toLocaleString()}</span>
-                  <span className='act-type'>{txn.type || txn.paymentMethod || '—'}</span>
+                  <span className='act-amount'>
+                    ₦{(txn.amount || 0).toLocaleString()}
+                  </span>
+                  <span className='act-type'>
+                    {txn.type || txn.paymentMethod || '—'}
+                  </span>
                   <span
                     className='act-status'
                     style={{ color: STATUS_COLOR[txn.status] || '#6b7280' }}
@@ -376,11 +428,15 @@ export default function AdminDashboard () {
               {stats.recentServiceRequests.map(sr => (
                 <div key={sr._id} className='activity-row-item'>
                   <span className='act-user' title={sr.title}>
-                    {sr.title?.length > 28 ? sr.title.slice(0, 28) + '…' : sr.title || '—'}
+                    {sr.title?.length > 28
+                      ? sr.title.slice(0, 28) + '…'
+                      : sr.title || '—'}
                   </span>
                   <span className='act-type'>{sr.category || '—'}</span>
                   <span className='act-amount'>
-                    {sr.estimatedBudget ? `₦${sr.estimatedBudget.toLocaleString()}` : '—'}
+                    {sr.estimatedBudget
+                      ? `₦${sr.estimatedBudget.toLocaleString()}`
+                      : '—'}
                   </span>
                   <span
                     className='act-status'
@@ -407,7 +463,9 @@ export default function AdminDashboard () {
                 {u.avatar ? (
                   <img src={u.avatar} alt={u.firstName} />
                 ) : (
-                  <span>{(u.firstName || u.email || 'U')[0].toUpperCase()}</span>
+                  <span>
+                    {(u.firstName || u.email || 'U')[0].toUpperCase()}
+                  </span>
                 )}
               </div>
               <div className='ru-info'>
@@ -416,7 +474,9 @@ export default function AdminDashboard () {
                 </p>
                 <p className='ru-role'>{u.role}</p>
               </div>
-              <span className={`ru-badge ${u.isVerified ? 'verified' : 'pending'}`}>
+              <span
+                className={`ru-badge ${u.isVerified ? 'verified' : 'pending'}`}
+              >
                 {u.isVerified ? 'Verified' : 'Unverified'}
               </span>
             </div>

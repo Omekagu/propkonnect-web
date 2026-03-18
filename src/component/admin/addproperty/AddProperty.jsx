@@ -3,46 +3,28 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import {
-  Search,
-  Filter,
-  Eye,
-  Edit,
-  Trash2,
-  FileText,
-  Users,
-  CheckCircle,
-  XCircle,
-  Clock,
-  MapPin,
-  Home,
-  DollarSign,
-  Calendar,
-  Download,
-  Plus,
-  X,
-  Check,
-  AlertCircle,
-  Building2,
-  TrendingUp,
-  ArrowUpRight,
-  ArrowDownRight,
-  MoreVertical
+  Search, Filter, Eye, Trash2, FileText, Users,
+  CheckCircle, XCircle, Clock, MapPin, Home, DollarSign,
+  Calendar, Download, Plus, X, Check, AlertCircle,
+  Building2, TrendingUp, ArrowUpRight, MoreVertical,
+  ThumbsUp, ThumbsDown
 } from 'lucide-react'
 import './addproperty.scss'
 
 const STATUS_OPTIONS = ['pending', 'approved', 'rejected', 'viewing']
-const PROPERTY_CATEGORIES = [
-  'All',
-  'Apartment',
-  'House',
-  'Shortlet',
-  'Hotel',
-  'Land',
-  'Commercial'
-]
+const PROPERTY_CATEGORIES = ['All', 'Apartment', 'House', 'Shortlet', 'Hotel', 'Land', 'Commercial']
+const LISTING_STATUSES = ['all', 'pending_review', 'published', 'draft', 'archived', 'suspended']
+
+const STATUS_LABELS = {
+  pending_review: 'Pending Review',
+  published: 'Published',
+  draft: 'Draft',
+  archived: 'Archived',
+  suspended: 'Suspended'
+}
 
 export default function PropertyManagement () {
-  const [activeView, setActiveView] = useState('properties') // 'properties' | 'applications'
+  const [activeView, setActiveView] = useState('properties')
   const [properties, setProperties] = useState([])
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
@@ -51,25 +33,30 @@ export default function PropertyManagement () {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  const [modalType, setModalType] = useState('') // 'view' | 'applications' | 'history'
+  const [modalType, setModalType] = useState('')
   const [modalData, setModalData] = useState(null)
   const [notice, setNotice] = useState(null)
+  const [rejectModal, setRejectModal] = useState(null) // { propertyId, title }
+  const [rejectReason, setRejectReason] = useState('')
 
   const backend = process.env.NEXT_PUBLIC_BACKEND_URL || ''
-  const authToken =
-    typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
+  const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
 
-  // Fetch properties
+  const showNotice = useCallback((msg, type = 'success') => {
+    setNotice({ msg, type })
+    setTimeout(() => setNotice(null), 3500)
+  }, [])
+
+  // ── Fetch ALL properties (admin sees everything via optionalAuth + properties.view_all)
   const fetchProperties = useCallback(async () => {
     if (!authToken) return
     setLoading(true)
     try {
-      const res = await axios.get(`${backend}/api/properties`, {
+      const res = await axios.get(`${backend}/api/properties/all?limit=200`, {
         headers: { Authorization: `Bearer ${authToken}` }
       })
       if (res.data?.success) {
         setProperties(res.data.properties || [])
-        console.log('Fetched properties:', res.data.properties || none)
       }
     } catch (err) {
       console.error('Error fetching properties:', err)
@@ -77,14 +64,12 @@ export default function PropertyManagement () {
     } finally {
       setLoading(false)
     }
-  }, [backend, authToken])
+  }, [backend, authToken, showNotice])
 
-  // Fetch all applications
   const fetchApplications = useCallback(async () => {
-    if (!authToken) return
+    if (!authToken || properties.length === 0) return
     setLoading(true)
     try {
-      // Fetch applications for all user's properties
       const applicationsData = []
       for (const property of properties) {
         const res = await axios.get(
@@ -92,13 +77,9 @@ export default function PropertyManagement () {
           { headers: { Authorization: `Bearer ${authToken}` } }
         )
         if (res.data?.success && res.data.applications) {
-          applicationsData.push(
-            ...res.data.applications.map(app => ({
-              ...app,
-              propertyTitle: property.title,
-              propertyId: property._id
-            }))
-          )
+          applicationsData.push(...res.data.applications.map(app => ({
+            ...app, propertyTitle: property.title, propertyId: property._id
+          })))
         }
       }
       setApplications(applicationsData)
@@ -108,44 +89,64 @@ export default function PropertyManagement () {
     } finally {
       setLoading(false)
     }
-  }, [backend, authToken, properties])
+  }, [backend, authToken, properties, showNotice])
+
+  useEffect(() => { fetchProperties() }, [fetchProperties])
 
   useEffect(() => {
-    fetchProperties()
-  }, [fetchProperties])
-
-  useEffect(() => {
-    if (activeView === 'applications' && properties.length > 0) {
-      fetchApplications()
-    }
+    if (activeView === 'applications' && properties.length > 0) fetchApplications()
   }, [activeView, properties.length, fetchApplications])
 
-  const showNotice = (msg, type = 'success') => {
-    setNotice({ msg, type })
-    setTimeout(() => setNotice(null), 3500)
-  }
-
-  // Delete property
-  const handleDelete = async id => {
-    if (!window.confirm('Are you sure you want to delete this property?'))
-      return
-
+  // ── Approve property
+  const handleApprove = useCallback(async (id) => {
     try {
-      const res = await axios.delete(`${backend}/api/properties/${id}`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      })
+      const res = await axios.patch(`${backend}/api/properties/${id}/approve`, {},
+        { headers: { Authorization: `Bearer ${authToken}` } })
       if (res.data?.success) {
-        showNotice('Property deleted successfully')
-        fetchProperties()
+        showNotice('Property approved and published')
+        setProperties(prev => prev.map(p => p._id === id ? { ...p, status: 'published' } : p))
       }
     } catch (err) {
-      console.error('Error deleting property:', err)
+      showNotice(err.response?.data?.msg || 'Failed to approve', 'error')
+    }
+  }, [backend, authToken, showNotice])
+
+  // ── Reject property
+  const handleRejectConfirm = useCallback(async () => {
+    if (!rejectModal) return
+    try {
+      const res = await axios.patch(
+        `${backend}/api/properties/${rejectModal.propertyId}/reject`,
+        { reason: rejectReason },
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      )
+      if (res.data?.success) {
+        showNotice('Property rejected')
+        setProperties(prev => prev.map(p => p._id === rejectModal.propertyId ? { ...p, status: 'archived' } : p))
+        setRejectModal(null)
+        setRejectReason('')
+      }
+    } catch (err) {
+      showNotice(err.response?.data?.msg || 'Failed to reject', 'error')
+    }
+  }, [backend, authToken, rejectModal, rejectReason, showNotice])
+
+  // ── Delete property
+  const handleDelete = useCallback(async id => {
+    if (!window.confirm('Archive this property?')) return
+    try {
+      const res = await axios.delete(`${backend}/api/properties/${id}`,
+        { headers: { Authorization: `Bearer ${authToken}` } })
+      if (res.data?.success) {
+        showNotice('Property archived')
+        setProperties(prev => prev.filter(p => p._id !== id))
+      }
+    } catch (err) {
       showNotice('Failed to delete property', 'error')
     }
-  }
+  }, [backend, authToken, showNotice])
 
-  // View property applications
-  const viewApplications = async propertyId => {
+  const viewApplications = useCallback(async propertyId => {
     try {
       const res = await axios.get(
         `${backend}/api/properties/property-applications/property/${propertyId}`,
@@ -156,119 +157,104 @@ export default function PropertyManagement () {
         setModalType('applications')
         setShowModal(true)
       }
-    } catch (err) {
-      console.error('Error fetching applications:', err)
-      showNotice('Failed to load applications', 'error')
-    }
-  }
+    } catch { showNotice('Failed to load applications', 'error') }
+  }, [backend, authToken, showNotice])
 
-  // Update application status
-  const updateApplicationStatus = async (appId, status) => {
+  const updateApplicationStatus = useCallback(async (appId, status) => {
     try {
       const res = await axios.patch(
         `${backend}/api/properties/property-applications/${appId}/status`,
-        { status },
-        { headers: { Authorization: `Bearer ${authToken}` } }
+        { status }, { headers: { Authorization: `Bearer ${authToken}` } }
       )
       if (res.data?.success) {
-        showNotice(`Application ${status} successfully`)
+        showNotice(`Application ${status}`)
         fetchApplications()
         if (showModal && modalType === 'applications') {
-          // Refresh modal data
-          const propertyId = applications.find(a => a._id === appId)?.propertyId
-          if (propertyId) viewApplications(propertyId)
+          const pid = applications.find(a => a._id === appId)?.propertyId
+          if (pid) viewApplications(pid)
         }
       }
-    } catch (err) {
-      console.error('Error updating application:', err)
-      showNotice('Failed to update application', 'error')
-    }
-  }
+    } catch { showNotice('Failed to update', 'error') }
+  }, [backend, authToken, applications, showModal, modalType, showNotice, fetchApplications, viewApplications])
 
-  // Delete application
-  const deleteApplication = async appId => {
-    if (!window.confirm('Are you sure you want to delete this application?'))
-      return
-
+  const deleteApplication = useCallback(async appId => {
+    if (!window.confirm('Delete this application?')) return
     try {
       const res = await axios.delete(
         `${backend}/api/properties/property-applications/${appId}`,
         { headers: { Authorization: `Bearer ${authToken}` } }
       )
-      if (res.data?.success) {
-        showNotice('Application deleted successfully')
-        fetchApplications()
-      }
-    } catch (err) {
-      console.error('Error deleting application:', err)
-      showNotice('Failed to delete application', 'error')
-    }
-  }
+      if (res.data?.success) { showNotice('Application deleted'); fetchApplications() }
+    } catch { showNotice('Failed to delete', 'error') }
+  }, [backend, authToken, showNotice, fetchApplications])
 
-  // View property details
-  const viewProperty = property => {
-    setSelectedProperty(property)
-    setModalType('view')
-    setShowModal(true)
-  }
-
-  // Filtered properties
+  // ── Filtered data
   const filteredProperties = useMemo(() => {
     return properties.filter(p => {
-      const matchesSearch =
-        p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (typeof p.location === 'string' ? p.location : p.location?.address || p.location?.city || '')?.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesCategory =
-        categoryFilter === 'All' || p.category === categoryFilter
-      return matchesSearch && matchesCategory
+      const loc = typeof p.location === 'string' ? p.location : p.city || p.address || ''
+      const matchSearch = p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        loc.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchCat = categoryFilter === 'All' || p.category === categoryFilter
+      const matchStatus = statusFilter === 'all' || p.status === statusFilter
+      return matchSearch && matchCat && matchStatus
     })
-  }, [properties, searchQuery, categoryFilter])
+  }, [properties, searchQuery, categoryFilter, statusFilter])
 
-  // Filtered applications
   const filteredApplications = useMemo(() => {
     return applications.filter(a => {
-      const matchesSearch =
-        a.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      const matchSearch = a.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         a.propertyTitle?.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesStatus = statusFilter === 'all' || a.status === statusFilter
-      return matchesSearch && matchesStatus
+      const matchStatus = statusFilter === 'all' || a.status === statusFilter
+      return matchSearch && matchStatus
     })
   }, [applications, searchQuery, statusFilter])
 
-  // Stats
-  const stats = useMemo(() => {
-    return {
-      totalProperties: properties.length,
-      activeListings: properties.filter(p => p.status === 'active' || !p.status)
-        .length,
-      totalApplications: applications.length,
-      pendingApplications: applications.filter(a => a.status === 'pending')
-        .length,
-      approvedApplications: applications.filter(a => a.status === 'approved')
-        .length,
-      totalRevenue: properties.reduce(
-        (sum, p) => sum + (Number(p.price) || 0),
-        0
-      )
-    }
-  }, [properties, applications])
+  const stats = useMemo(() => ({
+    total: properties.length,
+    published: properties.filter(p => p.status === 'published').length,
+    pendingReview: properties.filter(p => p.status === 'pending_review').length,
+    draft: properties.filter(p => p.status === 'draft').length,
+    applications: applications.length,
+    pendingApps: applications.filter(a => a.status === 'pending').length
+  }), [properties, applications])
 
-  const formatMoney = value => {
-    if (!value && value !== 0) return '₦0'
-    return '₦' + Number(value).toLocaleString()
-  }
+  const formatMoney = v => v ? '₦' + Number(v).toLocaleString() : '—'
 
   return (
     <div className='property-management'>
-      {/* Toast Notification */}
+      {/* Toast */}
       {notice && (
         <div className={`toast toast-${notice.type}`}>
-          {notice.type === 'success' ? (
-            <Check size={18} />
-          ) : (
-            <AlertCircle size={18} />
-          )}
+          {notice.type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
           {notice.msg}
+        </div>
+      )}
+
+      {/* Reject reason modal */}
+      {rejectModal && (
+        <div className='modal-overlay' onClick={() => setRejectModal(null)}>
+          <div className='modal-content' style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>
+            <div className='modal-header'>
+              <h3>Reject Listing</h3>
+              <button onClick={() => setRejectModal(null)}><X size={20} /></button>
+            </div>
+            <div className='modal-body'>
+              <p style={{ marginBottom: 12 }}>Rejecting: <strong>{rejectModal.title}</strong></p>
+              <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
+                Reason (sent to owner)
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={e => setRejectReason(e.target.value)}
+                placeholder='e.g. Missing compliance documents, incorrect pricing…'
+                style={{ width: '100%', minHeight: 90, padding: '10px 12px', borderRadius: 8, border: '1.5px solid #e2e8f0', resize: 'vertical' }}
+              />
+            </div>
+            <div className='modal-footer' style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', padding: '16px 20px' }}>
+              <button className='btn-secondary' onClick={() => setRejectModal(null)}>Cancel</button>
+              <button className='btn-danger' onClick={handleRejectConfirm}>Confirm Reject</button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -277,92 +263,60 @@ export default function PropertyManagement () {
         <div className='header-content'>
           <div className='header-left'>
             <h1>Property Management</h1>
-            <p>Manage your properties and applications</p>
+            <p>Review, approve and manage all listings</p>
           </div>
           <div className='header-actions'>
-            <button className='btn-secondary'>
-              <Download size={18} />
-              Export Data
-            </button>
-            <button className='btn-primary'>
-              <Plus size={18} />
-              Add Property
+            <button className='btn-secondary' onClick={fetchProperties}>
+              <Download size={18} /> Refresh
             </button>
           </div>
         </div>
       </header>
 
-      {/* Stats Overview */}
+      {/* Stats */}
       <div className='stats-overview'>
         <div className='stat-card card-blue'>
-          <div className='stat-icon'>
-            <Building2 size={24} />
-          </div>
+          <div className='stat-icon'><Building2 size={24} /></div>
           <div className='stat-content'>
-            <h3>{stats.totalProperties}</h3>
-            <p>Total Properties</p>
-            <div className='stat-change positive'>
-              <ArrowUpRight size={14} />
-              {stats.activeListings} active
-            </div>
+            <h3>{stats.total}</h3>
+            <p>Total Listings</p>
+            <div className='stat-change positive'><ArrowUpRight size={14} />{stats.published} published</div>
           </div>
         </div>
-
-        <div className='stat-card card-green'>
-          <div className='stat-icon'>
-            <FileText size={24} />
-          </div>
-          <div className='stat-content'>
-            <h3>{stats.totalApplications}</h3>
-            <p>Applications</p>
-            <div className='stat-change'>
-              <Clock size={14} />
-              {stats.pendingApplications} pending
-            </div>
-          </div>
-        </div>
-
-        <div className='stat-card card-purple'>
-          <div className='stat-icon'>
-            <CheckCircle size={24} />
-          </div>
-          <div className='stat-content'>
-            <h3>{stats.approvedApplications}</h3>
-            <p>Approved</p>
-            <div className='stat-change positive'>
-              <TrendingUp size={14} />
-              This month
-            </div>
-          </div>
-        </div>
-
         <div className='stat-card card-orange'>
-          <div className='stat-icon'>
-            <DollarSign size={24} />
-          </div>
+          <div className='stat-icon'><Clock size={24} /></div>
           <div className='stat-content'>
-            <h3>{formatMoney(stats.totalRevenue)}</h3>
-            <p>Total Value</p>
-            <div className='stat-change'>Property portfolio</div>
+            <h3 style={{ color: stats.pendingReview > 0 ? '#f59e0b' : undefined }}>{stats.pendingReview}</h3>
+            <p>Pending Review</p>
+            <div className='stat-change'>Awaiting approval</div>
+          </div>
+        </div>
+        <div className='stat-card card-green'>
+          <div className='stat-icon'><FileText size={24} /></div>
+          <div className='stat-content'>
+            <h3>{stats.applications}</h3>
+            <p>Applications</p>
+            <div className='stat-change'><Clock size={14} />{stats.pendingApps} pending</div>
+          </div>
+        </div>
+        <div className='stat-card card-purple'>
+          <div className='stat-icon'><CheckCircle size={24} /></div>
+          <div className='stat-content'>
+            <h3>{stats.draft}</h3>
+            <p>Drafts</p>
+            <div className='stat-change'>Unpublished</div>
           </div>
         </div>
       </div>
 
       {/* View Tabs */}
       <div className='view-tabs'>
-        <button
-          className={`tab ${activeView === 'properties' ? 'active' : ''}`}
-          onClick={() => setActiveView('properties')}
-        >
-          <Home size={18} />
-          Properties ({properties.length})
+        <button className={`tab ${activeView === 'properties' ? 'active' : ''}`} onClick={() => setActiveView('properties')}>
+          <Home size={18} /> Properties ({properties.length})
+          {stats.pendingReview > 0 && <span className='tab-badge'>{stats.pendingReview}</span>}
         </button>
-        <button
-          className={`tab ${activeView === 'applications' ? 'active' : ''}`}
-          onClick={() => setActiveView('applications')}
-        >
-          <FileText size={18} />
-          Applications ({applications.length})
+        <button className={`tab ${activeView === 'applications' ? 'active' : ''}`} onClick={() => setActiveView('applications')}>
+          <FileText size={18} /> Applications ({applications.length})
         </button>
       </div>
 
@@ -372,61 +326,45 @@ export default function PropertyManagement () {
           <Search size={20} />
           <input
             type='text'
-            placeholder={
-              activeView === 'properties'
-                ? 'Search properties...'
-                : 'Search applications...'
-            }
+            placeholder={activeView === 'properties' ? 'Search properties…' : 'Search applications…'}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
         </div>
-
-        {activeView === 'properties' ? (
-          <div className='filter-group'>
-            <Filter size={18} />
-            <select
-              value={categoryFilter}
-              onChange={e => setCategoryFilter(e.target.value)}
-            >
-              {PROPERTY_CATEGORIES.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
+        <div className='filter-group'>
+          <Filter size={18} />
+          {activeView === 'properties' ? (
+            <>
+              <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+                {PROPERTY_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                {LISTING_STATUSES.map(s => (
+                  <option key={s} value={s}>{s === 'all' ? 'All Statuses' : STATUS_LABELS[s] || s}</option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+              <option value='all'>All Statuses</option>
+              {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
             </select>
-          </div>
-        ) : (
-          <div className='filter-group'>
-            <Filter size={18} />
-            <select
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-            >
-              <option value='all'>All Status</option>
-              {STATUS_OPTIONS.map(status => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Content Area */}
+      {/* Content */}
       <div className='content-area'>
         {loading ? (
-          <div className='loading-state'>
-            <div className='spinner'></div>
-            <p>Loading...</p>
-          </div>
+          <div className='loading-state'><div className='spinner' /><p>Loading…</p></div>
         ) : activeView === 'properties' ? (
           <PropertiesView
             properties={filteredProperties}
-            onView={viewProperty}
+            onView={p => { setSelectedProperty(p); setModalType('view'); setShowModal(true) }}
             onViewApplications={viewApplications}
             onDelete={handleDelete}
+            onApprove={handleApprove}
+            onReject={p => { setRejectModal({ propertyId: p._id, title: p.title }); setRejectReason('') }}
             formatMoney={formatMoney}
           />
         ) : (
@@ -439,17 +377,15 @@ export default function PropertyManagement () {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Detail Modal */}
       {showModal && (
         <Modal
           type={modalType}
           data={selectedProperty || modalData}
-          onClose={() => {
-            setShowModal(false)
-            setSelectedProperty(null)
-            setModalData(null)
-          }}
+          onClose={() => { setShowModal(false); setSelectedProperty(null); setModalData(null) }}
           onStatusUpdate={updateApplicationStatus}
+          onApprove={handleApprove}
+          onReject={p => { setRejectModal({ propertyId: p._id, title: p.title }); setShowModal(false) }}
           formatMoney={formatMoney}
         />
       )}
@@ -457,155 +393,110 @@ export default function PropertyManagement () {
   )
 }
 
-// Properties View Component
-function PropertiesView ({
-  properties,
-  onView,
-  onViewApplications,
-  onDelete,
-  formatMoney
-}) {
+// ── Properties grid ──────────────────────────────────────────────────────────
+
+function PropertiesView ({ properties, onView, onViewApplications, onDelete, onApprove, onReject, formatMoney }) {
   if (properties.length === 0) {
     return (
       <div className='empty-state'>
         <Building2 size={64} />
         <h3>No properties found</h3>
-        <p>Start by adding your first property listing</p>
+        <p>Try changing your filters</p>
       </div>
     )
   }
-
   return (
     <div className='properties-grid'>
-      {properties.map(property => (
-        <PropertyCard
-          key={property._id}
-          property={property}
-          onView={() => onView(property)}
-          onViewApplications={() => onViewApplications(property._id)}
-          onDelete={() => onDelete(property._id)}
-          formatMoney={formatMoney}
-        />
+      {properties.map(p => (
+        <PropertyCard key={p._id} property={p} onView={() => onView(p)} onViewApplications={() => onViewApplications(p._id)}
+          onDelete={() => onDelete(p._id)} onApprove={() => onApprove(p._id)} onReject={() => onReject(p)} formatMoney={formatMoney} />
       ))}
     </div>
   )
 }
 
-// Property Card Component
-function PropertyCard ({
-  property,
-  onView,
-  onViewApplications,
-  onDelete,
-  formatMoney
-}) {
+function PropertyCard ({ property, onView, onViewApplications, onDelete, onApprove, onReject, formatMoney }) {
   const [showActions, setShowActions] = useState(false)
-  const firstImage =
-    property.images?.[0] || property.media?.[0]?.url || property.media?.[0]
+  const firstImage = property.images?.[0] || property.media?.[0]?.url || property.media?.[0]
+  const isPending = property.status === 'pending_review'
 
   return (
-    <div className='property-card'>
+    <div className={`property-card${isPending ? ' property-card--pending' : ''}`}>
       <div className='property-image'>
-        {firstImage ? (
-          <img src={firstImage} alt={property.title} />
-        ) : (
-          <div className='placeholder-image'>
-            <Building2 size={48} />
-          </div>
-        )}
+        {firstImage ? <img src={firstImage} alt={property.title} /> : <div className='placeholder-image'><Building2 size={48} /></div>}
         <div className='property-badge'>
-          <span
-            className={`badge ${
-              property.purpose === 'For Sale' ? 'badge-sale' : 'badge-rent'
-            }`}
-          >
-            {property.purpose}
-          </span>
+          <span className={`badge ${property.purpose === 'For Sale' ? 'badge-sale' : 'badge-rent'}`}>{property.purpose}</span>
         </div>
+        <span className={`listing-status-badge status-${property.status || 'draft'}`}>
+          {STATUS_LABELS[property.status] || property.status || 'Draft'}
+        </span>
       </div>
 
       <div className='property-content'>
         <div className='property-header'>
           <h3>{property.title}</h3>
-          <button
-            className='btn-more'
-            onClick={() => setShowActions(!showActions)}
-          >
-            <MoreVertical size={18} />
-          </button>
+          <button className='btn-more' onClick={() => setShowActions(!showActions)}><MoreVertical size={18} /></button>
           {showActions && (
             <div className='actions-menu'>
-              <button onClick={onView}>
-                <Eye size={16} /> View Details
-              </button>
-              <button onClick={onViewApplications}>
-                <FileText size={16} /> Applications
-              </button>
-              <button onClick={onDelete} className='danger'>
-                <Trash2 size={16} /> Delete
-              </button>
+              <button onClick={onView}><Eye size={16} /> View Details</button>
+              <button onClick={onViewApplications}><FileText size={16} /> Applications</button>
+              <button onClick={onDelete} className='danger'><Trash2 size={16} /> Archive</button>
             </div>
           )}
         </div>
 
         <div className='property-location'>
           <MapPin size={14} />
-          {typeof property.location === 'string' ? property.location : [property.location?.address, property.location?.city, property.location?.state].filter(Boolean).join(', ') || property.city || property.address || ''}
+          {typeof property.location === 'string' ? property.location : property.city || property.address || '—'}
         </div>
 
         <div className='property-details'>
           {property.beds && <span>{property.beds} Beds</span>}
           {property.baths && <span>{property.baths} Baths</span>}
           {property.area && <span>{property.area}</span>}
+          <span className='category-chip'>{property.category}</span>
         </div>
 
         <div className='property-footer'>
           <div className='property-price'>
-            <span className='price'>
-              {formatMoney(property.price || property.rentPrice)}
-            </span>
-            {property.rentFrequency && (
-              <span className='frequency'>/{property.rentFrequency}</span>
-            )}
+            <span className='price'>{formatMoney(property.price || property.rentPrice)}</span>
+            {property.rentFrequency && <span className='frequency'>/{property.rentFrequency}</span>}
           </div>
-          <span className={`status-badge ${property.status || 'active'}`}>
-            {property.status || 'Active'}
-          </span>
         </div>
+
+        {/* Approve / Reject buttons for pending_review */}
+        {isPending && (
+          <div className='review-actions'>
+            <button className='btn-approve' onClick={e => { e.stopPropagation(); onApprove() }}>
+              <ThumbsUp size={14} /> Approve
+            </button>
+            <button className='btn-reject' onClick={e => { e.stopPropagation(); onReject() }}>
+              <ThumbsDown size={14} /> Reject
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
-// Applications View Component
-function ApplicationsView ({
-  applications,
-  onStatusUpdate,
-  onDelete,
-  formatMoney
-}) {
+// ── Applications table ───────────────────────────────────────────────────────
+
+function ApplicationsView ({ applications, onStatusUpdate, onDelete }) {
   if (applications.length === 0) {
     return (
       <div className='empty-state'>
-        <FileText size={64} />
-        <h3>No applications found</h3>
-        <p>
-          Applications will appear here when tenants apply for your properties
-        </p>
+        <FileText size={64} /><h3>No applications found</h3>
+        <p>Applications appear here when users apply for properties</p>
       </div>
     )
   }
-
   return (
     <div className='applications-table'>
       <table>
         <thead>
           <tr>
-            <th>Applicant</th>
-            <th>Property</th>
-            <th>Applied Date</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>Applicant</th><th>Property</th><th>Applied</th><th>Status</th><th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -613,13 +504,9 @@ function ApplicationsView ({
             <tr key={app._id}>
               <td>
                 <div className='applicant-info'>
-                  <div className='applicant-avatar'>
-                    {app.userName?.[0] || 'U'}
-                  </div>
+                  <div className='applicant-avatar'>{app.userName?.[0] || 'U'}</div>
                   <div>
-                    <div className='applicant-name'>
-                      {app.userName || 'Unknown'}
-                    </div>
+                    <div className='applicant-name'>{app.userName || 'Unknown'}</div>
                     <div className='applicant-email'>{app.userEmail}</div>
                   </div>
                 </div>
@@ -627,40 +514,23 @@ function ApplicationsView ({
               <td>
                 <div className='property-info'>
                   <div className='property-name'>{app.propertyTitle}</div>
-                  <div className='property-id'>
-                    ID: #{app.propertyId?.slice(-8)}
-                  </div>
+                  <div className='property-id'>#{app.propertyId?.slice(-8)}</div>
                 </div>
               </td>
               <td>
                 <div className='date-info'>
-                  <Calendar size={14} />
-                  {new Date(app.createdAt).toLocaleDateString()}
+                  <Calendar size={14} />{new Date(app.createdAt).toLocaleDateString()}
                 </div>
               </td>
               <td>
-                <select
-                  className={`status-select status-${app.status}`}
-                  value={app.status}
-                  onChange={e => onStatusUpdate(app._id, e.target.value)}
-                >
-                  {STATUS_OPTIONS.map(status => (
-                    <option key={status} value={status}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </option>
-                  ))}
+                <select className={`status-select status-${app.status}`} value={app.status}
+                  onChange={e => onStatusUpdate(app._id, e.target.value)}>
+                  {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                 </select>
               </td>
               <td>
                 <div className='table-actions'>
-                  <button className='btn-icon' title='View'>
-                    <Eye size={16} />
-                  </button>
-                  <button
-                    className='btn-icon btn-danger'
-                    onClick={() => onDelete(app._id)}
-                    title='Delete'
-                  >
+                  <button className='btn-icon btn-danger' onClick={() => onDelete(app._id)} title='Delete'>
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -673,24 +543,79 @@ function ApplicationsView ({
   )
 }
 
-// Modal Component
-function Modal ({ type, data, onClose, onStatusUpdate, formatMoney }) {
+// ── Detail Modal ─────────────────────────────────────────────────────────────
+
+function Modal ({ type, data, onClose, onStatusUpdate, onApprove, onReject, formatMoney }) {
   if (type === 'view' && data) {
+    const images = data.images || data.media?.map(m => m.url || m) || []
+    const isPending = data.status === 'pending_review'
     return (
       <div className='modal-overlay' onClick={onClose}>
-        <div
-          className='modal-content modal-large'
-          onClick={e => e.stopPropagation()}
-        >
+        <div className='modal-content modal-large' onClick={e => e.stopPropagation()}>
           <div className='modal-header'>
             <h3>Property Details</h3>
-            <button onClick={onClose}>
-              <X size={24} />
-            </button>
+            <button onClick={onClose}><X size={24} /></button>
           </div>
           <div className='modal-body'>
-            <PropertyDetails property={data} formatMoney={formatMoney} />
+            {images.length > 0 && (
+              <div className='property-gallery'>
+                <img src={images[0]} alt={data.title} className='main-image' />
+                {images.length > 1 && (
+                  <div className='thumbnail-grid'>
+                    {images.slice(1, 5).map((img, i) => <img key={i} src={img} alt='' />)}
+                  </div>
+                )}
+              </div>
+            )}
+            <div className='details-grid'>
+              <div className='detail-section'>
+                <h4>Basic Info</h4>
+                <div className='detail-items'>
+                  <DetailItem label='Title' value={data.title} />
+                  <DetailItem label='Category' value={data.category} />
+                  <DetailItem label='Purpose' value={data.purpose} />
+                  <DetailItem label='Status' value={STATUS_LABELS[data.status] || data.status} />
+                  <DetailItem label='Location' value={typeof data.location === 'string' ? data.location : data.city || data.address || ''} />
+                  <DetailItem label='Price' value={formatMoney(data.price || data.rentPrice)} />
+                  {data.rentFrequency && <DetailItem label='Frequency' value={data.rentFrequency} />}
+                </div>
+              </div>
+              {(data.beds || data.baths || data.area) && (
+                <div className='detail-section'>
+                  <h4>Property Details</h4>
+                  <div className='detail-items'>
+                    {data.beds && <DetailItem label='Bedrooms' value={data.beds} />}
+                    {data.baths && <DetailItem label='Bathrooms' value={data.baths} />}
+                    {data.area && <DetailItem label='Area' value={data.area} />}
+                  </div>
+                </div>
+              )}
+              {data.features?.length > 0 && (
+                <div className='detail-section full-width'>
+                  <h4>Features</h4>
+                  <div className='features-list'>
+                    {data.features.map((f, i) => <span key={i} className='feature-tag'><Check size={14} /> {f}</span>)}
+                  </div>
+                </div>
+              )}
+              {data.description && (
+                <div className='detail-section full-width'>
+                  <h4>Description</h4>
+                  <p className='description-text'>{data.description}</p>
+                </div>
+              )}
+            </div>
           </div>
+          {isPending && (
+            <div className='modal-footer' style={{ display: 'flex', gap: 10, padding: '16px 20px', borderTop: '1px solid #e2e8f0' }}>
+              <button className='btn-approve' style={{ flex: 1 }} onClick={() => { onApprove(data._id); onClose() }}>
+                <ThumbsUp size={16} /> Approve & Publish
+              </button>
+              <button className='btn-reject' style={{ flex: 1 }} onClick={() => { onReject(data); onClose() }}>
+                <ThumbsDown size={16} /> Reject
+              </button>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -699,73 +624,35 @@ function Modal ({ type, data, onClose, onStatusUpdate, formatMoney }) {
   if (type === 'applications' && data) {
     return (
       <div className='modal-overlay' onClick={onClose}>
-        <div
-          className='modal-content modal-large'
-          onClick={e => e.stopPropagation()}
-        >
+        <div className='modal-content modal-large' onClick={e => e.stopPropagation()}>
           <div className='modal-header'>
             <h3>Applications ({data.length})</h3>
-            <button onClick={onClose}>
-              <X size={24} />
-            </button>
+            <button onClick={onClose}><X size={24} /></button>
           </div>
           <div className='modal-body'>
             {data.length === 0 ? (
-              <div className='empty-applications'>
-                <FileText size={48} />
-                <p>No applications yet for this property</p>
-              </div>
+              <div className='empty-applications'><FileText size={48} /><p>No applications yet</p></div>
             ) : (
               <div className='applications-list'>
                 {data.map(app => (
                   <div key={app._id} className='application-item'>
                     <div className='application-header'>
                       <div className='applicant-info'>
-                        <div className='applicant-avatar large'>
-                          {app.userName?.[0] || 'U'}
-                        </div>
-                        <div>
-                          <h4>{app.userName || 'Unknown Applicant'}</h4>
-                          <p>{app.userEmail}</p>
-                        </div>
+                        <div className='applicant-avatar large'>{app.userName?.[0] || 'U'}</div>
+                        <div><h4>{app.userName || 'Unknown'}</h4><p>{app.userEmail}</p></div>
                       </div>
-                      <span className={`status-badge status-${app.status}`}>
-                        {app.status}
-                      </span>
+                      <span className={`status-badge status-${app.status}`}>{app.status}</span>
                     </div>
                     <div className='application-details'>
-                      <div className='detail-item'>
-                        <Calendar size={16} />
-                        <span>
-                          Applied:{' '}
-                          {new Date(app.createdAt).toLocaleDateString()}
-                        </span>
+                      <div className='detail-item'><Calendar size={16} /><span>Applied: {new Date(app.createdAt).toLocaleDateString()}</span></div>
+                      {app.message && <div className='application-message'><strong>Message:</strong><p>{app.message}</p></div>}
+                    </div>
+                    {app.status === 'pending' && (
+                      <div className='application-actions'>
+                        <button className='btn-approve' onClick={() => onStatusUpdate(app._id, 'approved')}><CheckCircle size={16} /> Approve</button>
+                        <button className='btn-reject' onClick={() => onStatusUpdate(app._id, 'rejected')}><XCircle size={16} /> Reject</button>
                       </div>
-                      {app.message && (
-                        <div className='application-message'>
-                          <strong>Message:</strong>
-                          <p>{app.message}</p>
-                        </div>
-                      )}
-                    </div>
-                    <div className='application-actions'>
-                      {app.status === 'pending' && (
-                        <>
-                          <button
-                            className='btn-approve'
-                            onClick={() => onStatusUpdate(app._id, 'approved')}
-                          >
-                            <CheckCircle size={16} /> Approve
-                          </button>
-                          <button
-                            className='btn-reject'
-                            onClick={() => onStatusUpdate(app._id, 'rejected')}
-                          >
-                            <XCircle size={16} /> Reject
-                          </button>
-                        </>
-                      )}
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -775,89 +662,7 @@ function Modal ({ type, data, onClose, onStatusUpdate, formatMoney }) {
       </div>
     )
   }
-
   return null
-}
-
-// Property Details Component
-function PropertyDetails ({ property, formatMoney }) {
-  const images = property.images || property.media?.map(m => m.url || m) || []
-
-  return (
-    <div className='property-details-view'>
-      {images.length > 0 && (
-        <div className='property-gallery'>
-          <img src={images[0]} alt={property.title} className='main-image' />
-          {images.length > 1 && (
-            <div className='thumbnail-grid'>
-              {images.slice(1, 5).map((img, i) => (
-                <img key={i} src={img} alt='' />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className='details-grid'>
-        <div className='detail-section'>
-          <h4>Basic Information</h4>
-          <div className='detail-items'>
-            <DetailItem label='Title' value={property.title} />
-            <DetailItem label='Category' value={property.category} />
-            <DetailItem label='Purpose' value={property.purpose} />
-            <DetailItem label='Location' value={typeof property.location === 'string' ? property.location : [property.location?.address, property.location?.city, property.location?.state].filter(Boolean).join(', ') || property.city || property.address || ''} />
-            <DetailItem
-              label='Price'
-              value={formatMoney(property.price || property.rentPrice)}
-            />
-            {property.rentFrequency && (
-              <DetailItem label='Frequency' value={property.rentFrequency} />
-            )}
-          </div>
-        </div>
-
-        {(property.beds || property.baths || property.area) && (
-          <div className='detail-section'>
-            <h4>Property Details</h4>
-            <div className='detail-items'>
-              {property.beds && (
-                <DetailItem label='Bedrooms' value={property.beds} />
-              )}
-              {property.baths && (
-                <DetailItem label='Bathrooms' value={property.baths} />
-              )}
-              {property.area && (
-                <DetailItem label='Area' value={property.area} />
-              )}
-              {property.maxRooms && (
-                <DetailItem label='Max Rooms' value={property.maxRooms} />
-              )}
-            </div>
-          </div>
-        )}
-
-        {property.features && property.features.length > 0 && (
-          <div className='detail-section full-width'>
-            <h4>Features & Amenities</h4>
-            <div className='features-list'>
-              {property.features.map((feature, i) => (
-                <span key={i} className='feature-tag'>
-                  <Check size={14} /> {feature}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {property.description && (
-          <div className='detail-section full-width'>
-            <h4>Description</h4>
-            <p className='description-text'>{property.description}</p>
-          </div>
-        )}
-      </div>
-    </div>
-  )
 }
 
 function DetailItem ({ label, value }) {

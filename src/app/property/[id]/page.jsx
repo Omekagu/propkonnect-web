@@ -1,982 +1,963 @@
 'use client'
 
-import React, { useEffect, useState, useMemo, useCallback } from 'react'
-import { useParams } from 'next/navigation'
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import {
-  MapPin,
-  Phone,
-  Mail,
-  BedDouble,
-  Bath,
-  Ruler,
-  Video,
-  X,
-  ArrowLeft,
-  ArrowRight
+  MapPin, Phone, Mail, BedDouble, Bath, Ruler, Video, X,
+  ArrowLeft, ArrowRight, Share2, Heart, Shield, CheckCircle2,
+  AlertCircle, Zap, Star, Calendar, DollarSign, Building2,
+  Layers, Users, TrendingUp, FileText, Clock, Eye, ChevronDown,
+  ChevronUp, ExternalLink, Award, Landmark, Tag, Wifi, Car,
+  Droplets, Dumbbell, Lock, Tv, Leaf
 } from 'lucide-react'
 import './propertyDetails.scss'
 
+const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmt (v, currency = 'NGN') {
+  if (v == null || v === '') return '—'
+  const n = typeof v === 'number' ? v : Number(String(v).replace(/[^0-9.-]/g, ''))
+  if (isNaN(n)) return String(v)
+  const sym = currency === 'USD' ? '$' : currency === 'GBP' ? '£' : '₦'
+  return `${sym}${n.toLocaleString()}`
+}
+
+function nightsBetween (start, end) {
+  if (!start || !end) return 0
+  const s = new Date(start); const e = new Date(end)
+  s.setHours(12, 0, 0, 0); e.setHours(12, 0, 0, 0)
+  const d = Math.ceil((e - s) / (1000 * 60 * 60 * 24))
+  return d > 0 ? d : 0
+}
+
+const FEATURE_ICONS = {
+  'Air Conditioning': Droplets, 'Free Wi-Fi': Wifi, 'Parking': Car,
+  'Swimming Pool': Droplets, 'Gym': Dumbbell, 'Security': Lock,
+  'CCTV': Tv, 'Furnished': Award, 'Generator': Zap, 'Elevator': Layers,
+  'Balcony': Leaf, 'Terrace': Leaf, 'Laundry': Droplets
+}
+
+function FeatureIcon ({ name }) {
+  const I = FEATURE_ICONS[name] || Shield
+  return <I size={13} />
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function PropertyDetails () {
   const { id } = useParams()
+  const router = useRouter()
+
   const [property, setProperty] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [similarProperties, setSimilarProperties] = useState([])
+  const [similar, setSimilar] = useState([])
 
-  const getPaymentAmount = () =>
-    isPerNightType ? bookingTotal?.total : paymentBreakdown?.total ?? effectivePrice
-
-  const startMonnifyPayment = async () => {
-    const totalAmount = getPaymentAmount()
-    if (!totalAmount) { alert('Amount cannot be zero'); return }
-
-    try {
-      const payRef = 'REF-' + Date.now()
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/initialize-monnify-transaction`,
-        {
-          amount: totalAmount,
-          customerName: 'Guest User',
-          customerEmail: 'guest@example.com',
-          paymentReference: payRef
-        }
-      )
-      if (res?.data?.requestSuccessful) {
-        window.location.href = res.data.responseBody.checkoutUrl
-      } else {
-        alert('Failed to initialize payment')
-      }
-    } catch (err) {
-      console.log(err)
-      alert('Payment error')
-    }
-  }
-
-  const startStripeCheckout = async () => {
-    const totalAmount = getPaymentAmount()
-    if (!totalAmount) { alert('Amount cannot be zero'); return }
-
-    try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
-      if (!token) { alert('Please log in to continue'); return }
-
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/stripe-checkout`,
-        {
-          propertyId: id,
-          amount: totalAmount,
-          propertyTitle: property?.title,
-          propertyImage: property?.images?.[0]
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-
-      if (res?.data?.url) {
-        window.location.href = res.data.url
-      } else {
-        alert('Failed to initialize Stripe checkout')
-      }
-    } catch (err) {
-      console.error('[stripeCheckout]', err)
-      alert('Stripe payment error. Please try again.')
-    }
-  }
-
-  // UI state
+  // Gallery
   const [thumbIndex, setThumbIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [showAllPhotos, setShowAllPhotos] = useState(false)
 
-  // Booking state
+  // Booking / purchase
   const [bookingStart, setBookingStart] = useState('')
   const [bookingEnd, setBookingEnd] = useState('')
   const [guests, setGuests] = useState(1)
   const [selectedRoomTypeId, setSelectedRoomTypeId] = useState(null)
+  const [selectedPlanIdx, setSelectedPlanIdx] = useState(0)
 
-  // Normalize media: images first, then video
-  const gallery = useMemo(() => {
-    if (!property) return []
-    const media = Array.isArray(property.media) ? property.media : []
-    const images = Array.isArray(property.images)
-      ? property.images.map(u => ({ url: u, type: 'image' }))
-      : []
-    const fallbackVideo = property.video
-      ? [{ url: property.video, type: 'video' }]
-      : []
-    const normalized = media
-      .map(m =>
-        typeof m === 'string'
-          ? { url: m, type: 'image' }
-          : {
-              url: m.url || m,
-              type:
-                m.type ||
-                (m.url && String(m.url).endsWith('.mp4') ? 'video' : 'image')
-            }
-      )
-      .filter(Boolean)
-    // order: images in media first, else images array, else video fallback
-    if (normalized.length) return normalized
-    if (images.length) return images
-    return fallbackVideo
-  }, [property])
-
-  // Category helpers
-  const category = (property?.category || property?.propertyType || '')
-    .toString()
-    .toLowerCase()
-  const isLand = category === 'land'
-  const isHotel = category === 'hotel'
-  const isShortlet = category === 'shortlet'
-  const isPerNightType = isHotel || isShortlet
-  const isRentPurpose = (property?.purpose || '').toLowerCase().includes('rent')
-
-  // Apply-to-rent modal state
+  // Apply to rent modal
   const [applyOpen, setApplyOpen] = useState(false)
   const [applyMsg, setApplyMsg] = useState('')
-  const [applyStatus, setApplyStatus] = useState(null) // null | 'success' | 'error'
+  const [applyStatus, setApplyStatus] = useState(null)
   const [applying, setApplying] = useState(false)
 
+  // Misc UI
+  const [saved, setSaved] = useState(false)
+  const [showMoreDesc, setShowMoreDesc] = useState(false)
+  const [activeTab, setActiveTab] = useState('overview')
+
+  // ── Fetch ──────────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!id) { setLoading(false); setError('No id'); return }
+    setLoading(true)
+    axios.get(`${API}/api/properties/${id}`)
+      .then(res => {
+        const p = res.data?.property ?? res.data?.data ?? res.data
+        setProperty({
+          ...p,
+          roomTypes: p?.roomTypes || [],
+          media: p?.media || [],
+          images: p?.images || [],
+          paymentPlans: p?.paymentPlans || [],
+          features: p?.features || [],
+          tags: p?.tags || [],
+          units: p?.units || []
+        })
+      })
+      .catch(e => setError(e?.response?.data?.msg || e.message || 'Failed to load'))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  useEffect(() => {
+    if (!id || !property) return
+    axios.get(`${API}/api/properties/${id}/similar`)
+      .then(r => setSimilar(r.data?.properties || r.data?.data || []))
+      .catch(() => {})
+  }, [id, property])
+
+  // Initialize selections
+  useEffect(() => {
+    if (!property) return
+    if (property.roomTypes?.length && !selectedRoomTypeId)
+      setSelectedRoomTypeId(property.roomTypes[0].id || property.roomTypes[0].roomTypeId)
+  }, [property])
+
+  // Keyboard nav for lightbox
+  useEffect(() => {
+    const onKey = e => {
+      if (e.key === 'Escape') setLightboxOpen(false)
+      if (e.key === 'ArrowLeft' && lightboxOpen) setThumbIndex(i => Math.max(0, i - 1))
+      if (e.key === 'ArrowRight' && lightboxOpen) setThumbIndex(i => Math.min(gallery.length - 1, i + 1))
+    }
+    if (lightboxOpen) { document.body.style.overflow = 'hidden'; window.addEventListener('keydown', onKey) }
+    else { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey) }
+    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey) }
+  }, [lightboxOpen])
+
+  // ── Derived data ──────────────────────────────────────────────────────────
+
+  const gallery = useMemo(() => {
+    if (!property) return []
+    const fromMedia = (property.media || []).map(m =>
+      typeof m === 'string' ? { url: m, type: 'image' }
+        : { url: m.url || m, type: m.type || (String(m.url || '').endsWith('.mp4') ? 'video' : 'image') }
+    ).filter(m => m.url)
+    if (fromMedia.length) return fromMedia
+    const fromImages = (property.images || []).map(u => ({ url: u, type: 'image' }))
+    if (fromImages.length) return fromImages
+    if (property.video) return [{ url: property.video, type: 'video' }]
+    return []
+  }, [property])
+
+  const cat = ((property?.category || property?.propertyType || '')).toLowerCase()
+  const isLand = cat === 'land' || cat === 'plot'
+  const isHotel = cat === 'hotel'
+  const isShortlet = cat === 'shortlet'
+  const isPerNight = isHotel || isShortlet
+  const isRent = (property?.purpose || '').toLowerCase().includes('rent')
+  const currency = property?.currency || 'NGN'
+
+  const effectivePrice = useMemo(() => {
+    const raw = property?.price ?? property?.startingPrice ?? property?.rentPrice ?? null
+    if (raw == null) return null
+    const n = typeof raw === 'number' ? raw : Number(String(raw).replace(/[^0-9.-]/g, ''))
+    return isNaN(n) ? null : n
+  }, [property])
+
+  const selectedRoomType = useMemo(() => {
+    if (!property) return null
+    return property.roomTypes.find(r => String(r.id || r.roomTypeId) === String(selectedRoomTypeId)) || null
+  }, [property, selectedRoomTypeId])
+
+  const nights = useMemo(() => nightsBetween(bookingStart, bookingEnd), [bookingStart, bookingEnd])
+
+  const bookingTotal = useMemo(() => {
+    if (!isPerNight) return null
+    if (!nights) return { nights: 0, total: 0, perNight: 0 }
+    const perNight = Number(selectedRoomType?.pricePerNight || selectedRoomType?.price || selectedRoomType?.basePrice || effectivePrice || 0)
+    const qty = selectedRoomType ? Number(selectedRoomType.qty) || 1 : 1
+    return { nights, total: perNight * qty * nights, perNight, qty }
+  }, [isPerNight, nights, selectedRoomType, effectivePrice])
+
+  const selectedPlan = property?.paymentPlans?.[selectedPlanIdx] || null
+
+  const owner = property?.owner || {}
+
+  const featureList = useMemo(() => {
+    const f = property?.features
+    if (!f) return []
+    if (Array.isArray(f)) return f
+    if (typeof f === 'object') return Object.keys(f).filter(k => Boolean(f[k])).map(k => k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()))
+    return []
+  }, [property])
+
+  const complianceScore = property?.compliance?.score ?? 0
+  const complianceVerified = property?.compliance?.verified ?? false
+  const escrowStatus = property?.escrow?.status || 'none'
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({ title: property?.title, url: window.location.href }).catch(() => {})
+    } else {
+      navigator.clipboard?.writeText(window.location.href)
+    }
+  }
+
   const submitApplication = async () => {
-    setApplying(true)
-    setApplyStatus(null)
+    setApplying(true); setApplyStatus(null)
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/properties/property-applications`,
+      await axios.post(`${API}/api/properties/property-applications`,
         { propertyId: id, applicationType: 'rent', message: applyMsg },
         { withCredentials: true }
       )
       setApplyStatus('success')
-    } catch (e) {
-      setApplyStatus(e.response?.data?.message || 'Failed to submit application.')
-    } finally {
-      setApplying(false)
-    }
+    } catch (e) { setApplyStatus(e.response?.data?.message || 'Failed to submit') }
+    finally { setApplying(false) }
   }
 
-  // Price resolution (selected options override)
-  const effectivePrice = useMemo(() => {
-    const raw =
-      property?.selectedPlot?.price ??
-      property?.price ??
-      property?.startingPrice ??
-      property?.rentPrice ??
-      null
-    if (raw == null || raw === '') return null
-    const n =
-      typeof raw === 'number'
-        ? raw
-        : Number(String(raw).replace(/[^0-9.-]/g, ''))
-    return Number.isNaN(n) ? null : n
-  }, [property])
-
-  // nights util
-  const nightsBetween = useCallback((start, end) => {
-    if (!start || !end) return 0
-    const s = new Date(start)
-    const e = new Date(end)
-    s.setHours(12, 0, 0, 0)
-    e.setHours(12, 0, 0, 0)
-    const diff = Math.ceil((e - s) / (1000 * 60 * 60 * 24))
-    return diff > 0 ? diff : 0
-  }, [])
-
-  // selected room type
-  const selectedRoomType = useMemo(() => {
-    if (!property) return null
-    const rts = property.roomTypes || []
-    return rts.find(r => String(r.id) === String(selectedRoomTypeId)) || null
-  }, [property, selectedRoomTypeId])
-
-  // booking total for per-night types
-  const bookingTotal = useMemo(() => {
-    if (!isPerNightType) return null
-    const nights = nightsBetween(bookingStart, bookingEnd)
-    if (!nights) return { nights: 0, total: 0, perNight: 0 }
-    let perNight =
-      selectedRoomType?.price ?? effectivePrice ?? property?.rentPrice ?? 0
-    perNight = Number(perNight) || 0
-    const qty = selectedRoomType ? Number(selectedRoomType.qty) || 1 : 1
-    const total = perNight * qty * nights
-    return { nights, total, perNight, qty }
-  }, [
-    isPerNightType,
-    bookingStart,
-    bookingEnd,
-    selectedRoomType,
-    effectivePrice,
-    property,
-    nightsBetween
-  ])
-
-  // payment breakdown (rental/installment)
-  const paymentBreakdown = useMemo(() => {
-    if (isPerNightType && bookingTotal) {
-      return {
-        total: bookingTotal.total,
-        nights: bookingTotal.nights,
-        monthly: null,
-        months: 0
-      }
-    }
-    const total =
-      effectivePrice ?? Number(property?.price ?? property?.startingPrice ?? 0)
-    if (!total) return null
-    const plan = property?.selectedPlan ?? property?.paymentPlans?.[0] ?? null
-    let months = plan?.months || plan?.durationMonths || plan?.duration || 1
-    if (typeof months === 'string')
-      months = parseInt(months.replace(/[^0-9]/g, '')) || 1
-    months = Number(months) || 1
-    const monthly = Math.round(total / months)
-    return { total, months, monthly }
-  }, [isPerNightType, bookingTotal, effectivePrice, property])
-
-  const formatCurrency = useCallback(v => {
-    if (v == null || v === '') return '—'
-    const n =
-      typeof v === 'number' ? v : Number(String(v).replace(/[^0-9.-]/g, ''))
-    if (Number.isNaN(n)) return String(v)
-    return `₦${n.toLocaleString()}`
-  }, [])
-
-  // keyboard navigation for gallery
-  const onThumbKey = useCallback((e, idx) => {
-    if (e.key === 'Enter' || e.key === ' ') setThumbIndex(idx)
-  }, [])
-
-  // fetch
-  useEffect(() => {
-    if (!id) {
-      setLoading(false)
-      setError('No id provided')
-      return
-    }
-    setLoading(true)
-    setError(null)
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/properties/${id}`)
-      .then(res => {
-        const payload = res.data
-        const prop = payload?.property ?? payload?.data ?? payload
-        // sanitize and set defaults for safer rendering
-        setProperty({
-          ...prop,
-          roomTypes: prop?.roomTypes || [],
-          media: prop?.media || [],
-          images: prop?.images || [],
-          paymentPlans: prop?.paymentPlans || []
-        })
-        setLoading(false)
+  const startMonnify = async () => {
+    const amount = isPerNight ? bookingTotal?.total : (selectedPlan?.price || effectivePrice)
+    if (!amount) { alert('Amount cannot be zero'); return }
+    try {
+      const res = await axios.post(`${API}/api/payment/initialize-monnify-transaction`, {
+        amount, customerName: 'Guest', customerEmail: 'guest@example.com', paymentReference: 'REF-' + Date.now()
       })
-      .catch(err => {
-        setError(
-          err?.response?.data?.msg || err?.message || 'Failed to fetch property'
-        )
-        setLoading(false)
-      })
-  }, [id])
+      if (res.data?.requestSuccessful) window.location.href = res.data.responseBody.checkoutUrl
+      else alert('Failed to initialize payment')
+    } catch { alert('Payment error') }
+  }
 
-  // Fetch similar properties after the main property loads
-  useEffect(() => {
-    if (!id || !property) return
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/properties/${id}/similar`)
-      .then(res => setSimilarProperties(res.data?.properties || res.data?.data || []))
-      .catch(() => {})
-  }, [id, property])
+  const startStripe = async () => {
+    const amount = isPerNight ? bookingTotal?.total : (selectedPlan?.price || effectivePrice)
+    if (!amount) { alert('Amount cannot be zero'); return }
+    const token = localStorage.getItem('authToken')
+    if (!token) { alert('Please log in to continue'); return }
+    try {
+      const res = await axios.post(`${API}/api/payments/stripe-checkout`,
+        { propertyId: id, amount, propertyTitle: property?.title, propertyImage: gallery[0]?.url },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      if (res.data?.url) window.location.href = res.data.url
+      else alert('Failed to initialize Stripe checkout')
+    } catch { alert('Stripe error. Please try again.') }
+  }
 
-  // initialize thumbnail / selections
-  useEffect(() => {
-    if (!property) return
-    if (gallery.length && thumbIndex >= gallery.length) setThumbIndex(0)
-    // set defaults from payload if available
-    if (property.roomTypes?.length && !selectedRoomTypeId)
-      setSelectedRoomTypeId(property.roomTypes[0].id)
-    // eslint-disable-next-line
-  }, [property])
+  // ── States ────────────────────────────────────────────────────────────────
 
-  // accessibility: close lightbox on ESC + nav arrows; lock body when open
-  useEffect(() => {
-    const onKey = e => {
-      if (e.key === 'Escape') setLightboxOpen(false)
-      if (e.key === 'ArrowLeft' && lightboxOpen)
-        setThumbIndex(i => Math.max(0, i - 1))
-      if (e.key === 'ArrowRight' && lightboxOpen)
-        setThumbIndex(i => Math.min(gallery.length - 1, i + 1))
-    }
-    if (lightboxOpen) {
-      document.body.style.overflow = 'hidden'
-      window.addEventListener('keydown', onKey)
-    } else {
-      document.body.style.overflow = ''
-      window.removeEventListener('keydown', onKey)
-    }
-    return () => {
-      document.body.style.overflow = ''
-      window.removeEventListener('keydown', onKey)
-    }
-  }, [lightboxOpen, gallery.length])
-
-  if (loading) {
-    return (
-      <div
-        className='property-details modern loading-screen'
-        aria-live='polite'
-      >
-        <div className='skeleton-hero' />
-        <div className='skeleton-grid'>
-          <div className='s-card' />
-          <div className='s-card' />
-          <div className='s-card' />
-        </div>
+  if (loading) return (
+    <div className='pd-page pd-loading'>
+      <div className='pd-skeleton-hero' />
+      <div className='pd-skeleton-grid'>
+        {[1,2,3].map(i => <div key={i} className='pd-skeleton-card' />)}
       </div>
-    )
-  }
+    </div>
+  )
 
-  if (error) {
-    return (
-      <div className='property-details modern error-screen' role='alert'>
-        <div className='card centered'>
-          <h3>Unable to load</h3>
-          <p className='muted'>{error}</p>
-        </div>
+  if (error) return (
+    <div className='pd-page pd-error'>
+      <div className='pd-error-card'>
+        <AlertCircle size={32} />
+        <h3>Unable to load property</h3>
+        <p>{error}</p>
+        <button onClick={() => router.back()}>Go back</button>
       </div>
-    )
-  }
+    </div>
+  )
 
-  if (!property) {
-    return (
-      <div className='property-details modern empty-screen'>
-        <div className='card centered'>
-          <h3>No property found</h3>
-        </div>
-      </div>
-    )
-  }
+  if (!property) return null
 
-  const {
-    title,
-    description,
-    beds,
-    baths,
-    sqft,
-    area,
-    location,
-    latitude,
-    longitude,
-    owner = {},
-    roomTypes = [],
-    features = [],
-    tags = [],
-    address
-  } = property
+  const descText = property.description || ''
+  const DESC_LIMIT = 300
+  const shortDesc = descText.length > DESC_LIMIT && !showMoreDesc ? descText.slice(0, DESC_LIMIT) + '…' : descText
 
-  const featureList = Array.isArray(features)
-    ? features
-    : typeof features === 'object' && features !== null
-    ? Object.keys(features)
-        .filter(k => Boolean(features[k]))
-        .map(k =>
-          k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())
-        )
-    : []
+  const lightboxItem = gallery[thumbIndex] || { url: '/placeholder.jpg', type: 'image' }
 
-  const descText = description || ''
-
-  // Lightbox content
-  const lightboxItem = gallery[thumbIndex] || {
-    url: '/placeholder.jpg',
-    type: 'image'
-  }
+  const TABS = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'details', label: 'Details' },
+    ...(property.units?.length ? [{ id: 'units', label: `Units (${property.units.length})` }] : []),
+    ...(property.roomTypes?.length && isPerNight ? [{ id: 'rooms', label: `Room Types (${property.roomTypes.length})` }] : []),
+    ...(isLand && property.land ? [{ id: 'land', label: 'Land Info' }] : []),
+    ...(property.compliance ? [{ id: 'compliance', label: 'Compliance' }] : [])
+  ]
 
   return (
-    <div className='property-details modern'>
-      <header className='hero'>
-        <div
-          className='hero-media'
-          role='button'
-          tabIndex={0}
-          onClick={() => setLightboxOpen(true)}
-          onKeyDown={e => {
-            if (e.key === 'Enter') setLightboxOpen(true)
-          }}
-          aria-label='Open image gallery'
-        >
-          {gallery.length ? (
-            gallery[thumbIndex].type === 'video' ? (
-              <video
-                className='hero-image'
-                src={gallery[thumbIndex].url}
-                muted
-                playsInline
-                preload='metadata'
-              />
-            ) : (
-              <img
-                className='hero-image'
-                src={gallery[thumbIndex].url}
-                alt={title || 'Property image'}
-                loading='lazy'
-              />
-            )
+    <div className='pd-page'>
+
+      {/* ── Back & breadcrumb ─────────────────────────────────────────── */}
+      <div className='pd-topbar'>
+        <button className='pd-back' onClick={() => router.back()}>
+          <ArrowLeft size={16} /> Back
+        </button>
+        <nav className='pd-breadcrumb'>
+          <a href='/'>Home</a>
+          <span>/</span>
+          <a href='/properties'>Properties</a>
+          {property.city && <><span>/</span><span>{property.city}</span></>}
+          {property.category && <><span>/</span><span>{property.category}</span></>}
+        </nav>
+        <div className='pd-topbar-actions'>
+          <button className='pd-action-btn' onClick={handleShare}><Share2 size={16} /></button>
+          <button className={`pd-action-btn${saved ? ' pd-action-btn--saved' : ''}`} onClick={() => setSaved(s => !s)}>
+            <Heart size={16} fill={saved ? 'currentColor' : 'none'} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Hero Gallery ──────────────────────────────────────────────── */}
+      <section className='pd-hero'>
+        <div className='pd-gallery-grid' onClick={() => setLightboxOpen(true)}>
+          {gallery.length === 0 ? (
+            <div className='pd-gallery-placeholder'><Building2 size={48} /><span>No photos available</span></div>
+          ) : gallery.length === 1 ? (
+            <div className='pd-gallery-main'>
+              <img src={gallery[0].url} alt={property.title} />
+            </div>
           ) : (
-            <img className='hero-image' src='/placeholder.jpg' alt='Property' />
-          )}
-
-          <div className='hero-overlay'>
-            <div className='hero-left'>
-              <div className='breadcrumbs muted'>{location || address}</div>
-              <h1 className='hero-title'>{title}</h1>
-              <div className='meta'>
-                {!isLand && (
-                  <>
-                    <span className='meta-item'>
-                      <BedDouble /> {beds ?? '-'}
-                    </span>
-                    <span className='meta-item'>
-                      <Bath /> {baths ?? '-'}
-                    </span>
-                    <span className='meta-item'>
-                      <Ruler /> {sqft ?? area ?? '-'}
-                    </span>
-                  </>
-                )}
+            <>
+              <div className='pd-gallery-main'>
+                {gallery[0].type === 'video'
+                  ? <video src={gallery[0].url} muted playsInline preload='metadata' />
+                  : <img src={gallery[0].url} alt={property.title} />
+                }
               </div>
-            </div>
-
-            <div className='hero-right'>
-              <div className='price'>
-                {isPerNightType
-                  ? bookingTotal && bookingTotal.total
-                    ? `${formatCurrency(bookingTotal.perNight)} / night`
-                    : effectivePrice
-                    ? `${formatCurrency(effectivePrice)} / night`
-                    : formatCurrency(property.price)
-                  : formatCurrency(
-                      effectivePrice ?? property.price ?? property.startingPrice
+              <div className='pd-gallery-side'>
+                {gallery.slice(1, 5).map((m, i) => (
+                  <div key={i} className={`pd-gallery-side-item${i === 3 && gallery.length > 5 ? ' pd-gallery-more' : ''}`}>
+                    {m.type === 'video'
+                      ? <div className='pd-video-thumb'><Video size={20} /><span>Video</span></div>
+                      : <img src={m.url} alt={`Photo ${i + 2}`} loading='lazy' />
+                    }
+                    {i === 3 && gallery.length > 5 && (
+                      <div className='pd-gallery-more-overlay'>+{gallery.length - 5} photos</div>
                     )}
-              </div>
-              <div className='actions'>
-                <button
-                  className='btn primary'
-                  onClick={() =>
-                    document
-                      .getElementById('booking-section')
-                      ?.scrollIntoView({ behavior: 'smooth' })
-                  }
-                >
-                  Book/Buy
-                </button>
-                <button
-                  className='btn outline'
-                  onClick={() =>
-                    window.scrollTo({
-                      top: document.body.scrollHeight,
-                      behavior: 'smooth'
-                    })
-                  }
-                >
-                  Contact
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className='thumbs compact' aria-hidden={lightboxOpen}>
-          <div className='thumbs-inner'>
-            {gallery.map((m, i) => (
-              <button
-                key={i}
-                className={`thumb ${i === thumbIndex ? 'active' : ''}`}
-                onClick={() => setThumbIndex(i)}
-                onKeyDown={e => onThumbKey(e, i)}
-                aria-label={`View media ${i + 1}`}
-              >
-                {m.type === 'image' ? (
-                  <img src={m.url} alt={`thumb ${i + 1}`} loading='lazy' />
-                ) : (
-                  <Video size={16} />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      </header>
-
-      <main className='content'>
-        <section className='main-col'>
-          <div className='card overview'>
-            <div className='overview-header'>
-              <h3>Overview</h3>
-              <div className='muted small right-meta'>
-                <MapPin size={14} /> {location || address}
-              </div>
-            </div>
-            <p className='muted lead'>{descText}</p>
-
-            <div className='feature-row'>
-              {featureList.slice(0, 6).map(f => (
-                <span key={f} className='pill'>
-                  {f}
-                </span>
-              ))}
-            </div>
-
-            {tags?.length > 0 && (
-              <div className='tags'>
-                {tags.map(t => (
-                  <span key={t} className='tag'>
-                    {t}
-                  </span>
+                  </div>
                 ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Title block */}
+        <div className='pd-title-block'>
+          <div className='pd-title-left'>
+            <div className='pd-badges'>
+              {property.status === 'published' && <span className='pd-badge pd-badge--green'>Available</span>}
+              {property.status === 'draft' && <span className='pd-badge pd-badge--gray'>Draft</span>}
+              {property.listingTier && property.listingTier !== 'Standard' && (
+                <span className='pd-badge pd-badge--gold'>⭐ {property.listingTier}</span>
+              )}
+              {complianceVerified && <span className='pd-badge pd-badge--blue'><Shield size={11} /> Verified</span>}
+              {escrowStatus === 'active' && <span className='pd-badge pd-badge--purple'><Lock size={11} /> Escrow</span>}
+            </div>
+            <h1 className='pd-title'>{property.title}</h1>
+            <div className='pd-location'>
+              <MapPin size={14} />
+              {[property.address, property.city, property.state, property.country].filter(Boolean).join(', ') || property.location || '—'}
+            </div>
+            {!isLand && (
+              <div className='pd-meta-row'>
+                {(property.bedrooms ?? property.beds) != null && (
+                  <span className='pd-meta-item'><BedDouble size={14} /> {property.bedrooms ?? property.beds} bed{(property.bedrooms ?? property.beds) !== 1 ? 's' : ''}</span>
+                )}
+                {(property.bathrooms ?? property.baths) != null && (
+                  <span className='pd-meta-item'><Bath size={14} /> {property.bathrooms ?? property.baths} bath{(property.bathrooms ?? property.baths) !== 1 ? 's' : ''}</span>
+                )}
+                {(property.sqft ?? property.area) && (
+                  <span className='pd-meta-item'><Ruler size={14} /> {property.sqft ?? property.area} sqft</span>
+                )}
+                {property.category && (
+                  <span className='pd-meta-item'><Building2 size={14} /> {property.category}</span>
+                )}
               </div>
             )}
           </div>
-
-          <div id='gallery' className='card gallery'>
-            <h4>Gallery</h4>
-            <div className='gallery-grid'>
-              {gallery.map((m, i) => (
-                <button
-                  key={i}
-                  className='gallery-item'
-                  onClick={() => {
-                    setThumbIndex(i)
-                    setLightboxOpen(true)
-                  }}
-                  aria-label={`Open media ${i + 1}`}
-                >
-                  {m.type === 'image' ? (
-                    <img src={m.url} alt={`gallery ${i + 1}`} loading='lazy' />
-                  ) : (
-                    <div className='video-thumb'>
-                      <Video />
-                      <span>Video</span>
-                    </div>
-                  )}
-                </button>
-              ))}
+          <div className='pd-title-right'>
+            <div className='pd-price-main'>
+              {isPerNight
+                ? fmt(effectivePrice, currency) + ' / night'
+                : fmt(effectivePrice ?? property.price ?? property.rentPrice, currency)}
             </div>
+            {property.rentFrequency && !isPerNight && (
+              <div className='pd-price-freq'>per {property.rentFrequency}</div>
+            )}
+            {property.purpose && (
+              <div className='pd-purpose-badge'>{property.purpose}</div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Body ─────────────────────────────────────────────────────── */}
+      <div className='pd-body'>
+
+        {/* ── Main column ──────────────────────────────────────────── */}
+        <main className='pd-main'>
+
+          {/* Tabs */}
+          <div className='pd-tabs'>
+            {TABS.map(t => (
+              <button
+                key={t.id}
+                className={`pd-tab${activeTab === t.id ? ' pd-tab--active' : ''}`}
+                onClick={() => setActiveTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
 
-          <div className='card details'>
-            <h4>Property details</h4>
-            <div className='detail-grid'>
-              {!isLand && (
-                <>
-                  <div className='detail'>
-                    <strong>Bedrooms</strong>
-                    <span>{beds ?? '-'}</span>
-                  </div>
-                  <div className='detail'>
-                    <strong>Bathrooms</strong>
-                    <span>{baths ?? '-'}</span>
-                  </div>
-                  <div className='detail'>
-                    <strong>Size</strong>
-                    <span>{sqft ?? area ?? '-'}</span>
-                  </div>
-                </>
+          {/* ── OVERVIEW ──────────────────────────────────────────── */}
+          {activeTab === 'overview' && (
+            <div className='pd-section'>
+              {descText && (
+                <div className='pd-card'>
+                  <h3>About this property</h3>
+                  <p className='pd-desc'>{shortDesc}</p>
+                  {descText.length > DESC_LIMIT && (
+                    <button className='pd-show-more' onClick={() => setShowMoreDesc(s => !s)}>
+                      {showMoreDesc ? <><ChevronUp size={14} /> Show less</> : <><ChevronDown size={14} /> Show more</>}
+                    </button>
+                  )}
+                </div>
               )}
-              <div className='detail'>
-                <strong>Location</strong>
-                <span>{location || address || '-'}</span>
-              </div>
-              <div className='detail'>
-                <strong>Agent</strong>
-                <span>{owner?.name || '—'}</span>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        <aside className='side-col' aria-labelledby='booking-heading'>
-          <div className='card sticky booking-card' id='booking-section'>
-            <div className='price-row'>
-              <div className='price-main'>
-                {formatCurrency(
-                  paymentBreakdown ? paymentBreakdown.total : effectivePrice
-                )}
-              </div>
-              <div className='price-sub muted'>
-                {paymentBreakdown?.monthly
-                  ? `${formatCurrency(paymentBreakdown.monthly)}/mo`
-                  : isPerNightType
-                  ? `${formatCurrency(
-                      bookingTotal?.perNight || effectivePrice
-                    )}/night`
-                  : 'Outright'}
-              </div>
-            </div>
-
-            <div className='booking-form'>
-              {isPerNightType ? (
-                <>
-                  <h4 id='booking-heading'>Booking</h4>
-                  <label>Check-in</label>
-                  <input
-                    type='date'
-                    value={bookingStart}
-                    onChange={e => setBookingStart(e.target.value)}
-                  />
-                  <label>Check-out</label>
-                  <input
-                    type='date'
-                    value={bookingEnd}
-                    onChange={e => setBookingEnd(e.target.value)}
-                  />
-                  <label>Guests</label>
-                  <input
-                    type='number'
-                    min='1'
-                    value={guests}
-                    onChange={e => setGuests(Number(e.target.value) || 1)}
-                  />
-
-                  {roomTypes.length > 0 && (
-                    <>
-                      <label>Room type</label>
-                      <select
-                        value={selectedRoomTypeId || ''}
-                        onChange={e =>
-                          setSelectedRoomTypeId(e.target.value || null)
-                        }
-                      >
-                        <option value=''>Best available</option>
-                        {roomTypes.map(rt => (
-                          <option
-                            key={rt.id || rt.type}
-                            value={rt.id || rt.type}
-                          >
-                            {rt.type} — {formatCurrency(rt.price)}
-                          </option>
-                        ))}
-                      </select>
-                    </>
-                  )}
-
-                  <div className='summary-lines'>
-                    <div>
-                      <small>Nights</small>
-                      <strong>{bookingTotal?.nights ?? 0}</strong>
-                    </div>
-                    <div>
-                      <small>Per night</small>
-                      <strong>
-                        {formatCurrency(
-                          bookingTotal?.perNight ?? effectivePrice
-                        )}
-                      </strong>
-                    </div>
-                    <div className='total'>
-                      <small>Total</small>
-                      <strong>
-                        {formatCurrency(bookingTotal?.total ?? 0)}
-                      </strong>
-                    </div>
+              {/* Features & amenities */}
+              {featureList.length > 0 && (
+                <div className='pd-card'>
+                  <h3>Features & Amenities</h3>
+                  <div className='pd-features-grid'>
+                    {featureList.map(f => (
+                      <div key={f} className='pd-feature'>
+                        <FeatureIcon name={f} />
+                        <span>{f}</span>
+                      </div>
+                    ))}
                   </div>
-                </>
-              ) : (
-                <>
-                  <h4 id='booking-heading'>Purchase options</h4>
-                  <div className='plan-list'>
-                    {(property.paymentPlans || []).map((p, i) => (
-                      <button
-                        key={i}
-                        className={`plan ${
-                          property.selectedPlan === p ? 'active' : ''
-                        }`}
-                        onClick={() =>
-                          setProperty(prev => ({ ...prev, selectedPlan: p }))
+                </div>
+              )}
+
+              {/* Tags */}
+              {property.tags?.length > 0 && (
+                <div className='pd-card'>
+                  <h3>Tags</h3>
+                  <div className='pd-tags'>
+                    {property.tags.map(t => <span key={t} className='pd-tag'><Tag size={11} /> {t}</span>)}
+                  </div>
+                </div>
+              )}
+
+              {/* Gallery grid */}
+              {gallery.length > 1 && (
+                <div className='pd-card'>
+                  <h3>All Photos ({gallery.length})</h3>
+                  <div className='pd-gallery-full'>
+                    {(showAllPhotos ? gallery : gallery.slice(0, 9)).map((m, i) => (
+                      <button key={i} className='pd-gallery-thumb' onClick={() => { setThumbIndex(i); setLightboxOpen(true) }}>
+                        {m.type === 'video'
+                          ? <div className='pd-video-chip'><Video size={16} /><span>Video</span></div>
+                          : <img src={m.url} alt={`Photo ${i + 1}`} loading='lazy' />
                         }
-                      >
-                        <div className='plan-left'>
-                          <div className='plan-title'>
-                            {p.title || p.name || p.duration || `Plan ${i + 1}`}
-                          </div>
-                          <div className='muted small'>{p.description}</div>
-                        </div>
-                        <div className='plan-price'>
-                          {p.price ? formatCurrency(p.price) : ''}
-                        </div>
                       </button>
                     ))}
                   </div>
+                  {gallery.length > 9 && (
+                    <button className='pd-show-more' onClick={() => setShowAllPhotos(s => !s)}>
+                      {showAllPhotos ? 'Show less' : `Show all ${gallery.length} photos`}
+                    </button>
+                  )}
+                </div>
+              )}
 
-                  <div className='summary-lines'>
-                    <div>
-                      <small>Total</small>
-                      <strong>
-                        {formatCurrency(
-                          paymentBreakdown?.total ?? effectivePrice
-                        )}
-                      </strong>
-                    </div>
-                    <div>
-                      <small>Monthly</small>
-                      <strong>
-                        {paymentBreakdown?.monthly
-                          ? formatCurrency(paymentBreakdown.monthly)
-                          : '-'}
-                      </strong>
-                    </div>
+              {/* AI Valuation */}
+              {property.aiValuation?.estimatedValue && (
+                <div className='pd-card pd-card--ai'>
+                  <div className='pd-ai-header'>
+                    <Zap size={16} />
+                    <h3>AI Price Estimate</h3>
+                    <span className={`pd-ai-confidence pd-ai-confidence--${property.aiValuation.confidence}`}>
+                      {property.aiValuation.confidence} confidence
+                    </span>
                   </div>
-                </>
+                  <div className='pd-ai-grid'>
+                    <div className='pd-ai-stat'>
+                      <span>Estimated Value</span>
+                      <strong>{fmt(property.aiValuation.estimatedValue, property.aiValuation.currency || currency)}</strong>
+                    </div>
+                    {property.aiValuation.suggestedListPrice && (
+                      <div className='pd-ai-stat'>
+                        <span>Suggested List</span>
+                        <strong>{fmt(property.aiValuation.suggestedListPrice, currency)}</strong>
+                      </div>
+                    )}
+                    {property.aiValuation.pricePerSqft && (
+                      <div className='pd-ai-stat'>
+                        <span>Price / sqft</span>
+                        <strong>{fmt(property.aiValuation.pricePerSqft, currency)}</strong>
+                      </div>
+                    )}
+                    {property.aiValuation.marketTrend && (
+                      <div className='pd-ai-stat'>
+                        <span>Market Trend</span>
+                        <strong className={`pd-trend pd-trend--${property.aiValuation.marketTrend}`}>
+                          <TrendingUp size={13} /> {property.aiValuation.marketTrend}
+                        </strong>
+                      </div>
+                    )}
+                  </div>
+                  {property.aiValuation.comparables && (
+                    <p className='pd-ai-note'>{property.aiValuation.comparables} comparable properties analysed</p>
+                  )}
+                </div>
+              )}
+
+              {/* Map */}
+              {(property.latitude || property.lat || (property.geo?.coordinates?.length === 2)) && (
+                <div className='pd-card'>
+                  <h3>Location Map</h3>
+                  <div className='pd-map-wrap'>
+                    <iframe
+                      title='map'
+                      src={`https://maps.google.com/maps?q=${property.latitude || property.lat || property.geo?.coordinates?.[1]},${property.longitude || property.lng || property.lon || property.geo?.coordinates?.[0]}&z=14&output=embed`}
+                      loading='lazy'
+                    />
+                  </div>
+                </div>
               )}
             </div>
+          )}
 
-            <div className='cta-row'>
-              {isRentPurpose && !isPerNightType ? (
-                <button
-                  className='btn primary full'
-                  onClick={() => setApplyOpen(true)}
-                >
+          {/* ── DETAILS ──────────────────────────────────────────────── */}
+          {activeTab === 'details' && (
+            <div className='pd-section'>
+              <div className='pd-card'>
+                <h3>Property Details</h3>
+                <div className='pd-details-grid'>
+                  <div className='pd-detail'><span>Category</span><strong>{property.category || '—'}</strong></div>
+                  <div className='pd-detail'><span>Purpose</span><strong>{property.purpose || '—'}</strong></div>
+                  {property.transactionType && <div className='pd-detail'><span>Transaction</span><strong>{property.transactionType.replace(/_/g, ' ')}</strong></div>}
+                  {!isLand && <>
+                    <div className='pd-detail'><span>Bedrooms</span><strong>{property.bedrooms ?? property.beds ?? '—'}</strong></div>
+                    <div className='pd-detail'><span>Bathrooms</span><strong>{property.bathrooms ?? property.baths ?? '—'}</strong></div>
+                    <div className='pd-detail'><span>Floor area</span><strong>{property.sqft ? `${property.sqft} sqft` : property.area || '—'}</strong></div>
+                  </>}
+                  <div className='pd-detail'><span>Location</span><strong>{[property.city, property.state, property.country].filter(Boolean).join(', ') || property.location || '—'}</strong></div>
+                  <div className='pd-detail'><span>Currency</span><strong>{currency}</strong></div>
+                  {property.premiere && <div className='pd-detail'><span>Premiere</span><strong>✓</strong></div>}
+                  {property.createdAt && <div className='pd-detail'><span>Listed</span><strong>{new Date(property.createdAt).toLocaleDateString()}</strong></div>}
+                  {property.publishedAt && <div className='pd-detail'><span>Published</span><strong>{new Date(property.publishedAt).toLocaleDateString()}</strong></div>}
+                  {property.viewCount > 0 && <div className='pd-detail'><span>Views</span><strong><Eye size={12} /> {property.viewCount.toLocaleString()}</strong></div>}
+                  {property.projectLabel && <div className='pd-detail'><span>Project</span><strong>{property.projectLabel}</strong></div>}
+                  {property.seoTitle && <div className='pd-detail'><span>SEO Title</span><strong>{property.seoTitle}</strong></div>}
+                </div>
+              </div>
+
+              {/* Commercial details */}
+              {cat === 'commercial' && property.commercial && (
+                <div className='pd-card'>
+                  <h3>Commercial Info</h3>
+                  <div className='pd-details-grid'>
+                    {property.commercial.businessType && <div className='pd-detail'><span>Business Type</span><strong>{property.commercial.businessType}</strong></div>}
+                    {property.commercial.parkingSpaces != null && <div className='pd-detail'><span>Parking Spaces</span><strong>{property.commercial.parkingSpaces}</strong></div>}
+                    {property.commercial.floorArea?.value && <div className='pd-detail'><span>Floor Area</span><strong>{property.commercial.floorArea.value} {property.commercial.floorArea.unit || 'sqm'}</strong></div>}
+                  </div>
+                </div>
+              )}
+
+              {/* Payment plans */}
+              {property.paymentPlans?.length > 0 && (
+                <div className='pd-card'>
+                  <h3>Payment Plans</h3>
+                  <div className='pd-plans'>
+                    {property.paymentPlans.map((p, i) => (
+                      <div key={i} className={`pd-plan${selectedPlanIdx === i ? ' pd-plan--active' : ''}`} onClick={() => setSelectedPlanIdx(i)}>
+                        <div className='pd-plan__title'>{p.name || p.title || p.id || `Plan ${i + 1}`}</div>
+                        {p.description && <div className='pd-plan__desc'>{p.description}</div>}
+                        {p.priceSnapshot?.total && <div className='pd-plan__price'>{fmt(p.priceSnapshot.total, currency)}</div>}
+                        {p.installments?.length > 0 && (
+                          <div className='pd-plan__installments'>
+                            {p.installments.map((inst, j) => (
+                              <span key={j} className='pd-plan__inst'>
+                                {inst.percent}% in {inst.dueInDays === 0 ? 'Day 0' : `${inst.dueInDays}d`}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Investment details */}
+              {property.investmentDetails && (
+                <div className='pd-card pd-card--invest'>
+                  <h3><TrendingUp size={16} /> Investment Details</h3>
+                  <div className='pd-details-grid'>
+                    {property.investmentDetails.totalShares && <div className='pd-detail'><span>Total Shares</span><strong>{property.investmentDetails.totalShares.toLocaleString()}</strong></div>}
+                    {property.investmentDetails.pricePerShare && <div className='pd-detail'><span>Price / Share</span><strong>{fmt(property.investmentDetails.pricePerShare, currency)}</strong></div>}
+                    {property.investmentDetails.availableShares != null && <div className='pd-detail'><span>Available</span><strong>{property.investmentDetails.availableShares.toLocaleString()}</strong></div>}
+                    {property.investmentDetails.expectedROI && <div className='pd-detail'><span>Expected ROI</span><strong>{property.investmentDetails.expectedROI}%</strong></div>}
+                    {property.investmentDetails.distributionFrequency && <div className='pd-detail'><span>Distribution</span><strong>{property.investmentDetails.distributionFrequency}</strong></div>}
+                    {property.investmentDetails.holdingPeriodDays && <div className='pd-detail'><span>Holding Period</span><strong>{Math.round(property.investmentDetails.holdingPeriodDays / 30)} months</strong></div>}
+                    {property.investmentDetails.offeringClosesAt && <div className='pd-detail'><span>Offer Closes</span><strong>{new Date(property.investmentDetails.offeringClosesAt).toLocaleDateString()}</strong></div>}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── UNITS ──────────────────────────────────────────────── */}
+          {activeTab === 'units' && (
+            <div className='pd-section'>
+              <div className='pd-card'>
+                <h3>Units ({property.units?.length})</h3>
+                <div className='pd-units-grid'>
+                  {(property.units || []).map((u, i) => (
+                    <div key={i} className={`pd-unit-card${u.available === false ? ' pd-unit-card--unavailable' : ''}`}>
+                      <div className='pd-unit-card__header'>
+                        <span className='pd-unit-card__id'>{u.unitId || `Unit ${i + 1}`}</span>
+                        <span className={`pd-unit-card__status${u.available !== false ? ' available' : ''}`}>
+                          {u.available !== false ? 'Available' : 'Occupied'}
+                        </span>
+                      </div>
+                      {u.title && <h4 className='pd-unit-card__title'>{u.title}</h4>}
+                      <div className='pd-unit-card__meta'>
+                        {u.bedrooms != null && <span><BedDouble size={12} /> {u.bedrooms}bed</span>}
+                        {u.bathrooms != null && <span><Bath size={12} /> {u.bathrooms}bath</span>}
+                        {u.sqft && <span><Ruler size={12} /> {u.sqft}sqft</span>}
+                        {u.floor && <span><Layers size={12} /> {u.floor}</span>}
+                      </div>
+                      <div className='pd-unit-card__price'>
+                        {u.price ? fmt(u.price, currency) : ''}
+                        {u.rentPrice ? ` / ${u.rentFrequency || 'mo'}: ${fmt(u.rentPrice, currency)}` : ''}
+                      </div>
+                      {u.availableFrom && (
+                        <div className='pd-unit-card__avail'>
+                          <Calendar size={11} /> From {new Date(u.availableFrom).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── ROOM TYPES ─────────────────────────────────────────── */}
+          {activeTab === 'rooms' && (
+            <div className='pd-section'>
+              <div className='pd-card'>
+                <h3>Room Types</h3>
+                <div className='pd-rooms-list'>
+                  {property.roomTypes.map((rt, i) => (
+                    <div key={i} className='pd-room-card'>
+                      {rt.images?.[0] && <img className='pd-room-card__img' src={rt.images[0]} alt={rt.name} loading='lazy' />}
+                      <div className='pd-room-card__body'>
+                        <div className='pd-room-card__name'>{rt.name}</div>
+                        {rt.description && <p className='pd-room-card__desc'>{rt.description}</p>}
+                        <div className='pd-room-card__meta'>
+                          {rt.sqft && <span><Ruler size={12} /> {rt.sqft} sqft</span>}
+                          <span><Users size={12} /> Up to {(rt.occupancy?.adults || 2)} guests</span>
+                          {rt.qty && <span>{rt.qty} available</span>}
+                        </div>
+                        <div className='pd-room-card__price'>
+                          {rt.pricePerNight ? fmt(rt.pricePerNight, currency) + ' / night' : rt.basePrice ? fmt(rt.basePrice, currency) : ''}
+                        </div>
+                        {rt.features?.length > 0 && (
+                          <div className='pd-room-card__features'>
+                            {rt.features.map(f => <span key={f}>{f}</span>)}
+                          </div>
+                        )}
+                        {!rt.refundable && <span className='pd-room-card__nonref'>Non-refundable</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── LAND INFO ──────────────────────────────────────────── */}
+          {activeTab === 'land' && property.land && (
+            <div className='pd-section'>
+              <div className='pd-card'>
+                <h3><Landmark size={16} /> Land Details</h3>
+                <div className='pd-details-grid'>
+                  {property.land.size?.value && <div className='pd-detail'><span>Size</span><strong>{property.land.size.value} {property.land.size.unit || 'sqm'}</strong></div>}
+                  {property.land.pricePerUnit && <div className='pd-detail'><span>Price / Unit</span><strong>{fmt(property.land.pricePerUnit, currency)}</strong></div>}
+                  {property.land.totalPrice && <div className='pd-detail'><span>Total Price</span><strong>{fmt(property.land.totalPrice, currency)}</strong></div>}
+                  {property.land.zoning && <div className='pd-detail'><span>Zoning</span><strong>{property.land.zoning}</strong></div>}
+                  {property.land.isSubdividable && <div className='pd-detail'><span>Subdividable</span><strong>Yes</strong></div>}
+                </div>
+                {property.land.permittedUse?.length > 0 && (
+                  <div className='pd-tags' style={{ marginTop: 12 }}>
+                    {property.land.permittedUse.map(u => <span key={u} className='pd-tag'>{u}</span>)}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── COMPLIANCE ─────────────────────────────────────────── */}
+          {activeTab === 'compliance' && (
+            <div className='pd-section'>
+              <div className='pd-card'>
+                <h3><Shield size={16} /> Compliance & Verification</h3>
+                <div className='pd-compliance-score'>
+                  <div className='pd-score-ring'>
+                    <svg viewBox='0 0 36 36'>
+                      <circle cx='18' cy='18' r='15.9' fill='none' stroke='#e5e7eb' strokeWidth='3' />
+                      <circle
+                        cx='18' cy='18' r='15.9' fill='none'
+                        stroke={complianceScore >= 80 ? '#22c55e' : complianceScore >= 50 ? '#f59e0b' : '#ef4444'}
+                        strokeWidth='3'
+                        strokeDasharray={`${complianceScore} ${100 - complianceScore}`}
+                        strokeDashoffset='25'
+                        strokeLinecap='round'
+                      />
+                    </svg>
+                    <span>{complianceScore}</span>
+                  </div>
+                  <div className='pd-score-info'>
+                    <div className='pd-score-label'>{complianceVerified ? 'Verified ✓' : 'Pending review'}</div>
+                    {property.compliance?.lastChecked && (
+                      <div className='pd-score-date'>Last checked: {new Date(property.compliance.lastChecked).toLocaleDateString()}</div>
+                    )}
+                  </div>
+                </div>
+
+                {property.compliance?.flags?.length > 0 && (
+                  <div className='pd-compliance-flags'>
+                    <h4>Compliance Flags</h4>
+                    {property.compliance.flags.map(f => (
+                      <div key={f} className='pd-flag'><AlertCircle size={13} /> {f.replace(/_/g, ' ')}</div>
+                    ))}
+                  </div>
+                )}
+
+                {property.compliance?.documents?.length > 0 && (
+                  <div style={{ marginTop: 16 }}>
+                    <h4>Documents</h4>
+                    <div className='pd-docs-list'>
+                      {property.compliance.documents.map((doc, i) => (
+                        <div key={i} className='pd-doc'>
+                          <FileText size={14} />
+                          <span>{doc.label || doc.type}</span>
+                          {doc.verified && <CheckCircle2 size={13} className='pd-doc__verified' />}
+                          {doc.url && <a href={doc.url} target='_blank' rel='noreferrer'><ExternalLink size={12} /></a>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Escrow */}
+              {property.escrow && (
+                <div className='pd-card'>
+                  <h3><Lock size={16} /> Escrow Status</h3>
+                  <div className={`pd-escrow-badge pd-escrow--${escrowStatus}`}>
+                    {escrowStatus === 'active' ? <CheckCircle2 size={15} /> : <Clock size={15} />}
+                    {escrowStatus.replace(/_/g, ' ')}
+                  </div>
+                  {property.escrow.provider && <p className='pd-escrow-provider'>Provider: {property.escrow.provider}</p>}
+                  {property.escrow.amount && <p>Amount: {fmt(property.escrow.amount, property.escrow.currency || currency)}</p>}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Similar properties */}
+          {similar.length > 0 && (
+            <section className='pd-similar'>
+              <h2>Similar Properties</h2>
+              <div className='pd-similar-grid'>
+                {similar.slice(0, 4).map(p => (
+                  <a key={p._id} href={`/property/${p._id}`} className='pd-similar-card'>
+                    <div className='pd-similar-img'>
+                      <img src={p.images?.[0] || p.media?.[0]?.url || '/placeholder.jpg'} alt={p.title} loading='lazy' />
+                    </div>
+                    <div className='pd-similar-info'>
+                      <div className='pd-similar-name'>{p.title}</div>
+                      <div className='pd-similar-loc'><MapPin size={11} /> {typeof p.location === 'string' ? p.location : p.city || '—'}</div>
+                      <div className='pd-similar-price'>{fmt(p.price || p.rentPrice, p.currency || 'NGN')}</div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+        </main>
+
+        {/* ── Sidebar ──────────────────────────────────────────────── */}
+        <aside className='pd-sidebar'>
+          <div className='pd-booking-card' id='booking-section'>
+            <div className='pd-booking-price'>
+              <div className='pd-booking-price__main'>
+                {isPerNight
+                  ? bookingTotal?.total ? fmt(bookingTotal.total, currency) : fmt(effectivePrice, currency)
+                  : fmt(selectedPlan?.priceSnapshot?.total || effectivePrice, currency)}
+              </div>
+              <div className='pd-booking-price__sub'>
+                {isPerNight ? `${fmt(bookingTotal?.perNight || effectivePrice, currency)}/night` : selectedPlan?.name || 'Outright'}
+              </div>
+            </div>
+
+            {isPerNight ? (
+              <div className='pd-booking-dates'>
+                <div className='pd-booking-dates__row'>
+                  <div className='pd-booking-dates__field'>
+                    <label>Check-in</label>
+                    <input type='date' value={bookingStart} onChange={e => setBookingStart(e.target.value)} />
+                  </div>
+                  <div className='pd-booking-dates__field'>
+                    <label>Check-out</label>
+                    <input type='date' value={bookingEnd} onChange={e => setBookingEnd(e.target.value)} />
+                  </div>
+                </div>
+                <div className='pd-booking-field'>
+                  <label>Guests</label>
+                  <input type='number' min='1' value={guests} onChange={e => setGuests(Number(e.target.value) || 1)} />
+                </div>
+                {property.roomTypes?.length > 0 && (
+                  <div className='pd-booking-field'>
+                    <label>Room type</label>
+                    <select value={selectedRoomTypeId || ''} onChange={e => setSelectedRoomTypeId(e.target.value || null)}>
+                      <option value=''>Best available</option>
+                      {property.roomTypes.map(rt => (
+                        <option key={rt.id || rt.roomTypeId} value={rt.id || rt.roomTypeId}>
+                          {rt.name} — {fmt(rt.pricePerNight || rt.basePrice, currency)}/night
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {nights > 0 && (
+                  <div className='pd-booking-summary'>
+                    <div><span>Nights</span><strong>{nights}</strong></div>
+                    <div><span>Per night</span><strong>{fmt(bookingTotal?.perNight || effectivePrice, currency)}</strong></div>
+                    <div className='pd-booking-summary__total'><span>Total</span><strong>{fmt(bookingTotal?.total || 0, currency)}</strong></div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              property.paymentPlans?.length > 0 && (
+                <div className='pd-booking-plans'>
+                  <label>Payment plan</label>
+                  {property.paymentPlans.map((p, i) => (
+                    <button key={i} className={`pd-plan-btn${selectedPlanIdx === i ? ' active' : ''}`} onClick={() => setSelectedPlanIdx(i)}>
+                      <span>{p.name || p.title || `Plan ${i + 1}`}</span>
+                      {p.priceSnapshot?.total && <span>{fmt(p.priceSnapshot.total, currency)}</span>}
+                    </button>
+                  ))}
+                </div>
+              )
+            )}
+
+            <div className='pd-booking-actions'>
+              {isRent && !isPerNight ? (
+                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setApplyOpen(true)}>
                   Apply to Rent
                 </button>
               ) : (
                 <>
-                  <button
-                    className='btn primary full'
-                    onClick={() => startMonnifyPayment()}
-                  >
+                  <button className='pd-cta-btn pd-cta-btn--primary' onClick={startMonnify}>
                     Pay with Bank Transfer
                   </button>
-                  <button
-                    className='btn outline full'
-                    onClick={() => startStripeCheckout()}
-                    style={{ borderColor: '#635bff', color: '#635bff' }}
-                  >
+                  <button className='pd-cta-btn pd-cta-btn--stripe' onClick={startStripe}>
                     Pay with Card (Stripe)
                   </button>
                 </>
               )}
-              <button
-                className='btn outline full'
-                onClick={() =>
-                  (window.location.href = `mailto:${owner?.email || ''}`)
-                }
-              >
-                Contact Agent
+              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => window.location.href = `mailto:${owner.email || ''}`}>
+                <Mail size={14} /> Contact Agent
               </button>
             </div>
 
-            {/* Apply to Rent modal */}
-            {applyOpen && (
-              <div style={{
-                position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-                zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16
-              }}>
-                <div style={{
-                  background: '#fff', borderRadius: 16, padding: 28,
-                  maxWidth: 460, width: '100%', boxShadow: '0 8px 40px rgba(0,0,0,0.15)'
-                }}>
-                  {applyStatus === 'success' ? (
-                    <>
-                      <h3 style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 700 }}>Application Submitted!</h3>
-                      <p style={{ color: '#6b7280', marginBottom: 20 }}>
-                        The property owner will review your application and get back to you.
-                      </p>
-                      <button className='btn primary full' onClick={() => { setApplyOpen(false); setApplyStatus(null) }}>
-                        Close
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 700 }}>Apply to Rent</h3>
-                      <p style={{ color: '#6b7280', fontSize: 13, marginBottom: 16 }}>{property?.title}</p>
-
-                      {applyStatus && typeof applyStatus === 'string' && (
-                        <p style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>{applyStatus}</p>
-                      )}
-
-                      <label style={{ display: 'block', fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
-                        Message to landlord (optional)
-                      </label>
-                      <textarea
-                        rows={4}
-                        value={applyMsg}
-                        onChange={e => setApplyMsg(e.target.value)}
-                        placeholder='Introduce yourself, mention your move-in date, etc.'
-                        style={{
-                          width: '100%', padding: '10px 12px', borderRadius: 8,
-                          border: '1px solid #d1d5db', fontSize: 14, fontFamily: 'inherit',
-                          resize: 'vertical', boxSizing: 'border-box', marginBottom: 16
-                        }}
-                      />
-                      <div style={{ display: 'flex', gap: 10 }}>
-                        <button className='btn primary full' onClick={submitApplication} disabled={applying}>
-                          {applying ? 'Submitting…' : 'Submit Application'}
-                        </button>
-                        <button className='btn outline full' onClick={() => setApplyOpen(false)}>
-                          Cancel
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className='agent-compact'>
-              <img
-                src={owner?.avatar || owner?.photo || '/avatar-placeholder.png'}
-                alt={owner?.name || 'Agent'}
-                loading='lazy'
-              />
-              <div>
-                <div className='agent-name'>{owner?.name || 'Agent'}</div>
-                <div className='muted small'>{owner?.position}</div>
-                <div className='contacts'>
-                  {owner?.contact && (
-                    <a href={`tel:${owner.contact}`} aria-label='Call agent'>
-                      <Phone />
-                    </a>
-                  )}
-                  {owner?.email && (
-                    <a href={`mailto:${owner.email}`} aria-label='Email agent'>
-                      <Mail />
-                    </a>
-                  )}
+            {/* Agent */}
+            <div className='pd-agent'>
+              <img src={owner.avatar || owner.photo || '/avatar-placeholder.png'} alt={owner.name || 'Agent'} loading='lazy' />
+              <div className='pd-agent__info'>
+                <div className='pd-agent__name'>{owner.name || 'Agent'}</div>
+                {owner.position && <div className='pd-agent__role'>{owner.position}</div>}
+                <div className='pd-agent__contacts'>
+                  {owner.contact && <a href={`tel:${owner.contact}`} aria-label='Call'><Phone size={13} /></a>}
+                  {owner.email && <a href={`mailto:${owner.email}`} aria-label='Email'><Mail size={13} /></a>}
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className='card small-info'>
-            <h5>Map</h5>
-            <div className='muted small'>{location || address || '-'}</div>
-            <iframe
-              title='map'
-              src={`https://maps.google.com/maps?q=${
-                latitude || property.lat || ''
-              },${
-                longitude || property.lng || property.lon || ''
-              }&z=13&output=embed`}
-              loading='lazy'
-            />
+            {/* Compliance mini-badge */}
+            {(complianceVerified || escrowStatus === 'active') && (
+              <div className='pd-trust-badges'>
+                {complianceVerified && <span className='pd-trust-badge'><Shield size={12} /> KYC Verified</span>}
+                {escrowStatus === 'active' && <span className='pd-trust-badge'><Lock size={12} /> Escrow Active</span>}
+              </div>
+            )}
           </div>
         </aside>
-      </main>
-
-      {/* Similar Properties */}
-      {similarProperties.length > 0 && (
-        <section className='similar-section'>
-          <h2 className='similar-heading'>Similar Properties</h2>
-          <div className='similar-grid'>
-            {similarProperties.slice(0, 6).map(p => (
-              <a key={p._id} href={`/property/${p._id}`} className='similar-card'>
-                <div className='similar-thumb'>
-                  <img
-                    src={p.images?.[0] || p.media?.[0]?.url || '/placeholder.jpg'}
-                    alt={p.title || 'Property'}
-                    loading='lazy'
-                  />
-                </div>
-                <div className='similar-info'>
-                  <div className='similar-name'>{p.title}</div>
-                  <div className='similar-loc'>
-                    <MapPin size={12} />
-                    {typeof p.location === 'string' ? p.location : p.location?.city || p.location?.address || p.city || '—'}
-                  </div>
-                  <div className='similar-price'>
-                    ₦{Number(p.price || p.rentPrice || 0).toLocaleString()}
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Mobile fixed CTA for faster conversion on phones */}
-      <div className='mobile-cta' aria-hidden={false}>
-        <div className='mobile-cta-left'>
-          <div className='price-small'>
-            {formatCurrency(
-              paymentBreakdown ? paymentBreakdown.total : effectivePrice
-            )}
-          </div>
-          <div className='price-sub muted small'>
-            {isPerNightType
-              ? `${formatCurrency(
-                  bookingTotal?.perNight || effectivePrice
-                )}/night`
-              : 'Outright'}
-          </div>
-        </div>
-        <div className='mobile-cta-actions'>
-          <button
-            className='btn primary'
-            onClick={() =>
-              document
-                .getElementById('booking-section')
-                ?.scrollIntoView({ behavior: 'smooth' })
-            }
-          >
-            Book
-          </button>
-          <button
-            className='btn outline'
-            onClick={() =>
-              (window.location.href = `mailto:${owner?.email || ''}`)
-            }
-          >
-            Contact
-          </button>
-        </div>
       </div>
 
-      {/* Lightbox */}
-      {lightboxOpen && (
-        <div
-          className='lightbox'
-          role='dialog'
-          aria-modal='true'
-          aria-label='Image viewer'
-        >
-          <button
-            className='lb-close'
-            onClick={() => setLightboxOpen(false)}
-            aria-label='Close'
-          >
-            <X />
-          </button>
-
-          <div
-            className='lb-nav left'
-            onClick={() => setThumbIndex(i => Math.max(0, i - 1))}
-            aria-hidden='true'
-          >
-            <ArrowLeft />
-          </div>
-          <div
-            className='lb-nav right'
-            onClick={() =>
-              setThumbIndex(i => Math.min(gallery.length - 1, i + 1))
-            }
-            aria-hidden='true'
-          >
-            <ArrowRight />
-          </div>
-
-          <div className='lb-inner'>
-            {lightboxItem.type === 'video' ? (
-              <video
-                src={lightboxItem.url}
-                controls
-                autoPlay
-                style={{ maxHeight: '80vh', maxWidth: '90vw' }}
-              />
+      {/* ── Apply Modal ──────────────────────────────────────────────── */}
+      {applyOpen && (
+        <div className='pd-modal-backdrop' onClick={() => setApplyOpen(false)}>
+          <div className='pd-modal' onClick={e => e.stopPropagation()}>
+            {applyStatus === 'success' ? (
+              <>
+                <CheckCircle2 size={32} color='#22c55e' />
+                <h3>Application Submitted!</h3>
+                <p>The property owner will review your application and get back to you.</p>
+                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => { setApplyOpen(false); setApplyStatus(null) }}>Close</button>
+              </>
             ) : (
-              <img src={lightboxItem.url} alt={`Media ${thumbIndex + 1}`} />
+              <>
+                <h3>Apply to Rent</h3>
+                <p>{property.title}</p>
+                {applyStatus && <p className='pd-modal__err'>{applyStatus}</p>}
+                <label>Message to landlord (optional)</label>
+                <textarea rows={4} value={applyMsg} onChange={e => setApplyMsg(e.target.value)} placeholder='Introduce yourself, mention your move-in date…' />
+                <div className='pd-modal__actions'>
+                  <button className='pd-cta-btn pd-cta-btn--primary' onClick={submitApplication} disabled={applying}>
+                    {applying ? 'Submitting…' : 'Submit Application'}
+                  </button>
+                  <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setApplyOpen(false)}>Cancel</button>
+                </div>
+              </>
             )}
-            <div className='lb-caption muted'>
-              {title} — {thumbIndex + 1}/{gallery.length}
-            </div>
           </div>
         </div>
       )}
+
+      {/* ── Lightbox ─────────────────────────────────────────────────── */}
+      {lightboxOpen && (
+        <div className='pd-lightbox' role='dialog' aria-modal='true'>
+          <button className='pd-lb-close' onClick={() => setLightboxOpen(false)}><X size={20} /></button>
+          <button className='pd-lb-nav pd-lb-nav--left' onClick={() => setThumbIndex(i => Math.max(0, i - 1))} disabled={thumbIndex === 0}><ArrowLeft size={20} /></button>
+          <button className='pd-lb-nav pd-lb-nav--right' onClick={() => setThumbIndex(i => Math.min(gallery.length - 1, i + 1))} disabled={thumbIndex === gallery.length - 1}><ArrowRight size={20} /></button>
+          <div className='pd-lb-content'>
+            {lightboxItem.type === 'video'
+              ? <video src={lightboxItem.url} controls autoPlay />
+              : <img src={lightboxItem.url} alt={`Photo ${thumbIndex + 1}`} />
+            }
+            <div className='pd-lb-caption'>{property.title} — {thumbIndex + 1} / {gallery.length}</div>
+          </div>
+          <div className='pd-lb-thumbs'>
+            {gallery.map((m, i) => (
+              <button key={i} className={`pd-lb-thumb${i === thumbIndex ? ' active' : ''}`} onClick={() => setThumbIndex(i)}>
+                {m.type === 'video' ? <Video size={12} /> : <img src={m.url} alt={`thumb ${i}`} />}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Mobile sticky CTA ────────────────────────────────────────── */}
+      <div className='pd-mobile-cta'>
+        <div className='pd-mobile-cta__price'>
+          <strong>{fmt(effectivePrice, currency)}</strong>
+          {property.rentFrequency && <span>/{property.rentFrequency}</span>}
+        </div>
+        <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' })}>
+          {isRent && !isPerNight ? 'Apply to Rent' : 'Book / Buy'}
+        </button>
+      </div>
     </div>
   )
 }

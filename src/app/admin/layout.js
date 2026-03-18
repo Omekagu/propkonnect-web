@@ -447,7 +447,7 @@ export default function AdminLayout ({ children }) {
         case 'MyProperties':
           return <MyProperties />
         case 'PropertyUpload':
-          return <UploadProperty />
+          return <MyProperties initialView='tier-select' />
         case 'ArtisanManagement':
           return <Artisan />
         case 'AllArtisans':
@@ -538,7 +538,7 @@ export default function AdminLayout ({ children }) {
         case 'MyProperties':
           return gated(<MyProperties />)
         case 'PropertyUpload':
-          return gated(<UploadProperty />)
+          return gated(<MyProperties initialView='tier-select' />)
         case 'Tenants':
           return gated(<Tenant />)
         case 'Maintenance':

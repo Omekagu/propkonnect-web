@@ -4,7 +4,7 @@ import './FindArtisan.scss'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const API_URL = `${
-  process.env.NEXT_PUBLIC_BACKEND_URL || 'http://10.0.1.20:4001'
+  process.env.NEXT_PUBLIC_BACKEND_URL || 'http://10.0.1.42:4001'
 }/api`
 const POLL_INTERVAL = 3000
 

@@ -281,9 +281,10 @@ export default function LandingPage () {
 
   // Data from API
   const [branding, setBranding] = useState(null)
-  const [properties, setProperties] = useState(FALLBACK_LISTINGS)
-  const [artisans, setArtisans] = useState(FALLBACK_ARTISANS)
-  const [loadingProps, setLoadingProps] = useState(false)
+  const [properties, setProperties] = useState([])
+  const [artisans, setArtisans] = useState([])
+  const [loadingProps, setLoadingProps] = useState(true)
+  const [loadingArtisans, setLoadingArtisans] = useState(true)
 
   const heroRef = useRef(null)
   const mobileMenuRef = useRef(null)
@@ -299,22 +300,24 @@ export default function LandingPage () {
       .catch(() => {}) // silently fall back to defaults
 
     // Featured properties (published, public, latest 6)
-    setLoadingProps(true)
     axios
       .get(`${API}/api/properties/all?limit=6&sort=-createdAt`)
       .then(r => {
-        if (r.data?.properties?.length) setProperties(r.data.properties)
+        const list = r.data?.properties
+        setProperties(list?.length ? list : FALLBACK_LISTINGS)
       })
-      .catch(() => {})
+      .catch(() => setProperties(FALLBACK_LISTINGS))
       .finally(() => setLoadingProps(false))
 
     // Premium / top-rated artisans
     axios
-      .get(`${API}/api/artisan?topRated=true`)
+      .get(`${API}/api/artisan?topRated=true&limit=4`)
       .then(r => {
-        if (r.data?.artisans?.length) setArtisans(r.data.artisans.slice(0, 4))
+        const list = r.data?.artisans
+        setArtisans(list?.length ? list.slice(0, 4) : FALLBACK_ARTISANS)
       })
-      .catch(() => {})
+      .catch(() => setArtisans(FALLBACK_ARTISANS))
+      .finally(() => setLoadingArtisans(false))
   }, [])
 
   // Derived branding values
@@ -921,13 +924,18 @@ export default function LandingPage () {
           </div>
 
           <div className='lp-artisan__cards'>
-            {artisans.map(a => {
-              const name = `${a.firstName || ''} ${(a.lastName || '').charAt(
-                0
-              )}.`.trim()
-              const spec = a.artisanProfile?.specialization || 'Artisan'
-              const rating = a.stats?.averageRating || 0
-              const jobs = a.stats?.completedJobs || 0
+            {(loadingArtisans ? [] : artisans).map(a => {
+              // Handle both API shape (flat) and fallback shape (nested)
+              const name =
+                a.name ||
+                `${a.firstName || ''} ${(a.lastName || '').charAt(0)}.`.trim()
+              const spec =
+                a.specialization ||
+                a.artisanProfile?.specialization ||
+                'Artisan'
+              const rating = a.rating ?? a.stats?.averageRating ?? 0
+              const jobs = a.completedJobs ?? a.stats?.completedJobs ?? 0
+              const isVerified = a.verified ?? a.status?.verified ?? false
               const isTopRated =
                 rating >= 4.8 ||
                 a.plan?.name === 'pro' ||
@@ -953,7 +961,7 @@ export default function LandingPage () {
                   <div className='lp-artisan-card__foot'>
                     {rating > 0 && <span>⭐ {rating.toFixed(1)}</span>}
                     {jobs > 0 && <span>{jobs} jobs</span>}
-                    {a.status?.verified && (
+                    {isVerified && (
                       <span className='lp-artisan-card__verified'>
                         ✓ Verified
                       </span>

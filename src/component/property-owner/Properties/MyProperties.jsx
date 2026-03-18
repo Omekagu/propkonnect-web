@@ -4,6 +4,8 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { api } from '@/libs/api-client'
 import './MyProperties.scss'
 import UploadPropertyWizard from '@/component/UploadProperty/UploadProperty'
+import BatchUpload from '@/component/UploadProperty/BatchUpload'
+import PortfolioUpload from '@/component/UploadProperty/PortfolioUpload'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const Icon = {
@@ -522,7 +524,7 @@ function DeleteConfirm ({ property, onConfirm, onCancel, deleting }) {
 
 // ─── PROPERTY CARD ────────────────────────────────────────────────────────────
 
-function PropertyCard ({ property: p, listView, onEdit, onDeleteRequest }) {
+function PropertyCard ({ property: p, listView, onEdit, onDeleteRequest, onView }) {
   const { amount, suffix } = getDisplayPrice(p)
   const delta = getAiDelta(p)
   const status = resolveDisplayStatus(p)
@@ -563,7 +565,7 @@ function PropertyCard ({ property: p, listView, onEdit, onDeleteRequest }) {
         </div>
 
         <div className='mp-card__actions'>
-          <button className='mp-card__action-btn' title='View listing'>
+          <button className='mp-card__action-btn' title='View listing' onClick={() => onView(p)}>
             <Icon.External />
           </button>
           <button
@@ -656,7 +658,7 @@ function PropertyCard ({ property: p, listView, onEdit, onDeleteRequest }) {
           <button className='mp-card__footer-btn' onClick={() => onEdit(p)}>
             <Icon.Edit /> Edit
           </button>
-          <button className='mp-card__footer-btn primary'>
+          <button className='mp-card__footer-btn primary' onClick={() => onView(p)}>
             <Icon.External /> View
           </button>
           <button
@@ -673,10 +675,10 @@ function PropertyCard ({ property: p, listView, onEdit, onDeleteRequest }) {
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
-export default function MyProperties () {
+export default function MyProperties ({ initialView = 'list' }) {
   // ── View orchestration ───────────────────────────────────────────────────
-  // 'list' | 'tier-select' | 'wizard'
-  const [pageView, setPageView] = useState('list')
+  // 'list' | 'tier-select' | 'wizard' | 'batch' | 'project'
+  const [pageView, setPageView] = useState(initialView)
   const [selectedTier, setSelectedTier] = useState('single')
   const [editPropertyId, setEditPropertyId] = useState(null)
 
@@ -766,8 +768,10 @@ export default function MyProperties () {
 
   const handleTierSelect = tier => {
     setSelectedTier(tier)
-    setEditPropertyId(null) // create mode
-    setPageView('wizard')
+    setEditPropertyId(null)
+    if (tier === 'batch') setPageView('batch')
+    else if (tier === 'project') setPageView('project')
+    else setPageView('wizard')
   }
 
   const handleEdit = property => {
@@ -775,6 +779,10 @@ export default function MyProperties () {
     setSelectedTier(property.creationTier || 'single')
     setPageView('wizard')
   }
+
+  const handleView = useCallback(property => {
+    window.open(`/property/${property._id}`, '_blank', 'noopener,noreferrer')
+  }, [])
 
   const handleWizardBack = () => {
     setPageView('list')
@@ -874,6 +882,26 @@ export default function MyProperties () {
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────
 
+  // ── Batch upload view ─────────────────────────────────────────────────────
+  if (pageView === 'batch') {
+    return (
+      <BatchUpload
+        onBack={() => setPageView('list')}
+        onComplete={() => { setPageView('list'); fetchProperties() }}
+      />
+    )
+  }
+
+  // ── Portfolio creation view ───────────────────────────────────────────────
+  if (pageView === 'project') {
+    return (
+      <PortfolioUpload
+        onBack={() => setPageView('list')}
+        onComplete={() => { setPageView('list'); fetchProperties() }}
+      />
+    )
+  }
+
   // ── Wizard view ───────────────────────────────────────────────────────────
   if (pageView === 'wizard') {
     return (
@@ -933,7 +961,7 @@ export default function MyProperties () {
             </p>
           </div>
           <div className='mp-header__actions'>
-            <button className='mp-btn mp-btn--ghost'>
+            <button className='mp-btn mp-btn--ghost' onClick={() => setPageView('batch')}>
               <Icon.Upload /> Import CSV
             </button>
             <button className='mp-btn mp-btn--amber' onClick={handleAddClick}>
@@ -1134,6 +1162,7 @@ export default function MyProperties () {
                     listView={viewMode === 'list'}
                     onEdit={handleEdit}
                     onDeleteRequest={setDeleteTarget}
+                    onView={handleView}
                   />
                 </div>
               ))

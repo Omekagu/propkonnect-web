@@ -177,7 +177,7 @@ export default function SupportTicketAdmin ({ userRole }) {
 
   const getPriorityColor = priority => {
     const colors = {
-      low: '#3b82f6',
+      low: '#0f6040',
       medium: '#f59e0b',
       high: '#ef4444',
       urgent: '#dc2626'

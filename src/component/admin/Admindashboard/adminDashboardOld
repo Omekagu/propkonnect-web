@@ -1125,7 +1125,7 @@
 //       }
 
 //       &.card-blue {
-//         --accent-color: #3b82f6;
+//         --accent-color: #0f6040;
 //         --accent-light: #60a5fa;
 //       }
 
