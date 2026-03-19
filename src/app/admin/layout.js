@@ -131,6 +131,7 @@ export default function AdminLayout ({ children }) {
   const [accountStatus, setAccountStatus] = useState(null) // 'pending_kyc' | 'pending_payment_setup' | 'active'
   const [showAccountSetup, setShowAccountSetup] = useState(false)
   const [kycStatus, setKycStatus] = useState(null) // user's kyc.status
+  const [livePlan, setLivePlan] = useState(null)  // live plan data (overrides stale localStorage)
 
   // Session timeout timer reference
   const sessionTimeoutRef = React.useRef(null)
@@ -194,6 +195,23 @@ export default function AdminLayout ({ children }) {
       .then(data => {
         if (data?.success && data.kyc?.status) {
           setKycStatus(data.kyc.status)
+        }
+      })
+      .catch(() => {})
+  }, [isLoggedIn, token])
+
+  // ✅ Fetch live plan data — handles users logged in before `plan` was added to the
+  // auth response (their localStorage.userData won't have it until they log in again).
+  useEffect(() => {
+    if (!isLoggedIn || !token) return
+    const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
+    fetch(`${API}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.success && data.data?.plan) {
+          setLivePlan(data.data.plan)
         }
       })
       .catch(() => {})
@@ -754,6 +772,7 @@ export default function AdminLayout ({ children }) {
       <Sidebar
         userRole={userRole}
         user={user}
+        livePlan={livePlan}
         collapsed={sidebarCollapsed}
         mobileOpen={mobileSidebarOpen}
         onRouteChange={page => {
@@ -863,6 +882,45 @@ export default function AdminLayout ({ children }) {
             </button>
           </div>
         )}
+
+        {/* ── Free Trial Countdown Banner ─────────────────────────────── */}
+        {(() => {
+          const plan = livePlan || user?.plan
+          if (!plan?.isOnTrial || !plan?.trialEndsAt) return null
+          const msLeft   = new Date(plan.trialEndsAt) - new Date()
+          const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24))
+          if (daysLeft < 0) return null  // expired — let backend handle downgrade
+
+          const isUrgent = daysLeft <= 3
+          const isWarning = daysLeft <= 7
+
+          return (
+            <div className={`account-pending-banner${isUrgent ? ' account-pending-banner--urgent' : isWarning ? ' account-pending-banner--warning' : ' account-pending-banner--trial'}`}>
+              <div className='apb-content'>
+                <span className='apb-icon'>{isUrgent ? '⏰' : '🎁'}</span>
+                <div>
+                  <strong>
+                    {daysLeft === 0
+                      ? 'Your free trial expires today!'
+                      : daysLeft === 1
+                      ? '1 day left on your free trial'
+                      : `${daysLeft} days left on your free trial`}
+                  </strong>
+                  <p style={{ margin: '2px 0 0', fontSize: 13, opacity: 0.85 }}>
+                    Trial ends {new Date(plan.trialEndsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.
+                    Upgrade to keep your listings active.
+                  </p>
+                </div>
+              </div>
+              <button
+                className='apb-btn'
+                onClick={() => { setActivePage('Settings'); localStorage.setItem('ep_activePage', 'Settings') }}
+              >
+                Upgrade Plan →
+              </button>
+            </div>
+          )
+        })()}
 
         <main className='admin-content' role='main'>
           {renderPage()}

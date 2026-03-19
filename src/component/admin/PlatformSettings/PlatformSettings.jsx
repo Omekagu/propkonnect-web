@@ -27,6 +27,7 @@ const TABS = [
   { id: 'tiers', label: 'Listing Tiers' },
   { id: 'plans', label: 'Subscription Plans' },
   { id: 'trial', label: 'Trial & Onboarding' },
+  { id: 'inspection', label: 'Inspection Fee' },
   { id: 'kyc', label: 'KYC / Verification' },
   { id: 'features', label: 'Feature Flags' },
   { id: 'limits', label: 'Limits' },
@@ -619,6 +620,12 @@ function TrialTab ({ settings, onSave, saving }) {
     durationDays: trial.durationDays ?? 30,
     grantsPremiumAccess: trial.grantsPremiumAccess ?? true
   })
+  const [enforcing, setEnforcing] = useState(false)
+  const [expiring, setExpiring] = useState(false)
+  const [actionResult, setActionResult] = useState(null)
+
+  const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
+  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
 
   useEffect(() => {
     const t = settings?.trial || {}
@@ -642,6 +649,22 @@ function TrialTab ({ settings, onSave, saving }) {
     onSave('/api/admin/platform-settings/trial', { trial: form })
   }
 
+  const runAction = async (endpoint, setLoading) => {
+    setLoading(true); setActionResult(null)
+    try {
+      const res = await fetch(`${API}${endpoint}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await res.json()
+      setActionResult(data)
+    } catch (e) {
+      setActionResult({ success: false, message: e.message })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <form className='ps-form' onSubmit={submit}>
       <p className='ps-form-desc'>
@@ -660,12 +683,12 @@ function TrialTab ({ settings, onSave, saving }) {
         label='Trial Duration (days)'
         name='durationDays'
         type='number'
-        min={1}
+        min={0}
         max={365}
         step={1}
         value={form.durationDays}
         onChange={change}
-        hint='How many days the trial lasts after registration'
+        hint='How many days the trial lasts after registration (0 = no trial)'
       />
       <Toggle
         label='Grant Full Premium Access During Trial'
@@ -683,11 +706,174 @@ function TrialTab ({ settings, onSave, saving }) {
       >
         {saving ? 'Saving…' : 'Save Trial Settings'}
       </button>
+
+      {/* ── Plan Enforcement Actions ─────────────────────────────────── */}
+      <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--color-border, #e5e7eb)' }}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Plan Enforcement</h4>
+        <p style={{ fontSize: 13, color: '#666', marginBottom: 16, lineHeight: 1.5 }}>
+          Use these actions to immediately apply plan limit changes to existing users.
+          Properties exceeding the free plan listing limit will be set to inactive.
+        </p>
+
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            type='button'
+            className='ps-btn ps-btn--secondary'
+            style={{ flex: 1, minWidth: 200 }}
+            disabled={expiring}
+            onClick={() => runAction('/api/admin/platform-settings/expire-trials', setExpiring)}
+          >
+            {expiring ? 'Running…' : '⏰ Expire Overdue Trials'}
+          </button>
+          <button
+            type='button'
+            className='ps-btn ps-btn--secondary'
+            style={{ flex: 1, minWidth: 200, borderColor: '#f59e0b', color: '#b45309' }}
+            disabled={enforcing}
+            onClick={() => {
+              if (!window.confirm('This will reset ALL free-plan users to current free tier limits and deactivate excess listings. Continue?')) return
+              runAction('/api/admin/platform-settings/enforce-plan-limits', setEnforcing)
+            }}
+          >
+            {enforcing ? 'Running…' : '⚡ Enforce Free Plan Limits Now'}
+          </button>
+        </div>
+
+        {actionResult && (
+          <div style={{
+            marginTop: 12, padding: '10px 14px', borderRadius: 8,
+            background: actionResult.success ? '#e8f5e9' : '#fff5f5',
+            border: `1px solid ${actionResult.success ? '#6ee7b7' : '#fca5a5'}`,
+            fontSize: 13, color: actionResult.success ? '#065f46' : '#c53030'
+          }}>
+            {actionResult.success ? '✓' : '✗'}{' '}
+            {actionResult.success
+              ? `Done — ${actionResult.processed ?? actionResult.usersUpdated ?? 0} users processed, ${actionResult.propertiesDeactivated ?? 0} properties deactivated.`
+              : actionResult.message || 'Action failed'}
+          </div>
+        )}
+      </div>
     </form>
   )
 }
 
 // ── Subscription Plans Tab ─────────────────────────────────────────────────────
+function InspectionFeeTab ({ settings, onSave, saving }) {
+  const pf = settings?.inspectionFee || {}
+  const [form, setForm] = useState({
+    enabled: pf.enabled ?? true,
+    amount: pf.amount ?? 5000,
+    currency: pf.currency ?? 'NGN',
+    partialRefundPct: pf.partialRefundPct ?? 50,
+    appliesTo: (pf.appliesTo || ['Apartment', 'House', 'Land', 'Commercial']).filter(
+      (v, i, a) => a.findIndex(x => x.toLowerCase() === v.toLowerCase()) === i
+    ),
+    description: pf.description ?? ''
+  })
+
+  useEffect(() => {
+    const f = settings?.inspectionFee || {}
+    setForm({
+      enabled: f.enabled ?? true,
+      amount: f.amount ?? 5000,
+      currency: f.currency ?? 'NGN',
+      partialRefundPct: f.partialRefundPct ?? 50,
+      appliesTo: (f.appliesTo || ['Apartment', 'House', 'Land', 'Commercial']).filter(
+        (v, i, a) => a.findIndex(x => x.toLowerCase() === v.toLowerCase()) === i
+      ),
+      description: f.description ?? ''
+    })
+  }, [settings])
+
+  const CATEGORIES = ['Apartment', 'House', 'Land', 'Commercial']
+
+  const toggleCategory = cat => {
+    setForm(p => ({
+      ...p,
+      appliesTo: p.appliesTo.includes(cat)
+        ? p.appliesTo.filter(c => c !== cat)
+        : [...p.appliesTo, cat]
+    }))
+  }
+
+  return (
+    <form className='ps-form' onSubmit={e => { e.preventDefault(); onSave('/api/admin/platform-settings/inspection-fee', { inspectionFee: form }) }}>
+      <p className='ps-form-desc'>
+        Platform-wide inspection / viewing fee for non-hotel properties.
+        Users pay this to confirm a viewing slot with the property owner.
+        The fee is <strong>non-refundable</strong> by default; a partial refund can be issued if the owner cancels.
+      </p>
+
+      <Toggle
+        label='Enable Inspection Fee'
+        name='enabled'
+        checked={form.enabled}
+        onChange={e => setForm(p => ({ ...p, enabled: e.target.checked }))}
+        hint='When disabled, the Schedule Inspection button is hidden on property pages'
+      />
+
+      <Field
+        label='Inspection Fee Amount'
+        name='amount'
+        type='number'
+        min={0}
+        step={100}
+        value={form.amount}
+        onChange={e => setForm(p => ({ ...p, amount: Number(e.target.value) }))}
+        hint='Amount in the selected currency (e.g. ₦5000)'
+      />
+
+      <Field
+        label='Currency'
+        name='currency'
+        value={form.currency}
+        onChange={e => setForm(p => ({ ...p, currency: e.target.value }))}
+        hint='e.g. NGN, USD'
+      />
+
+      <Field
+        label='Partial Refund % (owner cancellation)'
+        name='partialRefundPct'
+        type='number'
+        min={0}
+        max={100}
+        step={5}
+        value={form.partialRefundPct}
+        onChange={e => setForm(p => ({ ...p, partialRefundPct: Number(e.target.value) }))}
+        hint='% of the fee refunded when the property owner cancels the inspection (0 = fully non-refundable)'
+      />
+
+      <div className='ps-field'>
+        <label className='ps-label'>Applies To (property categories)</label>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 6 }}>
+          {CATEGORIES.map(cat => (
+            <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 13, padding: '5px 10px', borderRadius: 6, border: `1.5px solid ${form.appliesTo.includes(cat) ? 'var(--color-primary)' : '#e5e7eb'}`, background: form.appliesTo.includes(cat) ? '#e8f5e9' : '#fafafa' }}>
+              <input type='checkbox' checked={form.appliesTo.includes(cat)} onChange={() => toggleCategory(cat)} style={{ accentColor: 'var(--color-primary)' }} />
+              {cat}
+            </label>
+          ))}
+        </div>
+        <p className='ps-hint'>Inspection fee only shows on property pages matching these categories</p>
+      </div>
+
+      <div className='ps-field'>
+        <label className='ps-label'>Description shown to users</label>
+        <textarea
+          rows={3}
+          value={form.description}
+          onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontFamily: 'inherit', fontSize: 13, boxSizing: 'border-box', resize: 'vertical' }}
+          placeholder='Explain what the inspection fee covers…'
+        />
+      </div>
+
+      <button type='submit' className='ps-btn ps-btn--primary' disabled={saving}>
+        {saving ? 'Saving…' : 'Save Inspection Fee Settings'}
+      </button>
+    </form>
+  )
+}
+
 const PLAN_FEATURE_OPTIONS = [
   'analytics',
   'priority_support',
@@ -1068,6 +1254,9 @@ export default function PlatformSettings () {
         )}
         {activeTab === 'trial' && (
           <TrialTab settings={settings} onSave={handleSave} saving={saving} />
+        )}
+        {activeTab === 'inspection' && (
+          <InspectionFeeTab settings={settings} onSave={handleSave} saving={saving} />
         )}
         {activeTab === 'kyc' && (
           <KycTab settings={settings} onSave={handleSave} saving={saving} />

@@ -9,7 +9,8 @@ import {
   AlertCircle, Zap, Star, Calendar, DollarSign, Building2,
   Layers, Users, TrendingUp, FileText, Clock, Eye, ChevronDown,
   ChevronUp, ExternalLink, Award, Landmark, Tag, Wifi, Car,
-  Droplets, Dumbbell, Lock, Tv, Leaf
+  Droplets, Dumbbell, Lock, Tv, Leaf, PhoneCall, MessageSquare,
+  CreditCard, Loader2
 } from 'lucide-react'
 import './propertyDetails.scss'
 
@@ -86,6 +87,16 @@ export default function PropertyDetails () {
   const [inspErr, setInspErr] = useState(null)
   const [inspLoading, setInspLoading] = useState(false)
 
+  // Purchase modal (non-rental, non-perNight properties)
+  const [purchOpen, setPurchOpen] = useState(false)
+  const [purchForm, setPurchForm] = useState({ buyerName: '', buyerEmail: '', buyerPhone: '' })
+  const [purchPlanIdx, setPurchPlanIdx] = useState(0)
+  const [purchErr, setPurchErr] = useState(null)
+  const [purchasing, setPurchasing] = useState(false)
+
+  // Platform config (inspection fee etc.)
+  const [platformInspFee, setPlatformInspFee] = useState(null)
+
   // Misc UI
   const [saved, setSaved] = useState(false)
   const [showMoreDesc, setShowMoreDesc] = useState(false)
@@ -120,6 +131,13 @@ export default function PropertyDetails () {
       .then(r => setSimilar(r.data?.properties || r.data?.data || []))
       .catch(() => {})
   }, [id, property])
+
+  // Fetch platform inspection fee (public, no auth)
+  useEffect(() => {
+    axios.get(`${API}/api/platform-config`)
+      .then(r => { if (r.data?.config?.inspectionFee) setPlatformInspFee(r.data.config.inspectionFee) })
+      .catch(() => {})
+  }, [])
 
   // Initialize selections
   useEffect(() => {
@@ -161,6 +179,7 @@ export default function PropertyDetails () {
   const isShortlet = cat === 'shortlet'
   const isPerNight = isHotel || isShortlet
   const isRent = (property?.purpose || '').toLowerCase().includes('rent')
+  const isSale = !isPerNight && !isRent
   const currency = property?.currency || 'NGN'
 
   const effectivePrice = useMemo(() => {
@@ -188,6 +207,11 @@ export default function PropertyDetails () {
   const selectedPlan = property?.paymentPlans?.[selectedPlanIdx] || null
 
   const owner = property?.owner || {}
+
+  // Owner contact info — normalise across different field shapes
+  const ownerPhone = owner?.phone || owner?.contact || owner?.phoneNumber || null
+  const ownerEmail = owner?.email || null
+  const ownerUserId = owner?._id || owner?.userId || property?.userId || null
 
   const featureList = useMemo(() => {
     const f = property?.features
@@ -274,6 +298,46 @@ export default function PropertyDetails () {
     } catch (e) {
       setInspErr(e.response?.data?.msg || 'Failed — please try again')
     } finally { setInspLoading(false) }
+  }
+
+  /** Property purchase — Paystack payment for sale/commercial properties */
+  const startPurchase = async () => {
+    setPurchErr(null)
+    const { buyerName, buyerEmail, buyerPhone } = purchForm
+    if (!buyerName.trim() || !buyerEmail.trim()) { setPurchErr('Full name and email are required'); return }
+    const plan = property?.paymentPlans?.[purchPlanIdx] || null
+    const amount = plan?.priceSnapshot?.total || effectivePrice || property?.price
+    if (!amount) { setPurchErr('Unable to determine property price'); return }
+    setPurchasing(true)
+    try {
+      const res = await axios.post(`${API}/api/properties/${id}/initiate-purchase`, {
+        buyerName: buyerName.trim(),
+        buyerEmail: buyerEmail.trim().toLowerCase(),
+        buyerPhone: buyerPhone.trim() || undefined,
+        paymentPlanId: plan?.id || plan?._id || undefined,
+        amount
+      })
+      if (res.data?.authorizationUrl) {
+        window.location.href = res.data.authorizationUrl
+      } else {
+        setPurchErr(res.data?.msg || 'Could not initialise payment')
+      }
+    } catch (e) {
+      setPurchErr(e.response?.data?.msg || 'Payment failed — please try again')
+    } finally {
+      setPurchasing(false)
+    }
+  }
+
+  /** Open chat with owner — stores pending target in sessionStorage, navigates to dashboard */
+  const openOwnerChat = () => {
+    const token = localStorage.getItem('authToken')
+    if (!token) { window.location.href = `/auth/login?next=/property/${id}`; return }
+    if (ownerUserId) {
+      sessionStorage.setItem('ep_open_chat_with', String(ownerUserId))
+    }
+    localStorage.setItem('ep_activePage', 'Messages')
+    window.location.href = '/admin/dashboard'
   }
 
   const startMonnify = async () => {
@@ -1110,11 +1174,8 @@ export default function PropertyDetails () {
             )}
 
             <div className='pd-booking-actions'>
-              {isRent && !isPerNight ? (
-                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setApplyOpen(true)}>
-                  Apply to Rent
-                </button>
-              ) : isPerNight ? (
+              {/* ── Primary CTA based on property purpose ── */}
+              {isPerNight ? (
                 <button
                   className='pd-cta-btn pd-cta-btn--primary'
                   onClick={() => setBookOpen(true)}
@@ -1122,33 +1183,40 @@ export default function PropertyDetails () {
                 >
                   <Calendar size={14} /> Book Now
                 </button>
+              ) : isRent ? (
+                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setApplyOpen(true)}>
+                  Apply to Rent
+                </button>
               ) : (
-                <>
-                  <button className='pd-cta-btn pd-cta-btn--primary' onClick={startMonnify}>
-                    Pay with Bank Transfer
-                  </button>
-                  <button className='pd-cta-btn pd-cta-btn--stripe' onClick={startStripe}>
-                    Pay with Card (Stripe)
-                  </button>
-                </>
-              )}
-              {/* Inspection fee CTA — shown for non-per-night properties that require it */}
-              {!isPerNight && property?.inspectionFee?.required && (
-                <button className='pd-cta-btn pd-cta-btn--inspect' onClick={() => setInspOpen(true)}>
-                  <Eye size={14} /> Schedule Inspection — {fmt(property.inspectionFee.amount, property.inspectionFee.currency || currency)}
+                /* For sale / commercial / land */
+                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setPurchOpen(true)}>
+                  <CreditCard size={14} /> Buy / Pay Now
                 </button>
               )}
-              {/* Owner direct messaging (uses existing Socket.IO chat) */}
-              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => {
-                const token = localStorage.getItem('authToken')
-                if (!token) { window.location.href = `/auth/login?next=/property/${id}`; return }
-                // Pass owner userId to open chat
-                const ownerId = property?.owner?.userId || property?.userId
-                if (ownerId) window.location.href = `/admin/dashboard?page=Messages&to=${ownerId}`
-                else window.location.href = `mailto:${owner?.email || ''}`
-              }}>
-                <Mail size={14} /> Chat with Owner
-              </button>
+
+              {/* ── Inspection CTA — platform-controlled, non-perNight applicable categories ── */}
+              {!isPerNight && platformInspFee?.enabled &&
+               (platformInspFee.appliesTo || []).map(c => c.toLowerCase()).includes(cat) && (
+                <button className='pd-cta-btn pd-cta-btn--inspect' onClick={() => setInspOpen(true)}>
+                  <Eye size={14} /> Schedule Inspection — {fmt(platformInspFee.amount, platformInspFee.currency || currency)}
+                </button>
+              )}
+
+              {/* ── Contact row: Chat + Call ── */}
+              <div className='pd-contact-row'>
+                <button className='pd-cta-btn pd-cta-btn--outline pd-cta-btn--half' onClick={openOwnerChat}>
+                  <MessageSquare size={14} /> Chat
+                </button>
+                {ownerPhone ? (
+                  <a className='pd-cta-btn pd-cta-btn--call pd-cta-btn--half' href={`tel:${ownerPhone}`}>
+                    <PhoneCall size={14} /> Call
+                  </a>
+                ) : ownerEmail ? (
+                  <a className='pd-cta-btn pd-cta-btn--outline pd-cta-btn--half' href={`mailto:${ownerEmail}`}>
+                    <Mail size={14} /> Email
+                  </a>
+                ) : null}
+              </div>
             </div>
 
             {/* Agent */}
@@ -1213,7 +1281,7 @@ export default function PropertyDetails () {
             <h3>Schedule a Viewing</h3>
             <p className='pd-modal__sub'>{property.title}</p>
             <div className='pd-modal__row'>
-              <span><Shield size={13} /> Inspection fee: <strong>{fmt(property.inspectionFee.amount, property.inspectionFee.currency || currency)}</strong></span>
+              <span><Shield size={13} /> Inspection fee: <strong>{fmt(platformInspFee?.amount, platformInspFee?.currency || currency)}</strong></span>
               <span style={{ color: '#c53030', fontSize: 12 }}>Non-refundable</span>
             </div>
             {inspErr && <p className='pd-modal__err'>{inspErr}</p>}
@@ -1230,13 +1298,107 @@ export default function PropertyDetails () {
             <label>Notes for the owner</label>
             <textarea rows={2} placeholder='Any specific areas you want to inspect?' value={inspForm.notes} onChange={e => setInspForm(f => ({ ...f, notes: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontFamily: 'inherit', fontSize: 14, boxSizing: 'border-box' }} />
             <p className='pd-modal__note'>
-              <AlertCircle size={11} /> The {fmt(property.inspectionFee.amount, property.inspectionFee.currency || currency)} inspection fee is <strong>non-refundable</strong> — it confirms your viewing slot.
+              <AlertCircle size={11} /> The {fmt(platformInspFee?.amount, platformInspFee?.currency || currency)} inspection fee is <strong>non-refundable</strong> — it confirms your viewing slot.
+              {platformInspFee?.partialRefundPct > 0 && ` ${platformInspFee.partialRefundPct}% is refunded if the owner cancels.`}
             </p>
             <div className='pd-modal__actions'>
               <button className='pd-cta-btn pd-cta-btn--primary' onClick={startInspection} disabled={inspLoading}>
-                {inspLoading ? 'Redirecting…' : `Pay & Schedule Inspection`}
+                {inspLoading ? 'Redirecting…' : `Pay ${fmt(platformInspFee?.amount, platformInspFee?.currency || currency)} & Schedule`}
               </button>
               <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setInspOpen(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Purchase Modal (for-sale / commercial properties) ────────── */}
+      {purchOpen && (
+        <div className='pd-modal-backdrop' onClick={() => setPurchOpen(false)}>
+          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
+            <button className='pd-modal__close' onClick={() => setPurchOpen(false)}><X size={16} /></button>
+            <h3>Purchase Property</h3>
+            <p className='pd-modal__sub'>{property.title}</p>
+
+            {/* Payment plan selector */}
+            {property.paymentPlans?.length > 0 && (
+              <div style={{ marginBottom: 14 }}>
+                <label>Payment plan</label>
+                <div style={{ display:'flex', gap: 8, flexWrap:'wrap', marginTop: 6 }}>
+                  {property.paymentPlans.map((p, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPurchPlanIdx(i)}
+                      style={{
+                        flex: '1 1 auto',
+                        padding: '8px 12px',
+                        borderRadius: 8,
+                        border: `2px solid ${purchPlanIdx === i ? 'var(--color-primary)' : '#e5e7eb'}`,
+                        background: purchPlanIdx === i ? '#e8f5e9' : '#fafafa',
+                        cursor: 'pointer',
+                        fontSize: 13,
+                        fontWeight: purchPlanIdx === i ? 700 : 500,
+                        color: purchPlanIdx === i ? 'var(--color-primary)' : '#444',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <div>{p.name || `Plan ${i + 1}`}</div>
+                      {(p.priceSnapshot?.total || p.price) && (
+                        <div style={{ fontSize: 12, marginTop: 2 }}>{fmt(p.priceSnapshot?.total || p.price, currency)}</div>
+                      )}
+                      {p.installments?.length > 0 && (
+                        <div style={{ fontSize: 10, opacity: 0.7 }}>
+                          {p.installments.map((inst, j) => `${inst.percent}%`).join(' · ')}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {purchErr && <p className='pd-modal__err'>{purchErr}</p>}
+            <label>Full name *</label>
+            <input type='text' placeholder='Your full name' value={purchForm.buyerName} onChange={e => setPurchForm(f => ({ ...f, buyerName: e.target.value }))} />
+            <label>Email address *</label>
+            <input type='email' placeholder='your@email.com' value={purchForm.buyerEmail} onChange={e => setPurchForm(f => ({ ...f, buyerEmail: e.target.value }))} />
+            <label>Phone number</label>
+            <input type='tel' placeholder='+234 800 000 0000' value={purchForm.buyerPhone} onChange={e => setPurchForm(f => ({ ...f, buyerPhone: e.target.value }))} />
+
+            {/* Price summary */}
+            <div className='pd-booking-summary pd-booking-summary--modal' style={{ marginTop: 12 }}>
+              {property.paymentPlans?.length > 0 ? (
+                <>
+                  <div><span>Plan</span><strong>{property.paymentPlans[purchPlanIdx]?.name || `Plan ${purchPlanIdx + 1}`}</strong></div>
+                  {property.paymentPlans[purchPlanIdx]?.installments?.map((inst, i) => (
+                    <div key={i}>
+                      <span>Payment {i + 1} (Day {inst.dueInDays})</span>
+                      <strong>{inst.percent}% = {fmt(((property.paymentPlans[purchPlanIdx]?.priceSnapshot?.total || effectivePrice) * inst.percent) / 100, currency)}</strong>
+                    </div>
+                  ))}
+                  <div className='pd-booking-summary__total'>
+                    <span>Total</span>
+                    <strong>{fmt(property.paymentPlans[purchPlanIdx]?.priceSnapshot?.total || effectivePrice, currency)}</strong>
+                  </div>
+                </>
+              ) : (
+                <div className='pd-booking-summary__total'>
+                  <span>Purchase price</span>
+                  <strong>{fmt(effectivePrice, currency)}</strong>
+                </div>
+              )}
+            </div>
+
+            <p className='pd-modal__note'>
+              <Shield size={11} /> Secured by PropNect Escrow · Payment held until ownership transfer confirmed
+            </p>
+            <div className='pd-modal__actions'>
+              <button className='pd-cta-btn pd-cta-btn--primary' onClick={startPurchase} disabled={purchasing}>
+                {purchasing
+                  ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Redirecting…</>
+                  : `Proceed to Pay ${fmt(property.paymentPlans?.[purchPlanIdx]?.priceSnapshot?.total || effectivePrice, currency)}`
+                }
+              </button>
+              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setPurchOpen(false)}>Cancel</button>
             </div>
           </div>
         </div>

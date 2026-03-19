@@ -162,6 +162,18 @@ export default function Messages () {
       if (conversationId === activeConvId) setRemoteTyping(false)
     })
 
+    // Real-time online/offline status from server broadcasts
+    socket.on('user:status', ({ userId: uid, status }) => {
+      const update = conv => {
+        if (!conv.otherUser) return conv
+        const otherId = conv.otherUser._id?.toString?.() || conv.otherUser._id
+        if (otherId !== uid) return conv
+        return { ...conv, otherUser: { ...conv.otherUser, online: status.online, lastSeen: status.lastSeen } }
+      }
+      setConversations(prev => prev.map(update))
+      setActiveConv(prev => prev ? update(prev) : prev)
+    })
+
     return () => {
       socket.disconnect()
       socketRef.current = null
@@ -169,6 +181,37 @@ export default function Messages () {
   }, [token, activeConvId])
 
   useEffect(() => { fetchConversations() }, [fetchConversations])
+
+  // ── Auto-open chat with a specific user (from property detail page) ─────────
+  useEffect(() => {
+    if (!token) return
+    const targetUserId = typeof window !== 'undefined' ? sessionStorage.getItem('ep_open_chat_with') : null
+    if (!targetUserId) return
+    sessionStorage.removeItem('ep_open_chat_with')
+
+    // Get or create a conversation with this user then open it
+    fetch(`${API}/api/messages/conversation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ otherUserId: targetUserId })
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data?.conversation) return
+        const conv = data.conversation
+        // Compute otherUser from participants (mirrors getUserConversations server logic)
+        const convWithOther = {
+          ...conv,
+          otherUser: conv.participants?.find(p => p._id !== currentUserId && p._id?.toString() !== String(currentUserId)) || conv.participants?.[0]
+        }
+        // Ensure it's in the conversations list
+        setConversations(prev =>
+          prev.some(c => c._id === convWithOther._id) ? prev : [convWithOther, ...prev]
+        )
+        openConversation(convWithOther)
+      })
+      .catch(() => {})
+  }, [token]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (activeConvId) fetchMessages(activeConvId)

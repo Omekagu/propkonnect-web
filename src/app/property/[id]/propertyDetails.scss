@@ -882,6 +882,28 @@
     font-size: 13px;
     &:hover { background: #fef3b0; }
   }
+
+  // Call button — teal/green
+  &--call {
+    background: #e6f9f0;
+    border-color: #6ee7b7;
+    color: #065f46;
+    text-decoration: none;
+    &:hover { background: #d1fae5; }
+  }
+
+  // Half-width for side-by-side contact buttons
+  &--half {
+    flex: 1;
+    width: auto;
+  }
+}
+
+// Contact row: Chat + Call side by side
+.pd-contact-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
 }
 
 // ─── Availability ─────────────────────────────────────────────────────────────

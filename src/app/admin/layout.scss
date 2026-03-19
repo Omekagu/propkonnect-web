@@ -133,6 +133,22 @@
   ) !important; // blue = info
 }
 
+// Trial banner variants
+.account-pending-banner--trial {
+  background: linear-gradient(90deg, #0B3D28, #0F6040) !important; // PropNect green = normal trial
+}
+.account-pending-banner--warning {
+  background: linear-gradient(90deg, #78350f, #b45309) !important; // amber = 7 days or less
+}
+.account-pending-banner--urgent {
+  background: linear-gradient(90deg, #7f1d1d, #dc2626) !important; // red = 3 days or less
+  animation: pulse-urgent 2s ease-in-out infinite;
+}
+@keyframes pulse-urgent {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.88; }
+}
+
 // ── Session Warning Modal ─────────────────────────────────────
 .session-warning-overlay {
   position: fixed;
