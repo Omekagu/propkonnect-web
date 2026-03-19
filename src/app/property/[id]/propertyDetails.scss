@@ -873,6 +873,33 @@
     color: #374151;
     &:hover { background: #f9fafb; }
   }
+
+  // Inspection fee — amber tone
+  &--inspect {
+    background: #fffbe6;
+    border-color: #f0d060;
+    color: #7a6000;
+    font-size: 13px;
+    &:hover { background: #fef3b0; }
+  }
+}
+
+// ─── Availability ─────────────────────────────────────────────────────────────
+
+.pd-fully-booked {
+  display: flex; align-items: center; gap: 7px;
+  background: #fff5f5; border: 1px solid #fca5a5;
+  border-radius: 8px; padding: 10px 12px;
+  color: #c53030; font-size: 13px; font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.pd-low-availability {
+  display: flex; align-items: center; gap: 6px;
+  background: #fffbe6; border: 1px solid #f0d060;
+  border-radius: 8px; padding: 8px 12px;
+  color: #b07d00; font-size: 12.5px; font-weight: 600;
+  margin-bottom: 8px;
 }
 
 // ─── Agent ───────────────────────────────────────────────────────────────────
@@ -991,8 +1018,35 @@
     &:focus { outline: none; border-color: var(--color-primary, #0B3D28); }
   }
 
-  &__err { font-size: 13px; color: #ef4444; margin: 0; }
+  &__err   { font-size: 13px; color: #ef4444; margin: 0; }
+
+  &__sub   { font-size: 13px; color: #888; margin: -4px 0 2px; }
+  &__close {
+    position: absolute; top: 14px; right: 14px;
+    background: none; border: none; cursor: pointer; color: #888;
+    &:hover { color: #333; }
+  }
+  &__row {
+    display: flex; justify-content: space-between; font-size: 13px; color: #555;
+    background: #f5f8f2; border-radius: 8px; padding: 8px 12px;
+  }
+  &__note {
+    font-size: 12px; color: #888; margin: 0;
+    display: flex; align-items: center; gap: 4px;
+    background: #f5f8f2; border-radius: 6px; padding: 8px 10px;
+    svg { flex-shrink: 0; }
+  }
   &__actions { display: flex; gap: 8px; margin-top: 4px; }
+
+  // Booking form input styles
+  input[type='text'], input[type='email'], input[type='tel'] {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb;
+    border-radius: 9px; font-size: 14px; font-family: inherit;
+    box-sizing: border-box;
+    &:focus { outline: none; border-color: var(--color-primary, #0B3D28); }
+  }
+
+  &--booking { position: relative; max-width: 480px; }
 }
 
 // ─── Lightbox ────────────────────────────────────────────────────────────────

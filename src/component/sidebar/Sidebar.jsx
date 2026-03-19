@@ -28,7 +28,8 @@ import {
   ClipboardList,
   Award,
   Search,
-  ScanFace
+  ScanFace,
+  ShoppingCart
 } from 'lucide-react'
 
 export default function Sidebar ({
@@ -434,6 +435,16 @@ export default function Sidebar ({
             key: 'Documents',
             label: 'Documents',
             icon: <FileText strokeWidth={0.75} />
+          },
+          {
+            key: 'MyBookings',
+            label: 'My Bookings',
+            icon: <Calendar strokeWidth={0.75} />
+          },
+          {
+            key: 'BookingCart',
+            label: 'Saved Bookings',
+            icon: <ShoppingCart strokeWidth={0.75} />
           },
           {
             key: 'Messages',

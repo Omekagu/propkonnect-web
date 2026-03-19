@@ -194,6 +194,31 @@ export default function RootLayout ({ children }) {
         <ReviewsProvider>
           <HeaderLayout>{children}</HeaderLayout>
         </ReviewsProvider>
+
+        {/* ── Live Chat (Smartsupp) ──────────────────────────────────────────
+            Replace NEXT_PUBLIC_SMARTSUPP_KEY in your .env.local with your key.
+            The chat widget is hidden on pages where a property owner chat is available.
+        ──────────────────────────────────────────────────────────────────── */}
+        {process.env.NEXT_PUBLIC_SMARTSUPP_KEY && (
+          <Script
+            id='smartsupp-chat'
+            strategy='lazyOnload'
+            dangerouslySetInnerHTML={{
+              __html: `
+                var _smartsupp = _smartsupp || {};
+                _smartsupp.key = '${process.env.NEXT_PUBLIC_SMARTSUPP_KEY}';
+                window.smartsupp||(function(d) {
+                  var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+                  s=d.getElementsByTagName('script')[0];
+                  c=d.createElement('script');
+                  c.type='text/javascript';c.charset='utf-8';c.async=true;
+                  c.src='https://www.smartsupp.com/loader.js?'+new Date().getTime();
+                  s.parentNode.insertBefore(c,s);
+                })(document);
+              `
+            }}
+          />
+        )}
       </body>
     </html>
   )

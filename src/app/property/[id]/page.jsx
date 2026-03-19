@@ -74,6 +74,18 @@ export default function PropertyDetails () {
   const [applyStatus, setApplyStatus] = useState(null)
   const [applying, setApplying] = useState(false)
 
+  // Booking form modal (hotel / shortlet — new booking API)
+  const [bookOpen, setBookOpen] = useState(false)
+  const [bookForm, setBookForm] = useState({ guestName: '', guestEmail: '', guestPhone: '' })
+  const [bookErr, setBookErr] = useState(null)
+  const [booking, setBooking] = useState(false)
+
+  // Inspection booking modal
+  const [inspOpen, setInspOpen] = useState(false)
+  const [inspForm, setInspForm] = useState({ requesterName: '', requesterEmail: '', requesterPhone: '', preferredDate: '', preferredTime: '', notes: '' })
+  const [inspErr, setInspErr] = useState(null)
+  const [inspLoading, setInspLoading] = useState(false)
+
   // Misc UI
   const [saved, setSaved] = useState(false)
   const [showMoreDesc, setShowMoreDesc] = useState(false)
@@ -210,6 +222,58 @@ export default function PropertyDetails () {
       setApplyStatus('success')
     } catch (e) { setApplyStatus(e.response?.data?.message || 'Failed to submit') }
     finally { setApplying(false) }
+  }
+
+  /** Hotel / Shortlet — Paystack booking via new /api/bookings flow */
+  const startBooking = async () => {
+    setBookErr(null)
+    const { guestName, guestEmail, guestPhone } = bookForm
+    if (!guestName.trim() || !guestEmail.trim()) { setBookErr('Name and email are required'); return }
+    if (!bookingStart || !bookingEnd) { setBookErr('Select check-in and check-out dates'); return }
+    if (!nights || nights < 1) { setBookErr('Check-out must be after check-in'); return }
+    setBooking(true)
+    try {
+      const res = await axios.post(`${API}/api/bookings/init-payment`, {
+        propertyId:  id,
+        roomTypeId:  selectedRoomTypeId || undefined,
+        checkIn:     bookingStart,
+        checkOut:    bookingEnd,
+        guestCount:  guests,
+        guestName:   guestName.trim(),
+        guestEmail:  guestEmail.trim().toLowerCase(),
+        guestPhone:  guestPhone.trim() || undefined
+      })
+      if (res.data?.authorizationUrl) {
+        window.location.href = res.data.authorizationUrl
+      } else {
+        setBookErr(res.data?.msg || 'Could not initialise payment')
+      }
+    } catch (e) {
+      setBookErr(e.response?.data?.msg || 'Booking failed — please try again')
+    } finally {
+      setBooking(false)
+    }
+  }
+
+  /** Inspection fee payment for sale/rent/land/commercial properties */
+  const startInspection = async () => {
+    setInspErr(null)
+    const { requesterName, requesterEmail, requesterPhone, preferredDate, preferredTime, notes } = inspForm
+    if (!requesterName.trim() || !requesterEmail.trim()) { setInspErr('Name and email are required'); return }
+    if (!preferredDate) { setInspErr('Please pick a preferred inspection date'); return }
+    setInspLoading(true)
+    try {
+      const res = await axios.post(`${API}/api/inspections/init-payment`, {
+        propertyId: id, requesterName: requesterName.trim(),
+        requesterEmail: requesterEmail.trim().toLowerCase(),
+        requesterPhone: requesterPhone.trim() || undefined,
+        preferredDate, preferredTime: preferredTime || undefined, notes: notes || undefined
+      })
+      if (res.data?.authorizationUrl) window.location.href = res.data.authorizationUrl
+      else setInspErr(res.data?.msg || 'Could not initialise payment')
+    } catch (e) {
+      setInspErr(e.response?.data?.msg || 'Failed — please try again')
+    } finally { setInspLoading(false) }
   }
 
   const startMonnify = async () => {
@@ -956,6 +1020,16 @@ export default function PropertyDetails () {
         {/* ── Sidebar ──────────────────────────────────────────────── */}
         <aside className='pd-sidebar'>
           <div className='pd-booking-card' id='booking-section'>
+            {/* Availability badge */}
+            {property?.availability?.isAvailable === false ? (
+              <div className='pd-fully-booked'>
+                <AlertCircle size={14} /> Fully Booked / Leased — not currently available
+              </div>
+            ) : (property?.availability?.availableUnits != null && property.availability.availableUnits <= 3 && property.availability.availableUnits > 0) ? (
+              <div className='pd-low-availability'>
+                <Zap size={12} /> Only {property.availability.availableUnits} unit{property.availability.availableUnits !== 1 ? 's' : ''} left!
+              </div>
+            ) : null}
             <div className='pd-booking-price'>
               <div className='pd-booking-price__main'>
                 {isPerNight
@@ -1040,6 +1114,14 @@ export default function PropertyDetails () {
                 <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setApplyOpen(true)}>
                   Apply to Rent
                 </button>
+              ) : isPerNight ? (
+                <button
+                  className='pd-cta-btn pd-cta-btn--primary'
+                  onClick={() => setBookOpen(true)}
+                  disabled={!bookingStart || !bookingEnd || nights < 1}
+                >
+                  <Calendar size={14} /> Book Now
+                </button>
               ) : (
                 <>
                   <button className='pd-cta-btn pd-cta-btn--primary' onClick={startMonnify}>
@@ -1050,8 +1132,22 @@ export default function PropertyDetails () {
                   </button>
                 </>
               )}
-              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => window.location.href = `mailto:${owner.email || ''}`}>
-                <Mail size={14} /> Contact Agent
+              {/* Inspection fee CTA — shown for non-per-night properties that require it */}
+              {!isPerNight && property?.inspectionFee?.required && (
+                <button className='pd-cta-btn pd-cta-btn--inspect' onClick={() => setInspOpen(true)}>
+                  <Eye size={14} /> Schedule Inspection — {fmt(property.inspectionFee.amount, property.inspectionFee.currency || currency)}
+                </button>
+              )}
+              {/* Owner direct messaging (uses existing Socket.IO chat) */}
+              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => {
+                const token = localStorage.getItem('authToken')
+                if (!token) { window.location.href = `/auth/login?next=/property/${id}`; return }
+                // Pass owner userId to open chat
+                const ownerId = property?.owner?.userId || property?.userId
+                if (ownerId) window.location.href = `/admin/dashboard?page=Messages&to=${ownerId}`
+                else window.location.href = `mailto:${owner?.email || ''}`
+              }}>
+                <Mail size={14} /> Chat with Owner
               </button>
             </div>
 
@@ -1105,6 +1201,97 @@ export default function PropertyDetails () {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Inspection Fee Modal (house / land / commercial) ─────────── */}
+      {inspOpen && (
+        <div className='pd-modal-backdrop' onClick={() => setInspOpen(false)}>
+          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
+            <button className='pd-modal__close' onClick={() => setInspOpen(false)}><X size={16} /></button>
+            <h3>Schedule a Viewing</h3>
+            <p className='pd-modal__sub'>{property.title}</p>
+            <div className='pd-modal__row'>
+              <span><Shield size={13} /> Inspection fee: <strong>{fmt(property.inspectionFee.amount, property.inspectionFee.currency || currency)}</strong></span>
+              <span style={{ color: '#c53030', fontSize: 12 }}>Non-refundable</span>
+            </div>
+            {inspErr && <p className='pd-modal__err'>{inspErr}</p>}
+            <label>Full name *</label>
+            <input type='text' placeholder='Your full name' value={inspForm.requesterName} onChange={e => setInspForm(f => ({ ...f, requesterName: e.target.value }))} />
+            <label>Email *</label>
+            <input type='email' placeholder='your@email.com' value={inspForm.requesterEmail} onChange={e => setInspForm(f => ({ ...f, requesterEmail: e.target.value }))} />
+            <label>Phone</label>
+            <input type='tel' placeholder='+234 800 000 0000' value={inspForm.requesterPhone} onChange={e => setInspForm(f => ({ ...f, requesterPhone: e.target.value }))} />
+            <label>Preferred date *</label>
+            <input type='date' value={inspForm.preferredDate} min={new Date().toISOString().split('T')[0]} onChange={e => setInspForm(f => ({ ...f, preferredDate: e.target.value }))} />
+            <label>Preferred time</label>
+            <input type='time' value={inspForm.preferredTime} onChange={e => setInspForm(f => ({ ...f, preferredTime: e.target.value }))} />
+            <label>Notes for the owner</label>
+            <textarea rows={2} placeholder='Any specific areas you want to inspect?' value={inspForm.notes} onChange={e => setInspForm(f => ({ ...f, notes: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontFamily: 'inherit', fontSize: 14, boxSizing: 'border-box' }} />
+            <p className='pd-modal__note'>
+              <AlertCircle size={11} /> The {fmt(property.inspectionFee.amount, property.inspectionFee.currency || currency)} inspection fee is <strong>non-refundable</strong> — it confirms your viewing slot.
+            </p>
+            <div className='pd-modal__actions'>
+              <button className='pd-cta-btn pd-cta-btn--primary' onClick={startInspection} disabled={inspLoading}>
+                {inspLoading ? 'Redirecting…' : `Pay & Schedule Inspection`}
+              </button>
+              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setInspOpen(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Booking Form Modal (hotel / shortlet) ────────────────────── */}
+      {bookOpen && (
+        <div className='pd-modal-backdrop' onClick={() => setBookOpen(false)}>
+          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
+            <button className='pd-modal__close' onClick={() => setBookOpen(false)}><X size={16} /></button>
+            <h3>Complete Your Booking</h3>
+            <p className='pd-modal__sub'>{property.title}</p>
+            <div className='pd-modal__row'>
+              <span><Calendar size={13} /> {new Date(bookingStart).toLocaleDateString('en-GB', {day:'numeric',month:'short'})} → {new Date(bookingEnd).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</span>
+              <span>{nights} night{nights !== 1 ? 's' : ''} · {guests} guest{guests !== 1 ? 's' : ''}</span>
+            </div>
+            {bookErr && <p className='pd-modal__err'>{bookErr}</p>}
+            <label>Full name *</label>
+            <input
+              type='text' placeholder='Your full name'
+              value={bookForm.guestName}
+              onChange={e => setBookForm(f => ({ ...f, guestName: e.target.value }))}
+            />
+            <label>Email address *</label>
+            <input
+              type='email' placeholder='your@email.com'
+              value={bookForm.guestEmail}
+              onChange={e => setBookForm(f => ({ ...f, guestEmail: e.target.value }))}
+            />
+            <label>Phone number</label>
+            <input
+              type='tel' placeholder='+234 800 000 0000'
+              value={bookForm.guestPhone}
+              onChange={e => setBookForm(f => ({ ...f, guestPhone: e.target.value }))}
+            />
+            <div className='pd-booking-summary pd-booking-summary--modal'>
+              <div><span>{nights} night{nights !== 1 ? 's' : ''} × {fmt(bookingTotal?.perNight || effectivePrice, currency)}</span><strong>{fmt(bookingTotal?.total || 0, currency)}</strong></div>
+              {cautionFee && (
+                <div><span>Caution fee <em style={{fontSize:10,fontWeight:400}}>(refundable)</em></span><strong>{fmt(cautionFee.amount, cautionFee.currency || currency)}</strong></div>
+              )}
+              <div className='pd-booking-summary__total'>
+                <span>Total charged today</span>
+                <strong>{fmt((bookingTotal?.total || 0) + (cautionFee ? cautionFee.amount : 0), currency)}</strong>
+              </div>
+            </div>
+            <p className='pd-modal__note'>
+              <Shield size={11} /> Secure payment via Paystack · No account needed · Receipt emailed instantly
+              {cautionFee && ' · Caution fee refunded after checkout if no damage'}
+            </p>
+            <div className='pd-modal__actions'>
+              <button className='pd-cta-btn pd-cta-btn--primary' onClick={startBooking} disabled={booking}>
+                {booking ? 'Redirecting to payment…' : `Pay ${fmt((bookingTotal?.total || 0) + (cautionFee ? cautionFee.amount : 0), currency)}`}
+              </button>
+              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setBookOpen(false)}>Cancel</button>
+            </div>
           </div>
         </div>
       )}

@@ -35,7 +35,9 @@ import Certifications from '@/component/artisan/Certifications/Certifications'
 // Tenant Components
 import TenantDashboard from '@/component/tenant/Dashboard/Dashboard'
 import MyHome from '@/component/tenant/Home/Home'
-import TenantPayments from '@/component/tenant/Payments/Payments'
+import TenantPayments  from '@/component/tenant/Payments/Payments'
+import MyBookings      from '@/component/admin/Tenant/MyBookings'
+import BookingCart     from '@/component/admin/Tenant/BookingCart'
 import TenantMaintenance from '@/component/tenant/Maintenance/Maintenance'
 import Messages from '@/component/tenant/Messages/Messages'
 
@@ -651,6 +653,10 @@ export default function AdminLayout ({ children }) {
           return gated(<TenantMaintenance />)
         case 'Documents':
           return gated(<Document />)
+        case 'MyBookings':
+          return <MyBookings />
+        case 'BookingCart':
+          return <BookingCart />
         case 'Messages':
           return gated(<Messages />)
         case 'Profile':

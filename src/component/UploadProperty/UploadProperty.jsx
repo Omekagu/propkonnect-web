@@ -96,7 +96,9 @@ const mkBlankForm = () => ({
   visibility: 'public',
   premiere: false,
   paymentPlans: [{ id: 'out', name: 'Outright', installments: [{ dueInDays: 0, percent: 100 }] }],
-  cautionFee: { required: false, amount: '', description: '' },
+  cautionFee:    { required: false, amount: '', description: '' },
+  inspectionFee: { required: false, amount: '', durationMinutes: 60 },
+  totalUnits:    1,
   seoTitle: '', seoDescription: '',
   propertySpaceType: null,
   buildingCharacteristics: [],
@@ -219,7 +221,9 @@ export default function UploadPropertyWizard ({
           visibility: p.visibility||'public',
           premiere: !!p.premiere,
           paymentPlans: Array.isArray(p.paymentPlans) && p.paymentPlans.length ? p.paymentPlans : [{ id:'out',name:'Outright',installments:[{dueInDays:0,percent:100}] }],
-          cautionFee: p.cautionFee ? { required: p.cautionFee.required || false, amount: p.cautionFee.amount ? String(p.cautionFee.amount) : '', description: p.cautionFee.description || '' } : { required: false, amount: '', description: '' },
+          cautionFee:    p.cautionFee    ? { required: p.cautionFee.required    || false, amount: p.cautionFee.amount    ? String(p.cautionFee.amount)    : '', description: p.cautionFee.description    || '' } : { required: false, amount: '', description: '' },
+          inspectionFee: p.inspectionFee ? { required: p.inspectionFee.required || false, amount: p.inspectionFee.amount ? String(p.inspectionFee.amount) : '', durationMinutes: p.inspectionFee.durationMinutes || 60 } : { required: false, amount: '', durationMinutes: 60 },
+          totalUnits: p.availability?.totalUnits || 1,
           seoTitle: p.seoTitle||'',
           seoDescription: p.seoDescription||'',
           propertySpaceType: p.propertySpaceType || null,
@@ -598,9 +602,18 @@ export default function UploadPropertyWizard ({
         languagesSpoken:  form.languagesSpoken?.length ? form.languagesSpoken : undefined,
         nearbyPlaces:     form.nearbyPlaces?.length ? form.nearbyPlaces : undefined,
         houseRules:       form.houseRules || undefined,
-        cautionFee:       (form.cautionFee?.required && form.cautionFee?.amount)
+        cautionFee: (form.cautionFee?.required && form.cautionFee?.amount)
           ? { required: true, amount: Number(form.cautionFee.amount), currency: form.currency || 'NGN', description: form.cautionFee.description || undefined }
-          : undefined
+          : undefined,
+        inspectionFee: (form.inspectionFee?.required && form.inspectionFee?.amount)
+          ? { required: true, amount: Number(form.inspectionFee.amount), currency: form.currency || 'NGN', durationMinutes: form.inspectionFee.durationMinutes || 60 }
+          : undefined,
+        // Initialise availability tracking with total units declared by owner
+        availability: {
+          totalUnits:     Number(form.totalUnits) || 1,
+          availableUnits: Number(form.totalUnits) || 1,
+          isAvailable:    true
+        }
       }
 
       const isEdit = !!form._id
@@ -969,6 +982,59 @@ export default function UploadPropertyWizard ({
                   </div>
                 )}
               </>
+            )}
+
+            {/* ── Inspection fee (non-refundable viewing fee — houses, land, commercial) ── */}
+            {form.category !== 'Shortlet' && form.category !== 'Hotel' && (
+              <>
+                <div className='wz-row' style={{ alignItems:'center', gap:12, marginBottom:12, marginTop:8 }}>
+                  <label className='wz-toggle-label' style={{ display:'flex', alignItems:'center', gap:8, cursor:'pointer', fontSize:14 }}>
+                    <input
+                      type='checkbox'
+                      checked={!!form.inspectionFee?.required}
+                      onChange={e => set('inspectionFee', { ...form.inspectionFee, required: e.target.checked })}
+                      style={{ width:16, height:16 }}
+                    />
+                    Require an inspection / viewing fee <span style={{ fontSize:12, color:'#c53030', marginLeft:4 }}>(non-refundable)</span>
+                  </label>
+                </div>
+                {form.inspectionFee?.required && (
+                  <div className='wz-row c2'>
+                    <div className='wz-field'>
+                      <label>Inspection Fee Amount ({form.currency})</label>
+                      <input
+                        type='number' min='0'
+                        value={form.inspectionFee?.amount || ''}
+                        onChange={e => set('inspectionFee', { ...form.inspectionFee, amount: e.target.value })}
+                        placeholder='e.g. 5000'
+                      />
+                    </div>
+                    <div className='wz-field'>
+                      <label>Slot Duration (minutes)</label>
+                      <input
+                        type='number' min='15' step='15'
+                        value={form.inspectionFee?.durationMinutes || 60}
+                        onChange={e => set('inspectionFee', { ...form.inspectionFee, durationMinutes: Number(e.target.value) })}
+                        placeholder='60'
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* ── Unit count for availability tracking ─────────────────────────── */}
+            {form.category !== 'Land' && form.category !== 'Plot' && (
+              <div className='wz-field' style={{ marginTop:8 }}>
+                <label>Total available units / rooms</label>
+                <input
+                  type='number' min='1'
+                  value={form.totalUnits || 1}
+                  onChange={e => set('totalUnits', Math.max(1, Number(e.target.value) || 1))}
+                  placeholder='1'
+                />
+                <span style={{ fontSize:12, color:'#888' }}>How many units can be occupied simultaneously? Used to track availability.</span>
+              </div>
             )}
 
             <hr className='wz-divider' />
