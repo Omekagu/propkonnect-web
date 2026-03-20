@@ -1023,8 +1023,8 @@ export default function Dashboard ({ onRouteChange }) {
                 )}
 
                 {!loading &&
-                  activity.map(item => (
-                    <ActivityItem key={item.key} {...item} />
+                  activity.map(({ key, ...rest }) => (
+                    <ActivityItem key={key} {...rest} />
                   ))}
               </div>
             </section>

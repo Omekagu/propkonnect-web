@@ -1353,9 +1353,8 @@ export default function Settings () {
           apiFetch('GET', '/api/settings/security/sessions')
         ])
 
-        // billing may 404 if not set yet — treat that as empty
         const billingRes = await apiFetch('GET', '/api/settings/billing').catch(
-          () => ({ data: {} })
+          () => ({ success: true, data: null })
         )
 
         const p = profileRes.data ?? {}

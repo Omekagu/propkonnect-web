@@ -69,11 +69,11 @@ export default function PropertyDetails () {
   const [selectedRoomTypeId, setSelectedRoomTypeId] = useState(null)
   const [selectedPlanIdx, setSelectedPlanIdx] = useState(0)
 
-  // Apply to rent modal
-  const [applyOpen, setApplyOpen] = useState(false)
-  const [applyMsg, setApplyMsg] = useState('')
-  const [applyStatus, setApplyStatus] = useState(null)
-  const [applying, setApplying] = useState(false)
+  // Rent payment modal
+  const [rentOpen, setRentOpen] = useState(false)
+  const [rentForm, setRentForm] = useState({ renterName: '', renterEmail: '', renterPhone: '', moveInDate: '', message: '' })
+  const [rentErr, setRentErr] = useState(null)
+  const [renting, setRenting] = useState(false)
 
   // Booking form modal (hotel / shortlet — new booking API)
   const [bookOpen, setBookOpen] = useState(false)
@@ -178,7 +178,7 @@ export default function PropertyDetails () {
   const isHotel = cat === 'hotel'
   const isShortlet = cat === 'shortlet'
   const isPerNight = isHotel || isShortlet
-  const isRent = (property?.purpose || '').toLowerCase().includes('rent')
+  const isRent = ['for rent', 'rent', 'for lease', 'lease'].some(v => (property?.purpose || '').toLowerCase().includes(v))
   const isSale = !isPerNight && !isRent
   const currency = property?.currency || 'NGN'
 
@@ -236,16 +236,27 @@ export default function PropertyDetails () {
     }
   }
 
-  const submitApplication = async () => {
-    setApplying(true); setApplyStatus(null)
+  const startRent = async () => {
+    setRentErr(null)
+    const { renterName, renterEmail, renterPhone, moveInDate, message } = rentForm
+    if (!renterName.trim() || !renterEmail.trim()) { setRentErr('Full name and email are required'); return }
+    setRenting(true)
     try {
-      await axios.post(`${API}/api/properties/property-applications`,
-        { propertyId: id, applicationType: 'rent', message: applyMsg },
-        { withCredentials: true }
-      )
-      setApplyStatus('success')
-    } catch (e) { setApplyStatus(e.response?.data?.message || 'Failed to submit') }
-    finally { setApplying(false) }
+      const res = await axios.post(`${API}/api/properties/${id}/initiate-rent`, {
+        renterName: renterName.trim(),
+        renterEmail: renterEmail.trim().toLowerCase(),
+        renterPhone: renterPhone.trim() || undefined,
+        moveInDate: moveInDate || undefined,
+        message: message.trim() || undefined
+      })
+      if (res.data?.authorizationUrl) {
+        window.location.href = res.data.authorizationUrl
+      } else {
+        setRentErr(res.data?.msg || 'Could not initialise payment')
+      }
+    } catch (e) {
+      setRentErr(e.response?.data?.msg || 'Payment failed — please try again')
+    } finally { setRenting(false) }
   }
 
   /** Hotel / Shortlet — Paystack booking via new /api/bookings flow */
@@ -624,6 +635,43 @@ export default function PropertyDetails () {
                 </div>
               )}
 
+              {/* Building Characteristics */}
+              {property.buildingCharacteristics?.length > 0 && (
+                <div className='pd-card'>
+                  <h3>Building Characteristics</h3>
+                  <div className='pd-features-grid'>
+                    {property.buildingCharacteristics.map(c => (
+                      <div key={c} className='pd-feature'><Building2 size={13} /><span>{c}</span></div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Nearby places */}
+              {property.nearbyPlaces?.length > 0 && (
+                <div className='pd-card'>
+                  <h3>Nearby Places</h3>
+                  <div className='pd-features-grid'>
+                    {property.nearbyPlaces.map((p, i) => (
+                      <div key={i} className='pd-feature'>
+                        <MapPin size={13} />
+                        <span>{typeof p === 'string' ? p : `${p.name}${p.distance ? ` — ${p.distance}` : ''}`}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Languages spoken (all property types, not just hotels) */}
+              {property.languagesSpoken?.length > 0 && (
+                <div className='pd-card'>
+                  <h3>Languages Spoken</h3>
+                  <div className='pd-tags'>
+                    {property.languagesSpoken.map(l => <span key={l} className='pd-tag'>{l}</span>)}
+                  </div>
+                </div>
+              )}
+
               {/* Tags */}
               {property.tags?.length > 0 && (
                 <div className='pd-card'>
@@ -733,6 +781,10 @@ export default function PropertyDetails () {
                   {property.sizeSqm && <div className='pd-detail'><span>Size (sqm)</span><strong>{property.sizeSqm} sqm</strong></div>}
                   {property.maxRooms && <div className='pd-detail'><span>Max Rooms</span><strong>{property.maxRooms}</strong></div>}
                   {property.propertySpaceType && <div className='pd-detail'><span>Space Type</span><strong>{property.propertySpaceType.replace(/_/g, ' ')}</strong></div>}
+                  {property.rentFrequency && isRent && <div className='pd-detail'><span>Rent Frequency</span><strong style={{ textTransform:'capitalize' }}>{property.rentFrequency}</strong></div>}
+                  {property.availability?.totalUnits > 1 && <div className='pd-detail'><span>Total Units</span><strong>{property.availability.totalUnits}</strong></div>}
+                  {property.availability?.availableUnits != null && <div className='pd-detail'><span>Available Units</span><strong>{property.availability.availableUnits}</strong></div>}
+                  {property.availability?.nextAvailableDate && <div className='pd-detail'><span>Next Available</span><strong>{new Date(property.availability.nextAvailableDate).toLocaleDateString()}</strong></div>}
                   {property.premiere && <div className='pd-detail'><span>Premiere</span><strong>✓</strong></div>}
                   {property.averageRating > 0 && <div className='pd-detail'><span>Rating</span><strong>{'★'.repeat(Math.round(property.averageRating))} {property.averageRating.toFixed(1)} ({property.reviewCount || 0} reviews)</strong></div>}
                   {property.createdAt && <div className='pd-detail'><span>Listed</span><strong>{new Date(property.createdAt).toLocaleDateString()}</strong></div>}
@@ -1184,8 +1236,8 @@ export default function PropertyDetails () {
                   <Calendar size={14} /> Book Now
                 </button>
               ) : isRent ? (
-                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setApplyOpen(true)}>
-                  Apply to Rent
+                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setRentOpen(true)}>
+                  <CreditCard size={14} /> Rent Now
                 </button>
               ) : (
                 /* For sale / commercial / land */
@@ -1243,32 +1295,55 @@ export default function PropertyDetails () {
         </aside>
       </div>
 
-      {/* ── Apply Modal ──────────────────────────────────────────────── */}
-      {applyOpen && (
-        <div className='pd-modal-backdrop' onClick={() => setApplyOpen(false)}>
-          <div className='pd-modal' onClick={e => e.stopPropagation()}>
-            {applyStatus === 'success' ? (
-              <>
-                <CheckCircle2 size={32} color='#22c55e' />
-                <h3>Application Submitted!</h3>
-                <p>The property owner will review your application and get back to you.</p>
-                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => { setApplyOpen(false); setApplyStatus(null) }}>Close</button>
-              </>
-            ) : (
-              <>
-                <h3>Apply to Rent</h3>
-                <p>{property.title}</p>
-                {applyStatus && <p className='pd-modal__err'>{applyStatus}</p>}
-                <label>Message to landlord (optional)</label>
-                <textarea rows={4} value={applyMsg} onChange={e => setApplyMsg(e.target.value)} placeholder='Introduce yourself, mention your move-in date…' />
-                <div className='pd-modal__actions'>
-                  <button className='pd-cta-btn pd-cta-btn--primary' onClick={submitApplication} disabled={applying}>
-                    {applying ? 'Submitting…' : 'Submit Application'}
-                  </button>
-                  <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setApplyOpen(false)}>Cancel</button>
+      {/* ── Rent Now Modal ───────────────────────────────────────────── */}
+      {rentOpen && (
+        <div className='pd-modal-backdrop' onClick={() => setRentOpen(false)}>
+          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
+            <button className='pd-modal__close' onClick={() => setRentOpen(false)}><X size={16} /></button>
+            <h3>{(property?.purpose || '').toLowerCase().includes('lease') ? 'Lease Property' : 'Rent Property'}</h3>
+            <p className='pd-modal__sub'>{property.title}</p>
+            {rentErr && <p className='pd-modal__err'>{rentErr}</p>}
+            <label>Full name *</label>
+            <input type='text' placeholder='Your full name' value={rentForm.renterName} onChange={e => setRentForm(f => ({ ...f, renterName: e.target.value }))} />
+            <label>Email address *</label>
+            <input type='email' placeholder='your@email.com' value={rentForm.renterEmail} onChange={e => setRentForm(f => ({ ...f, renterEmail: e.target.value }))} />
+            <label>Phone number</label>
+            <input type='tel' placeholder='+234 800 000 0000' value={rentForm.renterPhone} onChange={e => setRentForm(f => ({ ...f, renterPhone: e.target.value }))} />
+            <label>Preferred move-in date</label>
+            <input type='date' value={rentForm.moveInDate} min={new Date().toISOString().split('T')[0]} onChange={e => setRentForm(f => ({ ...f, moveInDate: e.target.value }))} />
+            <label>Message to landlord (optional)</label>
+            <textarea rows={3} placeholder='Introduce yourself…' value={rentForm.message} onChange={e => setRentForm(f => ({ ...f, message: e.target.value }))} style={{ width:'100%', padding:'8px 10px', border:'1.5px solid #e5e7eb', borderRadius:8, fontFamily:'inherit', fontSize:14, boxSizing:'border-box' }} />
+
+            {/* Payment breakdown */}
+            <div className='pd-booking-summary pd-booking-summary--modal' style={{ marginTop: 12 }}>
+              <div>
+                <span>First period rent ({property.rentFrequency || 'monthly'})</span>
+                <strong>{fmt(property.rentPrice || property.price || effectivePrice, currency)}</strong>
+              </div>
+              {property.cautionFee?.required && (
+                <div>
+                  <span>Security deposit <em style={{ fontSize:10, fontWeight:400 }}>(refundable)</em></span>
+                  <strong>{fmt(property.cautionFee.amount, property.cautionFee.currency || currency)}</strong>
                 </div>
-              </>
-            )}
+              )}
+              <div className='pd-booking-summary__total'>
+                <span>Total charged today</span>
+                <strong>{fmt((property.rentPrice || property.price || effectivePrice || 0) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0), currency)}</strong>
+              </div>
+            </div>
+
+            <p className='pd-modal__note'>
+              <Shield size={11} /> Secured by PropNect Escrow · Funds released to landlord after move-in confirmed
+            </p>
+            <div className='pd-modal__actions'>
+              <button className='pd-cta-btn pd-cta-btn--primary' onClick={startRent} disabled={renting}>
+                {renting
+                  ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Redirecting…</>
+                  : `Pay & Confirm Rent ${fmt((property.rentPrice || property.price || effectivePrice || 0) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0), currency)}`
+                }
+              </button>
+              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setRentOpen(false)}>Cancel</button>
+            </div>
           </div>
         </div>
       )}
@@ -1488,7 +1563,7 @@ export default function PropertyDetails () {
           {property.rentFrequency && <span>/{property.rentFrequency}</span>}
         </div>
         <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' })}>
-          {isRent && !isPerNight ? 'Apply to Rent' : 'Book / Buy'}
+          {isRent && !isPerNight ? 'Rent Now' : isPerNight ? 'Book Now' : 'Buy Now'}
         </button>
       </div>
     </div>
