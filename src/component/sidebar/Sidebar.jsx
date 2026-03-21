@@ -73,11 +73,11 @@ export default function Sidebar ({
             label: 'Properties',
             icon: <HousePlus strokeWidth={0.75} />
           },
-          {
-            key: 'ArtisanManagement',
-            label: 'Artisans',
-            icon: <Wrench strokeWidth={0.75} />
-          },
+          // {
+          //   key: 'ArtisanManagement',
+          //   label: 'Artisans',
+          //   icon: <Wrench strokeWidth={0.75} />
+          // },
           {
             key: 'Tenants',
             label: 'Tenants',
@@ -621,7 +621,13 @@ export default function Sidebar ({
         <div className='sidebar-footer'>
           {/* ── Plan widget — hidden for super-admins ──────────────── */}
           {(() => {
-            const ADMIN_ROLES = ['SUPER_ADMIN', 'SUB_ADMIN', 'SUPPORT_ADMIN', 'property-admin', 'artisan-admin']
+            const ADMIN_ROLES = [
+              'SUPER_ADMIN',
+              'SUB_ADMIN',
+              'SUPPORT_ADMIN',
+              'property-admin',
+              'artisan-admin'
+            ]
             if (ADMIN_ROLES.includes(userRole)) return null
 
             const plan = livePlan || user?.plan
@@ -630,69 +636,168 @@ export default function Sidebar ({
             const tier = (plan.tier || 'free').toLowerCase()
 
             // ── Trial data ───────────────────────────────────────────
-            const onTrial   = plan.isOnTrial && plan.trialEndsAt
-            const msLeft    = onTrial ? new Date(plan.trialEndsAt) - new Date() : 0
-            const daysLeft  = onTrial ? Math.ceil(msLeft / (1000 * 60 * 60 * 24)) : 0
+            const onTrial = plan.isOnTrial && plan.trialEndsAt
+            const msLeft = onTrial ? new Date(plan.trialEndsAt) - new Date() : 0
+            const daysLeft = onTrial
+              ? Math.ceil(msLeft / (1000 * 60 * 60 * 24))
+              : 0
             const trialLive = onTrial && daysLeft >= 0
 
-            const isUrgent  = trialLive && daysLeft <= 3
+            const isUrgent = trialLive && daysLeft <= 3
             const isWarning = trialLive && daysLeft <= 7
 
             // ── Tier visuals ─────────────────────────────────────────
             const tierMeta = {
-              free:       { label: 'Free',       color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1', icon: '🪙' },
-              basic:      { label: 'Basic',      color: '#0F6040', bg: '#e8f5e9', border: '#a7d4b8', icon: '⭐' },
-              pro:        { label: 'Pro',         color: '#7c3aed', bg: '#f5f3ff', border: '#c4b5fd', icon: '🚀' },
-              enterprise: { label: 'Enterprise', color: '#b45309', bg: '#fffbeb', border: '#fcd34d', icon: '👑' },
+              free: {
+                label: 'Free',
+                color: '#64748b',
+                bg: '#f1f5f9',
+                border: '#cbd5e1',
+                icon: '🪙'
+              },
+              basic: {
+                label: 'Basic',
+                color: '#0F6040',
+                bg: '#e8f5e9',
+                border: '#a7d4b8',
+                icon: '⭐'
+              },
+              pro: {
+                label: 'Pro',
+                color: '#7c3aed',
+                bg: '#f5f3ff',
+                border: '#c4b5fd',
+                icon: '🚀'
+              },
+              enterprise: {
+                label: 'Enterprise',
+                color: '#b45309',
+                bg: '#fffbeb',
+                border: '#fcd34d',
+                icon: '👑'
+              }
             }
             const meta = tierMeta[tier] || tierMeta.free
 
             // If trial is urgent/warning override colors
-            const cardColor  = isUrgent ? '#dc2626' : isWarning ? '#b45309' : meta.color
-            const cardBg     = isUrgent ? '#fff5f5'  : isWarning ? '#fffbe6' : meta.bg
-            const cardBorder = isUrgent ? '#fca5a5'  : isWarning ? '#fcd34d' : meta.border
+            const cardColor = isUrgent
+              ? '#dc2626'
+              : isWarning
+              ? '#b45309'
+              : meta.color
+            const cardBg = isUrgent
+              ? '#fff5f5'
+              : isWarning
+              ? '#fffbe6'
+              : meta.bg
+            const cardBorder = isUrgent
+              ? '#fca5a5'
+              : isWarning
+              ? '#fcd34d'
+              : meta.border
 
             const showUpgrade = tier !== 'enterprise'
 
             // ── Trial progress bar ───────────────────────────────────
             let pct = 100
             if (trialLive) {
-              const totalMs   = plan.trialStartedAt
+              const totalMs = plan.trialStartedAt
                 ? new Date(plan.trialEndsAt) - new Date(plan.trialStartedAt)
                 : 30 * 24 * 60 * 60 * 1000
-              const totalDays = Math.max(1, Math.ceil(totalMs / (1000 * 60 * 60 * 24)))
+              const totalDays = Math.max(
+                1,
+                Math.ceil(totalMs / (1000 * 60 * 60 * 24))
+              )
               pct = Math.max(0, Math.min(100, (daysLeft / totalDays) * 100))
             }
 
             // ── Collapsed mode ───────────────────────────────────────
             if (collapsed) {
               const tip = trialLive
-                ? `${meta.icon} ${meta.label}${onTrial ? ` · Trial: ${daysLeft}d left` : ''}`
+                ? `${meta.icon} ${meta.label}${
+                    onTrial ? ` · Trial: ${daysLeft}d left` : ''
+                  }`
                 : `${meta.icon} ${meta.label} Plan`
               return (
-                <div title={tip} style={{ display:'flex', justifyContent:'center', padding:'8px 0', cursor: showUpgrade ? 'pointer' : 'default' }}
-                  onClick={showUpgrade ? () => handleClick('Settings') : undefined}>
-                  <span style={{ fontSize: 18 }}>{isUrgent ? '⏰' : isWarning ? '⚠️' : meta.icon}</span>
+                <div
+                  title={tip}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: '8px 0',
+                    cursor: showUpgrade ? 'pointer' : 'default'
+                  }}
+                  onClick={
+                    showUpgrade ? () => handleClick('Settings') : undefined
+                  }
+                >
+                  <span style={{ fontSize: 18 }}>
+                    {isUrgent ? '⏰' : isWarning ? '⚠️' : meta.icon}
+                  </span>
                 </div>
               )
             }
 
             // ── Expanded mode ────────────────────────────────────────
             return (
-              <div style={{ margin: '8px 12px 4px', background: cardBg, borderRadius: 10, padding: '10px 12px', border: `1px solid ${cardBorder}` }}>
+              <div
+                style={{
+                  margin: '8px 12px 4px',
+                  background: cardBg,
+                  borderRadius: 10,
+                  padding: '10px 12px',
+                  border: `1px solid ${cardBorder}`
+                }}
+              >
                 {/* Header row: tier badge + trial tag */}
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: trialLive ? 6 : 8 }}>
-                  <div style={{ display:'flex', alignItems:'center', gap: 5 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: trialLive ? 6 : 8
+                  }}
+                >
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 5 }}
+                  >
                     <span style={{ fontSize: 13 }}>{meta.icon}</span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: cardColor, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 800,
+                        color: cardColor,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em'
+                      }}
+                    >
                       {meta.label}
                     </span>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: '#fff', background: cardColor, borderRadius: 4, padding: '1px 5px' }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 600,
+                        color: '#fff',
+                        background: cardColor,
+                        borderRadius: 4,
+                        padding: '1px 5px'
+                      }}
+                    >
                       Plan
                     </span>
                   </div>
                   {trialLive && (
-                    <span style={{ fontSize: 10, fontWeight: 700, color: cardColor, background: `${cardColor}18`, borderRadius: 4, padding: '2px 6px', whiteSpace: 'nowrap' }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: cardColor,
+                        background: `${cardColor}18`,
+                        borderRadius: 4,
+                        padding: '2px 6px',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
                       {isUrgent ? '⏰' : '🎁'} Trial
                     </span>
                   )}
@@ -701,36 +806,154 @@ export default function Sidebar ({
                 {/* Trial countdown + progress */}
                 {trialLive && (
                   <>
-                    <div style={{ display:'flex', justifyContent:'space-between', fontSize: 11, color: cardColor, fontWeight: 700, marginBottom: 4 }}>
-                      <span>{daysLeft === 0 ? 'Expires today!' : daysLeft === 1 ? '1 day left' : `${daysLeft} days left`}</span>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontSize: 11,
+                        color: cardColor,
+                        fontWeight: 700,
+                        marginBottom: 4
+                      }}
+                    >
+                      <span>
+                        {daysLeft === 0
+                          ? 'Expires today!'
+                          : daysLeft === 1
+                          ? '1 day left'
+                          : `${daysLeft} days left`}
+                      </span>
                       <span style={{ opacity: 0.75, fontWeight: 500 }}>
-                        {new Date(plan.trialEndsAt).toLocaleDateString('en-GB', { day:'numeric', month:'short' })}
+                        {new Date(plan.trialEndsAt).toLocaleDateString(
+                          'en-GB',
+                          { day: 'numeric', month: 'short' }
+                        )}
                       </span>
                     </div>
-                    <div style={{ height: 4, background: '#e0e0e0', borderRadius: 99, overflow: 'hidden', marginBottom: 8 }}>
-                      <div style={{ height: '100%', width: `${pct}%`, background: cardColor, borderRadius: 99, transition: 'width .4s' }} />
+                    <div
+                      style={{
+                        height: 4,
+                        background: '#e0e0e0',
+                        borderRadius: 99,
+                        overflow: 'hidden',
+                        marginBottom: 8
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: '100%',
+                          width: `${pct}%`,
+                          background: cardColor,
+                          borderRadius: 99,
+                          transition: 'width .4s'
+                        }}
+                      />
                     </div>
                   </>
                 )}
 
                 {/* Plan limits row */}
-                <div style={{ display:'flex', gap: 8, marginBottom: showUpgrade ? 8 : 0 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 8,
+                    marginBottom: showUpgrade ? 8 : 0
+                  }}
+                >
                   {plan.listingLimit != null && (
-                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.04)', borderRadius: 6, padding: '4px 7px', textAlign:'center' }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: cardColor }}>{plan.listingLimit}</div>
-                      <div style={{ fontSize: 9, color: '#888', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Listings</div>
+                    <div
+                      style={{
+                        flex: 1,
+                        background: 'rgba(0,0,0,0.04)',
+                        borderRadius: 6,
+                        padding: '4px 7px',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 800,
+                          color: cardColor
+                        }}
+                      >
+                        {plan.listingLimit}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 9,
+                          color: '#888',
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.03em'
+                        }}
+                      >
+                        Listings
+                      </div>
                     </div>
                   )}
                   {plan.aiCredits != null && (
-                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.04)', borderRadius: 6, padding: '4px 7px', textAlign:'center' }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: cardColor }}>{plan.aiCredits}</div>
-                      <div style={{ fontSize: 9, color: '#888', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.03em' }}>AI Credits</div>
+                    <div
+                      style={{
+                        flex: 1,
+                        background: 'rgba(0,0,0,0.04)',
+                        borderRadius: 6,
+                        padding: '4px 7px',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 800,
+                          color: cardColor
+                        }}
+                      >
+                        {plan.aiCredits}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 9,
+                          color: '#888',
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.03em'
+                        }}
+                      >
+                        AI Credits
+                      </div>
                     </div>
                   )}
                   {plan.mediaPerListing != null && (
-                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.04)', borderRadius: 6, padding: '4px 7px', textAlign:'center' }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: cardColor }}>{plan.mediaPerListing}</div>
-                      <div style={{ fontSize: 9, color: '#888', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Photos</div>
+                    <div
+                      style={{
+                        flex: 1,
+                        background: 'rgba(0,0,0,0.04)',
+                        borderRadius: 6,
+                        padding: '4px 7px',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 800,
+                          color: cardColor
+                        }}
+                      >
+                        {plan.mediaPerListing}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 9,
+                          color: '#888',
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.03em'
+                        }}
+                      >
+                        Photos
+                      </div>
                     </div>
                   )}
                 </div>
@@ -739,7 +962,18 @@ export default function Sidebar ({
                 {showUpgrade && (
                   <button
                     onClick={() => handleClick('Settings')}
-                    style={{ width:'100%', background: cardColor, color:'#fff', border:'none', borderRadius: 6, padding:'6px 10px', fontSize: 12, fontWeight: 700, cursor:'pointer', marginTop: 2 }}
+                    style={{
+                      width: '100%',
+                      background: cardColor,
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 6,
+                      padding: '6px 10px',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      marginTop: 2
+                    }}
                   >
                     {tier === 'free' ? 'Upgrade Plan →' : 'Manage Plan →'}
                   </button>

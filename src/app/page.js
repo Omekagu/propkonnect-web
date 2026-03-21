@@ -304,9 +304,10 @@ export default function LandingPage () {
       .get(`${API}/api/properties/all?limit=6&sort=-createdAt`)
       .then(r => {
         const list = r.data?.properties
-        setProperties(list?.length ? list : FALLBACK_LISTINGS)
+        setProperties(list)
       })
-      .catch(() => setProperties(FALLBACK_LISTINGS))
+      .catch(() => setProperties([]))
+      // .catch(() => setProperties(FALLBACK_LISTINGS))
       .finally(() => setLoadingProps(false))
 
     // Premium / top-rated artisans

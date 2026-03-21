@@ -246,8 +246,15 @@ export const usePropertyManagement = () => {
         )
 
         if (res.data?.success) {
-          showNotice('Property deleted successfully')
-          setProperties(prev => prev.filter(p => p._id !== propertyId))
+          showNotice('Property archived successfully')
+          // Mark as archived in state — disappears from default view, visible under "Archived" filter
+          setProperties(prev =>
+            prev.map(p =>
+              p._id === propertyId
+                ? { ...p, status: 'archived', isDraft: false }
+                : p
+            )
+          )
           // Also remove associated applications
           setApplications(prev => prev.filter(a => a.propertyId !== propertyId))
         } else {
@@ -414,14 +421,22 @@ export const usePropertyManagement = () => {
     return properties.filter(p => {
       const matchesSearch =
         p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (typeof p.location === 'string' ? p.location : p.location?.address || p.location?.city || '')?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (typeof p.location === 'string'
+          ? p.location
+          : p.location?.address || p.location?.city || ''
+        )
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
         p.description?.toLowerCase().includes(searchQuery.toLowerCase())
 
       const matchesCategory =
         categoryFilter === 'All' || p.category === categoryFilter
 
+      // 'all' hides archived — select 'archived' explicitly to see them
       const matchesStatus =
-        propertyStatusFilter === 'all' || p.status === propertyStatusFilter
+        propertyStatusFilter === 'all'
+          ? p.status !== 'archived'
+          : p.status === propertyStatusFilter
 
       return matchesSearch && matchesCategory && matchesStatus
     })
@@ -447,25 +462,32 @@ export const usePropertyManagement = () => {
    * Calculate dashboard statistics
    */
   const stats = useMemo(() => {
-    const activeProperties = properties.filter(
-      p => p.status === 'published' || p.status === 'active' || p.status === 'Standard' || !p.status
+    const nonArchived = properties.filter(p => p.status !== 'archived')
+    const activeProperties = nonArchived.filter(
+      p =>
+        p.status === 'published' ||
+        p.status === 'active' ||
+        p.status === 'Standard' ||
+        !p.status
     )
-    const pendingReviewProperties = properties.filter(p => p.status === 'pending_review')
+    const pendingReviewProperties = nonArchived.filter(
+      p => p.status === 'pending_review'
+    )
 
     const pendingApps = applications.filter(a => a.status === 'pending')
     const approvedApps = applications.filter(a => a.status === 'approved')
     const rejectedApps = applications.filter(a => a.status === 'rejected')
 
-    const totalRevenue = properties.reduce((sum, p) => {
+    const totalRevenue = nonArchived.reduce((sum, p) => {
       const price = Number(p.price) || Number(p.rentPrice) || 0
       return sum + price
     }, 0)
 
     return {
-      totalProperties: properties.length,
+      totalProperties: nonArchived.length,
       activeListings: activeProperties.length,
       pendingReview: pendingReviewProperties.length,
-      inactiveListings: properties.length - activeProperties.length,
+      inactiveListings: nonArchived.length - activeProperties.length,
       totalApplications: applications.length,
       pendingApplications: pendingApps.length,
       approvedApplications: approvedApps.length,

@@ -251,6 +251,32 @@ export default function PropertyDetails () {
 
   const selectedPlan = property?.paymentPlans?.[selectedPlanIdx] || null
 
+  // Price adjusted for selected payment plan — shows first installment amount (what you pay now)
+  const planDisplayPrice = useMemo(() => {
+    const base = activePrice && roomQty > 1 ? activePrice * roomQty : activePrice
+    if (!selectedPlan || !base) return base
+    const total = selectedPlan.priceSnapshot?.total || base
+    const firstPct = selectedPlan.installments?.[0]?.percent
+    if (firstPct && firstPct < 100) return Math.round((total * firstPct) / 100)
+    return total
+  }, [selectedPlan, activePrice, roomQty])
+
+  // Plan installment breakdown subtitle: "50% now · 50% in 30d"
+  const planSubtitle = useMemo(() => {
+    if (!selectedPlan?.installments?.length) return selectedPlan?.name || null
+    return selectedPlan.installments
+      .map(i => `${i.percent}% ${i.dueInDays === 0 ? 'now' : `in ${i.dueInDays}d`}`)
+      .join(' · ')
+  }, [selectedPlan])
+
+  // Property is only actionable (rentable/bookable/purchasable) when published
+  const isActionable = !property || property.status === 'published' || property.status === 'active'
+  const notActionableMsg =
+    property?.status === 'pending_review' ? 'Under Review — listing not yet available'
+    : property?.status === 'archived' ? 'This listing has been removed'
+    : property?.status === 'suspended' ? 'This listing is currently suspended'
+    : null
+
   // Owner — populated by backend (property.userId is now a user object)
   const owner = useMemo(() => {
     const u = property?.userId
@@ -1386,13 +1412,19 @@ export default function PropertyDetails () {
               <div className='pd-booking-price__main'>
                 {isPerNight
                   ? bookingTotal?.total ? fmt(bookingTotal.total, currency) : fmt(activePrice, currency)
-                  : fmt(selectedPlan?.priceSnapshot?.total || (activePrice && roomQty > 1 ? activePrice * roomQty : activePrice), currency)}
+                  : fmt(planDisplayPrice, currency)}
               </div>
               <div className='pd-booking-price__sub'>
                 {isPerNight
                   ? `${fmt(bookingTotal?.perNight || activePrice, currency)}/night${roomQty > 1 ? ` × ${roomQty} rooms` : ''}`
-                  : selectedPlan?.name || (selectedRoomType ? selectedRoomType.name : 'Outright')}
+                  : planSubtitle || (selectedRoomType ? selectedRoomType.name : null)}
               </div>
+              {/* Show total when a split plan is selected and first installment < total */}
+              {!isPerNight && selectedPlan?.installments?.length > 0 && selectedPlan.installments[0]?.percent < 100 && (
+                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
+                  Total: {fmt(selectedPlan.priceSnapshot?.total || (activePrice && roomQty > 1 ? activePrice * roomQty : activePrice), currency)}
+                </div>
+              )}
             </div>
 
             {/* Caution fee — shown prominently so guest knows before booking */}
@@ -1481,11 +1513,29 @@ export default function PropertyDetails () {
                   {property.paymentPlans.map((p, i) => (
                     <button key={i} className={`pd-plan-btn${selectedPlanIdx === i ? ' active' : ''}`} onClick={() => setSelectedPlanIdx(i)}>
                       <span>{p.name || p.title || `Plan ${i + 1}`}</span>
-                      {p.priceSnapshot?.total && <span>{fmt(p.priceSnapshot.total, currency)}</span>}
+                      {(() => {
+                        const total = p.priceSnapshot?.total || effectivePrice
+                        const firstPct = p.installments?.[0]?.percent
+                        if (firstPct && firstPct < 100 && total) {
+                          return <span>{fmt(Math.round(total * firstPct / 100), currency)} now</span>
+                        }
+                        return total ? <span>{fmt(total, currency)}</span> : null
+                      })()}
                     </button>
                   ))}
                 </div>
               )
+            )}
+
+            {/* ── Not-actionable banner ─────────────────────────────── */}
+            {notActionableMsg && (
+              <div style={{
+                background: '#fef3c7', color: '#92400e', borderRadius: 8,
+                padding: '8px 12px', fontSize: 13, fontWeight: 600,
+                display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8
+              }}>
+                <AlertCircle size={14} /> {notActionableMsg}
+              </div>
             )}
 
             <div className='pd-booking-actions'>
@@ -1494,17 +1544,17 @@ export default function PropertyDetails () {
                 <button
                   className='pd-cta-btn pd-cta-btn--primary'
                   onClick={() => setBookOpen(true)}
-                  disabled={!bookingStart || !bookingEnd || nights < 1}
+                  disabled={!isActionable || !bookingStart || !bookingEnd || nights < 1}
                 >
                   <Calendar size={14} /> Book Now
                 </button>
               ) : isRent ? (
-                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setRentOpen(true)}>
+                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setRentOpen(true)} disabled={!isActionable}>
                   <CreditCard size={14} /> Rent Now
                 </button>
               ) : (
                 /* For sale / commercial / land */
-                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setPurchOpen(true)}>
+                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setPurchOpen(true)} disabled={!isActionable}>
                   <CreditCard size={14} /> Buy / Pay Now
                 </button>
               )}
@@ -1512,7 +1562,7 @@ export default function PropertyDetails () {
               {/* ── Inspection CTA — platform-controlled, non-perNight applicable categories ── */}
               {!isPerNight && platformInspFee?.enabled &&
                (platformInspFee.appliesTo || []).map(c => c.toLowerCase()).includes(cat) && (
-                <button className='pd-cta-btn pd-cta-btn--inspect' onClick={() => setInspOpen(true)}>
+                <button className='pd-cta-btn pd-cta-btn--inspect' onClick={() => setInspOpen(true)} disabled={!isActionable}>
                   <Eye size={14} /> Schedule Inspection — {fmt(platformInspFee.amount, platformInspFee.currency || currency)}
                 </button>
               )}
@@ -1843,28 +1893,26 @@ export default function PropertyDetails () {
           <strong>
             {isPerNight
               ? (bookingTotal?.total ? fmt(bookingTotal.total, currency) : fmt(activePrice, currency))
-              : fmt(activePrice, currency)}
+              : fmt(planDisplayPrice, currency)}
           </strong>
           <span>
             {isPerNight && nights > 0
               ? `${nights} night${nights !== 1 ? 's' : ''}`
               : isPerNight
                 ? '/ night'
-                : property.rentFrequency
-                  ? `/ ${property.rentFrequency}`
-                  : ''}
+                : planSubtitle || (property.rentFrequency ? `/ ${property.rentFrequency}` : '')}
           </span>
         </div>
         {isPerNight ? (
-          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setBookOpen(true)}>
+          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setBookOpen(true)} disabled={!isActionable}>
             <Calendar size={14} /> Book Now
           </button>
         ) : isRent ? (
-          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setRentOpen(true)}>
+          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setRentOpen(true)} disabled={!isActionable}>
             <CreditCard size={14} /> Rent Now
           </button>
         ) : (
-          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setPurchOpen(true)}>
+          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setPurchOpen(true)} disabled={!isActionable}>
             <CreditCard size={14} /> Buy Now
           </button>
         )}

@@ -10,10 +10,10 @@ const API = process.env.NEXT_PUBLIC_BACKEND_URL
 const CATEGORIES = ['All', 'Plumbing', 'Electrical', 'Carpentry', 'Painting', 'Cleaning', 'HVAC', 'Security', 'Landscaping', 'General']
 
 const STATUS_META = {
-  open:        { color: '#d97706', bg: '#fef3c7', label: 'Open' },
-  in_progress: { color: '#2563eb', bg: '#dbeafe', label: 'In Progress' },
-  completed:   { color: '#16a34a', bg: '#f0fdf4', label: 'Completed' },
-  cancelled:   { color: '#6b7280', bg: '#f3f4f6', label: 'Cancelled' },
+  open:          { color: '#d97706', bg: '#fef3c7', label: 'Open' },
+  'in-progress': { color: '#2563eb', bg: '#dbeafe', label: 'In Progress' },
+  completed:     { color: '#16a34a', bg: '#f0fdf4', label: 'Completed' },
+  cancelled:     { color: '#6b7280', bg: '#f3f4f6', label: 'Cancelled' },
 }
 
 const URGENCY_META = {
@@ -119,13 +119,13 @@ export default function Maintenance () {
   })
 
   const counts = {
-    open:        requests.filter(r => r.status === 'open').length,
-    in_progress: requests.filter(r => r.status === 'in_progress').length,
-    completed:   requests.filter(r => r.status === 'completed').length,
-    cancelled:   requests.filter(r => r.status === 'cancelled').length,
+    open:          requests.filter(r => r.status === 'open').length,
+    'in-progress': requests.filter(r => r.status === 'in-progress').length,
+    completed:     requests.filter(r => r.status === 'completed').length,
+    cancelled:     requests.filter(r => r.status === 'cancelled').length,
   }
 
-  const statuses = ['all', 'open', 'in_progress', 'completed', 'cancelled']
+  const statuses = ['all', 'open', 'in-progress', 'completed', 'cancelled']
 
   return (
     <div style={s.page}>
@@ -147,7 +147,7 @@ export default function Maintenance () {
       <div style={s.statGrid}>
         {[
           { label: 'Open',        val: counts.open,        bg: '#fef3c7', icon: <AlertCircle size={18} color="#d97706" /> },
-          { label: 'In Progress', val: counts.in_progress, bg: '#dbeafe', icon: <Clock size={18} color="#2563eb" /> },
+          { label: 'In Progress', val: counts['in-progress'], bg: '#dbeafe', icon: <Clock size={18} color="#2563eb" /> },
           { label: 'Completed',   val: counts.completed,   bg: '#dcfce7', icon: <CheckCircle size={18} color="#16a34a" /> },
           { label: 'Cancelled',   val: counts.cancelled,   bg: '#f3f4f6', icon: <Wrench size={18} color="#6b7280" /> },
         ].map(st => (
@@ -164,7 +164,7 @@ export default function Maintenance () {
       <div style={s.filters}>
         {statuses.map(st => (
           <button key={st} style={s.tab(statusFilter === st)} onClick={() => setStatusFilter(st)}>
-            {st === 'in_progress' ? 'In Progress' : st.charAt(0).toUpperCase() + st.slice(1)}
+            {st === 'in-progress' ? 'In Progress' : st.charAt(0).toUpperCase() + st.slice(1)}
           </button>
         ))}
       </div>
@@ -191,7 +191,7 @@ export default function Maintenance () {
             const um = URGENCY_META[req.urgency] || URGENCY_META.medium
             const isOpen = expanded === req._id
             const bids = req.bids || []
-            const requester = req.requestedBy || req.user || {}
+            const requester = req.userId || req.requestedBy || req.user || {}
             return (
               <div key={req._id} style={s.card}>
                 <div style={s.cardHeader} onClick={() => setExpanded(isOpen ? null : req._id)}>
@@ -242,7 +242,7 @@ export default function Maintenance () {
                       <div style={s.bidsSection}>
                         <div style={s.bidTitle}>Bids ({bids.length})</div>
                         {bids.slice(0, 5).map((bid, i) => {
-                          const artisan = bid.artisan || bid.bidderUserId || {}
+                          const artisan = bid.bidderUserId || bid.artisan || {}
                           return (
                             <div key={i} style={s.bidRow}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -261,9 +261,9 @@ export default function Maintenance () {
                       </div>
                     )}
 
-                    {(req.status === 'open' || req.status === 'in_progress') && (
+                    {(req.status === 'open' || req.status === 'in-progress') && (
                       <div style={{ display: 'flex', gap: 8, marginTop: '0.85rem' }}>
-                        {req.status === 'in_progress' && (
+                        {req.status === 'in-progress' && (
                           <button style={s.btnSmall('#16a34a', '#f0fdf4')} onClick={() => markComplete(req._id)}>
                             <CheckCircle size={12} style={{ marginRight: 4 }} />Mark Complete
                           </button>
