@@ -152,6 +152,7 @@ export default function UploadPropertyWizard ({
   const mounted = useRef(true)
   const fileRef  = useRef(null)
   const dropRef  = useRef(null)
+  const submittingRef = useRef(false)
 
   useEffect(() => {
     mounted.current = true          // re-arm on every mount (fixes React Strict Mode double-invoke)
@@ -509,7 +510,8 @@ export default function UploadPropertyWizard ({
   // ── Submit ─────────────────────────────────────────────────────────────────
 
   const submit = async (isDraft = false) => {
-    if (loading) return
+    if (loading || submittingRef.current) return
+    submittingRef.current = true
     if (!isDraft) {
       let allErrors = {}
       for (let s = 1; s <= 8; s++) Object.assign(allErrors, validate(s))
@@ -636,6 +638,7 @@ export default function UploadPropertyWizard ({
         flash(msg, 'error')
       }
     } finally {
+      submittingRef.current = false
       if (mounted.current) setLoading(false)
     }
   }

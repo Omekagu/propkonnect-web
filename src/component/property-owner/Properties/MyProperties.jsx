@@ -830,7 +830,10 @@ export default function MyProperties ({ initialView = 'list' }) {
     let list = [...properties]
 
     // Tab filter — uses resolved status so legacy data is handled
-    if (activeTab !== 'all') {
+    // "all" intentionally excludes archived (deleted) listings — use "Archived" tab to view them
+    if (activeTab === 'all') {
+      list = list.filter(p => resolveDisplayStatus(p) !== 'archived')
+    } else {
       list = list.filter(p => resolveDisplayStatus(p) === activeTab)
     }
 

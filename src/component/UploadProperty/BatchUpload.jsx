@@ -104,6 +104,7 @@ export default function BatchUpload ({ onBack, onComplete }) {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)   // { created, errors, batchId }
   const [notice, setNotice] = useState(null)
+  const [batchId, setBatchId] = useState(null)
 
   const fileRef = useRef(null)
 
@@ -119,6 +120,7 @@ export default function BatchUpload ({ onBack, onComplete }) {
     setParseError(null)
     setParsed(null)
     setResult(null)
+    setBatchId(`batch_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`)
 
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -155,7 +157,7 @@ export default function BatchUpload ({ onBack, onComplete }) {
   const onFileChange = (e) => processFile(e.target.files[0])
 
   const handleSubmit = async () => {
-    if (!parsed?.validRows.length) return
+    if (!parsed?.validRows.length || result) return  // prevent resubmit after success
     setLoading(true)
 
     // Normalize row keys for backend
@@ -184,7 +186,8 @@ export default function BatchUpload ({ onBack, onComplete }) {
     try {
       const res = await api.post('/api/properties/bulk', {
         properties: toSend,
-        filename: fileName
+        filename: fileName,
+        batchId
       })
       if (res.data?.success) {
         setResult(res.data)
