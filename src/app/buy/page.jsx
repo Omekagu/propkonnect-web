@@ -226,7 +226,7 @@ export default function BuyPropertyList () {
                 </div>
                 <button
                   className='view-btn'
-                  onClick={() => router.push(`/property/${prop._id}`)}
+                  onClick={() => router.push(`/property/${prop.uid || prop._id}`)}
                 >
                   View Details
                 </button>

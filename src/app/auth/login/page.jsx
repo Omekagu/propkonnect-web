@@ -151,8 +151,8 @@ export default function AuthPage () {
     try {
       const userData = localStorage.getItem('userData')
       if (userData) {
-        // All roles use /admin/dashboard — the layout renders role-specific content
-        router.push('/admin/dashboard')
+        // Full page reload so useAuth re-initializes from localStorage with fresh token
+        window.location.href = '/admin/dashboard'
       }
     } catch (err) {
       console.error('Error redirecting:', err)

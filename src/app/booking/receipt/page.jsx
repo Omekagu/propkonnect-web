@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import { FileText, MapPin, Calendar, Shield, Loader2, AlertCircle } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
 
-export default function BookingReceiptPage () {
+function BookingReceiptContent () {
   const params = useSearchParams()
   const router = useRouter()
   const token = params.get('token')
@@ -159,3 +159,11 @@ function StatusBadge ({ status }) {
 }
 
 const center = { minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40 }
+
+export default function BookingReceiptPage () {
+  return (
+    <Suspense fallback={<div style={center}><Loader2 size={36} style={{ color: '#0B3D28' }} /></div>}>
+      <BookingReceiptContent />
+    </Suspense>
+  )
+}

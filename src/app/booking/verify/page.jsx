@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
 
-export default function BookingVerifyPage () {
+function BookingVerifyContent () {
   const params = useSearchParams()
   const router = useRouter()
   const ref = params.get('ref') || params.get('reference') || params.get('trxref')
@@ -123,4 +123,12 @@ const btnOutline = {
   border: '1.5px solid #0B3D28', borderRadius: 8,
   padding: '10px 24px', fontWeight: 600,
   cursor: 'pointer', fontSize: 14
+}
+
+export default function BookingVerifyPage () {
+  return (
+    <Suspense fallback={<div style={center}><Loader2 size={40} style={{ color: '#0B3D28' }} /></div>}>
+      <BookingVerifyContent />
+    </Suspense>
+  )
 }

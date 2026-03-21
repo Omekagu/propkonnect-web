@@ -1379,7 +1379,7 @@ export default function PropertyDetails () {
               <h2>Similar Properties</h2>
               <div className='pd-similar-grid'>
                 {similar.slice(0, 4).map(p => (
-                  <a key={p._id} href={`/property/${p._id}`} className='pd-similar-card'>
+                  <a key={p._id} href={`/property/${p.uid || p._id}`} className='pd-similar-card'>
                     <div className='pd-similar-img'>
                       <img src={p.images?.[0] || p.media?.[0]?.url || '/placeholder.jpg'} alt={p.title} loading='lazy' />
                     </div>

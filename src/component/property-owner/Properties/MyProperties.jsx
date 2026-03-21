@@ -790,7 +790,7 @@ export default function MyProperties ({ initialView = 'list' }) {
   }
 
   const handleView = useCallback(property => {
-    window.open(`/property/${property._id}`, '_blank', 'noopener,noreferrer')
+    window.open(`/property/${property.uid || property._id}`, '_blank', 'noopener,noreferrer')
   }, [])
 
   const handleWizardBack = () => {

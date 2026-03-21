@@ -7,14 +7,14 @@
  * We call the backend to verify and confirm the purchase, then show status.
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import { CheckCircle2, XCircle, Loader2, Home, ArrowLeft } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
 
-export default function PurchaseVerifyPage () {
+function PurchaseVerifyContent () {
   const params = useSearchParams()
   const router = useRouter()
   const ref = params.get('ref') || params.get('reference') || params.get('trxref')
@@ -94,5 +94,13 @@ export default function PurchaseVerifyPage () {
         Go Back
       </button>
     </div>
+  )
+}
+
+export default function PurchaseVerifyPage () {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Loader2 size={36} style={{ color: '#0B3D28' }} /></div>}>
+      <PurchaseVerifyContent />
+    </Suspense>
   )
 }

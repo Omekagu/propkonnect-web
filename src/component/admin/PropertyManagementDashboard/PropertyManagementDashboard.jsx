@@ -398,7 +398,7 @@ const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
                     <div className='property-actions'>
                       <a
                         className='btn btn-sm btn-info'
-                        href={`/property/${property._id}`}
+                        href={`/property/${property.uid || property._id}`}
                         target='_blank'
                         rel='noreferrer'
                       >
