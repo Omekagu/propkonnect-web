@@ -53,6 +53,7 @@ import PlatformSettings from '../../component/admin/PlatformSettings/PlatformSet
 import EmailTemplates from '../../component/admin/EmailTemplates/EmailTemplates.jsx'
 import AdminPermissions from '../../component/admin/AdminPermissions/AdminPermissions.jsx'
 import KYCQueue from '../../component/admin/KYCQueue/KYCQueue.jsx'
+import Comments from '../../component/admin/Comments/Comments.jsx'
 import KYCForm from '../../component/KYC/KYCForm.jsx'
 import AccountSetup from '../../component/AccountSetup/AccountSetup.jsx'
 import MobileTabBar from '../../component/sidebar/MobileTabBar.jsx'
@@ -514,6 +515,8 @@ export default function AdminLayout ({ children }) {
           return <AdminPermissions currentUser={user} />
         case 'KYCQueue':
           return <KYCQueue />
+        case 'Comments':
+          return <Comments />
         case 'KYCVerification':
           return (
             <KYCForm

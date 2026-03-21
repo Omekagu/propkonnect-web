@@ -131,6 +131,11 @@ export default function Sidebar ({
             key: 'KYCQueue',
             label: 'KYC Approval Queue',
             icon: <ScanFace strokeWidth={0.75} />
+          },
+          {
+            key: 'Comments',
+            label: 'Comments & Reviews',
+            icon: <MessageSquareWarning strokeWidth={0.75} />
           }
         ],
         account: [

@@ -66,8 +66,10 @@ export default function PropertyDetails () {
   const [bookingStart, setBookingStart] = useState('')
   const [bookingEnd, setBookingEnd] = useState('')
   const [guests, setGuests] = useState(1)
-  const [selectedRoomTypeId, setSelectedRoomTypeId] = useState(null)
+  const [selectedRoomTypeIdx, setSelectedRoomTypeIdx] = useState(-1)
+  const [roomQty, setRoomQty] = useState(1)
   const [selectedPlanIdx, setSelectedPlanIdx] = useState(0)
+  const [expandedRoomId, setExpandedRoomId] = useState(null)
 
   // Rent payment modal
   const [rentOpen, setRentOpen] = useState(false)
@@ -96,6 +98,16 @@ export default function PropertyDetails () {
 
   // Platform config (inspection fee etc.)
   const [platformInspFee, setPlatformInspFee] = useState(null)
+
+  // Comments & likes
+  const [comments, setComments] = useState([])
+  const [commentTotal, setCommentTotal] = useState(0)
+  const [commentText, setCommentText] = useState('')
+  const [commentRating, setCommentRating] = useState(0)
+  const [commentStatus, setCommentStatus] = useState(null) // null | 'pending' | 'error'
+  const [submittingComment, setSubmittingComment] = useState(false)
+  const [liked, setLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
 
   // Misc UI
   const [saved, setSaved] = useState(false)
@@ -139,11 +151,30 @@ export default function PropertyDetails () {
       .catch(() => {})
   }, [])
 
+  // Fetch comments
+  useEffect(() => {
+    if (!id) return
+    axios.get(`${API}/api/properties/${id}/comments?limit=10`)
+      .then(r => { setComments(r.data?.comments || []); setCommentTotal(r.data?.total || 0) })
+      .catch(() => {})
+  }, [id])
+
+  // Fetch like status + seed likeCount from property
+  useEffect(() => {
+    if (!property) return
+    setLikeCount(property.likeCount || 0)
+    const token = localStorage.getItem('authToken')
+    if (!token) return
+    axios.get(`${API}/api/properties/${id}/like-status`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => setLiked(r.data?.liked || false))
+      .catch(() => {})
+  }, [id, property])
+
   // Initialize selections
   useEffect(() => {
     if (!property) return
-    if (property.roomTypes?.length && !selectedRoomTypeId)
-      setSelectedRoomTypeId(property.roomTypes[0].id || property.roomTypes[0].roomTypeId)
+    if (property.roomTypes?.length && selectedRoomTypeIdx === -1)
+      setSelectedRoomTypeIdx(0)
   }, [property])
 
   // Keyboard nav for lightbox
@@ -190,28 +221,47 @@ export default function PropertyDetails () {
   }, [property])
 
   const selectedRoomType = useMemo(() => {
-    if (!property) return null
-    return property.roomTypes.find(r => String(r.id || r.roomTypeId) === String(selectedRoomTypeId)) || null
-  }, [property, selectedRoomTypeId])
+    if (!property || selectedRoomTypeIdx < 0) return null
+    return property.roomTypes[selectedRoomTypeIdx] || null
+  }, [property, selectedRoomTypeIdx])
+
+  // Price from the selected room type — falls back to parent property price
+  const selectedRoomPrice = useMemo(() => {
+    if (!selectedRoomType) return null
+    if (isPerNight) return Number(selectedRoomType.pricePerNight || selectedRoomType.basePrice) || null
+    return Number(selectedRoomType.pricePerMonth || selectedRoomType.pricePerYear || selectedRoomType.basePrice || selectedRoomType.pricePerNight) || null
+  }, [selectedRoomType, isPerNight])
+
+  const activePrice = selectedRoomPrice || effectivePrice
+
+  // Max selectable rooms based on available quantity
+  const roomMaxQty = useMemo(() => {
+    if (!selectedRoomType) return 1
+    return Math.max(1, Number(selectedRoomType.availableCount ?? selectedRoomType.qty) || 1)
+  }, [selectedRoomType])
 
   const nights = useMemo(() => nightsBetween(bookingStart, bookingEnd), [bookingStart, bookingEnd])
 
   const bookingTotal = useMemo(() => {
     if (!isPerNight) return null
-    if (!nights) return { nights: 0, total: 0, perNight: 0 }
-    const perNight = Number(selectedRoomType?.pricePerNight || selectedRoomType?.price || selectedRoomType?.basePrice || effectivePrice || 0)
-    const qty = selectedRoomType ? Number(selectedRoomType.qty) || 1 : 1
-    return { nights, total: perNight * qty * nights, perNight, qty }
-  }, [isPerNight, nights, selectedRoomType, effectivePrice])
+    if (!nights) return { nights: 0, total: 0, perNight: 0, qty: roomQty }
+    const perNight = Number(selectedRoomType?.pricePerNight || selectedRoomType?.basePrice || effectivePrice || 0)
+    return { nights, total: perNight * roomQty * nights, perNight, qty: roomQty }
+  }, [isPerNight, nights, selectedRoomType, effectivePrice, roomQty])
 
   const selectedPlan = property?.paymentPlans?.[selectedPlanIdx] || null
 
-  const owner = property?.owner || {}
+  // Owner — populated by backend (property.userId is now a user object)
+  const owner = useMemo(() => {
+    const u = property?.userId
+    if (u && typeof u === 'object') return u
+    return property?.owner || {}
+  }, [property])
 
   // Owner contact info — normalise across different field shapes
   const ownerPhone = owner?.phone || owner?.contact || owner?.phoneNumber || null
   const ownerEmail = owner?.email || null
-  const ownerUserId = owner?._id || owner?.userId || property?.userId || null
+  const ownerUserId = owner?._id || property?.userId?._id || property?.userId || null
 
   const featureList = useMemo(() => {
     const f = property?.features
@@ -247,7 +297,10 @@ export default function PropertyDetails () {
         renterEmail: renterEmail.trim().toLowerCase(),
         renterPhone: renterPhone.trim() || undefined,
         moveInDate: moveInDate || undefined,
-        message: message.trim() || undefined
+        message: message.trim() || undefined,
+        roomTypeIdx: selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
+        roomTypeName: selectedRoomType?.name || undefined,
+        roomQty
       })
       if (res.data?.authorizationUrl) {
         window.location.href = res.data.authorizationUrl
@@ -270,7 +323,8 @@ export default function PropertyDetails () {
     try {
       const res = await axios.post(`${API}/api/bookings/init-payment`, {
         propertyId:  id,
-        roomTypeId:  selectedRoomTypeId || undefined,
+        roomTypeIdx: selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
+        roomTypeName: selectedRoomType?.name || undefined,
         checkIn:     bookingStart,
         checkOut:    bookingEnd,
         guestCount:  guests,
@@ -317,7 +371,7 @@ export default function PropertyDetails () {
     const { buyerName, buyerEmail, buyerPhone } = purchForm
     if (!buyerName.trim() || !buyerEmail.trim()) { setPurchErr('Full name and email are required'); return }
     const plan = property?.paymentPlans?.[purchPlanIdx] || null
-    const amount = plan?.priceSnapshot?.total || effectivePrice || property?.price
+    const amount = plan?.priceSnapshot?.total || (selectedRoomPrice ? selectedRoomPrice * roomQty : null) || effectivePrice || property?.price
     if (!amount) { setPurchErr('Unable to determine property price'); return }
     setPurchasing(true)
     try {
@@ -326,7 +380,10 @@ export default function PropertyDetails () {
         buyerEmail: buyerEmail.trim().toLowerCase(),
         buyerPhone: buyerPhone.trim() || undefined,
         paymentPlanId: plan?.id || plan?._id || undefined,
-        amount
+        amount,
+        roomTypeIdx: selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
+        roomTypeName: selectedRoomType?.name || undefined,
+        roomQty
       })
       if (res.data?.authorizationUrl) {
         window.location.href = res.data.authorizationUrl
@@ -338,6 +395,32 @@ export default function PropertyDetails () {
     } finally {
       setPurchasing(false)
     }
+  }
+
+  const submitComment = async () => {
+    const token = localStorage.getItem('authToken')
+    if (!token) { window.location.href = `/auth/login?next=/property/${id}`; return }
+    if (!commentText.trim()) return
+    setSubmittingComment(true); setCommentStatus(null)
+    try {
+      await axios.post(`${API}/api/properties/${id}/comments`,
+        { comment: commentText.trim(), rating: commentRating || undefined },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      setCommentText(''); setCommentRating(0); setCommentStatus('pending')
+    } catch {
+      setCommentStatus('error')
+    } finally { setSubmittingComment(false) }
+  }
+
+  const handleLike = async () => {
+    const token = localStorage.getItem('authToken')
+    if (!token) { window.location.href = `/auth/login?next=/property/${id}`; return }
+    try {
+      const res = await axios.post(`${API}/api/properties/${id}/like`, {}, { headers: { Authorization: `Bearer ${token}` } })
+      setLiked(res.data.liked)
+      setLikeCount(c => res.data.liked ? c + 1 : Math.max(0, c - 1))
+    } catch {}
   }
 
   /** Open chat with owner — stores pending target in sessionStorage, navigates to dashboard */
@@ -421,7 +504,7 @@ export default function PropertyDetails () {
     { id: 'details', label: 'Details' },
     ...(hasHouseRules ? [{ id: 'policies', label: 'House Rules' }] : []),
     ...(property.units?.length ? [{ id: 'units', label: `Units (${property.units.length})` }] : []),
-    ...(property.roomTypes?.length && isPerNight ? [{ id: 'rooms', label: `Room Types (${property.roomTypes.length})` }] : []),
+    ...(property.roomTypes?.length ? [{ id: 'rooms', label: `Room Types (${property.roomTypes.length})` }] : []),
     ...(isLand && property.land ? [{ id: 'land', label: 'Land Info' }] : []),
     ...(property.compliance ? [{ id: 'compliance', label: 'Compliance' }] : [])
   ]
@@ -449,43 +532,51 @@ export default function PropertyDetails () {
         </nav>
         <div className='pd-topbar-actions'>
           <button className='pd-action-btn' onClick={handleShare}><Share2 size={16} /></button>
-          <button className={`pd-action-btn${saved ? ' pd-action-btn--saved' : ''}`} onClick={() => setSaved(s => !s)}>
-            <Heart size={16} fill={saved ? 'currentColor' : 'none'} />
+          <button className={`pd-action-btn${liked ? ' pd-action-btn--saved' : ''}`} onClick={handleLike} title={liked ? 'Unlike' : 'Like'}>
+            <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
+            {likeCount > 0 && <span style={{ fontSize:11, marginLeft:3 }}>{likeCount}</span>}
           </button>
         </div>
       </div>
 
       {/* ── Hero Gallery ──────────────────────────────────────────────── */}
       <section className='pd-hero'>
-        <div className='pd-gallery-grid' onClick={() => setLightboxOpen(true)}>
-          {gallery.length === 0 ? (
-            <div className='pd-gallery-placeholder'><Building2 size={48} /><span>No photos available</span></div>
-          ) : gallery.length === 1 ? (
-            <div className='pd-gallery-main'>
-              <img src={gallery[0].url} alt={property.title} />
-            </div>
-          ) : (
-            <>
+        <div className='pd-gallery-wrap'>
+          <div className='pd-gallery-grid' onClick={() => setLightboxOpen(true)}>
+            {gallery.length === 0 ? (
+              <div className='pd-gallery-placeholder'><Building2 size={48} /><span>No photos available</span></div>
+            ) : gallery.length === 1 ? (
               <div className='pd-gallery-main'>
-                {gallery[0].type === 'video'
-                  ? <video src={gallery[0].url} muted playsInline preload='metadata' />
-                  : <img src={gallery[0].url} alt={property.title} />
-                }
+                <img src={gallery[0].url} alt={property.title} />
               </div>
-              <div className='pd-gallery-side'>
-                {gallery.slice(1, 5).map((m, i) => (
-                  <div key={i} className={`pd-gallery-side-item${i === 3 && gallery.length > 5 ? ' pd-gallery-more' : ''}`}>
-                    {m.type === 'video'
-                      ? <div className='pd-video-thumb'><Video size={20} /><span>Video</span></div>
-                      : <img src={m.url} alt={`Photo ${i + 2}`} loading='lazy' />
-                    }
-                    {i === 3 && gallery.length > 5 && (
-                      <div className='pd-gallery-more-overlay'>+{gallery.length - 5} photos</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </>
+            ) : (
+              <>
+                <div className='pd-gallery-main'>
+                  {gallery[0].type === 'video'
+                    ? <video src={gallery[0].url} muted playsInline preload='metadata' />
+                    : <img src={gallery[0].url} alt={property.title} />
+                  }
+                </div>
+                <div className='pd-gallery-side'>
+                  {gallery.slice(1, 5).map((m, i) => (
+                    <div key={i} className={`pd-gallery-side-item${i === 3 && gallery.length > 5 ? ' pd-gallery-more' : ''}`}>
+                      {m.type === 'video'
+                        ? <div className='pd-video-thumb'><Video size={20} /><span>Video</span></div>
+                        : <img src={m.url} alt={`Photo ${i + 2}`} loading='lazy' />
+                      }
+                      {i === 3 && gallery.length > 5 && (
+                        <div className='pd-gallery-more-overlay'>+{gallery.length - 5} photos</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          {gallery.length > 1 && (
+            <button className='pd-show-all-photos' onClick={() => setLightboxOpen(true)}>
+              <Eye size={14} /> Show all {gallery.length} photos
+            </button>
           )}
         </div>
 
@@ -991,31 +1082,93 @@ export default function PropertyDetails () {
           {activeTab === 'rooms' && (
             <div className='pd-section'>
               <div className='pd-card'>
-                <h3>Room Types</h3>
+                <h3>{isPerNight ? 'Room Types' : 'Unit / Space Types'}</h3>
                 <div className='pd-rooms-list'>
-                  {property.roomTypes.map((rt, i) => (
-                    <div key={i} className='pd-room-card'>
-                      {rt.images?.[0] && <img className='pd-room-card__img' src={rt.images[0]} alt={rt.name} loading='lazy' />}
-                      <div className='pd-room-card__body'>
-                        <div className='pd-room-card__name'>{rt.name}</div>
-                        {rt.description && <p className='pd-room-card__desc'>{rt.description}</p>}
-                        <div className='pd-room-card__meta'>
-                          {rt.sqft && <span><Ruler size={12} /> {rt.sqft} sqft</span>}
-                          <span><Users size={12} /> Up to {(rt.occupancy?.adults || 2)} guests</span>
-                          {rt.qty && <span>{rt.qty} available</span>}
-                        </div>
-                        <div className='pd-room-card__price'>
-                          {rt.pricePerNight ? fmt(rt.pricePerNight, currency) + ' / night' : rt.basePrice ? fmt(rt.basePrice, currency) : ''}
-                        </div>
-                        {rt.features?.length > 0 && (
-                          <div className='pd-room-card__features'>
-                            {rt.features.map(f => <span key={f}>{f}</span>)}
+                  {property.roomTypes.map((rt, i) => {
+                    if (rt.active === false) return null
+                    const isExpanded = expandedRoomId === i
+                    const isSelected = selectedRoomTypeIdx === i
+                    const avail = rt.availableCount ?? rt.qty ?? 1
+                    const unitPrice = Number(isPerNight
+                      ? (rt.pricePerNight || rt.basePrice)
+                      : (rt.pricePerMonth || rt.pricePerYear || rt.basePrice || rt.pricePerNight)) || 0
+                    const allFeatures = [...(rt.features || []), ...(rt.amenities || [])]
+                    const roomImages = rt.images?.length ? rt.images : (rt.media || []).map(m => typeof m === 'string' ? m : m.url)
+                    const coverImg = roomImages[0]
+                    return (
+                      <div key={i} className={`pd-room-card${isSelected ? ' pd-room-card--selected' : ''}`}>
+                        {/* Cover image with overlay */}
+                        {coverImg && (
+                          <div className='pd-room-card__cover'>
+                            <img src={coverImg} alt={rt.name} loading='lazy' onClick={() => { const idx = gallery.findIndex(g => g.url === coverImg); setThumbIndex(idx >= 0 ? idx : 0); setLightboxOpen(true) }} />
+                            {avail === 0
+                              ? <span className='pd-room-card__avail-badge pd-room-card__avail-badge--none'>Unavailable</span>
+                              : avail <= 3
+                                ? <span className='pd-room-card__avail-badge pd-room-card__avail-badge--low'>{avail} left</span>
+                                : null}
+                            {unitPrice > 0 && (
+                              <div className='pd-room-card__price-overlay'>
+                                {fmt(unitPrice, currency)}{isPerNight ? '/night' : ''}
+                              </div>
+                            )}
+                            {roomImages.length > 1 && (
+                              <div className='pd-room-card__img-count'><Eye size={11} /> {roomImages.length} photos</div>
+                            )}
                           </div>
                         )}
-                        {!rt.refundable && <span className='pd-room-card__nonref'>Non-refundable</span>}
+                        <div className='pd-room-card__body'>
+                          <div className='pd-room-card__header-row'>
+                            <div>
+                              <div className='pd-room-card__name'>{rt.name}</div>
+                              {!coverImg && unitPrice > 0 && (
+                                <div className='pd-room-card__price'>{fmt(unitPrice, currency)}{isPerNight ? '/night' : (rt.pricePerMonth ? '/month' : '')}</div>
+                              )}
+                            </div>
+                            {avail > 0 && coverImg && (
+                              <div className='pd-room-card__avail-inline' style={{ color: avail <= 3 ? '#f59e0b' : '#22c55e' }}>
+                                {avail <= 3 ? `${avail} left` : `${avail} available`}
+                              </div>
+                            )}
+                          </div>
+
+                          {rt.description && <p className='pd-room-card__desc'>{rt.description}</p>}
+
+                          <div className='pd-room-card__meta'>
+                            {rt.sqft && <span><Ruler size={12} /> {rt.sqft} sqft</span>}
+                            {rt.occupancy?.adults > 0 && <span><Users size={12} /> Up to {rt.occupancy.adults} guest{rt.occupancy.adults !== 1 ? 's' : ''}</span>}
+                            {rt.beds > 0 && <span><BedDouble size={12} /> {rt.beds} bed{rt.beds !== 1 ? 's' : ''}</span>}
+                          </div>
+
+                          {allFeatures.length > 0 && (
+                            <div className='pd-room-card__features'>
+                              {(isExpanded ? allFeatures : allFeatures.slice(0, 5)).map(f => (
+                                <span key={f} className='pd-room-feat-chip'>{f}</span>
+                              ))}
+                              {allFeatures.length > 5 && (
+                                <button
+                                  className='pd-room-feat-more'
+                                  onClick={() => setExpandedRoomId(isExpanded ? null : i)}
+                                >
+                                  {isExpanded ? <><ChevronUp size={11} /> less</> : <>+{allFeatures.length - 5} more</>}
+                                </button>
+                              )}
+                            </div>
+                          )}
+
+                          <div className='pd-room-card__footer'>
+                            {!rt.refundable && <span className='pd-room-card__nonref'>Non-refundable</span>}
+                            <button
+                              className={`pd-room-select-btn${isSelected ? ' pd-room-select-btn--selected' : ''}${avail === 0 ? ' pd-room-select-btn--disabled' : ''}`}
+                              disabled={avail === 0}
+                              onClick={() => { setSelectedRoomTypeIdx(isSelected ? -1 : i); setRoomQty(1); document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' }) }}
+                            >
+                              {isSelected ? '✓ Selected' : avail === 0 ? 'Unavailable' : 'Select this'}
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             </div>
@@ -1111,6 +1264,89 @@ export default function PropertyDetails () {
             </div>
           )}
 
+          {/* ── Comments & Reviews ───────────────────────────────── */}
+          <section className='pd-comments'>
+            <h2>Reviews & Comments</h2>
+
+            {/* Submit form */}
+            <div className='pd-comment-form pd-card'>
+              <h4 style={{ marginBottom:10 }}>Leave a Review</h4>
+              {/* Star rating picker */}
+              <div className='pd-star-input' style={{ marginBottom:10 }}>
+                {[1,2,3,4,5].map(n => (
+                  <button
+                    key={n}
+                    onClick={() => setCommentRating(commentRating === n ? 0 : n)}
+                    style={{ background:'none', border:'none', cursor:'pointer', padding:'2px 1px', fontSize:20, color: n <= commentRating ? '#f59e0b' : '#d1d5db' }}
+                    aria-label={`${n} star`}
+                  >★</button>
+                ))}
+                {commentRating > 0 && <span style={{ fontSize:12, marginLeft:4, opacity:.7 }}>{commentRating}/5</span>}
+              </div>
+              <textarea
+                rows={3}
+                placeholder='Share your experience with this property…'
+                value={commentText}
+                onChange={e => { setCommentText(e.target.value); setCommentStatus(null) }}
+                style={{ width:'100%', padding:'8px 10px', border:'1.5px solid #e5e7eb', borderRadius:8, fontFamily:'inherit', fontSize:14, boxSizing:'border-box', resize:'vertical' }}
+              />
+              {commentStatus === 'pending' && (
+                <p style={{ color:'#22c55e', fontSize:13, marginTop:6 }}><CheckCircle2 size={13} /> Comment submitted — it will appear after admin approval.</p>
+              )}
+              {commentStatus === 'error' && (
+                <p style={{ color:'#ef4444', fontSize:13, marginTop:6 }}>Failed to submit. Please try again.</p>
+              )}
+              <button
+                className='pd-cta-btn pd-cta-btn--primary'
+                style={{ marginTop:10, padding:'8px 18px' }}
+                onClick={submitComment}
+                disabled={submittingComment || !commentText.trim()}
+              >
+                {submittingComment ? 'Submitting…' : 'Submit Review'}
+              </button>
+            </div>
+
+            {/* Approved comments list */}
+            {comments.length > 0 ? (
+              <div className='pd-comments-list'>
+                {comments.map(c => (
+                  <div key={c._id} className='pd-comment-item pd-card'>
+                    <div className='pd-comment-item__header'>
+                      <img
+                        src={c.author.avatar || '/avatar-placeholder.png'}
+                        alt={c.author.name}
+                        style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover' }}
+                      />
+                      <div>
+                        <div style={{ fontWeight:600, fontSize:14 }}>
+                          {c.author.name}
+                          {c.author.verified && <CheckCircle2 size={12} color='#22c55e' style={{ marginLeft:4 }} />}
+                        </div>
+                        <div style={{ fontSize:11, opacity:.6 }}>{new Date(c.createdAt).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })}</div>
+                      </div>
+                      {c.rating && (
+                        <div style={{ marginLeft:'auto', color:'#f59e0b', fontSize:14 }}>
+                          {'★'.repeat(c.rating)}{'☆'.repeat(5 - c.rating)}
+                        </div>
+                      )}
+                    </div>
+                    <p style={{ margin:'8px 0 0', fontSize:14, lineHeight:1.65, color:'#444' }}>{c.comment}</p>
+                  </div>
+                ))}
+                {commentTotal > comments.length && (
+                  <button
+                    className='pd-show-more'
+                    onClick={() => axios.get(`${API}/api/properties/${id}/comments?limit=50`).then(r => setComments(r.data.comments || []))}
+                  >
+                    Show all {commentTotal} reviews
+                  </button>
+                )}
+              </div>
+            ) : (
+              <p style={{ color:'#888', fontSize:14 }}>No reviews yet. Be the first to review this property.</p>
+            )}
+          </section>
+
           {/* Similar properties */}
           {similar.length > 0 && (
             <section className='pd-similar'>
@@ -1149,11 +1385,13 @@ export default function PropertyDetails () {
             <div className='pd-booking-price'>
               <div className='pd-booking-price__main'>
                 {isPerNight
-                  ? bookingTotal?.total ? fmt(bookingTotal.total, currency) : fmt(effectivePrice, currency)
-                  : fmt(selectedPlan?.priceSnapshot?.total || effectivePrice, currency)}
+                  ? bookingTotal?.total ? fmt(bookingTotal.total, currency) : fmt(activePrice, currency)
+                  : fmt(selectedPlan?.priceSnapshot?.total || (activePrice && roomQty > 1 ? activePrice * roomQty : activePrice), currency)}
               </div>
               <div className='pd-booking-price__sub'>
-                {isPerNight ? `${fmt(bookingTotal?.perNight || effectivePrice, currency)}/night` : selectedPlan?.name || 'Outright'}
+                {isPerNight
+                  ? `${fmt(bookingTotal?.perNight || activePrice, currency)}/night${roomQty > 1 ? ` × ${roomQty} rooms` : ''}`
+                  : selectedPlan?.name || (selectedRoomType ? selectedRoomType.name : 'Outright')}
               </div>
             </div>
 
@@ -1166,6 +1404,43 @@ export default function PropertyDetails () {
                   <span className='pd-caution-notice__amount'>{fmt(cautionFee.amount, cautionFee.currency || currency)}</span>
                   {cautionFee.description && <p className='pd-caution-notice__desc'>{cautionFee.description}</p>}
                 </div>
+              </div>
+            )}
+
+            {/* Room type selector — shown for ALL property types that have room types */}
+            {property.roomTypes?.length > 0 && (
+              <div className='pd-booking-field'>
+                <label>{isPerNight ? 'Room type' : 'Unit / Space type'}</label>
+                <select
+                  value={selectedRoomTypeIdx}
+                  onChange={e => { setSelectedRoomTypeIdx(Number(e.target.value)); setRoomQty(1) }}
+                >
+                  <option value={-1}>Best available</option>
+                  {property.roomTypes.map((rt, i) => {
+                    if (rt.active === false) return null
+                    const unitPrice = Number(isPerNight
+                      ? (rt.pricePerNight || rt.basePrice)
+                      : (rt.pricePerMonth || rt.pricePerYear || rt.basePrice || rt.pricePerNight)) || 0
+                    const avail = rt.availableCount ?? rt.qty ?? 1
+                    return (
+                      <option key={i} value={i} disabled={avail === 0}>
+                        {rt.name}{unitPrice ? ` — ${fmt(unitPrice, currency)}` : ''}{isPerNight ? '/night' : ''}{avail === 0 ? ' (Unavailable)' : avail <= 3 ? ` (${avail} left)` : ''}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            )}
+
+            {/* Quantity selector — how many rooms/units */}
+            {selectedRoomTypeIdx >= 0 && roomMaxQty > 1 && (
+              <div className='pd-booking-field'>
+                <label>Quantity <span style={{fontSize:11,fontWeight:400,opacity:.7}}>({roomMaxQty} available)</span></label>
+                <input
+                  type='number' min='1' max={roomMaxQty}
+                  value={roomQty}
+                  onChange={e => setRoomQty(Math.min(roomMaxQty, Math.max(1, Number(e.target.value) || 1)))}
+                />
               </div>
             )}
 
@@ -1185,23 +1460,11 @@ export default function PropertyDetails () {
                   <label>Guests</label>
                   <input type='number' min='1' value={guests} onChange={e => setGuests(Number(e.target.value) || 1)} />
                 </div>
-                {property.roomTypes?.length > 0 && (
-                  <div className='pd-booking-field'>
-                    <label>Room type</label>
-                    <select value={selectedRoomTypeId || ''} onChange={e => setSelectedRoomTypeId(e.target.value || null)}>
-                      <option value=''>Best available</option>
-                      {property.roomTypes.map(rt => (
-                        <option key={rt.id || rt.roomTypeId} value={rt.id || rt.roomTypeId}>
-                          {rt.name} — {fmt(rt.pricePerNight || rt.basePrice, currency)}/night
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
                 {nights > 0 && (
                   <div className='pd-booking-summary'>
                     <div><span>Nights</span><strong>{nights}</strong></div>
-                    <div><span>Per night</span><strong>{fmt(bookingTotal?.perNight || effectivePrice, currency)}</strong></div>
+                    {roomQty > 1 && <div><span>Rooms</span><strong>{roomQty}</strong></div>}
+                    <div><span>Per night</span><strong>{fmt(bookingTotal?.perNight || activePrice, currency)}</strong></div>
                     <div><span>Subtotal</span><strong>{fmt(bookingTotal?.total || 0, currency)}</strong></div>
                     {cautionFee && <div><span>Caution fee <em style={{fontSize:10,fontWeight:400}}>(refundable)</em></span><strong>{fmt(cautionFee.amount, cautionFee.currency || currency)}</strong></div>}
                     <div className='pd-booking-summary__total'>
@@ -1271,18 +1534,36 @@ export default function PropertyDetails () {
               </div>
             </div>
 
-            {/* Agent */}
-            <div className='pd-agent'>
-              <img src={owner.avatar || owner.photo || '/avatar-placeholder.png'} alt={owner.name || 'Agent'} loading='lazy' />
-              <div className='pd-agent__info'>
-                <div className='pd-agent__name'>{owner.name || 'Agent'}</div>
-                {owner.position && <div className='pd-agent__role'>{owner.position}</div>}
-                <div className='pd-agent__contacts'>
-                  {owner.contact && <a href={`tel:${owner.contact}`} aria-label='Call'><Phone size={13} /></a>}
-                  {owner.email && <a href={`mailto:${owner.email}`} aria-label='Email'><Mail size={13} /></a>}
+            {/* Owner / Agent card */}
+            {(owner?._id || owner?.firstName) && (
+              <div className='pd-agent'>
+                <img
+                  src={owner.avatar || '/avatar-placeholder.png'}
+                  alt={owner.firstName ? `${owner.firstName} ${owner.lastName}` : 'Agent'}
+                  loading='lazy'
+                />
+                <div className='pd-agent__info'>
+                  <div className='pd-agent__name'>
+                    {owner.firstName ? `${owner.firstName} ${owner.lastName || ''}`.trim() : (owner.name || 'Agent')}
+                    {owner.verified && <CheckCircle2 size={12} color='#22c55e' style={{ marginLeft:4 }} />}
+                  </div>
+                  <div className='pd-agent__role'>
+                    {owner.role ? owner.role.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Property Owner'}
+                  </div>
+                  <div className='pd-agent__contacts'>
+                    {ownerPhone && <a href={`tel:${ownerPhone}`} aria-label='Call' title='Call owner'><Phone size={13} /></a>}
+                    {owner.email && <a href={`mailto:${owner.email}`} aria-label='Email' title='Email owner'><Mail size={13} /></a>}
+                    <button
+                      style={{ background:'none', border:'none', cursor:'pointer', padding:0, color:'inherit' }}
+                      title='Chat with owner'
+                      onClick={openOwnerChat}
+                    >
+                      <MessageSquare size={13} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Compliance mini-badge */}
             {(complianceVerified || escrowStatus === 'active') && (
@@ -1315,10 +1596,10 @@ export default function PropertyDetails () {
             <textarea rows={3} placeholder='Introduce yourself…' value={rentForm.message} onChange={e => setRentForm(f => ({ ...f, message: e.target.value }))} style={{ width:'100%', padding:'8px 10px', border:'1.5px solid #e5e7eb', borderRadius:8, fontFamily:'inherit', fontSize:14, boxSizing:'border-box' }} />
 
             {/* Payment breakdown */}
-            <div className='pd-booking-summary pd-booking-summary--modal' style={{ marginTop: 12 }}>
+            <div className='pd-booking-summary pd-booking-summary--modal'>
               <div>
-                <span>First period rent ({property.rentFrequency || 'monthly'})</span>
-                <strong>{fmt(property.rentPrice || property.price || effectivePrice, currency)}</strong>
+                <span>First period rent ({property.rentFrequency || 'monthly'}){roomQty > 1 ? ` × ${roomQty}` : ''}</span>
+                <strong>{fmt((activePrice || 0) * roomQty, currency)}</strong>
               </div>
               {property.cautionFee?.required && (
                 <div>
@@ -1328,7 +1609,7 @@ export default function PropertyDetails () {
               )}
               <div className='pd-booking-summary__total'>
                 <span>Total charged today</span>
-                <strong>{fmt((property.rentPrice || property.price || effectivePrice || 0) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0), currency)}</strong>
+                <strong>{fmt(((activePrice || 0) * roomQty) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0), currency)}</strong>
               </div>
             </div>
 
@@ -1339,7 +1620,7 @@ export default function PropertyDetails () {
               <button className='pd-cta-btn pd-cta-btn--primary' onClick={startRent} disabled={renting}>
                 {renting
                   ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Redirecting…</>
-                  : `Pay & Confirm Rent ${fmt((property.rentPrice || property.price || effectivePrice || 0) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0), currency)}`
+                  : `Pay & Confirm Rent ${fmt(((activePrice || 0) * roomQty) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0), currency)}`
                 }
               </button>
               <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setRentOpen(false)}>Cancel</button>
@@ -1440,7 +1721,7 @@ export default function PropertyDetails () {
             <input type='tel' placeholder='+234 800 000 0000' value={purchForm.buyerPhone} onChange={e => setPurchForm(f => ({ ...f, buyerPhone: e.target.value }))} />
 
             {/* Price summary */}
-            <div className='pd-booking-summary pd-booking-summary--modal' style={{ marginTop: 12 }}>
+            <div className='pd-booking-summary pd-booking-summary--modal'>
               {property.paymentPlans?.length > 0 ? (
                 <>
                   <div><span>Plan</span><strong>{property.paymentPlans[purchPlanIdx]?.name || `Plan ${purchPlanIdx + 1}`}</strong></div>
@@ -1559,12 +1840,34 @@ export default function PropertyDetails () {
       {/* ── Mobile sticky CTA ────────────────────────────────────────── */}
       <div className='pd-mobile-cta'>
         <div className='pd-mobile-cta__price'>
-          <strong>{fmt(effectivePrice, currency)}</strong>
-          {property.rentFrequency && <span>/{property.rentFrequency}</span>}
+          <strong>
+            {isPerNight
+              ? (bookingTotal?.total ? fmt(bookingTotal.total, currency) : fmt(activePrice, currency))
+              : fmt(activePrice, currency)}
+          </strong>
+          <span>
+            {isPerNight && nights > 0
+              ? `${nights} night${nights !== 1 ? 's' : ''}`
+              : isPerNight
+                ? '/ night'
+                : property.rentFrequency
+                  ? `/ ${property.rentFrequency}`
+                  : ''}
+          </span>
         </div>
-        <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' })}>
-          {isRent && !isPerNight ? 'Rent Now' : isPerNight ? 'Book Now' : 'Buy Now'}
-        </button>
+        {isPerNight ? (
+          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setBookOpen(true)}>
+            <Calendar size={14} /> Book Now
+          </button>
+        ) : isRent ? (
+          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setRentOpen(true)}>
+            <CreditCard size={14} /> Rent Now
+          </button>
+        ) : (
+          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setPurchOpen(true)}>
+            <CreditCard size={14} /> Buy Now
+          </button>
+        )}
       </div>
     </div>
   )
