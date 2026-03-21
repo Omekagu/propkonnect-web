@@ -98,7 +98,7 @@ const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
   const formatCurrency = value => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
       minimumFractionDigits: 0
     }).format(value)
   }

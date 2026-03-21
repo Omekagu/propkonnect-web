@@ -401,18 +401,18 @@ function MyRequestsView ({ onNegotiate }) {
   }, [selectedReq, fetchBids])
 
   const acceptBid = async bid => {
-    if (
-      !window.confirm(
-        `Accept ₦${bid.amount?.toLocaleString()}? This will take you to the Paystack payment page to secure funds in escrow.`
-      )
-    )
-      return
+    const alreadyAccepted = bid.status === 'accepted'
+    const confirmMsg = alreadyAccepted
+      ? `Pay ₦${bid.amount?.toLocaleString()} to secure this job in escrow?`
+      : `Accept & pay ₦${bid.amount?.toLocaleString()}? Funds will be held in escrow until the job is complete.`
+    if (!window.confirm(confirmMsg)) return
     try {
-      // Step 1: accept the bid
-      await axios.post(`${API_URL}/bids/${bid._id}/accept`, {}, getAuthConfig())
-
+      if (!alreadyAccepted) {
+        // Step 1: accept the bid (mark as agreed)
+        await axios.post(`${API_URL}/bids/${bid._id}/accept`, {}, getAuthConfig())
+      }
       // Step 2: initiate escrow payment via Paystack
-      setToast({ msg: 'Bid accepted! Preparing payment…', type: 'success' })
+      setToast({ msg: 'Preparing payment…', type: 'success' })
       const payRes = await axios.post(
         `${API_URL}/paystack/service-payment`,
         { bidId: bid._id },
@@ -421,7 +421,7 @@ function MyRequestsView ({ onNegotiate }) {
       if (payRes.data?.authorizationUrl) {
         window.location.href = payRes.data.authorizationUrl
       } else {
-        setToast({ msg: 'Bid accepted. Proceed to pay from your requests list.', type: 'success' })
+        setToast({ msg: 'Bid accepted. You can pay later from My Requests.', type: 'success' })
         setSelectedReq(null)
       }
     } catch (err) {
@@ -559,19 +559,21 @@ function MyRequestsView ({ onNegotiate }) {
                   >
                     <div className='bid-card__top'>
                       <div className='artisan-row'>
-                        <div className='artisan-av'>
-                          {bid.artisan?.user?.firstName?.[0] || '?'}
-                          {bid.artisan?.user?.lastName?.[0] || '?'}
-                        </div>
-                        <div>
-                          <p className='artisan-name'>
-                            {bid.artisan?.user?.firstName || 'Unknown'}{' '}
-                            {bid.artisan?.user?.lastName || ''}
-                          </p>
-                          <p className='artisan-trade'>
-                            {bid.artisan?.profession || 'Artisan'}
-                          </p>
-                        </div>
+                        {(() => {
+                          const u = bid.bidderUserId || bid.artisan?.user || {}
+                          const name = u.firstName ? `${u.firstName} ${u.lastName || ''}`.trim() : (bid.artisan?.profession || 'Artisan')
+                          return (
+                            <>
+                              <div className='artisan-av'>
+                                {name[0]?.toUpperCase() || '?'}{name.split(' ')[1]?.[0]?.toUpperCase() || ''}
+                              </div>
+                              <div>
+                                <p className='artisan-name'>{name}</p>
+                                <p className='artisan-trade'>{bid.artisan?.profession || bid.artisan?.specialty || 'Artisan'}</p>
+                              </div>
+                            </>
+                          )
+                        })()}
                       </div>
                       <span className='bid-amt'>
                         ₦{bid.amount?.toLocaleString()}
@@ -611,9 +613,12 @@ function MyRequestsView ({ onNegotiate }) {
                         </div>
                       )}
                       {bid.status === 'accepted' && (
-                        <span className='bid-badge bid-badge--ok'>
-                          ✓ Accepted
-                        </span>
+                        <div className='bid-btns'>
+                          <span className='bid-badge bid-badge--ok'>✓ Agreed ₦{bid.amount?.toLocaleString()}</span>
+                          <button className='btn-accept' onClick={() => acceptBid(bid)}>
+                            💳 Pay Now
+                          </button>
+                        </div>
                       )}
                       {bid.status === 'declined' && (
                         <span className='bid-badge bid-badge--no'>
@@ -633,257 +638,244 @@ function MyRequestsView ({ onNegotiate }) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
+//  HELPERS — Avatar + time
+// ════════════════════════════════════════════════════════════════════════════
+function ArtisanAvatar ({ name = '', size = 38, src }) {
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
+  const palette = ['#1f6feb', '#388bfd', '#3fb950', '#d29922', '#f85149', '#bc8cff', '#58a6ff']
+  const bg = palette[name.charCodeAt(0) % palette.length] || palette[0]
+  if (src) return <img src={src} alt={name} style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+  return (
+    <div style={{ width: size, height: size, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: size * 0.35, color: '#fff', flexShrink: 0, userSelect: 'none' }}>
+      {initials}
+    </div>
+  )
+}
+
+function fmtMsgTime (iso) {
+  if (!iso) return ''
+  const d = new Date(iso), now = new Date()
+  const diff = now - d
+  if (diff < 86400000) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' })
+}
+
+function buildMsgs (bid) {
+  const initial = { id: 'initial', from: 'artisan', type: 'offer', amount: bid.amount, message: bid.message || 'Initial bid', createdAt: bid.createdAt }
+  const negs = (bid.negotiations || []).map((n, i) => ({ id: n._id || `n${i}`, from: n.from, type: n.amount ? 'offer' : 'message', amount: n.amount, message: n.message, createdAt: n.createdAt || new Date().toISOString() }))
+  return [initial, ...negs]
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 //  VIEW 3  LIVE BID NEGOTIATION CHAT
 // ════════════════════════════════════════════════════════════════════════════
-function NegotiationView ({ bid, userType, onBack }) {
-  const [messages, setMessages] = useState([])
+function NegotiationView ({ bid, userType, onBack, onAcceptAndPay }) {
+  const [messages, setMessages] = useState(() => buildMsgs(bid))
   const [text, setText] = useState('')
   const [counterAmt, setCounterAmt] = useState('')
   const [showCounter, setShowCounter] = useState(false)
   const [sending, setSending] = useState(false)
+  const [paying, setPaying] = useState(false)
   const [currentBid, setCurrentBid] = useState(bid)
   const [online, setOnline] = useState(true)
   const [toast, setToast] = useState(null)
   const bottomRef = useRef(null)
   const pollRef = useRef(null)
+  const inputRef = useRef(null)
 
-  const buildMessages = b => {
-    const initial = {
-      id: 'initial',
-      from: 'artisan',
-      type: 'offer',
-      amount: b.amount,
-      message: b.message || 'Initial bid',
-      createdAt: b.createdAt
-    }
-    const negs = (b.negotiations || []).map((n, i) => ({
-      id: n._id || `n${i}`,
-      from: n.from,
-      type: n.amount ? 'offer' : 'message',
-      amount: n.amount,
-      message: n.message,
-      createdAt: n.createdAt || new Date().toISOString()
-    }))
-    return [initial, ...negs]
-  }
+  // Artisan info — try bidderUserId (new flow) then legacy artisan.user
+  const artisan = bid.bidderUserId || bid.artisan?.user || {}
+  const artisanName = artisan.firstName ? `${artisan.firstName} ${artisan.lastName || ''}`.trim() : (bid.artisan?.profession || 'Artisan')
+  const artisanAvatar = artisan.avatar
+
+  const showToast = (msg, type = 'success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 3500) }
+  const scrollBottom = () => setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 80)
 
   const fetchLatest = useCallback(async () => {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/bids/${bid._id}`,
-        getAuthConfig()
-      )
+      const { data } = await axios.get(`${API_URL}/bids/${bid._id}`, getAuthConfig())
       const b = data.data || data
       setCurrentBid(b)
-      setMessages(buildMessages(b))
+      setMessages(buildMsgs(b))
       setOnline(true)
-      setTimeout(
-        () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }),
-        80
-      )
-    } catch {
-      setOnline(false)
-    }
+      scrollBottom()
+    } catch { setOnline(false) }
   }, [bid._id])
 
   useEffect(() => {
+    scrollBottom()
     fetchLatest()
     pollRef.current = setInterval(fetchLatest, POLL_INTERVAL)
     return () => clearInterval(pollRef.current)
   }, [fetchLatest])
 
   const sendMessage = async () => {
-    if (!text.trim() || sending) return
     const msg = text.trim()
-    setMessages(p => [
-      ...p,
-      {
-        id: `tmp${Date.now()}`,
-        from: userType,
-        type: 'message',
-        message: msg,
-        createdAt: new Date().toISOString()
-      }
-    ])
+    if (!msg || sending) return
+    // Auto-detect plain number → treat as counter offer
+    const num = parseFloat(msg.replace(/,/g, ''))
+    if (!isNaN(num) && num > 0 && String(num) === msg.replace(/,/g, '')) {
+      setText('')
+      setCounterAmt(String(num))
+      setShowCounter(true)
+      return
+    }
+    setMessages(p => [...p, { id: `tmp${Date.now()}`, from: userType, type: 'message', message: msg, createdAt: new Date().toISOString() }])
     setText('')
+    scrollBottom()
     setSending(true)
     try {
-      await axios.post(
-        `${API_URL}/bids/${bid._id}/negotiate`,
-        { message: msg, from: userType },
-        getAuthConfig()
-      )
+      await axios.post(`${API_URL}/bids/${bid._id}/negotiate`, { message: msg, from: userType }, getAuthConfig())
       await fetchLatest()
-    } catch {
-      setToast({ msg: 'Failed to send', type: 'error' })
-    } finally {
-      setSending(false)
-    }
+    } catch { showToast('Failed to send', 'error') }
+    finally { setSending(false) }
   }
 
   const sendCounterOffer = async () => {
     const amount = parseFloat(counterAmt)
-    if (!amount || amount <= 0) {
-      setToast({ msg: 'Enter a valid amount', type: 'error' })
-      return
-    }
-    setMessages(p => [
-      ...p,
-      {
-        id: `tmp${Date.now()}`,
-        from: userType,
-        type: 'offer',
-        amount,
-        message: `Counter offer: ₦${amount.toLocaleString()}`,
-        createdAt: new Date().toISOString()
-      }
-    ])
+    if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return }
+    const note = `Counter offer: ₦${amount.toLocaleString()}`
+    setMessages(p => [...p, { id: `tmp${Date.now()}`, from: userType, type: 'offer', amount, message: note, createdAt: new Date().toISOString() }])
     setCounterAmt('')
     setShowCounter(false)
+    scrollBottom()
     setSending(true)
     try {
-      await axios.post(
-        `${API_URL}/bids/${bid._id}/negotiate`,
-        {
-          amount,
-          from: userType,
-          message: `Counter offer: ₦${amount.toLocaleString()}`
-        },
-        getAuthConfig()
-      )
+      await axios.post(`${API_URL}/bids/${bid._id}/negotiate`, { amount, from: userType, message: note }, getAuthConfig())
       await fetchLatest()
-      setToast({ msg: 'Counter offer sent!', type: 'success' })
-    } catch {
-      setToast({ msg: 'Failed to send offer', type: 'error' })
-    } finally {
-      setSending(false)
-    }
+      showToast('Counter offer sent!')
+    } catch { showToast('Failed to send offer', 'error') }
+    finally { setSending(false) }
   }
 
+  // Accept artisan's offer (or pay an already-agreed price) — then trigger Paystack payment
   const acceptOffer = async offer => {
-    if (!window.confirm(`Accept ₦${offer.amount?.toLocaleString()}?`)) return
+    const alreadyAccepted = currentBid.status === 'accepted'
+    if (!window.confirm(
+      alreadyAccepted
+        ? `Proceed to payment of ₦${offer.amount?.toLocaleString()}?`
+        : `Accept ₦${offer.amount?.toLocaleString()} and proceed to payment?`
+    )) return
     clearInterval(pollRef.current)
     setSending(true)
     try {
-      if (userType === 'user') {
-        await axios.post(
-          `${API_URL}/bids/${bid._id}/accept`,
-          { agreedAmount: offer.amount },
-          getAuthConfig()
-        )
-        setToast({
-          msg: 'Offer accepted! Proceeding to payment...',
-          type: 'success'
-        })
-        setTimeout(() => onBack?.(), 2200)
+      if (!alreadyAccepted) {
+        await axios.post(`${API_URL}/bids/${bid._id}/accept`, { agreedAmount: offer.amount }, getAuthConfig())
+        showToast('Offer accepted! Preparing payment…')
       } else {
-        await axios.put(
-          `${API_URL}/bids/${bid._id}`,
-          { amount: offer.amount },
-          getAuthConfig()
-        )
-        setToast({
-          msg: 'Offer accepted. Client can now pay.',
-          type: 'success'
-        })
+        showToast('Preparing payment…')
       }
-    } catch {
-      setToast({ msg: 'Failed to accept', type: 'error' })
+      setPaying(true)
+      const payRes = await axios.post(`${API_URL}/paystack/service-payment`, { bidId: bid._id }, getAuthConfig())
+      if (payRes.data?.authorizationUrl) {
+        window.location.href = payRes.data.authorizationUrl
+      } else {
+        showToast('Bid accepted. You can pay from My Requests.', 'success')
+        setTimeout(() => onBack?.(), 2500)
+      }
+    } catch (e) {
+      showToast(e.response?.data?.message || 'Failed to proceed', 'error')
+      setPaying(false)
       pollRef.current = setInterval(fetchLatest, POLL_INTERVAL)
-    } finally {
-      setSending(false)
-    }
+    } finally { setSending(false) }
   }
 
+  const canSend = currentBid.status === 'pending'
+  const isMe = from => from === userType  // userType is always 'user' (property owner)
+
   return (
-    <div className='nego-wrap'>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', flexDirection: 'column', background: '#0d1117', fontFamily: 'inherit' }}>
+      {/* Toast */}
       {toast && (
-        <Toast
-          message={toast.msg}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
+        <div style={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 10, padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 600, background: toast.type === 'success' ? '#3fb950' : '#f85149', color: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
+          {toast.msg}
+        </div>
       )}
 
-      <div className='nego-header'>
-        <button className='nego-back' onClick={onBack}>
-          ← Back
+      {/* Payment overlay */}
+      {paying && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 20, background: 'rgba(13,17,23,.92)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+          <div style={{ width: 48, height: 48, border: '4px solid #30363d', borderTopColor: '#C4E53C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <p style={{ color: '#c9d1d9', fontSize: 15, fontWeight: 600, margin: 0 }}>Redirecting to payment…</p>
+        </div>
+      )}
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#161b22', borderBottom: '1px solid #30363d', flexShrink: 0 }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#8b949e', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', borderRadius: 6 }}>
+          <span style={{ fontSize: 20 }}>←</span>
         </button>
-        <div className='nego-header__info'>
-          <h2>
-            {userType === 'user' ? 'Chat with Artisan' : 'Chat with Client'}
-          </h2>
-          <p>{currentBid?.serviceRequest?.title || 'Service Request'}</p>
+        <ArtisanAvatar name={artisanName} src={artisanAvatar} size={40} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 15, color: '#e6edf3', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{artisanName}</div>
+          <div style={{ fontSize: 12, color: '#8b949e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {bid.artisan?.profession || bid.artisan?.specialty || 'Artisan'} · {currentBid.serviceRequest?.title || 'Service Request'}
+          </div>
         </div>
-        <div
-          className={`conn-pill ${
-            online ? 'conn-pill--live' : 'conn-pill--off'
-          }`}
-        >
-          <span className={online ? 'live-dot' : 'off-dot'} />
-          {online ? `Live · ${POLL_INTERVAL / 1000}s` : 'Reconnecting...'}
+        <div style={{ flexShrink: 0, textAlign: 'right' }}>
+          <div style={{ fontSize: 11, color: online ? '#3fb950' : '#f85149', fontWeight: 600 }}>{online ? '● Live' : '○ Offline'}</div>
+          <div style={{ fontSize: 11, color: '#6e7681', marginTop: 2 }}>{POLL_INTERVAL / 1000}s refresh</div>
         </div>
       </div>
 
-      <div className='offer-strip'>
-        <span className='offer-strip__label'>Current bid</span>
-        <span className='offer-strip__amount'>
-          ₦{currentBid?.amount?.toLocaleString()}
-        </span>
-        <span className='offer-strip__dot'>·</span>
-        <span className='offer-strip__status'>{currentBid?.status}</span>
+      {/* Bid info strip */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', flexShrink: 0, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 12, color: '#8b949e' }}>{currentBid.status === 'accepted' ? 'Agreed price:' : 'Current bid:'}</span>
+        <span style={{ fontSize: 15, fontWeight: 800, color: currentBid.status === 'accepted' ? '#3fb950' : '#e6edf3' }}>₦{currentBid.amount?.toLocaleString()}</span>
+        <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: currentBid.status === 'pending' ? 'rgba(210,153,34,.15)' : 'rgba(46,160,67,.15)', color: currentBid.status === 'pending' ? '#d29922' : '#3fb950' }}>{currentBid.status}</span>
+        {currentBid.status === 'accepted' && (
+          <button
+            onClick={() => acceptOffer({ amount: currentBid.amount })}
+            disabled={paying || sending}
+            style={{ marginLeft: 4, padding: '4px 12px', background: '#C4E53C', color: '#0d1117', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 12 }}
+          >
+            💳 Pay Now
+          </button>
+        )}
+        {currentBid.serviceRequest?.estimatedBudget && (
+          <span style={{ fontSize: 12, color: '#8b949e', marginLeft: 'auto' }}>Budget: ₦{currentBid.serviceRequest.estimatedBudget?.toLocaleString()}</span>
+        )}
       </div>
 
-      <div className='messages-area'>
+      {/* Messages */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
         {messages.map(msg => {
-          const isMe = msg.from === userType
+          const mine = isMe(msg.from)
           const isOffer = msg.type === 'offer'
-          const canAcc = isOffer && !isMe && msg.id !== 'initial'
+          // User (property owner) can accept artisan's offer (not own, not initial)
+          const canAccept = isOffer && !mine && msg.id !== 'initial' && canSend
 
           return (
-            <div
-              key={msg.id}
-              className={`msg-row ${isMe ? 'msg-row--me' : 'msg-row--them'}`}
-            >
+            <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: mine ? 'flex-end' : 'flex-start', marginBottom: 4 }}>
+              {/* Sender label */}
+              <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 3, paddingLeft: mine ? 0 : 4, paddingRight: mine ? 4 : 0 }}>
+                {mine ? 'You' : artisanName}
+              </div>
+
               {isOffer ? (
-                <div
-                  className={`offer-bubble ${
-                    isMe ? 'offer-bubble--me' : 'offer-bubble--them'
-                  }`}
-                >
-                  <div className='offer-bubble__tag'>
-                    🏷 {msg.id === 'initial' ? 'Initial Bid' : 'Counter Offer'}
+                <div style={{ background: mine ? 'rgba(196,229,60,.1)' : 'rgba(56,139,253,.1)', border: `1px solid ${mine ? 'rgba(196,229,60,.3)' : 'rgba(56,139,253,.3)'}`, borderRadius: mine ? '14px 14px 2px 14px' : '14px 14px 14px 2px', padding: '10px 14px', maxWidth: 'min(72%, 320px)', minWidth: 140 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#8b949e', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {msg.id === 'initial' ? '🏷 Initial Bid' : '🔄 Counter Offer'}
                   </div>
-                  <div className='offer-bubble__amt'>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: mine ? '#C4E53C' : '#58a6ff', lineHeight: 1.2 }}>
                     ₦{msg.amount?.toLocaleString()}
                   </div>
                   {msg.message && msg.id !== 'initial' && (
-                    <p className='offer-bubble__note'>{msg.message}</p>
+                    <p style={{ fontSize: 13, color: '#8b949e', margin: '4px 0 0', lineHeight: 1.4 }}>{msg.message}</p>
                   )}
-                  {canAcc && (
-                    <button
-                      className='accept-offer-btn'
-                      onClick={() => acceptOffer(msg)}
-                      disabled={sending}
-                    >
-                      ✓ Accept ₦{msg.amount?.toLocaleString()}
+                  {canAccept && (
+                    <button onClick={() => acceptOffer(msg)} disabled={sending} style={{ marginTop: 10, width: '100%', padding: '8px 0', background: '#C4E53C', color: '#0d1117', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>
+                      ✓ Accept & Pay ₦{msg.amount?.toLocaleString()}
                     </button>
                   )}
                 </div>
               ) : (
-                <div
-                  className={`msg-bubble ${
-                    isMe ? 'msg-bubble--me' : 'msg-bubble--them'
-                  }`}
-                >
+                <div style={{ padding: '9px 13px', borderRadius: mine ? '14px 14px 2px 14px' : '14px 14px 14px 2px', background: mine ? '#C4E53C' : '#21262d', color: mine ? '#0d1117' : '#c9d1d9', fontSize: 14, maxWidth: 'min(72%, 360px)', lineHeight: 1.5, wordBreak: 'break-word' }}>
                   {msg.message}
                 </div>
               )}
-              <span className='msg-ts'>
-                {new Date(msg.createdAt).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+              <span style={{ fontSize: 10, color: '#6e7681', marginTop: 3, paddingLeft: mine ? 0 : 4, paddingRight: mine ? 4 : 0 }}>
+                {fmtMsgTime(msg.createdAt)}
               </span>
             </div>
           )
@@ -891,65 +883,39 @@ function NegotiationView ({ bid, userType, onBack }) {
         <div ref={bottomRef} />
       </div>
 
+      {/* Counter offer bar */}
       {showCounter && (
-        <div className='counter-bar'>
-          <span className='counter-bar__sym'>₦</span>
-          <input
-            className='counter-bar__input'
-            type='number'
-            placeholder='Counter offer amount'
-            value={counterAmt}
-            onChange={e => setCounterAmt(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && sendCounterOffer()}
-            autoFocus
-          />
-          <button
-            className='counter-bar__send'
-            onClick={sendCounterOffer}
-            disabled={sending}
-          >
-            Send Offer
-          </button>
-          <button
-            className='counter-bar__x'
-            onClick={() => setShowCounter(false)}
-          >
-            ✕
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: '#161b22', borderTop: '1px solid #30363d', flexShrink: 0 }}>
+          <span style={{ color: '#8b949e', fontWeight: 700, fontSize: 15 }}>₦</span>
+          <input autoFocus type="number" placeholder="Your counter offer amount" value={counterAmt} onChange={e => setCounterAmt(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendCounterOffer()} style={{ flex: 1, padding: '8px 12px', border: '1px solid #30363d', borderRadius: 8, background: '#21262d', color: '#e6edf3', fontSize: 14 }} />
+          <button onClick={sendCounterOffer} disabled={sending} style={{ padding: '8px 14px', background: '#C4E53C', color: '#0d1117', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>Send</button>
+          <button onClick={() => setShowCounter(false)} style={{ background: 'none', border: 'none', color: '#8b949e', cursor: 'pointer', fontSize: 18, padding: '4px 6px' }}>✕</button>
         </div>
       )}
 
-      <div className='chat-bar'>
-        <button
-          className={`offer-toggle ${showCounter ? 'offer-toggle--on' : ''}`}
-          onClick={() => setShowCounter(!showCounter)}
-          title='Make a counter offer'
-        >
-          ₦
-        </button>
-        <textarea
-          className='chat-bar__input'
-          placeholder='Type a message… (Enter to send)'
-          value={text}
-          onChange={e => setText(e.target.value)}
-          rows={1}
-          onKeyDown={e => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              sendMessage()
-            }
-          }}
-        />
-        <button
-          className={`send-btn ${
-            !text.trim() || sending ? 'send-btn--off' : ''
-          }`}
-          onClick={sendMessage}
-          disabled={!text.trim() || sending}
-        >
-          {sending ? <Spinner size={16} color='#fff' /> : '↑'}
-        </button>
-      </div>
+      {/* Input bar */}
+      {canSend ? (
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, padding: '10px 16px', background: '#161b22', borderTop: '1px solid #30363d', flexShrink: 0 }}>
+          <button onClick={() => setShowCounter(o => !o)} title="Counter offer" style={{ padding: '9px 12px', background: showCounter ? '#C4E53C' : '#21262d', color: showCounter ? '#0d1117' : '#8b949e', border: '1px solid #30363d', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 14, flexShrink: 0 }}>₦</button>
+          <textarea ref={inputRef} rows={1} placeholder="Message… (or type a number to counter offer)" value={text} onChange={e => { setText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px' }} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }} style={{ flex: 1, padding: '9px 12px', border: '1px solid #30363d', borderRadius: 8, background: '#21262d', color: '#e6edf3', fontSize: 14, resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, overflow: 'hidden' }} />
+          <button onClick={sendMessage} disabled={!text.trim() || sending} style={{ padding: '9px 13px', background: text.trim() ? '#C4E53C' : '#21262d', color: text.trim() ? '#0d1117' : '#6e7681', border: 'none', borderRadius: 8, cursor: text.trim() ? 'pointer' : 'default', transition: 'all .15s', flexShrink: 0, fontSize: 16, fontWeight: 700 }}>↑</button>
+        </div>
+      ) : (
+        <div style={{ padding: '12px 16px', background: '#161b22', borderTop: '1px solid #30363d', textAlign: 'center', fontSize: 13, color: '#8b949e', flexShrink: 0 }}>
+          {currentBid.status === 'accepted' ? (
+            <span style={{ color: '#3fb950', fontWeight: 600 }}>
+              ✓ Agreed ₦{currentBid.amount?.toLocaleString()} —{' '}
+              <button onClick={() => acceptOffer({ amount: currentBid.amount })} disabled={paying || sending} style={{ background: 'none', border: 'none', color: '#C4E53C', cursor: 'pointer', fontWeight: 700, fontSize: 13, padding: 0 }}>
+                Proceed to Payment →
+              </button>
+            </span>
+          ) : (
+            <span style={{ color: '#8b949e' }}>
+              Bid is <strong style={{ color: '#f85149' }}>{currentBid.status}</strong>
+            </span>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -1010,6 +976,19 @@ export default function FindArtisan () {
             bid={negoBid}
             userType={negoType}
             onBack={() => setView('my-requests')}
+            onAcceptAndPay={async (acceptedBid) => {
+              try {
+                const token = localStorage.getItem('authToken')
+                const res = await fetch(`${API_URL}/paystack/service-payment`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                  body: JSON.stringify({ bidId: acceptedBid._id })
+                })
+                const data = await res.json()
+                if (data?.authorizationUrl) window.location.href = data.authorizationUrl
+                else setView('my-requests')
+              } catch { setView('my-requests') }
+            }}
           />
         )}
       </main>

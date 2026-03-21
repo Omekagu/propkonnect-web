@@ -341,9 +341,11 @@ const VALID_STATUSES = new Set([
 ])
 
 const resolveDisplayStatus = p => {
-  // isDraft flag always wins
-  if (p.isDraft) return 'draft'
+  // Archived always wins — even over isDraft (soft-deleted properties must stay hidden)
   const s = (p.status || '').toLowerCase()
+  if (s === 'archived') return 'archived'
+  // isDraft flag wins over other statuses
+  if (p.isDraft) return 'draft'
   if (VALID_STATUSES.has(s)) return s
   // Legacy: 'Standard' / 'Gold' etc. are listingTier values written to status
   return 'draft'
@@ -747,8 +749,15 @@ export default function MyProperties ({ initialView = 'list' }) {
     try {
       const res = await api.delete(`/api/properties/${deleteTarget._id}`)
       if (res.data?.success) {
-        setProperties(prev => prev.filter(p => p._id !== deleteTarget._id))
-        flash('Property deleted', 'success')
+        // Mark as archived in local state so it shows in the Archived tab immediately
+        setProperties(prev =>
+          prev.map(p =>
+            p._id === deleteTarget._id
+              ? { ...p, status: 'archived', isDraft: false, archivedAt: new Date().toISOString() }
+              : p
+          )
+        )
+        flash('Property archived', 'success')
       } else {
         flash(res.data?.msg || 'Delete failed', 'error')
       }

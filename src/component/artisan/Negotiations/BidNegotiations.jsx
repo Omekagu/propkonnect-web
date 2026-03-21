@@ -102,6 +102,14 @@ function ChatView ({ bid, currentUser, onBack }) {
   const sendMessage = async () => {
     const msg = text.trim()
     if (!msg || sending) return
+    // Auto-detect plain number → treat as counter offer
+    const num = parseFloat(msg.replace(/,/g, ''))
+    if (!isNaN(num) && num > 0 && String(num) === msg.replace(/,/g, '')) {
+      setText('')
+      setCounterAmt(String(num))
+      setShowCounter(true)
+      return
+    }
     const optimistic = { id: `tmp${Date.now()}`, from: 'artisan', type: 'message', message: msg, createdAt: new Date().toISOString() }
     setMessages(p => [...p, optimistic])
     setText('')
@@ -133,15 +141,15 @@ function ChatView ({ bid, currentUser, onBack }) {
   }
 
   const acceptOffer = async (offer) => {
-    if (!window.confirm(`Accept client's offer of ₦${offer.amount?.toLocaleString()}?`)) return
+    if (!window.confirm(`Accept ₦${offer.amount?.toLocaleString()} and confirm this job price?`)) return
     clearInterval(pollRef.current)
     setSending(true)
     try {
-      await api.put(`/api/bids/${bid._id}`, { amount: offer.amount })
-      showToast('Offer accepted! Client can now proceed to payment.')
-      setTimeout(() => onBack(), 2500)
-    } catch {
-      showToast('Failed to accept offer', 'error')
+      await api.post(`/api/bids/${bid._id}/accept`, { agreedAmount: offer.amount })
+      showToast('Price agreed! Client has been notified to complete payment.')
+      await fetchLatest()
+    } catch (e) {
+      showToast(e?.response?.data?.message || 'Failed to accept offer', 'error')
       pollRef.current = setInterval(fetchLatest, POLL_MS)
     } finally { setSending(false) }
   }
@@ -181,13 +189,10 @@ function ChatView ({ bid, currentUser, onBack }) {
 
       {/* Offer strip */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', flexShrink: 0, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 12, color: '#8b949e' }}>Your bid:</span>
-        <span style={{ fontSize: 14, fontWeight: 700, color: '#e6edf3' }}>₦{currentBid.amount?.toLocaleString()}</span>
-        {currentBid.agreedAmount && currentBid.agreedAmount !== currentBid.amount && (
-          <>
-            <span style={{ color: '#30363d' }}>→</span>
-            <span style={{ fontSize: 13, color: '#3fb950', fontWeight: 700 }}>Agreed: ₦{currentBid.agreedAmount?.toLocaleString()}</span>
-          </>
+        <span style={{ fontSize: 12, color: '#8b949e' }}>{currentBid.status === 'accepted' ? 'Agreed price:' : 'Your bid:'}</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: currentBid.status === 'accepted' ? '#3fb950' : '#e6edf3' }}>₦{currentBid.amount?.toLocaleString()}</span>
+        {currentBid.status === 'accepted' && (
+          <span style={{ fontSize: 12, color: '#3fb950', fontWeight: 700 }}>✓ Price locked</span>
         )}
         {currentBid.serviceRequest?.estimatedBudget && (
           <span style={{ fontSize: 12, color: '#8b949e', marginLeft: 'auto' }}>Budget: ₦{currentBid.serviceRequest.estimatedBudget?.toLocaleString()}</span>
@@ -287,7 +292,7 @@ function ChatView ({ bid, currentUser, onBack }) {
           <textarea
             ref={inputRef}
             rows={1}
-            placeholder="Message…"
+            placeholder="Message… (or type a number to counter offer)"
             value={text}
             onChange={e => { setText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px' }}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
@@ -302,8 +307,16 @@ function ChatView ({ bid, currentUser, onBack }) {
           </button>
         </div>
       ) : (
-        <div style={{ padding: '12px 16px', background: '#161b22', borderTop: '1px solid #30363d', textAlign: 'center', fontSize: 13, color: '#8b949e', flexShrink: 0 }}>
-          This bid is <strong style={{ color: statusColor(currentBid.status).color }}>{currentBid.status}</strong> — negotiation closed
+        <div style={{ padding: '12px 16px', background: '#161b22', borderTop: '1px solid #30363d', textAlign: 'center', fontSize: 13, flexShrink: 0 }}>
+          {currentBid.status === 'accepted' ? (
+            <span style={{ color: '#3fb950', fontWeight: 600 }}>
+              ✓ Price agreed at ₦{currentBid.amount?.toLocaleString()} — waiting for client to complete payment
+            </span>
+          ) : (
+            <span style={{ color: '#8b949e' }}>
+              This bid is <strong style={{ color: statusColor(currentBid.status).color }}>{currentBid.status}</strong> — negotiation closed
+            </span>
+          )}
         </div>
       )}
     </div>
