@@ -1,35 +1,33 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { api } from '@/libs/api-client'
 import { Briefcase, Star, CheckCircle, XCircle } from 'lucide-react'
 
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
-
 const STATUS_MAP = {
-  completed: { label: 'Completed', color: '#16a34a', bg: '#f0fdf4' },
-  declined:  { label: 'Declined',  color: '#dc2626', bg: '#fef2f2' },
-  withdrawn: { label: 'Withdrawn', color: '#6b7280', bg: '#f3f4f6' },
-  cancelled: { label: 'Cancelled', color: '#6b7280', bg: '#f3f4f6' },
+  completed: { label: 'Completed', color: '#3fb950', bg: 'rgba(46,160,67,.15)' },
+  declined:  { label: 'Declined',  color: '#f85149', bg: 'rgba(248,81,73,.15)' },
+  withdrawn: { label: 'Withdrawn', color: '#8b949e', bg: '#21262d' },
+  cancelled: { label: 'Cancelled', color: '#8b949e', bg: '#21262d' },
 }
 
 const s = {
-  page: { padding: '1.5rem', fontFamily: 'sans-serif' },
-  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#111', margin: '0 0 1.25rem' },
+  page: { padding: '1.5rem', fontFamily: 'sans-serif', background: '#0d1117', minHeight: '100%' },
+  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#e6edf3', margin: '0 0 1.25rem' },
   statsRow: { display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' },
-  stat: { flex: '1 1 130px', background: '#fff', borderRadius: 10, padding: '0.85rem 1rem', boxShadow: '0 2px 6px rgba(0,0,0,0.05)', textAlign: 'center' },
-  statVal: { fontSize: '1.4rem', fontWeight: 700, color: '#111' },
-  statLbl: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  stat: { flex: '1 1 130px', background: '#161b22', borderRadius: 10, padding: '0.85rem 1rem', border: '1px solid #30363d', textAlign: 'center' },
+  statVal: { fontSize: '1.4rem', fontWeight: 700, color: '#e6edf3' },
+  statLbl: { fontSize: 12, color: '#8b949e', marginTop: 2 },
   filterBar: { display: 'flex', gap: 8, marginBottom: '1rem', flexWrap: 'wrap' },
-  filterBtn: (a) => ({ padding: '5px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid ' + (a ? '#2563eb' : '#e5e7eb'), background: a ? '#2563eb' : '#fff', color: a ? '#fff' : '#374151' }),
-  row: { background: '#fff', borderRadius: 10, padding: '0.85rem 1rem', boxShadow: '0 2px 6px rgba(0,0,0,0.05)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 },
-  title: { fontWeight: 600, fontSize: 14, color: '#111' },
-  meta: { fontSize: 12, color: '#6b7280', marginTop: 3 },
+  filterBtn: (a) => ({ padding: '5px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid ' + (a ? '#C4E53C' : '#30363d'), background: a ? '#C4E53C' : '#21262d', color: a ? '#0d1117' : '#c9d1d9' }),
+  row: { background: '#161b22', borderRadius: 10, padding: '0.85rem 1rem', border: '1px solid #30363d', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 },
+  title: { fontWeight: 600, fontSize: 14, color: '#e6edf3' },
+  meta: { fontSize: 12, color: '#8b949e', marginTop: 3 },
   badge: (color, bg) => ({ padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, color, background: bg }),
   right: { display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 },
-  amount: { fontWeight: 700, fontSize: 15, color: '#111' },
+  amount: { fontWeight: 700, fontSize: 15, color: '#e6edf3' },
   stars: { display: 'flex', gap: 2 },
-  empty: { textAlign: 'center', padding: '3rem', color: '#9ca3af' },
+  empty: { textAlign: 'center', padding: '3rem', color: '#6e7681' },
 }
 
 export default function JobHistory () {
@@ -38,7 +36,7 @@ export default function JobHistory () {
   const [filter, setFilter] = useState('all')
 
   useEffect(() => {
-    axios.get(`${API}/api/bids/my-bids`, { withCredentials: true })
+    api.get('/api/bids/my-bids')
       .then(res => {
         const all = res.data.bids || res.data.data || []
         setBids(all.filter(b => ['completed', 'declined', 'withdrawn', 'cancelled'].includes(b.status)))

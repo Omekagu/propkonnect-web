@@ -1,41 +1,39 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { api } from '@/libs/api-client'
 import { Briefcase, Clock, Send, ChevronDown, ChevronUp } from 'lucide-react'
 
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
-
 const s = {
-  page: { padding: '1.5rem', fontFamily: 'sans-serif' },
+  page: { padding: '1.5rem', fontFamily: 'sans-serif', background: '#0d1117', minHeight: '100%' },
   header: { marginBottom: '1.25rem' },
-  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#111', margin: '0 0 4px' },
-  sub: { color: '#6b7280', fontSize: 14, margin: 0 },
+  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#e6edf3', margin: '0 0 4px' },
+  sub: { color: '#8b949e', fontSize: 14, margin: 0 },
   filterBar: { display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: '1rem' },
   filterBtn: (active) => ({
     padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer',
-    border: '1px solid ' + (active ? '#2563eb' : '#e5e7eb'),
-    background: active ? '#2563eb' : '#fff', color: active ? '#fff' : '#374151',
+    border: '1px solid ' + (active ? '#C4E53C' : '#30363d'),
+    background: active ? '#C4E53C' : '#21262d', color: active ? '#0d1117' : '#c9d1d9',
   }),
-  card: { background: '#fff', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '0.75rem' },
+  card: { background: '#161b22', borderRadius: 12, padding: '1.25rem', border: '1px solid #30363d', marginBottom: '0.75rem' },
   cardTop: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', cursor: 'pointer' },
-  title: { fontWeight: 700, fontSize: 15, color: '#111', marginBottom: 4 },
+  title: { fontWeight: 700, fontSize: 15, color: '#e6edf3', marginBottom: 4 },
   metaRow: { display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 6 },
-  metaItem: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#6b7280' },
+  metaItem: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#8b949e' },
   urgBadge: (u) => ({
     padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
-    color: u === 'emergency' ? '#dc2626' : u === 'urgent' ? '#d97706' : '#6b7280',
-    background: u === 'emergency' ? '#fee2e2' : u === 'urgent' ? '#fef3c7' : '#f3f4f6',
+    color: u === 'emergency' ? '#f85149' : u === 'urgent' ? '#d29922' : '#8b949e',
+    background: u === 'emergency' ? 'rgba(248,81,73,.15)' : u === 'urgent' ? 'rgba(210,153,34,.15)' : '#21262d',
   }),
-  body: { marginTop: '1rem', borderTop: '1px solid #f3f4f6', paddingTop: '1rem' },
-  desc: { color: '#374151', fontSize: 14, lineHeight: 1.6, marginBottom: '1rem' },
-  label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 },
-  textarea: { width: '100%', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box', marginBottom: 8 },
+  body: { marginTop: '1rem', borderTop: '1px solid #30363d', paddingTop: '1rem' },
+  desc: { color: '#c9d1d9', fontSize: 14, lineHeight: 1.6, marginBottom: '1rem' },
+  label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#8b949e', marginBottom: 6 },
+  textarea: { width: '100%', padding: '8px 12px', border: '1px solid #30363d', borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box', marginBottom: 8, background: '#21262d', color: '#e6edf3' },
   bidRow: { display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' },
-  input: { flex: '1 1 140px', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14 },
-  btnPrimary: { padding: '8px 18px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 },
-  empty: { textAlign: 'center', padding: '3rem', color: '#9ca3af' },
-  alert: (t) => ({ padding: '10px 14px', borderRadius: 8, fontSize: 13, marginBottom: '0.75rem', background: t === 'success' ? '#f0fdf4' : '#fef2f2', color: t === 'success' ? '#16a34a' : '#dc2626', border: '1px solid ' + (t === 'success' ? '#bbf7d0' : '#fecaca') }),
+  input: { flex: '1 1 140px', padding: '8px 12px', border: '1px solid #30363d', borderRadius: 8, fontSize: 14, background: '#21262d', color: '#e6edf3' },
+  btnPrimary: { padding: '8px 18px', background: '#C4E53C', color: '#0d1117', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 },
+  empty: { textAlign: 'center', padding: '3rem', color: '#6e7681' },
+  alert: (t) => ({ padding: '10px 14px', borderRadius: 8, fontSize: 13, marginBottom: '0.75rem', background: t === 'success' ? 'rgba(46,160,67,.15)' : 'rgba(248,81,73,.15)', color: t === 'success' ? '#3fb950' : '#f85149', border: '1px solid ' + (t === 'success' ? 'rgba(46,160,67,.3)' : 'rgba(248,81,73,.3)') }),
 }
 
 const CATEGORIES = ['All', 'Plumbing', 'Electrical', 'Carpentry', 'Painting', 'Cleaning', 'Security', 'HVAC', 'Other']
@@ -56,7 +54,7 @@ export default function AvailableJobs () {
     try {
       const params = { status: 'open', limit: 50 }
       if (category !== 'All') params.category = category
-      const { data } = await axios.get(`${API}/api/service-requests`, { params, withCredentials: true })
+      const { data } = await api.get('/api/service-requests', { params })
       setJobs(data.serviceRequests || data.data || [])
     } catch { setJobs([]) }
     setLoading(false)
@@ -68,11 +66,11 @@ export default function AvailableJobs () {
     setSubmitting(jobId)
     setMsg(null)
     try {
-      await axios.post(`${API}/api/bids`, {
+      await api.post('/api/bids', {
         serviceRequestId: jobId,
         amount: Number(bd.amount),
         message: bd.message || '',
-      }, { withCredentials: true })
+      })
       setMsg({ type: 'success', text: 'Bid submitted! The client will review your offer.' })
       setBidData(prev => ({ ...prev, [jobId]: {} }))
       setExpanded(null)

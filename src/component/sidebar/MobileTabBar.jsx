@@ -8,6 +8,7 @@ import {
   Briefcase,
   Home,
   MessageSquareWarning,
+  MessageSquare,
   DollarSign,
   CheckSquare,
   Receipt,
@@ -65,7 +66,7 @@ const ROLE_TABS = {
     { key: 'Dashboard', label: 'Home', Icon: LayoutDashboard },
     { key: 'AvailableJobs', label: 'Jobs', Icon: Briefcase },
     { key: 'ActiveJobs', label: 'Active', Icon: CheckSquare },
-    { key: 'Earnings', label: 'Earnings', Icon: DollarSign }
+    { key: 'Negotiations', label: 'Bids', Icon: MessageSquare }
   ],
   user: [
     { key: 'Dashboard', label: 'Home', Icon: LayoutDashboard },
@@ -105,10 +106,12 @@ const ALL_ROLE_NAV = {
     { key: 'Help', label: 'Help', Icon: HeartHandshake }
   ],
   artisan: [
+    { key: 'Earnings', label: 'Earnings', Icon: DollarSign },
     { key: 'JobHistory', label: 'Job History', Icon: ClipboardMinus },
     { key: 'Schedule', label: 'Schedule', Icon: Calendar },
     { key: 'Portfolio', label: 'Portfolio', Icon: Star },
     { key: 'Certifications', label: 'Certifications', Icon: Award },
+    { key: 'KYCVerification', label: 'Identity Verification', Icon: Shield },
     { key: 'Profile', label: 'Profile', Icon: Users },
     { key: 'Settings', label: 'Settings', Icon: Cog },
     { key: 'Help', label: 'Help', Icon: HeartHandshake }

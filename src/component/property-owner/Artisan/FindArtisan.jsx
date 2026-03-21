@@ -403,20 +403,30 @@ function MyRequestsView ({ onNegotiate }) {
   const acceptBid = async bid => {
     if (
       !window.confirm(
-        `Accept ₦${bid.amount?.toLocaleString()}? This proceeds to payment.`
+        `Accept ₦${bid.amount?.toLocaleString()}? This will take you to the Paystack payment page to secure funds in escrow.`
       )
     )
       return
     try {
+      // Step 1: accept the bid
       await axios.post(`${API_URL}/bids/${bid._id}/accept`, {}, getAuthConfig())
-      setToast({
-        msg: 'Bid accepted! Redirecting to payment...',
-        type: 'success'
-      })
-      setSelectedReq(null)
+
+      // Step 2: initiate escrow payment via Paystack
+      setToast({ msg: 'Bid accepted! Preparing payment…', type: 'success' })
+      const payRes = await axios.post(
+        `${API_URL}/paystack/service-payment`,
+        { bidId: bid._id },
+        getAuthConfig()
+      )
+      if (payRes.data?.authorizationUrl) {
+        window.location.href = payRes.data.authorizationUrl
+      } else {
+        setToast({ msg: 'Bid accepted. Proceed to pay from your requests list.', type: 'success' })
+        setSelectedReq(null)
+      }
     } catch (err) {
       setToast({
-        msg: err.response?.data?.message || err.message,
+        msg: err.response?.data?.msg || err.response?.data?.message || err.message,
         type: 'error'
       })
     }

@@ -1,26 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { api } from '@/libs/api-client'
 import { Calendar, Briefcase, DollarSign, Clock } from 'lucide-react'
 
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
-
 const s = {
-  page: { padding: '1.5rem', fontFamily: 'sans-serif' },
+  page: { padding: '1.5rem', fontFamily: 'sans-serif', background: '#0d1117', minHeight: '100%' },
   header: { marginBottom: '1.25rem' },
-  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#111', margin: '0 0 4px' },
-  sub: { color: '#6b7280', fontSize: 14, margin: 0 },
-  card: { background: '#fff', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '0.75rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' },
-  dateBox: { flexShrink: 0, width: 52, textAlign: 'center', background: '#dbeafe', borderRadius: 10, padding: '8px 4px' },
-  dateDay: { fontSize: '1.5rem', fontWeight: 800, color: '#1d4ed8', lineHeight: 1 },
-  dateMon: { fontSize: 11, color: '#2563eb', fontWeight: 600, textTransform: 'uppercase' },
+  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#e6edf3', margin: '0 0 4px' },
+  sub: { color: '#8b949e', fontSize: 14, margin: 0 },
+  card: { background: '#161b22', borderRadius: 12, padding: '1.25rem', border: '1px solid #30363d', marginBottom: '0.75rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' },
+  dateBox: { flexShrink: 0, width: 52, textAlign: 'center', background: 'rgba(56,139,253,.15)', borderRadius: 10, padding: '8px 4px', border: '1px solid rgba(56,139,253,.25)' },
+  dateDay: { fontSize: '1.5rem', fontWeight: 800, color: '#58a6ff', lineHeight: 1 },
+  dateMon: { fontSize: 11, color: '#58a6ff', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8 },
   content: { flex: 1 },
-  title: { fontWeight: 700, fontSize: 15, color: '#111', marginBottom: 4 },
+  title: { fontWeight: 700, fontSize: 15, color: '#e6edf3', marginBottom: 4 },
   meta: { display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 4 },
-  metaItem: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#6b7280' },
-  badge: { padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: '#fef3c7', color: '#d97706' },
-  empty: { textAlign: 'center', padding: '3rem', color: '#9ca3af' },
+  metaItem: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#8b949e' },
+  badge: { padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(210,153,34,.15)', color: '#d29922' },
+  empty: { textAlign: 'center', padding: '3rem', color: '#6e7681' },
 }
 
 export default function Schedule () {
@@ -28,7 +26,7 @@ export default function Schedule () {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    axios.get(`${API}/api/bids/my-bids`, { withCredentials: true })
+    api.get('/api/bids/my-bids')
       .then(res => {
         const all = res.data.bids || res.data.data || []
         setBids(all.filter(b => b.status === 'accepted').sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt)))
@@ -37,7 +35,7 @@ export default function Schedule () {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div style={{ padding: '1.5rem', color: '#6b7280' }}>Loading schedule…</div>
+  if (loading) return <div style={{ padding: '1.5rem', color: '#8b949e', background: '#0d1117', minHeight: '100%' }}>Loading schedule…</div>
 
   return (
     <div style={s.page}>

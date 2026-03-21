@@ -31,6 +31,7 @@ const PAGE_TITLES = {
   Schedule: 'Schedule',
   Portfolio: 'Portfolio',
   Certifications: 'Certifications',
+  Negotiations: 'My Bids & Negotiations',
   MyHome: 'My Home',
   Messages: 'Messages',
   SupportTickets: 'Support Tickets',

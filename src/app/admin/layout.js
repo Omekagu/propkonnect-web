@@ -31,6 +31,7 @@ import Earnings from '@/component/artisan/Earnings/Earnings'
 import Schedule from '@/component/artisan/Schedule/Schedule'
 import Portfolio from '@/component/artisan/Portfolio/Portfolio'
 import Certifications from '@/component/artisan/Certifications/Certifications'
+import BidNegotiations from '@/component/artisan/Negotiations/BidNegotiations'
 
 // Tenant Components
 import TenantDashboard from '@/component/tenant/Dashboard/Dashboard'
@@ -62,6 +63,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useTheme } from '@/hooks/useTheme'
 import './layout.scss'
+import './dark-content.scss'
 
 // ── KYC Gate — blocks access to action pages until KYC is approved ────────────
 function KycGate ({ kycStatus, onVerify, children }) {
@@ -624,6 +626,8 @@ export default function AdminLayout ({ children }) {
           return gated(<Portfolio />)
         case 'Certifications':
           return gated(<Certifications />)
+        case 'Negotiations':
+          return gated(<BidNegotiations />)
         case 'Profile':
           return <Settings />
         case 'Settings':

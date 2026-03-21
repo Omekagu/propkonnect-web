@@ -477,70 +477,24 @@
 // ── Dark Mode — programmatic toggle ──────────────────────────
 html[data-theme='dark'] {
   .admin-shell {
-    background: #0f6040;
+    background: #0d1117;
   }
   .admin-content {
-    background: #0f6040;
+    background: #0d1117;
   }
   .page-placeholder {
-    background: var(--color-text-primary);
-    border-color: #1e293b;
+    background: #161b22;
+    border-color: #30363d;
+    color: #8b949e;
   }
   .loading-state {
-    background: #0f6040;
-    p {
-      color: var(--color-text-secondary);
-    }
+    background: #0d1117;
+    p { color: #8b949e; }
   }
-  .loading-spinner p {
-    color: var(--color-text-secondary);
-  }
-  .account-pending-banner {
-    background: linear-gradient(135deg, #052418 0%, var(--color-primary) 100%);
-  }
-  .alert-banner {
-    &.alert-error {
-      background: rgba(127, 29, 29, 0.9);
-      color: var(--color-error-bg);
-      border-bottom-color: rgba(239, 68, 68, 0.3);
-      svg {
-        color: var(--color-error);
-      }
-    }
-    &.alert-warning {
-      background: rgba(120, 53, 15, 0.9);
-      color: #fde68a;
-      border-bottom-color: rgba(245, 158, 11, 0.3);
-      svg {
-        color: var(--color-warning);
-      }
-    }
-    &.alert-success {
-      background: rgba(6, 78, 59, 0.9);
-      color: #a7f3d0;
-      border-bottom-color: rgba(16, 185, 129, 0.3);
-      svg {
-        color: var(--color-success);
-      }
-    }
-    &.alert-info {
-      background: rgba(5, 36, 24, 0.92);
-      color: #a7f3d0;
-      border-bottom-color: rgba(15, 96, 64, 0.4);
-      svg {
-        color: var(--color-primary-emphasis);
-      }
-    }
-  }
-  .account-setup-wrapper {
-    background: #0f6040;
-  }
+  .loading-spinner p { color: #8b949e; }
+  .account-setup-wrapper { background: #0d1117; }
   .kyc-gate {
-    .kyc-gate-title {
-      color: #f1f5f9;
-    }
-    .kyc-gate-desc {
-      color: #94a3b8;
-    }
+    .kyc-gate-title { color: #e6edf3; }
+    .kyc-gate-desc  { color: #8b949e; }
   }
 }

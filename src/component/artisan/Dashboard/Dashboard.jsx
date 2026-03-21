@@ -1,29 +1,27 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { api } from '@/libs/api-client'
 import { Briefcase, Star, DollarSign, CheckCircle, Clock, TrendingUp } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
-
 const s = {
-  page: { padding: '1.5rem', fontFamily: 'sans-serif' },
+  page: { padding: '1.5rem', fontFamily: 'sans-serif', background: '#0d1117', minHeight: '100%' },
   header: { marginBottom: '1.5rem' },
-  h2: { fontSize: '1.4rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: '0 0 4px' },
-  sub: { color: 'var(--color-text-muted)', fontSize: 14, margin: 0 },
+  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#e6edf3', margin: '0 0 4px' },
+  sub: { color: '#8b949e', fontSize: 14, margin: 0 },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' },
-  card: { background: 'var(--color-surface)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 14 },
+  card: { background: '#161b22', borderRadius: 12, padding: '1.25rem', border: '1px solid #30363d', display: 'flex', alignItems: 'center', gap: 14 },
   iconBox: (bg) => ({ width: 44, height: 44, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }),
-  val: { fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-primary)' },
-  lbl: { fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 },
-  section: { background: 'var(--color-surface)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '1rem' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '1rem' },
-  jobRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0', borderBottom: '1px solid #f3f4f6' },
-  jobTitle: { fontWeight: 600, fontSize: 14, color: 'var(--color-text-primary)' },
-  jobMeta: { fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 },
-  badge: (color) => ({ display: 'inline-block', padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: color + '1a', color }),
-  empty: { color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', padding: '1.5rem 0' },
+  val: { fontSize: '1.5rem', fontWeight: 700, color: '#e6edf3' },
+  lbl: { fontSize: 12, color: '#8b949e', marginTop: 2 },
+  section: { background: '#161b22', borderRadius: 12, padding: '1.25rem', border: '1px solid #30363d', marginBottom: '1rem' },
+  sectionTitle: { fontSize: 15, fontWeight: 700, color: '#e6edf3', marginBottom: '1rem' },
+  jobRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0', borderBottom: '1px solid #21262d' },
+  jobTitle: { fontWeight: 600, fontSize: 14, color: '#e6edf3' },
+  jobMeta: { fontSize: 12, color: '#8b949e', marginTop: 2 },
+  badge: (color, bg) => ({ display: 'inline-block', padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: bg, color }),
+  empty: { color: '#6e7681', fontSize: 14, textAlign: 'center', padding: '1.5rem 0' },
 }
 
 export default function ArtisanDashboard () {
@@ -32,7 +30,7 @@ export default function ArtisanDashboard () {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    axios.get(`${API}/api/bids/my-bids`, { withCredentials: true })
+    api.get('/api/bids/my-bids')
       .then(res => setBids(res.data.bids || res.data.data || []))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -45,11 +43,11 @@ export default function ArtisanDashboard () {
   const rating         = user?.artisanProfile?.rating || user?.stats?.averageRating || 0
 
   const stats = [
-    { icon: <Briefcase size={20} color='var(--color-primary-mid)' />, bg: 'var(--color-primary-light)', val: activeBids.length,    lbl: 'Active Jobs' },
-    { icon: <CheckCircle size={20} color='var(--color-success)' />, bg: 'var(--color-success-bg)', val: completedBids.length, lbl: 'Completed' },
-    { icon: <Clock size={20} color='var(--color-warning)' />,       bg: 'var(--color-warning-bg)', val: pendingBids.length,   lbl: 'Pending Bids' },
-    { icon: <DollarSign size={20} color='#7c3aed' />,  bg: '#ede9fe', val: `₦${Number(totalEarned).toLocaleString()}`, lbl: 'Total Earned' },
-    { icon: <Star size={20} color='var(--color-warning)' />,        bg: '#fef9c3', val: rating ? Number(rating).toFixed(1) : '—', lbl: 'Rating' },
+    { icon: <Briefcase size={20} color='#58a6ff' />, bg: 'rgba(56,139,253,.15)', val: activeBids.length,    lbl: 'Active Jobs' },
+    { icon: <CheckCircle size={20} color='#3fb950' />, bg: 'rgba(46,160,67,.15)', val: completedBids.length, lbl: 'Completed' },
+    { icon: <Clock size={20} color='#d29922' />,       bg: 'rgba(210,153,34,.15)', val: pendingBids.length,   lbl: 'Pending Bids' },
+    { icon: <DollarSign size={20} color='#bc8cff' />,  bg: 'rgba(188,140,255,.15)', val: `₦${Number(totalEarned).toLocaleString()}`, lbl: 'Total Earned' },
+    { icon: <Star size={20} color='#d29922' />,        bg: 'rgba(210,153,34,.15)', val: rating ? Number(rating).toFixed(1) : '—', lbl: 'Rating' },
   ]
 
   return (
@@ -60,7 +58,7 @@ export default function ArtisanDashboard () {
       </div>
 
       {loading ? (
-        <p style={{ color: 'var(--color-text-muted)' }}>Loading…</p>
+        <p style={{ color: '#8b949e' }}>Loading…</p>
       ) : (
         <>
           <div style={s.grid}>
@@ -85,7 +83,7 @@ export default function ArtisanDashboard () {
                   <div style={s.jobTitle}>{bid.serviceRequest?.title || 'Job'}</div>
                   <div style={s.jobMeta}>{bid.serviceRequest?.category || ''} · Agreed: ₦{Number(bid.agreedAmount || bid.amount).toLocaleString()}</div>
                 </div>
-                <span style={s.badge('var(--color-warning)')}>In Progress</span>
+                <span style={s.badge('#d29922', 'rgba(210,153,34,.15)')}>In Progress</span>
               </div>
             ))}
           </div>
@@ -100,7 +98,7 @@ export default function ArtisanDashboard () {
                   <div style={s.jobTitle}>{bid.serviceRequest?.title || 'Job'}</div>
                   <div style={s.jobMeta}>Bid amount: ₦{Number(bid.amount).toLocaleString()}</div>
                 </div>
-                <span style={s.badge('var(--color-primary-mid)')}>Awaiting Response</span>
+                <span style={s.badge('#58a6ff', 'rgba(56,139,253,.15)')}>Awaiting Response</span>
               </div>
             ))}
           </div>

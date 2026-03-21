@@ -1,38 +1,36 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { api } from '@/libs/api-client'
 import { ImageIcon, Plus, Pencil, Trash2, X, Check } from 'lucide-react'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
 
 const CATEGORIES = ['Plumbing', 'Electrical', 'Carpentry', 'Painting', 'Cleaning', 'Security', 'HVAC', 'Other']
 
 const s = {
-  page: { padding: '1.5rem', fontFamily: 'sans-serif' },
+  page: { padding: '1.5rem', fontFamily: 'sans-serif', background: '#0d1117', minHeight: '100%' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: 10 },
-  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#111', margin: 0 },
-  btnPrimary: { padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 },
-  btnGhost: { padding: '8px 16px', background: '#f3f4f6', color: '#374151', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 },
-  btnDanger: { padding: '6px 12px', background: '#fef2f2', color: '#dc2626', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 },
-  form: { background: '#fff', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '1.25rem' },
-  formTitle: { fontWeight: 700, fontSize: 15, marginBottom: '1rem', color: '#111' },
+  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#e6edf3', margin: 0 },
+  btnPrimary: { padding: '8px 16px', background: '#C4E53C', color: '#0d1117', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 },
+  btnGhost: { padding: '8px 16px', background: '#21262d', color: '#c9d1d9', border: '1px solid #30363d', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 },
+  btnDanger: { padding: '6px 12px', background: 'rgba(248,81,73,.15)', color: '#f85149', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 },
+  form: { background: '#161b22', borderRadius: 12, padding: '1.25rem', border: '1px solid #30363d', marginBottom: '1.25rem' },
+  formTitle: { fontWeight: 700, fontSize: 15, marginBottom: '1rem', color: '#e6edf3' },
   grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 },
-  label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 5 },
-  input: { width: '100%', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' },
-  select: { width: '100%', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, background: '#fff', boxSizing: 'border-box' },
-  textarea: { width: '100%', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box', marginBottom: 12 },
+  label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#8b949e', marginBottom: 5 },
+  input: { width: '100%', padding: '8px 12px', border: '1px solid #30363d', borderRadius: 8, fontSize: 14, boxSizing: 'border-box', background: '#21262d', color: '#e6edf3' },
+  select: { width: '100%', padding: '8px 12px', border: '1px solid #30363d', borderRadius: 8, fontSize: 14, background: '#21262d', color: '#e6edf3', boxSizing: 'border-box' },
+  textarea: { width: '100%', padding: '8px 12px', border: '1px solid #30363d', borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box', marginBottom: 12, background: '#21262d', color: '#e6edf3' },
   formActions: { display: 'flex', gap: 8, justifyContent: 'flex-end' },
   portfolioGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' },
-  card: { background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-  imgWrap: { height: 180, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  card: { background: '#161b22', borderRadius: 12, overflow: 'hidden', border: '1px solid #30363d' },
+  imgWrap: { height: 180, background: '#21262d', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   img: { width: '100%', height: '100%', objectFit: 'cover' },
   cardBody: { padding: '0.85rem' },
-  cardTitle: { fontWeight: 700, fontSize: 14, color: '#111', marginBottom: 4 },
-  cardMeta: { fontSize: 12, color: '#6b7280', marginBottom: 8 },
+  cardTitle: { fontWeight: 700, fontSize: 14, color: '#e6edf3', marginBottom: 4 },
+  cardMeta: { fontSize: 12, color: '#8b949e', marginBottom: 8 },
   cardActions: { display: 'flex', gap: 6, justifyContent: 'flex-end' },
-  empty: { textAlign: 'center', padding: '3rem', color: '#9ca3af' },
-  alert: (t) => ({ padding: '10px 14px', borderRadius: 8, fontSize: 13, marginBottom: '0.75rem', background: t === 'success' ? '#f0fdf4' : '#fef2f2', color: t === 'success' ? '#16a34a' : '#dc2626' }),
+  empty: { textAlign: 'center', padding: '3rem', color: '#6e7681' },
+  alert: (t) => ({ padding: '10px 14px', borderRadius: 8, fontSize: 13, marginBottom: '0.75rem', background: t === 'success' ? 'rgba(46,160,67,.15)' : 'rgba(248,81,73,.15)', color: t === 'success' ? '#3fb950' : '#f85149', border: '1px solid ' + (t === 'success' ? 'rgba(46,160,67,.3)' : 'rgba(248,81,73,.3)') }),
 }
 
 const emptyForm = { title: '', description: '', category: '', imageUrl: '' }
@@ -50,7 +48,7 @@ export default function Portfolio () {
 
   async function fetchPortfolio () {
     try {
-      const { data } = await axios.get(`${API}/api/artisan/portfolio/me`, { withCredentials: true })
+      const { data } = await api.get('/api/artisan/portfolio/me')
       setItems(data.portfolios || data.data || [])
     } catch { setItems([]) }
     setLoading(false)
@@ -62,10 +60,10 @@ export default function Portfolio () {
     setMsg(null)
     try {
       if (editId) {
-        await axios.put(`${API}/api/artisan/portfolio/${editId}`, form, { withCredentials: true })
+        await api.put(`/api/artisan/portfolio/${editId}`, form)
         setMsg({ type: 'success', text: 'Portfolio item updated.' })
       } else {
-        await axios.post(`${API}/api/artisan/portfolio`, form, { withCredentials: true })
+        await api.post('/api/artisan/portfolio', form)
         setMsg({ type: 'success', text: 'Portfolio item added.' })
       }
       setForm(emptyForm)
@@ -82,7 +80,7 @@ export default function Portfolio () {
   async function deleteItem (id) {
     if (!confirm('Delete this portfolio item?')) return
     try {
-      await axios.delete(`${API}/api/artisan/portfolio/${id}`, { withCredentials: true })
+      await api.delete(`/api/artisan/portfolio/${id}`)
       setMsg({ type: 'success', text: 'Item deleted.' })
       fetchPortfolio()
     } catch { setMsg({ type: 'error', text: 'Failed to delete.' }) }
@@ -98,7 +96,7 @@ export default function Portfolio () {
     <div style={s.page}>
       <div style={s.header}>
         <h2 style={s.h2}>Portfolio</h2>
-        <button style={s.btnPrimary} onClick={() => { setShowForm(s => !s); setEditId(null); setForm(emptyForm) }}>
+        <button style={s.btnPrimary} onClick={() => { setShowForm(v => !v); setEditId(null); setForm(emptyForm) }}>
           <Plus size={16} /> Add Work
         </button>
       </div>
@@ -135,7 +133,7 @@ export default function Portfolio () {
       )}
 
       {loading ? (
-        <p style={{ color: '#6b7280' }}>Loading portfolio…</p>
+        <p style={{ color: '#8b949e' }}>Loading portfolio…</p>
       ) : items.length === 0 ? (
         <div style={s.empty}>
           <ImageIcon size={40} opacity={0.3} style={{ display: 'block', margin: '0 auto 10px' }} />
@@ -148,7 +146,7 @@ export default function Portfolio () {
               <div style={s.imgWrap}>
                 {item.imageUrl
                   ? <img src={item.imageUrl} alt={item.title} style={s.img} />
-                  : <ImageIcon size={36} opacity={0.2} />
+                  : <ImageIcon size={36} opacity={0.2} color='#6e7681' />
                 }
               </div>
               <div style={s.cardBody}>

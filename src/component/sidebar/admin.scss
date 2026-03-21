@@ -10,7 +10,14 @@
 .admin-shell {
   display: flex;
   min-height: 100vh;
-  background: var(--color-background);
+  background: #0d1117;  // Always dark — sidebar overrides its own bg
+}
+
+// ── Page content area ─────────────────────────────────────────
+.admin-content {
+  background: #0d1117;
+  flex: 1;
+  min-width: 0;
 }
 
 // ── Main column ───────────────────────────────────────────────

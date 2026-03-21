@@ -10,6 +10,7 @@ import {
   HousePlus,
   LayoutDashboard,
   MessageSquareWarning,
+  MessageSquare,
   Users,
   WalletMinimal,
   Briefcase,
@@ -298,6 +299,11 @@ export default function Sidebar ({
             key: 'ActiveJobs',
             label: 'Active Jobs',
             icon: <CheckSquare strokeWidth={0.75} />
+          },
+          {
+            key: 'Negotiations',
+            label: 'My Bids & Negotiations',
+            icon: <MessageSquare strokeWidth={0.75} />
           },
           {
             key: 'JobHistory',
