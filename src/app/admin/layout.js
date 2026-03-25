@@ -35,6 +35,7 @@ import BidNegotiations from '@/component/artisan/Negotiations/BidNegotiations'
 
 // Tenant Components
 import TenantDashboard from '@/component/tenant/Dashboard/Dashboard'
+import MyLease         from '@/component/tenant/MyLease/MyLease'
 import MyHome from '@/component/tenant/Home/Home'
 import TenantPayments  from '@/component/tenant/Payments/Payments'
 import MyBookings      from '@/component/admin/Tenant/MyBookings'
@@ -678,6 +679,8 @@ export default function AdminLayout ({ children }) {
           return gated(<TenantMaintenance />)
         case 'Documents':
           return gated(<Document />)
+        case 'MyLease':
+          return <MyLease />
         case 'MyBookings':
           return <MyBookings />
         case 'BookingCart':

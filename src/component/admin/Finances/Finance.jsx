@@ -550,9 +550,78 @@ function PayoutsTab () {
   )
 }
 
+// ── Backfill Migration Panel ──────────────────────────────────────────────────
+function BackfillPanel () {
+  const [status, setStatus]   = useState(null) // null | 'running' | 'done' | 'error'
+  const [result, setResult]   = useState(null)
+  const [isDry,  setIsDry]    = useState(true)
+
+  const run = async () => {
+    setStatus('running')
+    setResult(null)
+    try {
+      const data = await apiFetch(
+        `/api/admin/finance/migrations/backfill-bookings?dry_run=${isDry}`,
+        { method: 'POST' }
+      )
+      setResult(data)
+      setStatus(data.success ? 'done' : 'error')
+    } catch (err) {
+      setResult({ message: err.message })
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div style={{ background: '#fff', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', marginBottom: '1.5rem', border: '1px solid #fde68a' }}>
+      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: '#92400e' }}>🔧 Booking Backfill Migration</div>
+      <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 12 }}>
+        Creates missing <strong>Transactions</strong>, <strong>PropertyApplications</strong>, and <strong>Leases</strong> for all confirmed bookings that pre-date automatic record creation.
+      </p>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+          <input type='checkbox' checked={isDry} onChange={e => setIsDry(e.target.checked)} />
+          Dry run (preview only — no writes)
+        </label>
+        <button
+          onClick={run}
+          disabled={status === 'running'}
+          style={{ padding: '8px 18px', background: isDry ? '#2563eb' : '#dc2626', color: '#fff', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}
+        >
+          {status === 'running' ? '⏳ Running…' : isDry ? '🔍 Preview' : '⚡ Apply Migration'}
+        </button>
+      </div>
+      {result && (
+        <div style={{ marginTop: 12, background: status === 'error' ? '#fef2f2' : '#f0fdf4', borderRadius: 8, padding: '0.75rem 1rem', fontSize: 13 }}>
+          <div style={{ fontWeight: 600, marginBottom: 6, color: status === 'error' ? '#dc2626' : '#166534' }}>
+            {result.dryRun ? '🔍 Preview result' : '✅ Migration complete'} — {result.message}
+          </div>
+          {result.results && (
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+              {['transactions', 'applications', 'leases'].map(k => (
+                <div key={k} style={{ minWidth: 140 }}>
+                  <div style={{ fontWeight: 600, textTransform: 'capitalize', color: '#374151' }}>{k}</div>
+                  <div style={{ color: '#16a34a' }}>✓ {result.results[k]?.created ?? 0} to create</div>
+                  <div style={{ color: '#6b7280' }}>↷ {result.results[k]?.skipped ?? 0} already exist</div>
+                  {result.results[k]?.errors?.length > 0 && (
+                    <div style={{ color: '#dc2626' }}>✗ {result.results[k].errors.length} errors</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function FinanceDashboard ({ initialTab }) {
   const [activeTab, setActiveTab] = useState(initialTab || 'Overview')
   const [overview, setOverview] = useState(null)
+  const [userRole] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('userData') || '{}').role || '' } catch { return '' }
+  })
 
   useEffect(() => {
     apiFetch('/api/admin/finance/overview').then(data => {
@@ -568,6 +637,10 @@ export default function FinanceDashboard ({ initialTab }) {
           Platform revenue, transactions, escrow, and payout queue.
         </p>
       </div>
+
+      {/* Backfill panel — SUPER_ADMIN only */}
+      {userRole === 'SUPER_ADMIN' && <BackfillPanel />}
+
       <div className='fin-tabs'>
         {TABS.map(t => (
           <button

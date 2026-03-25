@@ -68,6 +68,8 @@ export default function PropertyDetails () {
   const [guests, setGuests] = useState(1)
   const [selectedRoomTypeIdx, setSelectedRoomTypeIdx] = useState(-1)
   const [roomQty, setRoomQty] = useState(1)
+  // Real-time availability (per room type, loaded after dates change)
+  const [liveAvail, setLiveAvail] = useState(null)   // null = not yet checked
   const [selectedPlanIdx, setSelectedPlanIdx] = useState(0)
   const [expandedRoomId, setExpandedRoomId] = useState(null)
 
@@ -177,6 +179,18 @@ export default function PropertyDetails () {
       setSelectedRoomTypeIdx(0)
   }, [property])
 
+  // Real-time availability check whenever dates change (hotels/shortlets)
+  useEffect(() => {
+    if (!property || !bookingStart || !bookingEnd) { setLiveAvail(null); return }
+    const cat = (property.category || '').toLowerCase()
+    if (!['hotel', 'shortlet'].includes(cat)) return
+    axios.get(`${API}/api/bookings/check-availability`, {
+      params: { propertyId: id, checkIn: bookingStart, checkOut: bookingEnd }
+    })
+      .then(r => setLiveAvail(r.data || null))
+      .catch(() => setLiveAvail(null))
+  }, [id, property, bookingStart, bookingEnd])
+
   // Keyboard nav for lightbox
   useEffect(() => {
     const onKey = e => {
@@ -234,11 +248,15 @@ export default function PropertyDetails () {
 
   const activePrice = selectedRoomPrice || effectivePrice
 
-  // Max selectable rooms based on available quantity
+  // Max selectable rooms based on live date-based availability (if checked) or static qty
   const roomMaxQty = useMemo(() => {
     if (!selectedRoomType) return 1
+    // Use live availability count when dates are selected
+    const liveRt = liveAvail?.roomTypes?.find(r => r.idx === selectedRoomTypeIdx)
+    if (liveRt) return Math.max(0, liveRt.available)
+    // Fall back to static availableCount or qty
     return Math.max(1, Number(selectedRoomType.availableCount ?? selectedRoomType.qty) || 1)
-  }, [selectedRoomType])
+  }, [selectedRoomType, selectedRoomTypeIdx, liveAvail])
 
   const nights = useMemo(() => nightsBetween(bookingStart, bookingEnd), [bookingStart, bookingEnd])
 
@@ -347,16 +365,20 @@ export default function PropertyDetails () {
     if (!nights || nights < 1) { setBookErr('Check-out must be after check-in'); return }
     setBooking(true)
     try {
+      const rtIdx  = selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : 0
+      const rt     = property.roomTypes?.[rtIdx]
+      const rtId   = rt?.roomTypeId || `idx_${rtIdx}`
       const res = await axios.post(`${API}/api/bookings/init-payment`, {
-        propertyId:  id,
-        roomTypeIdx: selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
-        roomTypeName: selectedRoomType?.name || undefined,
-        checkIn:     bookingStart,
-        checkOut:    bookingEnd,
-        guestCount:  guests,
-        guestName:   guestName.trim(),
-        guestEmail:  guestEmail.trim().toLowerCase(),
-        guestPhone:  guestPhone.trim() || undefined
+        propertyId:   id,
+        roomTypeIdx:  rtIdx,
+        roomTypeName: rt?.name || undefined,
+        roomTypeId:   property.roomTypes?.length ? rtId : undefined,
+        checkIn:      bookingStart,
+        checkOut:     bookingEnd,
+        guestCount:   guests,
+        guestName:    guestName.trim(),
+        guestEmail:   guestEmail.trim().toLowerCase(),
+        guestPhone:   guestPhone.trim() || undefined
       })
       if (res.data?.authorizationUrl) {
         window.location.href = res.data.authorizationUrl
@@ -1398,16 +1420,65 @@ export default function PropertyDetails () {
         {/* ── Sidebar ──────────────────────────────────────────────── */}
         <aside className='pd-sidebar'>
           <div className='pd-booking-card' id='booking-section'>
-            {/* Availability badge */}
-            {property?.availability?.isAvailable === false ? (
-              <div className='pd-fully-booked'>
-                <AlertCircle size={14} /> Fully Booked / Leased — not currently available
-              </div>
-            ) : (property?.availability?.availableUnits != null && property.availability.availableUnits <= 3 && property.availability.availableUnits > 0) ? (
-              <div className='pd-low-availability'>
-                <Zap size={12} /> Only {property.availability.availableUnits} unit{property.availability.availableUnits !== 1 ? 's' : ''} left!
-              </div>
-            ) : null}
+            {/* Availability badge — room-type-aware */}
+            {(() => {
+              const cat = (property?.category || '').toLowerCase()
+              const isPerNight = ['hotel', 'shortlet'].includes(cat)
+              const hasRoomTypes = isPerNight && property?.roomTypes?.length > 0
+
+              if (hasRoomTypes) {
+                // ── Hotel / Shortlet with room types ──────────────────────────
+                // After dates selected: use live per-room-type count
+                if (liveAvail) {
+                  const liveRt = selectedRoomTypeIdx >= 0
+                    ? liveAvail.roomTypes?.find(r => r.idx === selectedRoomTypeIdx)
+                    : null
+                  const avail = liveRt != null ? liveRt.available
+                    : liveAvail.roomTypes?.reduce((s, r) => s + r.available, 0) ?? 0
+                  if (avail === 0) return (
+                    <div className='pd-fully-booked'>
+                      <AlertCircle size={14} /> {liveRt ? `${liveRt.name} fully booked for these dates` : 'Fully booked for selected dates'}
+                    </div>
+                  )
+                  if (avail <= 3) return (
+                    <div className='pd-low-availability'>
+                      <Zap size={12} /> Only {avail} room{avail !== 1 ? 's' : ''} left for these dates!
+                    </div>
+                  )
+                  return null
+                }
+                // Before dates selected: derive from room-type quantities (ignore stale isAvailable flag)
+                const selectedRt = selectedRoomTypeIdx >= 0 ? property.roomTypes[selectedRoomTypeIdx] : null
+                const staticAvail = selectedRt
+                  ? (selectedRt.availableCount ?? selectedRt.qty ?? 1)
+                  : property.roomTypes.reduce((s, r) => s + (r.availableCount ?? r.qty ?? 1), 0)
+                if (staticAvail === 0) return (
+                  <div className='pd-fully-booked'>
+                    <AlertCircle size={14} /> {selectedRt ? `${selectedRt.name} fully booked` : 'All room types fully booked'}
+                  </div>
+                )
+                if (staticAvail <= 3) return (
+                  <div className='pd-low-availability'>
+                    <Zap size={12} /> Only {staticAvail} room{staticAvail !== 1 ? 's' : ''} left — select dates to confirm
+                  </div>
+                )
+                return null
+              }
+
+              // ── Single-unit / non-per-night — use static flag ──────────────
+              if (property?.availability?.isAvailable === false) return (
+                <div className='pd-fully-booked'>
+                  <AlertCircle size={14} /> Fully Booked / Leased — not currently available
+                </div>
+              )
+              const units = property?.availability?.availableUnits
+              if (units != null && units <= 3 && units > 0) return (
+                <div className='pd-low-availability'>
+                  <Zap size={12} /> Only {units} unit{units !== 1 ? 's' : ''} left!
+                </div>
+              )
+              return null
+            })()}
             <div className='pd-booking-price'>
               <div className='pd-booking-price__main'>
                 {isPerNight
@@ -1453,10 +1524,14 @@ export default function PropertyDetails () {
                     const unitPrice = Number(isPerNight
                       ? (rt.pricePerNight || rt.basePrice)
                       : (rt.pricePerMonth || rt.pricePerYear || rt.basePrice || rt.pricePerNight)) || 0
-                    const avail = rt.availableCount ?? rt.qty ?? 1
+                    // Use live count when dates selected, else static qty
+                    const liveRt = liveAvail?.roomTypes?.find(r => r.idx === i)
+                    const avail = liveRt ? liveRt.available : (rt.availableCount ?? rt.qty ?? 1)
+                    const isFullyBooked = avail === 0
+                    const suffix = isFullyBooked ? ' (Fully booked)' : avail <= 3 ? ` (${avail} left)` : ''
                     return (
-                      <option key={i} value={i} disabled={avail === 0}>
-                        {rt.name}{unitPrice ? ` — ${fmt(unitPrice, currency)}` : ''}{isPerNight ? '/night' : ''}{avail === 0 ? ' (Unavailable)' : avail <= 3 ? ` (${avail} left)` : ''}
+                      <option key={i} value={i} disabled={isFullyBooked}>
+                        {rt.name}{unitPrice ? ` — ${fmt(unitPrice, currency)}` : ''}{isPerNight ? '/night' : ''}{suffix}
                       </option>
                     )
                   })}

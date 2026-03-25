@@ -43,10 +43,13 @@ import './KYCForm.scss'
 
 const STRICT_ROLES = [
   'PROPERTY_OWNER',
+  'property-owner',
   'artisan',
   'artisan-admin',
   'property-admin'
 ]
+// All roles now see the next-of-kin step (optional for non-strict)
+const ALL_ROLES_NOK = true
 
 const DOC_TYPES = [
   { value: 'nin', label: 'NIN (National ID Number)' },
@@ -372,19 +375,15 @@ export default function KYCForm ({
 }) {
   const isStrict = STRICT_ROLES.includes(userRole)
 
-  // Steps: strict = [1,2,3,4,5], basic = [2,5] (mapped to 1,2 for progress bar)
-  const steps = isStrict
-    ? [
-        { id: 1, icon: User, label: 'Personal' },
-        { id: 2, icon: FileText, label: 'Identity' },
-        { id: 3, icon: Camera, label: 'Selfie' },
-        { id: 4, icon: Users, label: 'Next of Kin' },
-        { id: 5, icon: CheckCircle, label: 'Review' }
-      ]
-    : [
-        { id: 2, icon: FileText, label: 'Identity' },
-        { id: 5, icon: CheckCircle, label: 'Review' }
-      ]
+  // All roles now get personal + identity + selfie + next-of-kin + review
+  // Non-strict roles have personal/selfie/nextofkin optional
+  const steps = [
+    { id: 1, icon: User, label: 'Personal' },
+    { id: 2, icon: FileText, label: 'Identity' },
+    { id: 3, icon: Camera, label: 'Selfie' },
+    { id: 4, icon: Users, label: 'Next of Kin' },
+    { id: 5, icon: CheckCircle, label: 'Review' }
+  ]
 
   const [currentStep, setCurrentStep] = useState(steps[0].id)
   const [toast, setToast] = useState(null)
@@ -485,20 +484,28 @@ export default function KYCForm ({
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        if (!dateOfBirth) return false
-        if (!gender) return false
-        if (!maritalStatus) return false
+        // Required only for strict roles
+        if (isStrict) {
+          if (!dateOfBirth) return false
+          if (!gender) return false
+          if (!maritalStatus) return false
+        }
         return true
       case 2:
         if (!documentType) return false
         if (!docFrontUrl) return false
         return true
       case 3:
-        return !!selfieUrl
+        // Selfie required only for strict roles
+        if (isStrict) return !!selfieUrl
+        return true
       case 4:
-        if (!nokFullName.trim()) return false
-        if (!nokRelationship) return false
-        if (!nokPhone.trim()) return false
+        // Next of kin required only for strict roles
+        if (isStrict) {
+          if (!nokFullName.trim()) return false
+          if (!nokRelationship) return false
+          if (!nokPhone.trim()) return false
+        }
         return true
       default:
         return true
@@ -654,9 +661,8 @@ export default function KYCForm ({
         <div>
           <h2>Identity Verification</h2>
           <p>
-            {isStrict
-              ? 'Complete all steps to verify your identity and unlock full platform access.'
-              : 'Upload a government-issued ID to complete basic verification.'}
+            Complete all steps to verify your identity and unlock full platform access.
+            {!isStrict && ' Personal info and next of kin are optional for your account type.'}
           </p>
         </div>
         {onCancel && (
@@ -965,29 +971,27 @@ export default function KYCForm ({
           </div>
 
           <div className='kyc-review-sections'>
-            {isStrict && (
-              <div className='kyc-review-section'>
-                <div className='kyc-review-section-title'>Personal Details</div>
-                <div className='kyc-review-rows'>
-                  <div className='kyc-review-row'>
-                    <span>Date of Birth</span>
-                    <strong>{dateOfBirth}</strong>
-                  </div>
-                  <div className='kyc-review-row'>
-                    <span>Gender</span>
-                    <strong style={{ textTransform: 'capitalize' }}>
-                      {gender.replace('_', ' ')}
-                    </strong>
-                  </div>
-                  <div className='kyc-review-row'>
-                    <span>Marital Status</span>
-                    <strong style={{ textTransform: 'capitalize' }}>
-                      {maritalStatus}
-                    </strong>
-                  </div>
+            <div className='kyc-review-section'>
+              <div className='kyc-review-section-title'>Personal Details</div>
+              <div className='kyc-review-rows'>
+                <div className='kyc-review-row'>
+                  <span>Date of Birth</span>
+                  <strong>{dateOfBirth}</strong>
+                </div>
+                <div className='kyc-review-row'>
+                  <span>Gender</span>
+                  <strong style={{ textTransform: 'capitalize' }}>
+                    {gender.replace('_', ' ')}
+                  </strong>
+                </div>
+                <div className='kyc-review-row'>
+                  <span>Marital Status</span>
+                  <strong style={{ textTransform: 'capitalize' }}>
+                    {maritalStatus}
+                  </strong>
                 </div>
               </div>
-            )}
+            </div>
 
             <div className='kyc-review-section'>
               <div className='kyc-review-section-title'>Identity Document</div>
@@ -1031,44 +1035,27 @@ export default function KYCForm ({
               </div>
             </div>
 
-            {isStrict && (
-              <>
-                <div className='kyc-review-section'>
-                  <div className='kyc-review-section-title'>Selfie</div>
-                  <div className='kyc-review-rows'>
-                    <div className='kyc-review-row'>
-                      <span>Photo</span>
-                      <strong className={selfieUrl ? 'check' : 'missing'}>
-                        {selfieUrl ? (
-                          <>
-                            <CheckCircle size={13} /> Uploaded
-                          </>
-                        ) : (
-                          'Missing'
-                        )}
-                      </strong>
-                    </div>
-                  </div>
+            <div className='kyc-review-section'>
+              <div className='kyc-review-section-title'>Selfie</div>
+              <div className='kyc-review-rows'>
+                <div className='kyc-review-row'>
+                  <span>Photo</span>
+                  <strong className={selfieUrl ? 'check' : 'missing'}>
+                    {selfieUrl ? (<><CheckCircle size={13} /> Uploaded</>) : 'Not provided'}
+                  </strong>
                 </div>
+              </div>
+            </div>
 
-                <div className='kyc-review-section'>
-                  <div className='kyc-review-section-title'>Next of Kin</div>
-                  <div className='kyc-review-rows'>
-                    <div className='kyc-review-row'>
-                      <span>Name</span>
-                      <strong>{nokFullName}</strong>
-                    </div>
-                    <div className='kyc-review-row'>
-                      <span>Relationship</span>
-                      <strong>{nokRelationship}</strong>
-                    </div>
-                    <div className='kyc-review-row'>
-                      <span>Phone</span>
-                      <strong>{nokPhone}</strong>
-                    </div>
-                  </div>
+            {nokFullName && (
+              <div className='kyc-review-section'>
+                <div className='kyc-review-section-title'>Next of Kin</div>
+                <div className='kyc-review-rows'>
+                  <div className='kyc-review-row'><span>Name</span><strong>{nokFullName}</strong></div>
+                  <div className='kyc-review-row'><span>Relationship</span><strong>{nokRelationship}</strong></div>
+                  <div className='kyc-review-row'><span>Phone</span><strong>{nokPhone}</strong></div>
                 </div>
-              </>
+              </div>
             )}
           </div>
 

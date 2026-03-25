@@ -484,10 +484,10 @@ function PropertyRow ({ property, onEdit }) {
           <Icon.Eye /> {property.viewCount || 0}
         </span>
         <span>
-          <Icon.Heart /> {property.favoriteCount || 0}
+          <Icon.Heart /> {property.likeCount || property.favoriteCount || 0}
         </span>
         <span>
-          <Icon.MessageCircle /> {property.inquiryCount || 0}
+          <Icon.MessageCircle /> {property.inquiryCount || property.commentCount || 0}
         </span>
       </div>
       <div className='od-prop-row__status'>
@@ -497,7 +497,7 @@ function PropertyRow ({ property, onEdit }) {
         <button className='od-prop-row__btn' title='Edit' onClick={() => onEdit?.(property)}>
           <Icon.Edit />
         </button>
-        <button className='od-prop-row__btn' title='View'>
+        <button className='od-prop-row__btn' title='View' onClick={() => window.open(`/property/${property._id}`, '_blank')}>
           <Icon.ExternalLink />
         </button>
       </div>
@@ -548,12 +548,92 @@ function ActivityItem ({ icon: IconComp, color, title, sub, time }) {
   )
 }
 
+// ─── Inline helpers (owner dashboard) ────────────────────────────────────────
+function fmtAmt (n, cur = 'NGN') {
+  if (!n) return '—'
+  if (n >= 1_000_000) return `${cur} ${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${cur} ${(n / 1_000).toFixed(0)}K`
+  return `${cur} ${Number(n).toLocaleString()}`
+}
+function fmtD (d) {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+const STA_COLORS = {
+  confirmed: '#16a34a', active: '#2563eb', pending_payment: '#d97706',
+  cancelled: '#dc2626', checked_out: '#6b7280', pending: '#d97706',
+  approved: '#16a34a', rejected: '#dc2626', paid: '#0ea5e9',
+  scheduled: '#16a34a', completed: '#6b7280', funded: '#2563eb', released: '#16a34a'
+}
+const STA_BG = {
+  confirmed: '#f0fdf4', active: '#dbeafe', pending_payment: '#fef3c7',
+  cancelled: '#fef2f2', checked_out: '#f9fafb', pending: '#fef3c7',
+  approved: '#f0fdf4', rejected: '#fef2f2', paid: '#e0f2fe',
+  scheduled: '#f0fdf4', completed: '#f9fafb', funded: '#dbeafe', released: '#f0fdf4'
+}
+function MBadge ({ status }) {
+  return (
+    <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 600, textTransform: 'capitalize', color: STA_COLORS[status] || '#374151', background: STA_BG[status] || '#f3f4f6' }}>
+      {(status || '—').replace(/_/g, ' ')}
+    </span>
+  )
+}
+function CDot ({ days, label }) {
+  if (days == null) return null
+  const urgent = days <= 3, warn = days <= 7
+  const c = urgent ? '#dc2626' : warn ? '#d97706' : '#2563eb'
+  const bg = urgent ? '#fef2f2' : warn ? '#fef3c7' : '#dbeafe'
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700, color: c, background: bg }}>
+      ⏱ {days < 0 ? 'Overdue' : days === 0 ? 'Today' : `${days}d`}{label ? ` ${label}` : ''}
+    </span>
+  )
+}
+function ORow ({ cols }) {
+  return (
+    <div style={{ display: 'flex', gap: '0.5rem', padding: '7px 0', borderBottom: '1px solid #f3f4f6', fontSize: 13, alignItems: 'center', flexWrap: 'wrap' }}>
+      {cols.map((c, i) => (
+        <div key={i} style={{ flex: c.flex || 1, color: c.muted ? '#6b7280' : '#111', minWidth: c.min || 60 }}>{c.value}</div>
+      ))}
+    </div>
+  )
+}
+function OSection ({ title, count, children }) {
+  const [open, setOpen] = useState(true)
+  return (
+    <section className='od-panel' style={{ marginTop: '1rem' }}>
+      <div className='od-panel__head' onClick={() => setOpen(o => !o)} style={{ cursor: 'pointer' }}>
+        <div>
+          <h2 className='od-panel__title'>{title}
+            {count != null && <span style={{ marginLeft: 8, background: '#f3f4f6', color: '#6b7280', borderRadius: 99, padding: '1px 8px', fontSize: 12, fontWeight: 600 }}>{count}</span>}
+          </h2>
+        </div>
+        <span style={{ color: '#9ca3af' }}>{open ? '▲' : '▼'}</span>
+      </div>
+      {open && <div>{children}</div>}
+    </section>
+  )
+}
+
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 export default function Dashboard ({ onRouteChange }) {
   const [properties, setProperties] = useState([])
+  const [tenantCount, setTenantCount] = useState(0)
+  const [recentPayments, setRecentPayments] = useState([])
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState('Owner')
   const [refreshing, setRefreshing] = useState(false)
+  // Summary data
+  const [bookings, setBookings] = useState([])
+  const [escrows, setEscrows] = useState([])
+  const [inspections, setInspections] = useState([])
+  const [applications, setApplications] = useState([])
+  const [leases, setLeases] = useState([])
+  const [bkCountdowns, setBkCountdowns] = useState([])
+  const [leaseCountdowns, setLeaseCountdowns] = useState([])
+  const [insCountdowns, setInsCountdowns] = useState([])
+  const [payout, setPayout] = useState({ walletBalance: 0, pendingAmount: 0, currency: 'NGN' })
+  const [summaryStats, setSummaryStats] = useState({})
 
   useEffect(() => {
     try {
@@ -562,15 +642,49 @@ export default function Dashboard ({ onRouteChange }) {
       if (u?.firstName) setUserName(u.firstName)
       else if (u?.name) setUserName(u.name.split(' ')[0])
     } catch {}
-    fetchProperties()
+    fetchAll()
   }, [])
 
-  const fetchProperties = async (silent = false) => {
+  const fetchAll = async (silent = false) => {
     if (!silent) setLoading(true)
     else setRefreshing(true)
     try {
-      const { data } = await api.get('/api/properties/property/mine')
-      if (data.success) setProperties(data.properties || [])
+      const [propRes, leaseRes, summaryRes] = await Promise.allSettled([
+        api.get('/api/properties/property/mine'),
+        api.get('/api/leases/landlord'),
+        api.get('/api/dashboard/summary')
+      ])
+      if (propRes.status === 'fulfilled' && propRes.value.data.success) {
+        setProperties(propRes.value.data.properties || [])
+      }
+      if (leaseRes.status === 'fulfilled' && leaseRes.value.data.success) {
+        const ls = leaseRes.value.data.leases || []
+        setTenantCount(ls.filter(l => l.status === 'active').length)
+        setRecentPayments(
+          ls
+            .flatMap(l => (l.installments || []).filter(i => i.status === 'paid').map(i => ({
+              tenant: l.tenant,
+              property: l.property,
+              amount: i.amount,
+              paidAt: i.paidAt
+            })))
+            .sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt))
+            .slice(0, 5)
+        )
+      }
+      if (summaryRes.status === 'fulfilled' && summaryRes.value.data.success) {
+        const d = summaryRes.value.data
+        setBookings(d.bookings || [])
+        setEscrows(d.escrows || [])
+        setInspections(d.inspections || [])
+        setApplications(d.applications || [])
+        setLeases(d.leases || [])
+        setBkCountdowns(d.bookingCountdowns || [])
+        setLeaseCountdowns(d.leaseCountdowns || [])
+        setInsCountdowns(d.inspectionCountdowns || [])
+        setPayout(d.payout || {})
+        setSummaryStats(d.stats || {})
+      }
     } catch (err) {
       console.error('[Dashboard] fetch error', err)
     } finally {
@@ -579,6 +693,8 @@ export default function Dashboard ({ onRouteChange }) {
     }
   }
 
+  const fetchProperties = (silent = false) => fetchAll(silent)
+
   // ── Derived stats ──────────────────────────────────────────────────────────
   const stats = useMemo(() => {
     const total = properties.length
@@ -586,8 +702,10 @@ export default function Dashboard ({ onRouteChange }) {
     const draft = properties.filter(p => p.status === 'draft').length
     const pending = properties.filter(p => p.status === 'pending_review').length
     const views = properties.reduce((s, p) => s + (p.viewCount || 0), 0)
-    const inquiries = properties.reduce((s, p) => s + (p.inquiryCount || 0), 0)
-    const favorites = properties.reduce((s, p) => s + (p.favoriteCount || 0), 0)
+    // inquiryCount + commentCount both map to "inquiries"
+    const inquiries = properties.reduce((s, p) => s + (p.inquiryCount || p.commentCount || 0), 0)
+    // likeCount is the toggle-like field; favoriteCount is the saved/bookmark field
+    const favorites = properties.reduce((s, p) => s + (p.likeCount || p.favoriteCount || 0), 0)
     return { total, published, draft, pending, views, inquiries, favorites }
   }, [properties])
 
@@ -678,7 +796,7 @@ export default function Dashboard ({ onRouteChange }) {
           <div className='od-header__right'>
             <button
               className='od-btn od-btn--ghost od-btn--sm'
-              onClick={() => fetchProperties(true)}
+              onClick={() => fetchAll(true)}
               disabled={refreshing}
               title='Refresh'
             >
@@ -752,6 +870,47 @@ export default function Dashboard ({ onRouteChange }) {
             accent='red'
             loading={loading}
           />
+          <StatCard
+            icon={Icon.Users}
+            label='Active Tenants'
+            value={tenantCount}
+            sub='Current lease holders'
+            accent='blue'
+            loading={loading}
+            onClick={() => onRouteChange?.('Tenants')}
+          />
+          <StatCard
+            icon={Icon.CheckCircle}
+            label='Bookings'
+            value={summaryStats.bookings ?? 0}
+            sub={`${summaryStats.confirmedBookings ?? 0} confirmed`}
+            accent='green'
+            loading={loading}
+          />
+          <StatCard
+            icon={Icon.FileText}
+            label='Applications'
+            value={summaryStats.applications ?? 0}
+            sub={applications.filter(a => a.status === 'pending').length + ' pending'}
+            accent='amber'
+            loading={loading}
+          />
+          <StatCard
+            icon={Icon.Activity}
+            label='Escrow Balance'
+            value={fmtAmt(summaryStats.activeEscrowTotal)}
+            sub='Funds held'
+            accent='purple'
+            loading={loading}
+          />
+          <StatCard
+            icon={Icon.DollarSign}
+            label='Booking Income'
+            value={fmtAmt(summaryStats.totalBookingIncome || 0)}
+            sub={summaryStats.bookingIncomeCount ? `${summaryStats.bookingIncomeCount} paid booking${summaryStats.bookingIncomeCount !== 1 ? 's' : ''}` : 'Via Paystack split → your bank'}
+            accent='gold'
+            loading={loading}
+          />
         </section>
 
         {/* ── MAIN GRID ───────────────────────────────────────────────── */}
@@ -769,7 +928,7 @@ export default function Dashboard ({ onRouteChange }) {
                       : `${stats.total} properties in your portfolio`}
                   </p>
                 </div>
-                <button className='od-btn od-btn--ghost od-btn--sm'>
+                <button className='od-btn od-btn--ghost od-btn--sm' onClick={() => onRouteChange?.('MyProperties')}>
                   View all <Icon.ChevronRight />
                 </button>
               </div>
@@ -1045,6 +1204,178 @@ export default function Dashboard ({ onRouteChange }) {
             </div>
           </div>
         </div>
+
+        {/* ── UPCOMING COUNTDOWNS ─────────────────────────────────────── */}
+        {(bkCountdowns.length > 0 || leaseCountdowns.length > 0 || insCountdowns.length > 0) && (
+          <OSection title='⏱ Upcoming & Active' count={bkCountdowns.length + leaseCountdowns.length + insCountdowns.length}>
+            {bkCountdowns.map(b => (
+              <div key={b.bookingId} style={{ padding: '8px 0', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>🏨 {b.propertyTitle}</div>
+                  <div style={{ fontSize: 12, color: '#6b7280' }}>Check-in: {fmtD(b.checkIn)} · Check-out: {fmtD(b.checkOut)} · {b.nights}n</div>
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  <MBadge status={b.status} />
+                  {b.isActive ? <CDot days={b.daysToCheckOut} label='to checkout' /> : !b.isPast && <CDot days={b.daysToCheckIn} label='to check-in' />}
+                </div>
+              </div>
+            ))}
+            {leaseCountdowns.map(l => (
+              <div key={l.leaseId} style={{ padding: '8px 0', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>📜 {l.propertyTitle}</div>
+                  <div style={{ fontSize: 12, color: '#6b7280' }}>Rent due: {fmtD(l.nextDueDate)} · {fmtAmt(l.nextDueAmount)}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <MBadge status={l.isOverdue ? 'cancelled' : 'active'} />
+                  <CDot days={l.daysUntilDue} label={l.isOverdue ? 'overdue' : 'until due'} />
+                </div>
+              </div>
+            ))}
+            {insCountdowns.map(i => (
+              <div key={i.inspectionId} style={{ padding: '8px 0', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>🔍 {i.propertyTitle}</div>
+                  <div style={{ fontSize: 12, color: '#6b7280' }}>Inspection: {fmtD(i.confirmedDate)} · By: {i.requesterName || '—'}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <MBadge status='scheduled' />
+                  <CDot days={i.daysUntil} label='away' />
+                </div>
+              </div>
+            ))}
+          </OSection>
+        )}
+
+        {/* ── BOOKINGS ───────────────────────────────────────────────── */}
+        <OSection title='🏨 Property Bookings' count={bookings.length}>
+          {bookings.length === 0
+            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No bookings yet for your properties.</p>
+            : <>
+              <ORow cols={[{ value: 'Property', flex: 2, muted: true }, { value: 'Guest', flex: 1, muted: true }, { value: 'Check-in', flex: 1, muted: true }, { value: 'Amount', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
+              {bookings.map(b => (
+                <ORow key={b._id} cols={[
+                  { value: b.property?.title || '—', flex: 2 },
+                  { value: b.guestUser ? `${b.guestUser.firstName} ${b.guestUser.lastName}` : b.guestName || '—', flex: 1 },
+                  { value: fmtD(b.checkIn), flex: 1, muted: true },
+                  { value: fmtAmt(b.payment?.total, b.payment?.currency), flex: 1 },
+                  { value: <MBadge status={b.status} />, flex: 1 }
+                ]} />
+              ))}
+            </>
+          }
+        </OSection>
+
+        {/* ── APPLICATIONS ─────────────────────────────────────────── */}
+        <OSection title='📋 Property Applications' count={applications.length}>
+          {applications.length === 0
+            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No applications yet for your properties.</p>
+            : <>
+              <ORow cols={[{ value: 'Property', flex: 2, muted: true }, { value: 'Applicant', flex: 1, muted: true }, { value: 'Type', flex: 1, muted: true }, { value: 'Date', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
+              {applications.map(a => (
+                <ORow key={a._id} cols={[
+                  { value: a.propertyId?.title || '—', flex: 2 },
+                  { value: a.userId ? `${a.userId.firstName} ${a.userId.lastName}` : '—', flex: 1 },
+                  { value: a.applicationType || '—', flex: 1, muted: true },
+                  { value: fmtD(a.createdAt), flex: 1, muted: true },
+                  { value: <MBadge status={a.status} />, flex: 1 }
+                ]} />
+              ))}
+            </>
+          }
+        </OSection>
+
+        {/* ── LEASES ───────────────────────────────────────────────── */}
+        <OSection title='📜 Leases' count={leases.length}>
+          {leases.length === 0
+            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No leases yet.</p>
+            : <>
+              <ORow cols={[{ value: 'Property', flex: 2, muted: true }, { value: 'Tenant', flex: 1, muted: true }, { value: 'End Date', flex: 1, muted: true }, { value: 'Rent', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
+              {leases.map(l => {
+                const nextDue = (l.installments || []).find(i => i.status === 'pending' || i.status === 'overdue')
+                const daysLeft = l.endDate ? Math.ceil((new Date(l.endDate) - Date.now()) / 86400000) : null
+                return (
+                  <ORow key={l._id} cols={[
+                    { value: l.property?.title || '—', flex: 2 },
+                    { value: l.tenant ? `${l.tenant.firstName} ${l.tenant.lastName}` : '—', flex: 1 },
+                    { value: <span>{fmtD(l.endDate)} {daysLeft != null && daysLeft <= 30 ? <CDot days={daysLeft} label='left' /> : null}</span>, flex: 1 },
+                    { value: <span>{fmtAmt(l.rentAmount)}{nextDue ? <span style={{ marginLeft: 6 }}><CDot days={Math.ceil((new Date(nextDue.dueDate) - Date.now()) / 86400000)} label='due' /></span> : null}</span>, flex: 1 },
+                    { value: <MBadge status={l.status} />, flex: 1 }
+                  ]} />
+                )
+              })}
+            </>
+          }
+        </OSection>
+
+        {/* ── INSPECTION REQUESTS ──────────────────────────────────── */}
+        <OSection title='🔍 Inspection Requests' count={inspections.length}>
+          {inspections.length === 0
+            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No inspection requests yet.</p>
+            : <>
+              <ORow cols={[{ value: 'Property', flex: 2, muted: true }, { value: 'Requester', flex: 1, muted: true }, { value: 'Preferred', flex: 1, muted: true }, { value: 'Confirmed', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
+              {inspections.map(i => {
+                const daysUntil = i.confirmedDate ? Math.ceil((new Date(i.confirmedDate) - Date.now()) / 86400000) : null
+                return (
+                  <ORow key={i._id} cols={[
+                    { value: i.property?.title || '—', flex: 2 },
+                    { value: i.requesterName || '—', flex: 1 },
+                    { value: fmtD(i.preferredDate), flex: 1, muted: true },
+                    { value: <span>{fmtD(i.confirmedDate)}{daysUntil != null && daysUntil >= 0 ? <CDot days={daysUntil} label='away' /> : null}</span>, flex: 1 },
+                    { value: <MBadge status={i.status} />, flex: 1 }
+                  ]} />
+                )
+              })}
+            </>
+          }
+        </OSection>
+
+        {/* ── ESCROWS ──────────────────────────────────────────────── */}
+        <OSection title='🔒 Escrows' count={escrows.length}>
+          {escrows.length === 0
+            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No escrow transactions.</p>
+            : <>
+              <ORow cols={[{ value: 'Type', flex: 1, muted: true }, { value: 'Amount', flex: 1, muted: true }, { value: 'Payer', flex: 1, muted: true }, { value: 'Date', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
+              {escrows.map(e => (
+                <ORow key={e._id} cols={[
+                  { value: e.type || '—', flex: 1 },
+                  { value: fmtAmt(e.amount, e.currency), flex: 1 },
+                  { value: e.payer ? `${e.payer.firstName} ${e.payer.lastName}` : '—', flex: 1, muted: true },
+                  { value: fmtD(e.createdAt), flex: 1, muted: true },
+                  { value: <MBadge status={e.status} />, flex: 1 }
+                ]} />
+              ))}
+            </>
+          }
+        </OSection>
+
+        {/* ── PAYOUT / INCOME ─────────────────────────────────────── */}
+        {(payout.walletBalance > 0 || payout.totalBookingIncome > 0) && (
+          <OSection title='💰 Income & Payouts'>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '0.5rem 0' }}>
+              {payout.totalBookingIncome > 0 && (
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Booking income (paid to your bank)</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#16a34a' }}>{fmtAmt(payout.totalBookingIncome, payout.currency)}</div>
+                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>Paid directly to your bank via Paystack split</div>
+                </div>
+              )}
+              {payout.walletBalance > 0 && (
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Platform wallet balance</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#2563eb' }}>{fmtAmt(payout.walletBalance, payout.currency)}</div>
+                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>Available for manual payout request</div>
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <button className='od-btn od-btn--primary' onClick={() => onRouteChange?.('Payments')}>
+                  <Icon.DollarSign /> Payments
+                </button>
+              </div>
+            </div>
+          </OSection>
+        )}
+
       </div>
     </div>
   )
