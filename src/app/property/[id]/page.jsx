@@ -344,7 +344,8 @@ export default function PropertyDetails () {
         message: message.trim() || undefined,
         roomTypeIdx: selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
         roomTypeName: selectedRoomType?.name || undefined,
-        roomQty
+        roomQty,
+        paymentPlanIdx: selectedPlanIdx >= 0 ? selectedPlanIdx : undefined
       })
       if (res.data?.authorizationUrl) {
         window.location.href = res.data.authorizationUrl
@@ -1721,35 +1722,53 @@ export default function PropertyDetails () {
             <textarea rows={3} placeholder='Introduce yourself…' value={rentForm.message} onChange={e => setRentForm(f => ({ ...f, message: e.target.value }))} style={{ width:'100%', padding:'8px 10px', border:'1.5px solid #e5e7eb', borderRadius:8, fontFamily:'inherit', fontSize:14, boxSizing:'border-box' }} />
 
             {/* Payment breakdown */}
-            <div className='pd-booking-summary pd-booking-summary--modal'>
-              <div>
-                <span>First period rent ({property.rentFrequency || 'monthly'}){roomQty > 1 ? ` × ${roomQty}` : ''}</span>
-                <strong>{fmt((activePrice || 0) * roomQty, currency)}</strong>
-              </div>
-              {property.cautionFee?.required && (
-                <div>
-                  <span>Security deposit <em style={{ fontSize:10, fontWeight:400 }}>(refundable)</em></span>
-                  <strong>{fmt(property.cautionFee.amount, property.cautionFee.currency || currency)}</strong>
+            {(() => {
+              const baseTotal = ((activePrice || 0) * roomQty) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0)
+              const activePlan = property.paymentPlans?.[selectedPlanIdx]
+              const firstInst = activePlan?.installments?.[0]
+              const chargeNow = firstInst?.percent && firstInst.percent < 100
+                ? Math.round(baseTotal * firstInst.percent / 100)
+                : baseTotal
+              return (
+                <div className='pd-booking-summary pd-booking-summary--modal'>
+                  <div>
+                    <span>First period rent ({property.rentFrequency || 'monthly'}){roomQty > 1 ? ` × ${roomQty}` : ''}</span>
+                    <strong>{fmt((activePrice || 0) * roomQty, currency)}</strong>
+                  </div>
+                  {property.cautionFee?.required && (
+                    <div>
+                      <span>Security deposit <em style={{ fontSize:10, fontWeight:400 }}>(refundable)</em></span>
+                      <strong>{fmt(property.cautionFee.amount, property.cautionFee.currency || currency)}</strong>
+                    </div>
+                  )}
+                  {activePlan && firstInst?.percent < 100 && (
+                    <div style={{ color:'#b45309', fontSize:12 }}>
+                      <span>Payment plan: {activePlan.name || `Plan ${selectedPlanIdx + 1}`} — pay {firstInst.percent}% now</span>
+                      <span>{activePlan.installments.slice(1).map((ins, i) => (
+                        <span key={i} style={{ display:'block' }}>{ins.percent}% due in {ins.dueInDays} day{ins.dueInDays !== 1 ? 's' : ''}</span>
+                      ))}</span>
+                    </div>
+                  )}
+                  <div className='pd-booking-summary__total'>
+                    <span>Charged today</span>
+                    <strong>{fmt(chargeNow, currency)}</strong>
+                  </div>
+                  <div className='pd-modal__actions'>
+                    <button className='pd-cta-btn pd-cta-btn--primary' onClick={startRent} disabled={renting}>
+                      {renting
+                        ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Redirecting…</>
+                        : `Pay ${fmt(chargeNow, currency)} Now`
+                      }
+                    </button>
+                    <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setRentOpen(false)}>Cancel</button>
+                  </div>
                 </div>
-              )}
-              <div className='pd-booking-summary__total'>
-                <span>Total charged today</span>
-                <strong>{fmt(((activePrice || 0) * roomQty) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0), currency)}</strong>
-              </div>
-            </div>
+              )
+            })()}
 
             <p className='pd-modal__note'>
               <Shield size={11} /> Secured by PropNect Escrow · Funds released to landlord after move-in confirmed
             </p>
-            <div className='pd-modal__actions'>
-              <button className='pd-cta-btn pd-cta-btn--primary' onClick={startRent} disabled={renting}>
-                {renting
-                  ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Redirecting…</>
-                  : `Pay & Confirm Rent ${fmt(((activePrice || 0) * roomQty) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0), currency)}`
-                }
-              </button>
-              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setRentOpen(false)}>Cancel</button>
-            </div>
           </div>
         </div>
       )}
