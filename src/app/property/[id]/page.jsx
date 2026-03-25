@@ -4,13 +4,49 @@ import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import {
-  MapPin, Phone, Mail, BedDouble, Bath, Ruler, Video, X,
-  ArrowLeft, ArrowRight, Share2, Heart, Shield, CheckCircle2,
-  AlertCircle, Zap, Star, Calendar, DollarSign, Building2,
-  Layers, Users, TrendingUp, FileText, Clock, Eye, ChevronDown,
-  ChevronUp, ExternalLink, Award, Landmark, Tag, Wifi, Car,
-  Droplets, Dumbbell, Lock, Tv, Leaf, PhoneCall, MessageSquare,
-  CreditCard, Loader2
+  MapPin,
+  Phone,
+  Mail,
+  BedDouble,
+  Bath,
+  Ruler,
+  Video,
+  X,
+  ArrowLeft,
+  ArrowRight,
+  Share2,
+  Heart,
+  Shield,
+  CheckCircle2,
+  AlertCircle,
+  Zap,
+  Star,
+  Calendar,
+  DollarSign,
+  Building2,
+  Layers,
+  Users,
+  TrendingUp,
+  FileText,
+  Clock,
+  Eye,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Award,
+  Landmark,
+  Tag,
+  Wifi,
+  Car,
+  Droplets,
+  Dumbbell,
+  Lock,
+  Tv,
+  Leaf,
+  PhoneCall,
+  MessageSquare,
+  CreditCard,
+  Loader2
 } from 'lucide-react'
 import './propertyDetails.scss'
 
@@ -20,7 +56,8 @@ const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
 
 function fmt (v, currency = 'NGN') {
   if (v == null || v === '') return '—'
-  const n = typeof v === 'number' ? v : Number(String(v).replace(/[^0-9.-]/g, ''))
+  const n =
+    typeof v === 'number' ? v : Number(String(v).replace(/[^0-9.-]/g, ''))
   if (isNaN(n)) return String(v)
   const sym = currency === 'USD' ? '$' : currency === 'GBP' ? '£' : '₦'
   return `${sym}${n.toLocaleString()}`
@@ -28,17 +65,28 @@ function fmt (v, currency = 'NGN') {
 
 function nightsBetween (start, end) {
   if (!start || !end) return 0
-  const s = new Date(start); const e = new Date(end)
-  s.setHours(12, 0, 0, 0); e.setHours(12, 0, 0, 0)
+  const s = new Date(start)
+  const e = new Date(end)
+  s.setHours(12, 0, 0, 0)
+  e.setHours(12, 0, 0, 0)
   const d = Math.ceil((e - s) / (1000 * 60 * 60 * 24))
   return d > 0 ? d : 0
 }
 
 const FEATURE_ICONS = {
-  'Air Conditioning': Droplets, 'Free Wi-Fi': Wifi, 'Parking': Car,
-  'Swimming Pool': Droplets, 'Gym': Dumbbell, 'Security': Lock,
-  'CCTV': Tv, 'Furnished': Award, 'Generator': Zap, 'Elevator': Layers,
-  'Balcony': Leaf, 'Terrace': Leaf, 'Laundry': Droplets
+  'Air Conditioning': Droplets,
+  'Free Wi-Fi': Wifi,
+  Parking: Car,
+  'Swimming Pool': Droplets,
+  Gym: Dumbbell,
+  Security: Lock,
+  CCTV: Tv,
+  Furnished: Award,
+  Generator: Zap,
+  Elevator: Layers,
+  Balcony: Leaf,
+  Terrace: Leaf,
+  Laundry: Droplets
 }
 
 function FeatureIcon ({ name }) {
@@ -69,31 +117,52 @@ export default function PropertyDetails () {
   const [selectedRoomTypeIdx, setSelectedRoomTypeIdx] = useState(-1)
   const [roomQty, setRoomQty] = useState(1)
   // Real-time availability (per room type, loaded after dates change)
-  const [liveAvail, setLiveAvail] = useState(null)   // null = not yet checked
+  const [liveAvail, setLiveAvail] = useState(null) // null = not yet checked
   const [selectedPlanIdx, setSelectedPlanIdx] = useState(0)
   const [expandedRoomId, setExpandedRoomId] = useState(null)
 
   // Rent payment modal
   const [rentOpen, setRentOpen] = useState(false)
-  const [rentForm, setRentForm] = useState({ renterName: '', renterEmail: '', renterPhone: '', moveInDate: '', message: '' })
+  const [rentForm, setRentForm] = useState({
+    renterName: '',
+    renterEmail: '',
+    renterPhone: '',
+    moveInDate: '',
+    message: ''
+  })
   const [rentErr, setRentErr] = useState(null)
   const [renting, setRenting] = useState(false)
 
   // Booking form modal (hotel / shortlet — new booking API)
   const [bookOpen, setBookOpen] = useState(false)
-  const [bookForm, setBookForm] = useState({ guestName: '', guestEmail: '', guestPhone: '' })
+  const [bookForm, setBookForm] = useState({
+    guestName: '',
+    guestEmail: '',
+    guestPhone: ''
+  })
   const [bookErr, setBookErr] = useState(null)
   const [booking, setBooking] = useState(false)
 
   // Inspection booking modal
   const [inspOpen, setInspOpen] = useState(false)
-  const [inspForm, setInspForm] = useState({ requesterName: '', requesterEmail: '', requesterPhone: '', preferredDate: '', preferredTime: '', notes: '' })
+  const [inspForm, setInspForm] = useState({
+    requesterName: '',
+    requesterEmail: '',
+    requesterPhone: '',
+    preferredDate: '',
+    preferredTime: '',
+    notes: ''
+  })
   const [inspErr, setInspErr] = useState(null)
   const [inspLoading, setInspLoading] = useState(false)
 
   // Purchase modal (non-rental, non-perNight properties)
   const [purchOpen, setPurchOpen] = useState(false)
-  const [purchForm, setPurchForm] = useState({ buyerName: '', buyerEmail: '', buyerPhone: '' })
+  const [purchForm, setPurchForm] = useState({
+    buyerName: '',
+    buyerEmail: '',
+    buyerPhone: ''
+  })
   const [purchPlanIdx, setPurchPlanIdx] = useState(0)
   const [purchErr, setPurchErr] = useState(null)
   const [purchasing, setPurchasing] = useState(false)
@@ -119,9 +188,14 @@ export default function PropertyDetails () {
   // ── Fetch ──────────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (!id) { setLoading(false); setError('No id'); return }
+    if (!id) {
+      setLoading(false)
+      setError('No id')
+      return
+    }
     setLoading(true)
-    axios.get(`${API}/api/properties/${id}`)
+    axios
+      .get(`${API}/api/properties/${id}`)
       .then(res => {
         const p = res.data?.property ?? res.data?.data ?? res.data
         setProperty({
@@ -135,29 +209,40 @@ export default function PropertyDetails () {
           units: p?.units || []
         })
       })
-      .catch(e => setError(e?.response?.data?.msg || e.message || 'Failed to load'))
+      .catch(e =>
+        setError(e?.response?.data?.msg || e.message || 'Failed to load')
+      )
       .finally(() => setLoading(false))
   }, [id])
 
   useEffect(() => {
     if (!id || !property) return
-    axios.get(`${API}/api/properties/${id}/similar`)
+    axios
+      .get(`${API}/api/properties/${id}/similar`)
       .then(r => setSimilar(r.data?.properties || r.data?.data || []))
       .catch(() => {})
   }, [id, property])
 
   // Fetch platform inspection fee (public, no auth)
   useEffect(() => {
-    axios.get(`${API}/api/platform-config`)
-      .then(r => { if (r.data?.config?.inspectionFee) setPlatformInspFee(r.data.config.inspectionFee) })
+    axios
+      .get(`${API}/api/platform-config`)
+      .then(r => {
+        if (r.data?.config?.inspectionFee)
+          setPlatformInspFee(r.data.config.inspectionFee)
+      })
       .catch(() => {})
   }, [])
 
   // Fetch comments
   useEffect(() => {
     if (!id) return
-    axios.get(`${API}/api/properties/${id}/comments?limit=10`)
-      .then(r => { setComments(r.data?.comments || []); setCommentTotal(r.data?.total || 0) })
+    axios
+      .get(`${API}/api/properties/${id}/comments?limit=10`)
+      .then(r => {
+        setComments(r.data?.comments || [])
+        setCommentTotal(r.data?.total || 0)
+      })
       .catch(() => {})
   }, [id])
 
@@ -167,7 +252,10 @@ export default function PropertyDetails () {
     setLikeCount(property.likeCount || 0)
     const token = localStorage.getItem('authToken')
     if (!token) return
-    axios.get(`${API}/api/properties/${id}/like-status`, { headers: { Authorization: `Bearer ${token}` } })
+    axios
+      .get(`${API}/api/properties/${id}/like-status`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       .then(r => setLiked(r.data?.liked || false))
       .catch(() => {})
   }, [id, property])
@@ -181,12 +269,16 @@ export default function PropertyDetails () {
 
   // Real-time availability check whenever dates change (hotels/shortlets)
   useEffect(() => {
-    if (!property || !bookingStart || !bookingEnd) { setLiveAvail(null); return }
+    if (!property || !bookingStart || !bookingEnd) {
+      setLiveAvail(null)
+      return
+    }
     const cat = (property.category || '').toLowerCase()
     if (!['hotel', 'shortlet'].includes(cat)) return
-    axios.get(`${API}/api/bookings/check-availability`, {
-      params: { propertyId: id, checkIn: bookingStart, checkOut: bookingEnd }
-    })
+    axios
+      .get(`${API}/api/bookings/check-availability`, {
+        params: { propertyId: id, checkIn: bookingStart, checkOut: bookingEnd }
+      })
       .then(r => setLiveAvail(r.data || null))
       .catch(() => setLiveAvail(null))
   }, [id, property, bookingStart, bookingEnd])
@@ -195,42 +287,69 @@ export default function PropertyDetails () {
   useEffect(() => {
     const onKey = e => {
       if (e.key === 'Escape') setLightboxOpen(false)
-      if (e.key === 'ArrowLeft' && lightboxOpen) setThumbIndex(i => Math.max(0, i - 1))
-      if (e.key === 'ArrowRight' && lightboxOpen) setThumbIndex(i => Math.min(gallery.length - 1, i + 1))
+      if (e.key === 'ArrowLeft' && lightboxOpen)
+        setThumbIndex(i => Math.max(0, i - 1))
+      if (e.key === 'ArrowRight' && lightboxOpen)
+        setThumbIndex(i => Math.min(gallery.length - 1, i + 1))
     }
-    if (lightboxOpen) { document.body.style.overflow = 'hidden'; window.addEventListener('keydown', onKey) }
-    else { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey) }
-    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey) }
+    if (lightboxOpen) {
+      document.body.style.overflow = 'hidden'
+      window.addEventListener('keydown', onKey)
+    } else {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKey)
+    }
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKey)
+    }
   }, [lightboxOpen])
 
   // ── Derived data ──────────────────────────────────────────────────────────
 
   const gallery = useMemo(() => {
     if (!property) return []
-    const fromMedia = (property.media || []).map(m =>
-      typeof m === 'string' ? { url: m, type: 'image' }
-        : { url: m.url || m, type: m.type || (String(m.url || '').endsWith('.mp4') ? 'video' : 'image') }
-    ).filter(m => m.url)
+    const fromMedia = (property.media || [])
+      .map(m =>
+        typeof m === 'string'
+          ? { url: m, type: 'image' }
+          : {
+              url: m.url || m,
+              type:
+                m.type ||
+                (String(m.url || '').endsWith('.mp4') ? 'video' : 'image')
+            }
+      )
+      .filter(m => m.url)
     if (fromMedia.length) return fromMedia
-    const fromImages = (property.images || []).map(u => ({ url: u, type: 'image' }))
+    const fromImages = (property.images || []).map(u => ({
+      url: u,
+      type: 'image'
+    }))
     if (fromImages.length) return fromImages
     if (property.video) return [{ url: property.video, type: 'video' }]
     return []
   }, [property])
 
-  const cat = ((property?.category || property?.propertyType || '')).toLowerCase()
+  const cat = (property?.category || property?.propertyType || '').toLowerCase()
   const isLand = cat === 'land' || cat === 'plot'
   const isHotel = cat === 'hotel'
   const isShortlet = cat === 'shortlet'
   const isPerNight = isHotel || isShortlet
-  const isRent = ['for rent', 'rent', 'for lease', 'lease'].some(v => (property?.purpose || '').toLowerCase().includes(v))
+  const isRent = ['for rent', 'rent', 'for lease', 'lease'].some(v =>
+    (property?.purpose || '').toLowerCase().includes(v)
+  )
   const isSale = !isPerNight && !isRent
   const currency = property?.currency || 'NGN'
 
   const effectivePrice = useMemo(() => {
-    const raw = property?.price ?? property?.startingPrice ?? property?.rentPrice ?? null
+    const raw =
+      property?.price ?? property?.startingPrice ?? property?.rentPrice ?? null
     if (raw == null) return null
-    const n = typeof raw === 'number' ? raw : Number(String(raw).replace(/[^0-9.-]/g, ''))
+    const n =
+      typeof raw === 'number'
+        ? raw
+        : Number(String(raw).replace(/[^0-9.-]/g, ''))
     return isNaN(n) ? null : n
   }, [property])
 
@@ -242,8 +361,19 @@ export default function PropertyDetails () {
   // Price from the selected room type — falls back to parent property price
   const selectedRoomPrice = useMemo(() => {
     if (!selectedRoomType) return null
-    if (isPerNight) return Number(selectedRoomType.pricePerNight || selectedRoomType.basePrice) || null
-    return Number(selectedRoomType.pricePerMonth || selectedRoomType.pricePerYear || selectedRoomType.basePrice || selectedRoomType.pricePerNight) || null
+    if (isPerNight)
+      return (
+        Number(selectedRoomType.pricePerNight || selectedRoomType.basePrice) ||
+        null
+      )
+    return (
+      Number(
+        selectedRoomType.pricePerMonth ||
+          selectedRoomType.pricePerYear ||
+          selectedRoomType.basePrice ||
+          selectedRoomType.pricePerNight
+      ) || null
+    )
   }, [selectedRoomType, isPerNight])
 
   const activePrice = selectedRoomPrice || effectivePrice
@@ -252,48 +382,81 @@ export default function PropertyDetails () {
   const roomMaxQty = useMemo(() => {
     if (!selectedRoomType) return 1
     // Use live availability count when dates are selected
-    const liveRt = liveAvail?.roomTypes?.find(r => r.idx === selectedRoomTypeIdx)
+    const liveRt = liveAvail?.roomTypes?.find(
+      r => r.idx === selectedRoomTypeIdx
+    )
     if (liveRt) return Math.max(0, liveRt.available)
     // Fall back to static availableCount or qty
-    return Math.max(1, Number(selectedRoomType.availableCount ?? selectedRoomType.qty) || 1)
+    return Math.max(
+      1,
+      Number(selectedRoomType.availableCount ?? selectedRoomType.qty) || 1
+    )
   }, [selectedRoomType, selectedRoomTypeIdx, liveAvail])
 
-  const nights = useMemo(() => nightsBetween(bookingStart, bookingEnd), [bookingStart, bookingEnd])
+  const nights = useMemo(
+    () => nightsBetween(bookingStart, bookingEnd),
+    [bookingStart, bookingEnd]
+  )
 
   const bookingTotal = useMemo(() => {
     if (!isPerNight) return null
     if (!nights) return { nights: 0, total: 0, perNight: 0, qty: roomQty }
-    const perNight = Number(selectedRoomType?.pricePerNight || selectedRoomType?.basePrice || effectivePrice || 0)
-    return { nights, total: perNight * roomQty * nights, perNight, qty: roomQty }
+    const perNight = Number(
+      selectedRoomType?.pricePerNight ||
+        selectedRoomType?.basePrice ||
+        effectivePrice ||
+        0
+    )
+    return {
+      nights,
+      total: perNight * roomQty * nights,
+      perNight,
+      qty: roomQty
+    }
   }, [isPerNight, nights, selectedRoomType, effectivePrice, roomQty])
 
   const selectedPlan = property?.paymentPlans?.[selectedPlanIdx] || null
 
+  // Full amount due for this rent/purchase (rent + deposit)
+  const fullDueAmount = useMemo(() => {
+    const base = (activePrice || 0) * (roomQty || 1)
+    const deposit = property?.cautionFee?.required
+      ? Number(property.cautionFee.amount) || 0
+      : 0
+    return base + deposit
+  }, [activePrice, roomQty, property])
+
   // Price adjusted for selected payment plan — shows first installment amount (what you pay now)
   const planDisplayPrice = useMemo(() => {
-    const base = activePrice && roomQty > 1 ? activePrice * roomQty : activePrice
-    if (!selectedPlan || !base) return base
-    const total = selectedPlan.priceSnapshot?.total || base
+    if (!selectedPlan) return fullDueAmount || activePrice
+    const total =
+      selectedPlan.priceSnapshot?.total || fullDueAmount || activePrice || 0
     const firstPct = selectedPlan.installments?.[0]?.percent
     if (firstPct && firstPct < 100) return Math.round((total * firstPct) / 100)
     return total
-  }, [selectedPlan, activePrice, roomQty])
+  }, [selectedPlan, fullDueAmount, activePrice])
 
   // Plan installment breakdown subtitle: "50% now · 50% in 30d"
   const planSubtitle = useMemo(() => {
     if (!selectedPlan?.installments?.length) return selectedPlan?.name || null
     return selectedPlan.installments
-      .map(i => `${i.percent}% ${i.dueInDays === 0 ? 'now' : `in ${i.dueInDays}d`}`)
+      .map(
+        i => `${i.percent}% ${i.dueInDays === 0 ? 'now' : `in ${i.dueInDays}d`}`
+      )
       .join(' · ')
   }, [selectedPlan])
 
   // Property is only actionable (rentable/bookable/purchasable) when published
-  const isActionable = !property || property.status === 'published' || property.status === 'active'
+  const isActionable =
+    !property || property.status === 'published' || property.status === 'active'
   const notActionableMsg =
-    property?.status === 'pending_review' ? 'Under Review — listing not yet available'
-    : property?.status === 'archived' ? 'This listing has been removed'
-    : property?.status === 'suspended' ? 'This listing is currently suspended'
-    : null
+    property?.status === 'pending_review'
+      ? 'Under Review — listing not yet available'
+      : property?.status === 'archived'
+      ? 'This listing has been removed'
+      : property?.status === 'suspended'
+      ? 'This listing is currently suspended'
+      : null
 
   // Owner — populated by backend (property.userId is now a user object)
   const owner = useMemo(() => {
@@ -303,15 +466,22 @@ export default function PropertyDetails () {
   }, [property])
 
   // Owner contact info — normalise across different field shapes
-  const ownerPhone = owner?.phone || owner?.contact || owner?.phoneNumber || null
+  const ownerPhone =
+    owner?.phone || owner?.contact || owner?.phoneNumber || null
   const ownerEmail = owner?.email || null
-  const ownerUserId = owner?._id || property?.userId?._id || property?.userId || null
+  const ownerUserId =
+    owner?._id || property?.userId?._id || property?.userId || null
 
   const featureList = useMemo(() => {
     const f = property?.features
     if (!f) return []
     if (Array.isArray(f)) return f
-    if (typeof f === 'object') return Object.keys(f).filter(k => Boolean(f[k])).map(k => k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()))
+    if (typeof f === 'object')
+      return Object.keys(f)
+        .filter(k => Boolean(f[k]))
+        .map(k =>
+          k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())
+        )
     return []
   }, [property])
 
@@ -324,7 +494,9 @@ export default function PropertyDetails () {
 
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({ title: property?.title, url: window.location.href }).catch(() => {})
+      navigator
+        .share({ title: property?.title, url: window.location.href })
+        .catch(() => {})
     } else {
       navigator.clipboard?.writeText(window.location.href)
     }
@@ -332,21 +504,29 @@ export default function PropertyDetails () {
 
   const startRent = async () => {
     setRentErr(null)
-    const { renterName, renterEmail, renterPhone, moveInDate, message } = rentForm
-    if (!renterName.trim() || !renterEmail.trim()) { setRentErr('Full name and email are required'); return }
+    const { renterName, renterEmail, renterPhone, moveInDate, message } =
+      rentForm
+    if (!renterName.trim() || !renterEmail.trim()) {
+      setRentErr('Full name and email are required')
+      return
+    }
     setRenting(true)
     try {
-      const res = await axios.post(`${API}/api/properties/${id}/initiate-rent`, {
-        renterName: renterName.trim(),
-        renterEmail: renterEmail.trim().toLowerCase(),
-        renterPhone: renterPhone.trim() || undefined,
-        moveInDate: moveInDate || undefined,
-        message: message.trim() || undefined,
-        roomTypeIdx: selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
-        roomTypeName: selectedRoomType?.name || undefined,
-        roomQty,
-        paymentPlanIdx: selectedPlanIdx >= 0 ? selectedPlanIdx : undefined
-      })
+      const res = await axios.post(
+        `${API}/api/properties/${id}/initiate-rent`,
+        {
+          renterName: renterName.trim(),
+          renterEmail: renterEmail.trim().toLowerCase(),
+          renterPhone: renterPhone.trim() || undefined,
+          moveInDate: moveInDate || undefined,
+          message: message.trim() || undefined,
+          roomTypeIdx:
+            selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
+          roomTypeName: selectedRoomType?.name || undefined,
+          roomQty,
+          paymentPlanIdx: selectedPlanIdx >= 0 ? selectedPlanIdx : undefined
+        }
+      )
       if (res.data?.authorizationUrl) {
         window.location.href = res.data.authorizationUrl
       } else {
@@ -354,32 +534,43 @@ export default function PropertyDetails () {
       }
     } catch (e) {
       setRentErr(e.response?.data?.msg || 'Payment failed — please try again')
-    } finally { setRenting(false) }
+    } finally {
+      setRenting(false)
+    }
   }
 
   /** Hotel / Shortlet — Paystack booking via new /api/bookings flow */
   const startBooking = async () => {
     setBookErr(null)
     const { guestName, guestEmail, guestPhone } = bookForm
-    if (!guestName.trim() || !guestEmail.trim()) { setBookErr('Name and email are required'); return }
-    if (!bookingStart || !bookingEnd) { setBookErr('Select check-in and check-out dates'); return }
-    if (!nights || nights < 1) { setBookErr('Check-out must be after check-in'); return }
+    if (!guestName.trim() || !guestEmail.trim()) {
+      setBookErr('Name and email are required')
+      return
+    }
+    if (!bookingStart || !bookingEnd) {
+      setBookErr('Select check-in and check-out dates')
+      return
+    }
+    if (!nights || nights < 1) {
+      setBookErr('Check-out must be after check-in')
+      return
+    }
     setBooking(true)
     try {
-      const rtIdx  = selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : 0
-      const rt     = property.roomTypes?.[rtIdx]
-      const rtId   = rt?.roomTypeId || `idx_${rtIdx}`
+      const rtIdx = selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : 0
+      const rt = property.roomTypes?.[rtIdx]
+      const rtId = rt?.roomTypeId || `idx_${rtIdx}`
       const res = await axios.post(`${API}/api/bookings/init-payment`, {
-        propertyId:   id,
-        roomTypeIdx:  rtIdx,
+        propertyId: id,
+        roomTypeIdx: rtIdx,
         roomTypeName: rt?.name || undefined,
-        roomTypeId:   property.roomTypes?.length ? rtId : undefined,
-        checkIn:      bookingStart,
-        checkOut:     bookingEnd,
-        guestCount:   guests,
-        guestName:    guestName.trim(),
-        guestEmail:   guestEmail.trim().toLowerCase(),
-        guestPhone:   guestPhone.trim() || undefined
+        roomTypeId: property.roomTypes?.length ? rtId : undefined,
+        checkIn: bookingStart,
+        checkOut: bookingEnd,
+        guestCount: guests,
+        guestName: guestName.trim(),
+        guestEmail: guestEmail.trim().toLowerCase(),
+        guestPhone: guestPhone.trim() || undefined
       })
       if (res.data?.authorizationUrl) {
         window.location.href = res.data.authorizationUrl
@@ -396,44 +587,77 @@ export default function PropertyDetails () {
   /** Inspection fee payment for sale/rent/land/commercial properties */
   const startInspection = async () => {
     setInspErr(null)
-    const { requesterName, requesterEmail, requesterPhone, preferredDate, preferredTime, notes } = inspForm
-    if (!requesterName.trim() || !requesterEmail.trim()) { setInspErr('Name and email are required'); return }
-    if (!preferredDate) { setInspErr('Please pick a preferred inspection date'); return }
+    const {
+      requesterName,
+      requesterEmail,
+      requesterPhone,
+      preferredDate,
+      preferredTime,
+      notes
+    } = inspForm
+    if (!requesterName.trim() || !requesterEmail.trim()) {
+      setInspErr('Name and email are required')
+      return
+    }
+    if (!preferredDate) {
+      setInspErr('Please pick a preferred inspection date')
+      return
+    }
     setInspLoading(true)
     try {
       const res = await axios.post(`${API}/api/inspections/init-payment`, {
-        propertyId: id, requesterName: requesterName.trim(),
+        propertyId: id,
+        requesterName: requesterName.trim(),
         requesterEmail: requesterEmail.trim().toLowerCase(),
         requesterPhone: requesterPhone.trim() || undefined,
-        preferredDate, preferredTime: preferredTime || undefined, notes: notes || undefined
+        preferredDate,
+        preferredTime: preferredTime || undefined,
+        notes: notes || undefined
       })
-      if (res.data?.authorizationUrl) window.location.href = res.data.authorizationUrl
+      if (res.data?.authorizationUrl)
+        window.location.href = res.data.authorizationUrl
       else setInspErr(res.data?.msg || 'Could not initialise payment')
     } catch (e) {
       setInspErr(e.response?.data?.msg || 'Failed — please try again')
-    } finally { setInspLoading(false) }
+    } finally {
+      setInspLoading(false)
+    }
   }
 
   /** Property purchase — Paystack payment for sale/commercial properties */
   const startPurchase = async () => {
     setPurchErr(null)
     const { buyerName, buyerEmail, buyerPhone } = purchForm
-    if (!buyerName.trim() || !buyerEmail.trim()) { setPurchErr('Full name and email are required'); return }
+    if (!buyerName.trim() || !buyerEmail.trim()) {
+      setPurchErr('Full name and email are required')
+      return
+    }
     const plan = property?.paymentPlans?.[purchPlanIdx] || null
-    const amount = plan?.priceSnapshot?.total || (selectedRoomPrice ? selectedRoomPrice * roomQty : null) || effectivePrice || property?.price
-    if (!amount) { setPurchErr('Unable to determine property price'); return }
+    const amount =
+      plan?.priceSnapshot?.total ||
+      (selectedRoomPrice ? selectedRoomPrice * roomQty : null) ||
+      effectivePrice ||
+      property?.price
+    if (!amount) {
+      setPurchErr('Unable to determine property price')
+      return
+    }
     setPurchasing(true)
     try {
-      const res = await axios.post(`${API}/api/properties/${id}/initiate-purchase`, {
-        buyerName: buyerName.trim(),
-        buyerEmail: buyerEmail.trim().toLowerCase(),
-        buyerPhone: buyerPhone.trim() || undefined,
-        paymentPlanId: plan?.id || plan?._id || undefined,
-        amount,
-        roomTypeIdx: selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
-        roomTypeName: selectedRoomType?.name || undefined,
-        roomQty
-      })
+      const res = await axios.post(
+        `${API}/api/properties/${id}/initiate-purchase`,
+        {
+          buyerName: buyerName.trim(),
+          buyerEmail: buyerEmail.trim().toLowerCase(),
+          buyerPhone: buyerPhone.trim() || undefined,
+          paymentPlanId: plan?.id || plan?._id || undefined,
+          amount,
+          roomTypeIdx:
+            selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
+          roomTypeName: selectedRoomType?.name || undefined,
+          roomQty
+        }
+      )
       if (res.data?.authorizationUrl) {
         window.location.href = res.data.authorizationUrl
       } else {
@@ -448,34 +672,53 @@ export default function PropertyDetails () {
 
   const submitComment = async () => {
     const token = localStorage.getItem('authToken')
-    if (!token) { window.location.href = `/auth/login?next=/property/${id}`; return }
+    if (!token) {
+      window.location.href = `/auth/login?next=/property/${id}`
+      return
+    }
     if (!commentText.trim()) return
-    setSubmittingComment(true); setCommentStatus(null)
+    setSubmittingComment(true)
+    setCommentStatus(null)
     try {
-      await axios.post(`${API}/api/properties/${id}/comments`,
+      await axios.post(
+        `${API}/api/properties/${id}/comments`,
         { comment: commentText.trim(), rating: commentRating || undefined },
         { headers: { Authorization: `Bearer ${token}` } }
       )
-      setCommentText(''); setCommentRating(0); setCommentStatus('pending')
+      setCommentText('')
+      setCommentRating(0)
+      setCommentStatus('pending')
     } catch {
       setCommentStatus('error')
-    } finally { setSubmittingComment(false) }
+    } finally {
+      setSubmittingComment(false)
+    }
   }
 
   const handleLike = async () => {
     const token = localStorage.getItem('authToken')
-    if (!token) { window.location.href = `/auth/login?next=/property/${id}`; return }
+    if (!token) {
+      window.location.href = `/auth/login?next=/property/${id}`
+      return
+    }
     try {
-      const res = await axios.post(`${API}/api/properties/${id}/like`, {}, { headers: { Authorization: `Bearer ${token}` } })
+      const res = await axios.post(
+        `${API}/api/properties/${id}/like`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
       setLiked(res.data.liked)
-      setLikeCount(c => res.data.liked ? c + 1 : Math.max(0, c - 1))
+      setLikeCount(c => (res.data.liked ? c + 1 : Math.max(0, c - 1)))
     } catch {}
   }
 
   /** Open chat with owner — stores pending target in sessionStorage, navigates to dashboard */
   const openOwnerChat = () => {
     const token = localStorage.getItem('authToken')
-    if (!token) { window.location.href = `/auth/login?next=/property/${id}`; return }
+    if (!token) {
+      window.location.href = `/auth/login?next=/property/${id}`
+      return
+    }
     if (ownerUserId) {
       sessionStorage.setItem('ep_open_chat_with', String(ownerUserId))
     }
@@ -484,65 +727,106 @@ export default function PropertyDetails () {
   }
 
   const startMonnify = async () => {
-    const amount = isPerNight ? bookingTotal?.total : (selectedPlan?.price || effectivePrice)
-    if (!amount) { alert('Amount cannot be zero'); return }
+    const amount = isPerNight
+      ? bookingTotal?.total
+      : selectedPlan?.price || effectivePrice
+    if (!amount) {
+      alert('Amount cannot be zero')
+      return
+    }
     try {
-      const res = await axios.post(`${API}/api/payment/initialize-monnify-transaction`, {
-        amount, customerName: 'Guest', customerEmail: 'guest@example.com', paymentReference: 'REF-' + Date.now()
-      })
-      if (res.data?.requestSuccessful) window.location.href = res.data.responseBody.checkoutUrl
+      const res = await axios.post(
+        `${API}/api/payment/initialize-monnify-transaction`,
+        {
+          amount,
+          customerName: 'Guest',
+          customerEmail: 'guest@example.com',
+          paymentReference: 'REF-' + Date.now()
+        }
+      )
+      if (res.data?.requestSuccessful)
+        window.location.href = res.data.responseBody.checkoutUrl
       else alert('Failed to initialize payment')
-    } catch { alert('Payment error') }
+    } catch {
+      alert('Payment error')
+    }
   }
 
   const startStripe = async () => {
-    const amount = isPerNight ? bookingTotal?.total : (selectedPlan?.price || effectivePrice)
-    if (!amount) { alert('Amount cannot be zero'); return }
+    const amount = isPerNight
+      ? bookingTotal?.total
+      : selectedPlan?.price || effectivePrice
+    if (!amount) {
+      alert('Amount cannot be zero')
+      return
+    }
     const token = localStorage.getItem('authToken')
-    if (!token) { alert('Please log in to continue'); return }
+    if (!token) {
+      alert('Please log in to continue')
+      return
+    }
     try {
-      const res = await axios.post(`${API}/api/payments/stripe-checkout`,
-        { propertyId: id, amount, propertyTitle: property?.title, propertyImage: gallery[0]?.url },
+      const res = await axios.post(
+        `${API}/api/payments/stripe-checkout`,
+        {
+          propertyId: id,
+          amount,
+          propertyTitle: property?.title,
+          propertyImage: gallery[0]?.url
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       )
       if (res.data?.url) window.location.href = res.data.url
       else alert('Failed to initialize Stripe checkout')
-    } catch { alert('Stripe error. Please try again.') }
+    } catch {
+      alert('Stripe error. Please try again.')
+    }
   }
 
   // ── States ────────────────────────────────────────────────────────────────
 
-  if (loading) return (
-    <div className='pd-page pd-loading'>
-      <div className='pd-skeleton-hero' />
-      <div className='pd-skeleton-grid'>
-        {[1,2,3].map(i => <div key={i} className='pd-skeleton-card' />)}
+  if (loading)
+    return (
+      <div className='pd-page pd-loading'>
+        <div className='pd-skeleton-hero' />
+        <div className='pd-skeleton-grid'>
+          {[1, 2, 3].map(i => (
+            <div key={i} className='pd-skeleton-card' />
+          ))}
+        </div>
       </div>
-    </div>
-  )
+    )
 
-  if (error) return (
-    <div className='pd-page pd-error'>
-      <div className='pd-error-card'>
-        <AlertCircle size={32} />
-        <h3>Unable to load property</h3>
-        <p>{error}</p>
-        <button onClick={() => router.back()}>Go back</button>
+  if (error)
+    return (
+      <div className='pd-page pd-error'>
+        <div className='pd-error-card'>
+          <AlertCircle size={32} />
+          <h3>Unable to load property</h3>
+          <p>{error}</p>
+          <button onClick={() => router.back()}>Go back</button>
+        </div>
       </div>
-    </div>
-  )
+    )
 
   if (!property) return null
 
   const descText = property.description || ''
   const DESC_LIMIT = 300
-  const shortDesc = descText.length > DESC_LIMIT && !showMoreDesc ? descText.slice(0, DESC_LIMIT) + '…' : descText
+  const shortDesc =
+    descText.length > DESC_LIMIT && !showMoreDesc
+      ? descText.slice(0, DESC_LIMIT) + '…'
+      : descText
 
-  const lightboxItem = gallery[thumbIndex] || { url: '/placeholder.jpg', type: 'image' }
+  const lightboxItem = gallery[thumbIndex] || {
+    url: '/placeholder.jpg',
+    type: 'image'
+  }
 
   const hasHouseRules = !!(
     property.houseRules ||
-    (property.amenitiesDetailed && Object.keys(property.amenitiesDetailed).length > 0) ||
+    (property.amenitiesDetailed &&
+      Object.keys(property.amenitiesDetailed).length > 0) ||
     ((isHotel || isShortlet) && property.languagesSpoken?.length) ||
     property.nearbyPlaces?.length ||
     property.buildingCharacteristics?.length
@@ -552,21 +836,33 @@ export default function PropertyDetails () {
     { id: 'overview', label: 'Overview' },
     { id: 'details', label: 'Details' },
     ...(hasHouseRules ? [{ id: 'policies', label: 'House Rules' }] : []),
-    ...(property.units?.length ? [{ id: 'units', label: `Units (${property.units.length})` }] : []),
-    ...(property.roomTypes?.length ? [{ id: 'rooms', label: `Room Types (${property.roomTypes.length})` }] : []),
+    ...(property.units?.length
+      ? [{ id: 'units', label: `Units (${property.units.length})` }]
+      : []),
+    ...(property.roomTypes?.length
+      ? [{ id: 'rooms', label: `Room Types (${property.roomTypes.length})` }]
+      : []),
     ...(isLand && property.land ? [{ id: 'land', label: 'Land Info' }] : []),
     ...(property.compliance ? [{ id: 'compliance', label: 'Compliance' }] : [])
   ]
 
   const AMENITY_CATEGORY_ICONS = {
-    'Parking': Car, 'Internet': Wifi, 'Kitchen': '🍳', 'Bedroom': '🛏',
-    'Bathroom': Droplets, 'Media & Tech': Tv, 'Pets': '🐾', 'Outdoors': Leaf,
-    'Food & Drink': '🍽', 'Building': Building2, 'Entertainment': '🎮', 'Safety': Lock
+    Parking: Car,
+    Internet: Wifi,
+    Kitchen: '🍳',
+    Bedroom: '🛏',
+    Bathroom: Droplets,
+    'Media & Tech': Tv,
+    Pets: '🐾',
+    Outdoors: Leaf,
+    'Food & Drink': '🍽',
+    Building: Building2,
+    Entertainment: '🎮',
+    Safety: Lock
   }
 
   return (
     <div className='pd-page'>
-
       {/* ── Back & breadcrumb ─────────────────────────────────────────── */}
       <div className='pd-topbar'>
         <button className='pd-back' onClick={() => router.back()}>
@@ -576,14 +872,32 @@ export default function PropertyDetails () {
           <a href='/'>Home</a>
           <span>/</span>
           <a href='/properties'>Properties</a>
-          {property.city && <><span>/</span><span>{property.city}</span></>}
-          {property.category && <><span>/</span><span>{property.category}</span></>}
+          {property.city && (
+            <>
+              <span>/</span>
+              <span>{property.city}</span>
+            </>
+          )}
+          {property.category && (
+            <>
+              <span>/</span>
+              <span>{property.category}</span>
+            </>
+          )}
         </nav>
         <div className='pd-topbar-actions'>
-          <button className='pd-action-btn' onClick={handleShare}><Share2 size={16} /></button>
-          <button className={`pd-action-btn${liked ? ' pd-action-btn--saved' : ''}`} onClick={handleLike} title={liked ? 'Unlike' : 'Like'}>
+          <button className='pd-action-btn' onClick={handleShare}>
+            <Share2 size={16} />
+          </button>
+          <button
+            className={`pd-action-btn${liked ? ' pd-action-btn--saved' : ''}`}
+            onClick={handleLike}
+            title={liked ? 'Unlike' : 'Like'}
+          >
             <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
-            {likeCount > 0 && <span style={{ fontSize:11, marginLeft:3 }}>{likeCount}</span>}
+            {likeCount > 0 && (
+              <span style={{ fontSize: 11, marginLeft: 3 }}>{likeCount}</span>
+            )}
           </button>
         </div>
       </div>
@@ -591,9 +905,15 @@ export default function PropertyDetails () {
       {/* ── Hero Gallery ──────────────────────────────────────────────── */}
       <section className='pd-hero'>
         <div className='pd-gallery-wrap'>
-          <div className='pd-gallery-grid' onClick={() => setLightboxOpen(true)}>
+          <div
+            className='pd-gallery-grid'
+            onClick={() => setLightboxOpen(true)}
+          >
             {gallery.length === 0 ? (
-              <div className='pd-gallery-placeholder'><Building2 size={48} /><span>No photos available</span></div>
+              <div className='pd-gallery-placeholder'>
+                <Building2 size={48} />
+                <span>No photos available</span>
+              </div>
             ) : gallery.length === 1 ? (
               <div className='pd-gallery-main'>
                 <img src={gallery[0].url} alt={property.title} />
@@ -601,20 +921,41 @@ export default function PropertyDetails () {
             ) : (
               <>
                 <div className='pd-gallery-main'>
-                  {gallery[0].type === 'video'
-                    ? <video src={gallery[0].url} muted playsInline preload='metadata' />
-                    : <img src={gallery[0].url} alt={property.title} />
-                  }
+                  {gallery[0].type === 'video' ? (
+                    <video
+                      src={gallery[0].url}
+                      muted
+                      playsInline
+                      preload='metadata'
+                    />
+                  ) : (
+                    <img src={gallery[0].url} alt={property.title} />
+                  )}
                 </div>
                 <div className='pd-gallery-side'>
                   {gallery.slice(1, 5).map((m, i) => (
-                    <div key={i} className={`pd-gallery-side-item${i === 3 && gallery.length > 5 ? ' pd-gallery-more' : ''}`}>
-                      {m.type === 'video'
-                        ? <div className='pd-video-thumb'><Video size={20} /><span>Video</span></div>
-                        : <img src={m.url} alt={`Photo ${i + 2}`} loading='lazy' />
-                      }
+                    <div
+                      key={i}
+                      className={`pd-gallery-side-item${
+                        i === 3 && gallery.length > 5 ? ' pd-gallery-more' : ''
+                      }`}
+                    >
+                      {m.type === 'video' ? (
+                        <div className='pd-video-thumb'>
+                          <Video size={20} />
+                          <span>Video</span>
+                        </div>
+                      ) : (
+                        <img
+                          src={m.url}
+                          alt={`Photo ${i + 2}`}
+                          loading='lazy'
+                        />
+                      )}
                       {i === 3 && gallery.length > 5 && (
-                        <div className='pd-gallery-more-overlay'>+{gallery.length - 5} photos</div>
+                        <div className='pd-gallery-more-overlay'>
+                          +{gallery.length - 5} photos
+                        </div>
                       )}
                     </div>
                   ))}
@@ -623,7 +964,10 @@ export default function PropertyDetails () {
             )}
           </div>
           {gallery.length > 1 && (
-            <button className='pd-show-all-photos' onClick={() => setLightboxOpen(true)}>
+            <button
+              className='pd-show-all-photos'
+              onClick={() => setLightboxOpen(true)}
+            >
               <Eye size={14} /> Show all {gallery.length} photos
             </button>
           )}
@@ -633,32 +977,66 @@ export default function PropertyDetails () {
         <div className='pd-title-block'>
           <div className='pd-title-left'>
             <div className='pd-badges'>
-              {property.status === 'published' && <span className='pd-badge pd-badge--green'>Available</span>}
-              {property.status === 'draft' && <span className='pd-badge pd-badge--gray'>Draft</span>}
-              {property.listingTier && property.listingTier !== 'Standard' && (
-                <span className='pd-badge pd-badge--gold'>⭐ {property.listingTier}</span>
+              {property.status === 'published' && (
+                <span className='pd-badge pd-badge--green'>Available</span>
               )}
-              {complianceVerified && <span className='pd-badge pd-badge--blue'><Shield size={11} /> Verified</span>}
-              {escrowStatus === 'active' && <span className='pd-badge pd-badge--purple'><Lock size={11} /> Escrow</span>}
+              {property.status === 'draft' && (
+                <span className='pd-badge pd-badge--gray'>Draft</span>
+              )}
+              {property.listingTier && property.listingTier !== 'Standard' && (
+                <span className='pd-badge pd-badge--gold'>
+                  ⭐ {property.listingTier}
+                </span>
+              )}
+              {complianceVerified && (
+                <span className='pd-badge pd-badge--blue'>
+                  <Shield size={11} /> Verified
+                </span>
+              )}
+              {escrowStatus === 'active' && (
+                <span className='pd-badge pd-badge--purple'>
+                  <Lock size={11} /> Escrow
+                </span>
+              )}
             </div>
             <h1 className='pd-title'>{property.title}</h1>
             <div className='pd-location'>
               <MapPin size={14} />
-              {[property.address, property.city, property.state, property.country].filter(Boolean).join(', ') || property.location || '—'}
+              {[
+                property.address,
+                property.city,
+                property.state,
+                property.country
+              ]
+                .filter(Boolean)
+                .join(', ') ||
+                property.location ||
+                '—'}
             </div>
             {!isLand && (
               <div className='pd-meta-row'>
                 {(property.bedrooms ?? property.beds) != null && (
-                  <span className='pd-meta-item'><BedDouble size={14} /> {property.bedrooms ?? property.beds} bed{(property.bedrooms ?? property.beds) !== 1 ? 's' : ''}</span>
+                  <span className='pd-meta-item'>
+                    <BedDouble size={14} /> {property.bedrooms ?? property.beds}{' '}
+                    bed{(property.bedrooms ?? property.beds) !== 1 ? 's' : ''}
+                  </span>
                 )}
                 {(property.bathrooms ?? property.baths) != null && (
-                  <span className='pd-meta-item'><Bath size={14} /> {property.bathrooms ?? property.baths} bath{(property.bathrooms ?? property.baths) !== 1 ? 's' : ''}</span>
+                  <span className='pd-meta-item'>
+                    <Bath size={14} /> {property.bathrooms ?? property.baths}{' '}
+                    bath
+                    {(property.bathrooms ?? property.baths) !== 1 ? 's' : ''}
+                  </span>
                 )}
                 {(property.sqft ?? property.area) && (
-                  <span className='pd-meta-item'><Ruler size={14} /> {property.sqft ?? property.area} sqft</span>
+                  <span className='pd-meta-item'>
+                    <Ruler size={14} /> {property.sqft ?? property.area} sqft
+                  </span>
                 )}
                 {property.category && (
-                  <span className='pd-meta-item'><Building2 size={14} /> {property.category}</span>
+                  <span className='pd-meta-item'>
+                    <Building2 size={14} /> {property.category}
+                  </span>
                 )}
               </div>
             )}
@@ -667,7 +1045,10 @@ export default function PropertyDetails () {
             <div className='pd-price-main'>
               {isPerNight
                 ? fmt(effectivePrice, currency) + ' / night'
-                : fmt(effectivePrice ?? property.price ?? property.rentPrice, currency)}
+                : fmt(
+                    effectivePrice ?? property.price ?? property.rentPrice,
+                    currency
+                  )}
             </div>
             {property.rentFrequency && !isPerNight && (
               <div className='pd-price-freq'>per {property.rentFrequency}</div>
@@ -681,16 +1062,16 @@ export default function PropertyDetails () {
 
       {/* ── Body ─────────────────────────────────────────────────────── */}
       <div className='pd-body'>
-
         {/* ── Main column ──────────────────────────────────────────── */}
         <main className='pd-main'>
-
           {/* Tabs */}
           <div className='pd-tabs'>
             {TABS.map(t => (
               <button
                 key={t.id}
-                className={`pd-tab${activeTab === t.id ? ' pd-tab--active' : ''}`}
+                className={`pd-tab${
+                  activeTab === t.id ? ' pd-tab--active' : ''
+                }`}
                 onClick={() => setActiveTab(t.id)}
               >
                 {t.label}
@@ -706,32 +1087,99 @@ export default function PropertyDetails () {
                   <h3>About this property</h3>
                   <p className='pd-desc'>{shortDesc}</p>
                   {descText.length > DESC_LIMIT && (
-                    <button className='pd-show-more' onClick={() => setShowMoreDesc(s => !s)}>
-                      {showMoreDesc ? <><ChevronUp size={14} /> Show less</> : <><ChevronDown size={14} /> Show more</>}
+                    <button
+                      className='pd-show-more'
+                      onClick={() => setShowMoreDesc(s => !s)}
+                    >
+                      {showMoreDesc ? (
+                        <>
+                          <ChevronUp size={14} /> Show less
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown size={14} /> Show more
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
               )}
 
               {/* Host info */}
-              {property.hostInfo && (property.hostInfo.bio || property.hostInfo.neighborhoodInfo || property.hostInfo.propertyInfo) && (
-                <div className='pd-card'>
-                  <h3>About the Host</h3>
-                  {property.hostInfo.bio && <p style={{ fontSize:14, lineHeight:1.7, color:'#444', marginBottom: property.hostInfo.neighborhoodInfo || property.hostInfo.propertyInfo ? 12 : 0 }}>{property.hostInfo.bio}</p>}
-                  {property.hostInfo.propertyInfo && (
-                    <div style={{ marginBottom: property.hostInfo.neighborhoodInfo ? 12 : 0 }}>
-                      <h4 style={{ fontSize:13, fontWeight:700, marginBottom:4 }}>About the Property</h4>
-                      <p style={{ fontSize:13, color:'#555', lineHeight:1.6 }}>{property.hostInfo.propertyInfo}</p>
-                    </div>
-                  )}
-                  {property.hostInfo.neighborhoodInfo && (
-                    <div>
-                      <h4 style={{ fontSize:13, fontWeight:700, marginBottom:4 }}>About the Neighbourhood</h4>
-                      <p style={{ fontSize:13, color:'#555', lineHeight:1.6 }}>{property.hostInfo.neighborhoodInfo}</p>
-                    </div>
-                  )}
-                </div>
-              )}
+              {property.hostInfo &&
+                (property.hostInfo.bio ||
+                  property.hostInfo.neighborhoodInfo ||
+                  property.hostInfo.propertyInfo) && (
+                  <div className='pd-card'>
+                    <h3>About the Host</h3>
+                    {property.hostInfo.bio && (
+                      <p
+                        style={{
+                          fontSize: 14,
+                          lineHeight: 1.7,
+                          color: '#444',
+                          marginBottom:
+                            property.hostInfo.neighborhoodInfo ||
+                            property.hostInfo.propertyInfo
+                              ? 12
+                              : 0
+                        }}
+                      >
+                        {property.hostInfo.bio}
+                      </p>
+                    )}
+                    {property.hostInfo.propertyInfo && (
+                      <div
+                        style={{
+                          marginBottom: property.hostInfo.neighborhoodInfo
+                            ? 12
+                            : 0
+                        }}
+                      >
+                        <h4
+                          style={{
+                            fontSize: 13,
+                            fontWeight: 700,
+                            marginBottom: 4
+                          }}
+                        >
+                          About the Property
+                        </h4>
+                        <p
+                          style={{
+                            fontSize: 13,
+                            color: '#555',
+                            lineHeight: 1.6
+                          }}
+                        >
+                          {property.hostInfo.propertyInfo}
+                        </p>
+                      </div>
+                    )}
+                    {property.hostInfo.neighborhoodInfo && (
+                      <div>
+                        <h4
+                          style={{
+                            fontSize: 13,
+                            fontWeight: 700,
+                            marginBottom: 4
+                          }}
+                        >
+                          About the Neighbourhood
+                        </h4>
+                        <p
+                          style={{
+                            fontSize: 13,
+                            color: '#555',
+                            lineHeight: 1.6
+                          }}
+                        >
+                          {property.hostInfo.neighborhoodInfo}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
               {/* Features & amenities */}
               {featureList.length > 0 && (
@@ -749,31 +1197,42 @@ export default function PropertyDetails () {
               )}
 
               {/* Detailed amenities by category */}
-              {property.amenitiesDetailed && Object.keys(property.amenitiesDetailed).length > 0 && (
-                <div className='pd-card'>
-                  <h3>Amenities</h3>
-                  <div className='pd-amenities-section'>
-                    {Object.entries(property.amenitiesDetailed).filter(([, items]) => Array.isArray(items) && items.length > 0).map(([cat, items]) => {
-                      const IconComp = AMENITY_CATEGORY_ICONS[cat]
-                      return (
-                        <div key={cat} className='pd-amenity-cat'>
-                          <div className='pd-amenity-cat__title'>
-                            {IconComp && typeof IconComp !== 'string' ? <IconComp size={14} /> : <span>{AMENITY_CATEGORY_ICONS[cat]}</span>}
-                            {cat}
-                          </div>
-                          <div className='pd-amenity-cat__items'>
-                            {items.map(item => (
-                              <div key={item} className='pd-amenity-item'>
-                                <CheckCircle2 size={12} color='#22c55e' /> {item}
+              {property.amenitiesDetailed &&
+                Object.keys(property.amenitiesDetailed).length > 0 && (
+                  <div className='pd-card'>
+                    <h3>Amenities</h3>
+                    <div className='pd-amenities-section'>
+                      {Object.entries(property.amenitiesDetailed)
+                        .filter(
+                          ([, items]) =>
+                            Array.isArray(items) && items.length > 0
+                        )
+                        .map(([cat, items]) => {
+                          const IconComp = AMENITY_CATEGORY_ICONS[cat]
+                          return (
+                            <div key={cat} className='pd-amenity-cat'>
+                              <div className='pd-amenity-cat__title'>
+                                {IconComp && typeof IconComp !== 'string' ? (
+                                  <IconComp size={14} />
+                                ) : (
+                                  <span>{AMENITY_CATEGORY_ICONS[cat]}</span>
+                                )}
+                                {cat}
                               </div>
-                            ))}
-                          </div>
-                        </div>
-                      )
-                    })}
+                              <div className='pd-amenity-cat__items'>
+                                {items.map(item => (
+                                  <div key={item} className='pd-amenity-item'>
+                                    <CheckCircle2 size={12} color='#22c55e' />{' '}
+                                    {item}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )
+                        })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Building Characteristics */}
               {property.buildingCharacteristics?.length > 0 && (
@@ -781,7 +1240,10 @@ export default function PropertyDetails () {
                   <h3>Building Characteristics</h3>
                   <div className='pd-features-grid'>
                     {property.buildingCharacteristics.map(c => (
-                      <div key={c} className='pd-feature'><Building2 size={13} /><span>{c}</span></div>
+                      <div key={c} className='pd-feature'>
+                        <Building2 size={13} />
+                        <span>{c}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -795,7 +1257,13 @@ export default function PropertyDetails () {
                     {property.nearbyPlaces.map((p, i) => (
                       <div key={i} className='pd-feature'>
                         <MapPin size={13} />
-                        <span>{typeof p === 'string' ? p : `${p.name}${p.distance ? ` — ${p.distance}` : ''}`}</span>
+                        <span>
+                          {typeof p === 'string'
+                            ? p
+                            : `${p.name}${
+                                p.distance ? ` — ${p.distance}` : ''
+                              }`}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -807,7 +1275,11 @@ export default function PropertyDetails () {
                 <div className='pd-card'>
                   <h3>Languages Spoken</h3>
                   <div className='pd-tags'>
-                    {property.languagesSpoken.map(l => <span key={l} className='pd-tag'>{l}</span>)}
+                    {property.languagesSpoken.map(l => (
+                      <span key={l} className='pd-tag'>
+                        {l}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}
@@ -817,7 +1289,11 @@ export default function PropertyDetails () {
                 <div className='pd-card'>
                   <h3>Tags</h3>
                   <div className='pd-tags'>
-                    {property.tags.map(t => <span key={t} className='pd-tag'><Tag size={11} /> {t}</span>)}
+                    {property.tags.map(t => (
+                      <span key={t} className='pd-tag'>
+                        <Tag size={11} /> {t}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}
@@ -827,18 +1303,40 @@ export default function PropertyDetails () {
                 <div className='pd-card'>
                   <h3>All Photos ({gallery.length})</h3>
                   <div className='pd-gallery-full'>
-                    {(showAllPhotos ? gallery : gallery.slice(0, 9)).map((m, i) => (
-                      <button key={i} className='pd-gallery-thumb' onClick={() => { setThumbIndex(i); setLightboxOpen(true) }}>
-                        {m.type === 'video'
-                          ? <div className='pd-video-chip'><Video size={16} /><span>Video</span></div>
-                          : <img src={m.url} alt={`Photo ${i + 1}`} loading='lazy' />
-                        }
-                      </button>
-                    ))}
+                    {(showAllPhotos ? gallery : gallery.slice(0, 9)).map(
+                      (m, i) => (
+                        <button
+                          key={i}
+                          className='pd-gallery-thumb'
+                          onClick={() => {
+                            setThumbIndex(i)
+                            setLightboxOpen(true)
+                          }}
+                        >
+                          {m.type === 'video' ? (
+                            <div className='pd-video-chip'>
+                              <Video size={16} />
+                              <span>Video</span>
+                            </div>
+                          ) : (
+                            <img
+                              src={m.url}
+                              alt={`Photo ${i + 1}`}
+                              loading='lazy'
+                            />
+                          )}
+                        </button>
+                      )
+                    )}
                   </div>
                   {gallery.length > 9 && (
-                    <button className='pd-show-more' onClick={() => setShowAllPhotos(s => !s)}>
-                      {showAllPhotos ? 'Show less' : `Show all ${gallery.length} photos`}
+                    <button
+                      className='pd-show-more'
+                      onClick={() => setShowAllPhotos(s => !s)}
+                    >
+                      {showAllPhotos
+                        ? 'Show less'
+                        : `Show all ${gallery.length} photos`}
                     </button>
                   )}
                 </div>
@@ -850,50 +1348,81 @@ export default function PropertyDetails () {
                   <div className='pd-ai-header'>
                     <Zap size={16} />
                     <h3>AI Price Estimate</h3>
-                    <span className={`pd-ai-confidence pd-ai-confidence--${property.aiValuation.confidence}`}>
+                    <span
+                      className={`pd-ai-confidence pd-ai-confidence--${property.aiValuation.confidence}`}
+                    >
                       {property.aiValuation.confidence} confidence
                     </span>
                   </div>
                   <div className='pd-ai-grid'>
                     <div className='pd-ai-stat'>
                       <span>Estimated Value</span>
-                      <strong>{fmt(property.aiValuation.estimatedValue, property.aiValuation.currency || currency)}</strong>
+                      <strong>
+                        {fmt(
+                          property.aiValuation.estimatedValue,
+                          property.aiValuation.currency || currency
+                        )}
+                      </strong>
                     </div>
                     {property.aiValuation.suggestedListPrice && (
                       <div className='pd-ai-stat'>
                         <span>Suggested List</span>
-                        <strong>{fmt(property.aiValuation.suggestedListPrice, currency)}</strong>
+                        <strong>
+                          {fmt(
+                            property.aiValuation.suggestedListPrice,
+                            currency
+                          )}
+                        </strong>
                       </div>
                     )}
                     {property.aiValuation.pricePerSqft && (
                       <div className='pd-ai-stat'>
                         <span>Price / sqft</span>
-                        <strong>{fmt(property.aiValuation.pricePerSqft, currency)}</strong>
+                        <strong>
+                          {fmt(property.aiValuation.pricePerSqft, currency)}
+                        </strong>
                       </div>
                     )}
                     {property.aiValuation.marketTrend && (
                       <div className='pd-ai-stat'>
                         <span>Market Trend</span>
-                        <strong className={`pd-trend pd-trend--${property.aiValuation.marketTrend}`}>
-                          <TrendingUp size={13} /> {property.aiValuation.marketTrend}
+                        <strong
+                          className={`pd-trend pd-trend--${property.aiValuation.marketTrend}`}
+                        >
+                          <TrendingUp size={13} />{' '}
+                          {property.aiValuation.marketTrend}
                         </strong>
                       </div>
                     )}
                   </div>
                   {property.aiValuation.comparables && (
-                    <p className='pd-ai-note'>{property.aiValuation.comparables} comparable properties analysed</p>
+                    <p className='pd-ai-note'>
+                      {property.aiValuation.comparables} comparable properties
+                      analysed
+                    </p>
                   )}
                 </div>
               )}
 
               {/* Map */}
-              {(property.latitude || property.lat || (property.geo?.coordinates?.length === 2)) && (
+              {(property.latitude ||
+                property.lat ||
+                property.geo?.coordinates?.length === 2) && (
                 <div className='pd-card'>
                   <h3>Location Map</h3>
                   <div className='pd-map-wrap'>
                     <iframe
                       title='map'
-                      src={`https://maps.google.com/maps?q=${property.latitude || property.lat || property.geo?.coordinates?.[1]},${property.longitude || property.lng || property.lon || property.geo?.coordinates?.[0]}&z=14&output=embed`}
+                      src={`https://maps.google.com/maps?q=${
+                        property.latitude ||
+                        property.lat ||
+                        property.geo?.coordinates?.[1]
+                      },${
+                        property.longitude ||
+                        property.lng ||
+                        property.lon ||
+                        property.geo?.coordinates?.[0]
+                      }&z=14&output=embed`}
                       loading='lazy'
                     />
                   </div>
@@ -908,30 +1437,162 @@ export default function PropertyDetails () {
               <div className='pd-card'>
                 <h3>Property Details</h3>
                 <div className='pd-details-grid'>
-                  <div className='pd-detail'><span>Category</span><strong>{property.category || '—'}</strong></div>
-                  <div className='pd-detail'><span>Purpose</span><strong>{property.purpose || '—'}</strong></div>
-                  {property.transactionType && <div className='pd-detail'><span>Transaction</span><strong>{property.transactionType.replace(/_/g, ' ')}</strong></div>}
-                  {!isLand && <>
-                    <div className='pd-detail'><span>Bedrooms</span><strong>{property.bedrooms ?? property.beds ?? '—'}</strong></div>
-                    <div className='pd-detail'><span>Bathrooms</span><strong>{property.bathrooms ?? property.baths ?? '—'}</strong></div>
-                    <div className='pd-detail'><span>Floor area</span><strong>{property.sqft ? `${property.sqft} sqft` : property.area || '—'}</strong></div>
-                  </>}
-                  <div className='pd-detail'><span>Location</span><strong>{[property.city, property.state, property.country].filter(Boolean).join(', ') || property.location || '—'}</strong></div>
-                  <div className='pd-detail'><span>Currency</span><strong>{currency}</strong></div>
-                  {property.sizeSqm && <div className='pd-detail'><span>Size (sqm)</span><strong>{property.sizeSqm} sqm</strong></div>}
-                  {property.maxRooms && <div className='pd-detail'><span>Max Rooms</span><strong>{property.maxRooms}</strong></div>}
-                  {property.propertySpaceType && <div className='pd-detail'><span>Space Type</span><strong>{property.propertySpaceType.replace(/_/g, ' ')}</strong></div>}
-                  {property.rentFrequency && isRent && <div className='pd-detail'><span>Rent Frequency</span><strong style={{ textTransform:'capitalize' }}>{property.rentFrequency}</strong></div>}
-                  {property.availability?.totalUnits > 1 && <div className='pd-detail'><span>Total Units</span><strong>{property.availability.totalUnits}</strong></div>}
-                  {property.availability?.availableUnits != null && <div className='pd-detail'><span>Available Units</span><strong>{property.availability.availableUnits}</strong></div>}
-                  {property.availability?.nextAvailableDate && <div className='pd-detail'><span>Next Available</span><strong>{new Date(property.availability.nextAvailableDate).toLocaleDateString()}</strong></div>}
-                  {property.premiere && <div className='pd-detail'><span>Premiere</span><strong>✓</strong></div>}
-                  {property.averageRating > 0 && <div className='pd-detail'><span>Rating</span><strong>{'★'.repeat(Math.round(property.averageRating))} {property.averageRating.toFixed(1)} ({property.reviewCount || 0} reviews)</strong></div>}
-                  {property.createdAt && <div className='pd-detail'><span>Listed</span><strong>{new Date(property.createdAt).toLocaleDateString()}</strong></div>}
-                  {property.publishedAt && <div className='pd-detail'><span>Published</span><strong>{new Date(property.publishedAt).toLocaleDateString()}</strong></div>}
-                  {property.viewCount > 0 && <div className='pd-detail'><span>Views</span><strong><Eye size={12} /> {property.viewCount.toLocaleString()}</strong></div>}
-                  {property.projectLabel && <div className='pd-detail'><span>Project</span><strong>{property.projectLabel}</strong></div>}
-                  {property.seoTitle && <div className='pd-detail'><span>SEO Title</span><strong>{property.seoTitle}</strong></div>}
+                  <div className='pd-detail'>
+                    <span>Category</span>
+                    <strong>{property.category || '—'}</strong>
+                  </div>
+                  <div className='pd-detail'>
+                    <span>Purpose</span>
+                    <strong>{property.purpose || '—'}</strong>
+                  </div>
+                  {property.transactionType && (
+                    <div className='pd-detail'>
+                      <span>Transaction</span>
+                      <strong>
+                        {property.transactionType.replace(/_/g, ' ')}
+                      </strong>
+                    </div>
+                  )}
+                  {!isLand && (
+                    <>
+                      <div className='pd-detail'>
+                        <span>Bedrooms</span>
+                        <strong>
+                          {property.bedrooms ?? property.beds ?? '—'}
+                        </strong>
+                      </div>
+                      <div className='pd-detail'>
+                        <span>Bathrooms</span>
+                        <strong>
+                          {property.bathrooms ?? property.baths ?? '—'}
+                        </strong>
+                      </div>
+                      <div className='pd-detail'>
+                        <span>Floor area</span>
+                        <strong>
+                          {property.sqft
+                            ? `${property.sqft} sqft`
+                            : property.area || '—'}
+                        </strong>
+                      </div>
+                    </>
+                  )}
+                  <div className='pd-detail'>
+                    <span>Location</span>
+                    <strong>
+                      {[property.city, property.state, property.country]
+                        .filter(Boolean)
+                        .join(', ') ||
+                        property.location ||
+                        '—'}
+                    </strong>
+                  </div>
+                  <div className='pd-detail'>
+                    <span>Currency</span>
+                    <strong>{currency}</strong>
+                  </div>
+                  {property.sizeSqm && (
+                    <div className='pd-detail'>
+                      <span>Size (sqm)</span>
+                      <strong>{property.sizeSqm} sqm</strong>
+                    </div>
+                  )}
+                  {property.maxRooms && (
+                    <div className='pd-detail'>
+                      <span>Max Rooms</span>
+                      <strong>{property.maxRooms}</strong>
+                    </div>
+                  )}
+                  {property.propertySpaceType && (
+                    <div className='pd-detail'>
+                      <span>Space Type</span>
+                      <strong>
+                        {property.propertySpaceType.replace(/_/g, ' ')}
+                      </strong>
+                    </div>
+                  )}
+                  {property.rentFrequency && isRent && (
+                    <div className='pd-detail'>
+                      <span>Rent Frequency</span>
+                      <strong style={{ textTransform: 'capitalize' }}>
+                        {property.rentFrequency}
+                      </strong>
+                    </div>
+                  )}
+                  {property.availability?.totalUnits > 1 && (
+                    <div className='pd-detail'>
+                      <span>Total Units</span>
+                      <strong>{property.availability.totalUnits}</strong>
+                    </div>
+                  )}
+                  {property.availability?.availableUnits != null && (
+                    <div className='pd-detail'>
+                      <span>Available Units</span>
+                      <strong>{property.availability.availableUnits}</strong>
+                    </div>
+                  )}
+                  {property.availability?.nextAvailableDate && (
+                    <div className='pd-detail'>
+                      <span>Next Available</span>
+                      <strong>
+                        {new Date(
+                          property.availability.nextAvailableDate
+                        ).toLocaleDateString()}
+                      </strong>
+                    </div>
+                  )}
+                  {property.premiere && (
+                    <div className='pd-detail'>
+                      <span>Premiere</span>
+                      <strong>✓</strong>
+                    </div>
+                  )}
+                  {property.averageRating > 0 && (
+                    <div className='pd-detail'>
+                      <span>Rating</span>
+                      <strong>
+                        {'★'.repeat(Math.round(property.averageRating))}{' '}
+                        {property.averageRating.toFixed(1)} (
+                        {property.reviewCount || 0} reviews)
+                      </strong>
+                    </div>
+                  )}
+                  {property.createdAt && (
+                    <div className='pd-detail'>
+                      <span>Listed</span>
+                      <strong>
+                        {new Date(property.createdAt).toLocaleDateString()}
+                      </strong>
+                    </div>
+                  )}
+                  {property.publishedAt && (
+                    <div className='pd-detail'>
+                      <span>Published</span>
+                      <strong>
+                        {new Date(property.publishedAt).toLocaleDateString()}
+                      </strong>
+                    </div>
+                  )}
+                  {property.viewCount > 0 && (
+                    <div className='pd-detail'>
+                      <span>Views</span>
+                      <strong>
+                        <Eye size={12} /> {property.viewCount.toLocaleString()}
+                      </strong>
+                    </div>
+                  )}
+                  {property.projectLabel && (
+                    <div className='pd-detail'>
+                      <span>Project</span>
+                      <strong>{property.projectLabel}</strong>
+                    </div>
+                  )}
+                  {property.seoTitle && (
+                    <div className='pd-detail'>
+                      <span>SEO Title</span>
+                      <strong>{property.seoTitle}</strong>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -940,9 +1601,27 @@ export default function PropertyDetails () {
                 <div className='pd-card'>
                   <h3>Commercial Info</h3>
                   <div className='pd-details-grid'>
-                    {property.commercial.businessType && <div className='pd-detail'><span>Business Type</span><strong>{property.commercial.businessType}</strong></div>}
-                    {property.commercial.parkingSpaces != null && <div className='pd-detail'><span>Parking Spaces</span><strong>{property.commercial.parkingSpaces}</strong></div>}
-                    {property.commercial.floorArea?.value && <div className='pd-detail'><span>Floor Area</span><strong>{property.commercial.floorArea.value} {property.commercial.floorArea.unit || 'sqm'}</strong></div>}
+                    {property.commercial.businessType && (
+                      <div className='pd-detail'>
+                        <span>Business Type</span>
+                        <strong>{property.commercial.businessType}</strong>
+                      </div>
+                    )}
+                    {property.commercial.parkingSpaces != null && (
+                      <div className='pd-detail'>
+                        <span>Parking Spaces</span>
+                        <strong>{property.commercial.parkingSpaces}</strong>
+                      </div>
+                    )}
+                    {property.commercial.floorArea?.value && (
+                      <div className='pd-detail'>
+                        <span>Floor Area</span>
+                        <strong>
+                          {property.commercial.floorArea.value}{' '}
+                          {property.commercial.floorArea.unit || 'sqm'}
+                        </strong>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -952,22 +1631,49 @@ export default function PropertyDetails () {
                 <div className='pd-card'>
                   <h3>Payment Plans</h3>
                   <div className='pd-plans'>
-                    {property.paymentPlans.map((p, i) => (
-                      <div key={i} className={`pd-plan${selectedPlanIdx === i ? ' pd-plan--active' : ''}`} onClick={() => setSelectedPlanIdx(i)}>
-                        <div className='pd-plan__title'>{p.name || p.title || p.id || `Plan ${i + 1}`}</div>
-                        {p.description && <div className='pd-plan__desc'>{p.description}</div>}
-                        {p.priceSnapshot?.total && <div className='pd-plan__price'>{fmt(p.priceSnapshot.total, currency)}</div>}
-                        {p.installments?.length > 0 && (
-                          <div className='pd-plan__installments'>
-                            {p.installments.map((inst, j) => (
-                              <span key={j} className='pd-plan__inst'>
-                                {inst.percent}% in {inst.dueInDays === 0 ? 'Day 0' : `${inst.dueInDays}d`}
-                              </span>
-                            ))}
+                    {property.paymentPlans.map((p, i) => {
+                      const planBase =
+                        p.priceSnapshot?.total ||
+                        fullDueAmount ||
+                        effectivePrice ||
+                        0
+                      const firstPct = p.installments?.[0]?.percent
+                      const payNow =
+                        firstPct && firstPct < 100
+                          ? Math.round((planBase * firstPct) / 100)
+                          : planBase
+                      return (
+                        <div
+                          key={i}
+                          className={`pd-plan${
+                            selectedPlanIdx === i ? ' pd-plan--active' : ''
+                          }`}
+                          onClick={() => setSelectedPlanIdx(i)}
+                        >
+                          <div className='pd-plan__title'>
+                            {p.name || p.title || p.id || `Plan ${i + 1}`}
                           </div>
-                        )}
-                      </div>
-                    ))}
+                          {p.description && (
+                            <div className='pd-plan__desc'>{p.description}</div>
+                          )}
+                          <div className='pd-plan__price'>
+                            {fmt(payNow, currency)} now
+                          </div>
+                          {p.installments?.length > 0 && (
+                            <div className='pd-plan__installments'>
+                              {p.installments.map((inst, j) => (
+                                <span key={j} className='pd-plan__inst'>
+                                  {inst.percent}%{' '}
+                                  {inst.dueInDays === 0
+                                    ? 'today'
+                                    : `in ${inst.dueInDays}d`}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -975,15 +1681,74 @@ export default function PropertyDetails () {
               {/* Investment details */}
               {property.investmentDetails && (
                 <div className='pd-card pd-card--invest'>
-                  <h3><TrendingUp size={16} /> Investment Details</h3>
+                  <h3>
+                    <TrendingUp size={16} /> Investment Details
+                  </h3>
                   <div className='pd-details-grid'>
-                    {property.investmentDetails.totalShares && <div className='pd-detail'><span>Total Shares</span><strong>{property.investmentDetails.totalShares.toLocaleString()}</strong></div>}
-                    {property.investmentDetails.pricePerShare && <div className='pd-detail'><span>Price / Share</span><strong>{fmt(property.investmentDetails.pricePerShare, currency)}</strong></div>}
-                    {property.investmentDetails.availableShares != null && <div className='pd-detail'><span>Available</span><strong>{property.investmentDetails.availableShares.toLocaleString()}</strong></div>}
-                    {property.investmentDetails.expectedROI && <div className='pd-detail'><span>Expected ROI</span><strong>{property.investmentDetails.expectedROI}%</strong></div>}
-                    {property.investmentDetails.distributionFrequency && <div className='pd-detail'><span>Distribution</span><strong>{property.investmentDetails.distributionFrequency}</strong></div>}
-                    {property.investmentDetails.holdingPeriodDays && <div className='pd-detail'><span>Holding Period</span><strong>{Math.round(property.investmentDetails.holdingPeriodDays / 30)} months</strong></div>}
-                    {property.investmentDetails.offeringClosesAt && <div className='pd-detail'><span>Offer Closes</span><strong>{new Date(property.investmentDetails.offeringClosesAt).toLocaleDateString()}</strong></div>}
+                    {property.investmentDetails.totalShares && (
+                      <div className='pd-detail'>
+                        <span>Total Shares</span>
+                        <strong>
+                          {property.investmentDetails.totalShares.toLocaleString()}
+                        </strong>
+                      </div>
+                    )}
+                    {property.investmentDetails.pricePerShare && (
+                      <div className='pd-detail'>
+                        <span>Price / Share</span>
+                        <strong>
+                          {fmt(
+                            property.investmentDetails.pricePerShare,
+                            currency
+                          )}
+                        </strong>
+                      </div>
+                    )}
+                    {property.investmentDetails.availableShares != null && (
+                      <div className='pd-detail'>
+                        <span>Available</span>
+                        <strong>
+                          {property.investmentDetails.availableShares.toLocaleString()}
+                        </strong>
+                      </div>
+                    )}
+                    {property.investmentDetails.expectedROI && (
+                      <div className='pd-detail'>
+                        <span>Expected ROI</span>
+                        <strong>
+                          {property.investmentDetails.expectedROI}%
+                        </strong>
+                      </div>
+                    )}
+                    {property.investmentDetails.distributionFrequency && (
+                      <div className='pd-detail'>
+                        <span>Distribution</span>
+                        <strong>
+                          {property.investmentDetails.distributionFrequency}
+                        </strong>
+                      </div>
+                    )}
+                    {property.investmentDetails.holdingPeriodDays && (
+                      <div className='pd-detail'>
+                        <span>Holding Period</span>
+                        <strong>
+                          {Math.round(
+                            property.investmentDetails.holdingPeriodDays / 30
+                          )}{' '}
+                          months
+                        </strong>
+                      </div>
+                    )}
+                    {property.investmentDetails.offeringClosesAt && (
+                      <div className='pd-detail'>
+                        <span>Offer Closes</span>
+                        <strong>
+                          {new Date(
+                            property.investmentDetails.offeringClosesAt
+                          ).toLocaleDateString()}
+                        </strong>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -997,58 +1762,142 @@ export default function PropertyDetails () {
               {property.houseRules && (
                 <div className='pd-card'>
                   {/* Check-in/out only relevant for Hotel & Shortlet */}
-                  {(isHotel || isShortlet) && (property.houseRules.checkIn || property.houseRules.checkOut) && (
-                    <>
-                      <h3><Clock size={16} /> Check-in & Check-out</h3>
-                      <div className='pd-details-grid'>
-                        {property.houseRules.checkIn?.from && (
-                          <div className='pd-detail'><span>Check-in from</span><strong>{property.houseRules.checkIn.from}</strong></div>
-                        )}
-                        {property.houseRules.checkIn?.to && (
-                          <div className='pd-detail'><span>Check-in until</span><strong>{property.houseRules.checkIn.to}</strong></div>
-                        )}
-                        {property.houseRules.checkOut?.from && (
-                          <div className='pd-detail'><span>Check-out from</span><strong>{property.houseRules.checkOut.from}</strong></div>
-                        )}
-                        {property.houseRules.checkOut?.to && (
-                          <div className='pd-detail'><span>Check-out until</span><strong>{property.houseRules.checkOut.to}</strong></div>
-                        )}
-                      </div>
-                    </>
-                  )}
+                  {(isHotel || isShortlet) &&
+                    (property.houseRules.checkIn ||
+                      property.houseRules.checkOut) && (
+                      <>
+                        <h3>
+                          <Clock size={16} /> Check-in & Check-out
+                        </h3>
+                        <div className='pd-details-grid'>
+                          {property.houseRules.checkIn?.from && (
+                            <div className='pd-detail'>
+                              <span>Check-in from</span>
+                              <strong>
+                                {property.houseRules.checkIn.from}
+                              </strong>
+                            </div>
+                          )}
+                          {property.houseRules.checkIn?.to && (
+                            <div className='pd-detail'>
+                              <span>Check-in until</span>
+                              <strong>{property.houseRules.checkIn.to}</strong>
+                            </div>
+                          )}
+                          {property.houseRules.checkOut?.from && (
+                            <div className='pd-detail'>
+                              <span>Check-out from</span>
+                              <strong>
+                                {property.houseRules.checkOut.from}
+                              </strong>
+                            </div>
+                          )}
+                          {property.houseRules.checkOut?.to && (
+                            <div className='pd-detail'>
+                              <span>Check-out until</span>
+                              <strong>{property.houseRules.checkOut.to}</strong>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
 
-                  <h3 style={{ marginTop: (isHotel || isShortlet) ? 20 : 0, fontSize: 15 }}>House Rules</h3>
+                  <h3
+                    style={{
+                      marginTop: isHotel || isShortlet ? 20 : 0,
+                      fontSize: 15
+                    }}
+                  >
+                    House Rules
+                  </h3>
                   <div className='pd-rules-list'>
-                    <div className={`pd-rule-item${property.houseRules.smokingAllowed ? ' pd-rule--ok' : ' pd-rule--no'}`}>
-                      <span>{property.houseRules.smokingAllowed ? '✓' : '✗'}</span> Smoking {property.houseRules.smokingAllowed ? 'allowed' : 'not allowed'}
+                    <div
+                      className={`pd-rule-item${
+                        property.houseRules.smokingAllowed
+                          ? ' pd-rule--ok'
+                          : ' pd-rule--no'
+                      }`}
+                    >
+                      <span>
+                        {property.houseRules.smokingAllowed ? '✓' : '✗'}
+                      </span>{' '}
+                      Smoking{' '}
+                      {property.houseRules.smokingAllowed
+                        ? 'allowed'
+                        : 'not allowed'}
                     </div>
-                    <div className={`pd-rule-item${property.houseRules.petsAllowed ? ' pd-rule--ok' : ' pd-rule--no'}`}>
-                      <span>{property.houseRules.petsAllowed ? '✓' : '✗'}</span> Pets {property.houseRules.petsAllowed ? 'allowed' : 'not allowed'}
-                      {property.houseRules.petCharge && <em> ({property.houseRules.petCharge})</em>}
+                    <div
+                      className={`pd-rule-item${
+                        property.houseRules.petsAllowed
+                          ? ' pd-rule--ok'
+                          : ' pd-rule--no'
+                      }`}
+                    >
+                      <span>{property.houseRules.petsAllowed ? '✓' : '✗'}</span>{' '}
+                      Pets{' '}
+                      {property.houseRules.petsAllowed
+                        ? 'allowed'
+                        : 'not allowed'}
+                      {property.houseRules.petCharge && (
+                        <em> ({property.houseRules.petCharge})</em>
+                      )}
                     </div>
-                    <div className={`pd-rule-item${property.houseRules.childrenAllowed ? ' pd-rule--ok' : ' pd-rule--no'}`}>
-                      <span>{property.houseRules.childrenAllowed ? '✓' : '✗'}</span> Children {property.houseRules.childrenAllowed ? 'welcome' : 'not allowed'}
-                      {property.houseRules.childrenPolicy && <em> — {property.houseRules.childrenPolicy}</em>}
+                    <div
+                      className={`pd-rule-item${
+                        property.houseRules.childrenAllowed
+                          ? ' pd-rule--ok'
+                          : ' pd-rule--no'
+                      }`}
+                    >
+                      <span>
+                        {property.houseRules.childrenAllowed ? '✓' : '✗'}
+                      </span>{' '}
+                      Children{' '}
+                      {property.houseRules.childrenAllowed
+                        ? 'welcome'
+                        : 'not allowed'}
+                      {property.houseRules.childrenPolicy && (
+                        <em> — {property.houseRules.childrenPolicy}</em>
+                      )}
                     </div>
                     {property.houseRules.cribAvailable && (
-                      <div className='pd-rule-item pd-rule--ok'><span>✓</span> Crib available on request</div>
+                      <div className='pd-rule-item pd-rule--ok'>
+                        <span>✓</span> Crib available on request
+                      </div>
                     )}
                     {property.houseRules.extraBedAvailable && (
-                      <div className='pd-rule-item pd-rule--ok'><span>✓</span> Extra bed available on request</div>
+                      <div className='pd-rule-item pd-rule--ok'>
+                        <span>✓</span> Extra bed available on request
+                      </div>
                     )}
                     {property.houseRules.ageRestriction && (
-                      <div className='pd-rule-item'><span>ℹ</span> Age restriction: {property.houseRules.ageRestriction}</div>
+                      <div className='pd-rule-item'>
+                        <span>ℹ</span> Age restriction:{' '}
+                        {property.houseRules.ageRestriction}
+                      </div>
                     )}
                   </div>
 
                   {property.houseRules.cancellationPolicy && (
                     <div style={{ marginTop: 16 }}>
-                      <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>Cancellation Policy</h4>
-                      <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{property.houseRules.cancellationPolicy}</p>
+                      <h4
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 600,
+                          marginBottom: 6
+                        }}
+                      >
+                        Cancellation Policy
+                      </h4>
+                      <p
+                        style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}
+                      >
+                        {property.houseRules.cancellationPolicy}
+                      </p>
                     </div>
                   )}
 
-                  {/* Payment methods intentionally omitted — managed by PropNect escrow system */}
+                  {/* Payment methods intentionally omitted — managed by propnekt escrow system */}
                 </div>
               )}
 
@@ -1057,7 +1906,11 @@ export default function PropertyDetails () {
                 <div className='pd-card'>
                   <h3>Languages Spoken by Staff</h3>
                   <div className='pd-tags'>
-                    {property.languagesSpoken.map(l => <span key={l} className='pd-tag'>🌐 {l}</span>)}
+                    {property.languagesSpoken.map(l => (
+                      <span key={l} className='pd-tag'>
+                        🌐 {l}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}
@@ -1065,9 +1918,15 @@ export default function PropertyDetails () {
               {/* Building characteristics */}
               {property.buildingCharacteristics?.length > 0 && (
                 <div className='pd-card'>
-                  <h3><Building2 size={16} /> Building Type</h3>
+                  <h3>
+                    <Building2 size={16} /> Building Type
+                  </h3>
                   <div className='pd-tags'>
-                    {property.buildingCharacteristics.map(c => <span key={c} className='pd-tag'>{c}</span>)}
+                    {property.buildingCharacteristics.map(c => (
+                      <span key={c} className='pd-tag'>
+                        {c}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}
@@ -1075,13 +1934,23 @@ export default function PropertyDetails () {
               {/* Nearby places */}
               {property.nearbyPlaces?.length > 0 && (
                 <div className='pd-card'>
-                  <h3><MapPin size={16} /> Nearby Places</h3>
+                  <h3>
+                    <MapPin size={16} /> Nearby Places
+                  </h3>
                   <div className='pd-nearby-list'>
                     {property.nearbyPlaces.map((np, i) => (
                       <div key={i} className='pd-nearby-item'>
                         <div className='pd-nearby-item__name'>{np.name}</div>
-                        {np.category && <div className='pd-nearby-item__cat'>{np.category}</div>}
-                        {np.distance && <div className='pd-nearby-item__dist'><MapPin size={11} /> {np.distance}</div>}
+                        {np.category && (
+                          <div className='pd-nearby-item__cat'>
+                            {np.category}
+                          </div>
+                        )}
+                        {np.distance && (
+                          <div className='pd-nearby-item__dist'>
+                            <MapPin size={11} /> {np.distance}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1097,27 +1966,64 @@ export default function PropertyDetails () {
                 <h3>Units ({property.units?.length})</h3>
                 <div className='pd-units-grid'>
                   {(property.units || []).map((u, i) => (
-                    <div key={i} className={`pd-unit-card${u.available === false ? ' pd-unit-card--unavailable' : ''}`}>
+                    <div
+                      key={i}
+                      className={`pd-unit-card${
+                        u.available === false
+                          ? ' pd-unit-card--unavailable'
+                          : ''
+                      }`}
+                    >
                       <div className='pd-unit-card__header'>
-                        <span className='pd-unit-card__id'>{u.unitId || `Unit ${i + 1}`}</span>
-                        <span className={`pd-unit-card__status${u.available !== false ? ' available' : ''}`}>
+                        <span className='pd-unit-card__id'>
+                          {u.unitId || `Unit ${i + 1}`}
+                        </span>
+                        <span
+                          className={`pd-unit-card__status${
+                            u.available !== false ? ' available' : ''
+                          }`}
+                        >
                           {u.available !== false ? 'Available' : 'Occupied'}
                         </span>
                       </div>
-                      {u.title && <h4 className='pd-unit-card__title'>{u.title}</h4>}
+                      {u.title && (
+                        <h4 className='pd-unit-card__title'>{u.title}</h4>
+                      )}
                       <div className='pd-unit-card__meta'>
-                        {u.bedrooms != null && <span><BedDouble size={12} /> {u.bedrooms}bed</span>}
-                        {u.bathrooms != null && <span><Bath size={12} /> {u.bathrooms}bath</span>}
-                        {u.sqft && <span><Ruler size={12} /> {u.sqft}sqft</span>}
-                        {u.floor && <span><Layers size={12} /> {u.floor}</span>}
+                        {u.bedrooms != null && (
+                          <span>
+                            <BedDouble size={12} /> {u.bedrooms}bed
+                          </span>
+                        )}
+                        {u.bathrooms != null && (
+                          <span>
+                            <Bath size={12} /> {u.bathrooms}bath
+                          </span>
+                        )}
+                        {u.sqft && (
+                          <span>
+                            <Ruler size={12} /> {u.sqft}sqft
+                          </span>
+                        )}
+                        {u.floor && (
+                          <span>
+                            <Layers size={12} /> {u.floor}
+                          </span>
+                        )}
                       </div>
                       <div className='pd-unit-card__price'>
                         {u.price ? fmt(u.price, currency) : ''}
-                        {u.rentPrice ? ` / ${u.rentFrequency || 'mo'}: ${fmt(u.rentPrice, currency)}` : ''}
+                        {u.rentPrice
+                          ? ` / ${u.rentFrequency || 'mo'}: ${fmt(
+                              u.rentPrice,
+                              currency
+                            )}`
+                          : ''}
                       </div>
                       {u.availableFrom && (
                         <div className='pd-unit-card__avail'>
-                          <Calendar size={11} /> From {new Date(u.availableFrom).toLocaleDateString()}
+                          <Calendar size={11} /> From{' '}
+                          {new Date(u.availableFrom).toLocaleDateString()}
                         </div>
                       )}
                     </div>
@@ -1138,80 +2044,185 @@ export default function PropertyDetails () {
                     const isExpanded = expandedRoomId === i
                     const isSelected = selectedRoomTypeIdx === i
                     const avail = rt.availableCount ?? rt.qty ?? 1
-                    const unitPrice = Number(isPerNight
-                      ? (rt.pricePerNight || rt.basePrice)
-                      : (rt.pricePerMonth || rt.pricePerYear || rt.basePrice || rt.pricePerNight)) || 0
-                    const allFeatures = [...(rt.features || []), ...(rt.amenities || [])]
-                    const roomImages = rt.images?.length ? rt.images : (rt.media || []).map(m => typeof m === 'string' ? m : m.url)
+                    const unitPrice =
+                      Number(
+                        isPerNight
+                          ? rt.pricePerNight || rt.basePrice
+                          : rt.pricePerMonth ||
+                              rt.pricePerYear ||
+                              rt.basePrice ||
+                              rt.pricePerNight
+                      ) || 0
+                    const allFeatures = [
+                      ...(rt.features || []),
+                      ...(rt.amenities || [])
+                    ]
+                    const roomImages = rt.images?.length
+                      ? rt.images
+                      : (rt.media || []).map(m =>
+                          typeof m === 'string' ? m : m.url
+                        )
                     const coverImg = roomImages[0]
                     return (
-                      <div key={i} className={`pd-room-card${isSelected ? ' pd-room-card--selected' : ''}`}>
+                      <div
+                        key={i}
+                        className={`pd-room-card${
+                          isSelected ? ' pd-room-card--selected' : ''
+                        }`}
+                      >
                         {/* Cover image with overlay */}
                         {coverImg && (
                           <div className='pd-room-card__cover'>
-                            <img src={coverImg} alt={rt.name} loading='lazy' onClick={() => { const idx = gallery.findIndex(g => g.url === coverImg); setThumbIndex(idx >= 0 ? idx : 0); setLightboxOpen(true) }} />
-                            {avail === 0
-                              ? <span className='pd-room-card__avail-badge pd-room-card__avail-badge--none'>Unavailable</span>
-                              : avail <= 3
-                                ? <span className='pd-room-card__avail-badge pd-room-card__avail-badge--low'>{avail} left</span>
-                                : null}
+                            <img
+                              src={coverImg}
+                              alt={rt.name}
+                              loading='lazy'
+                              onClick={() => {
+                                const idx = gallery.findIndex(
+                                  g => g.url === coverImg
+                                )
+                                setThumbIndex(idx >= 0 ? idx : 0)
+                                setLightboxOpen(true)
+                              }}
+                            />
+                            {avail === 0 ? (
+                              <span className='pd-room-card__avail-badge pd-room-card__avail-badge--none'>
+                                Unavailable
+                              </span>
+                            ) : avail <= 3 ? (
+                              <span className='pd-room-card__avail-badge pd-room-card__avail-badge--low'>
+                                {avail} left
+                              </span>
+                            ) : null}
                             {unitPrice > 0 && (
                               <div className='pd-room-card__price-overlay'>
-                                {fmt(unitPrice, currency)}{isPerNight ? '/night' : ''}
+                                {fmt(unitPrice, currency)}
+                                {isPerNight ? '/night' : ''}
                               </div>
                             )}
                             {roomImages.length > 1 && (
-                              <div className='pd-room-card__img-count'><Eye size={11} /> {roomImages.length} photos</div>
+                              <div className='pd-room-card__img-count'>
+                                <Eye size={11} /> {roomImages.length} photos
+                              </div>
                             )}
                           </div>
                         )}
                         <div className='pd-room-card__body'>
                           <div className='pd-room-card__header-row'>
                             <div>
-                              <div className='pd-room-card__name'>{rt.name}</div>
+                              <div className='pd-room-card__name'>
+                                {rt.name}
+                              </div>
                               {!coverImg && unitPrice > 0 && (
-                                <div className='pd-room-card__price'>{fmt(unitPrice, currency)}{isPerNight ? '/night' : (rt.pricePerMonth ? '/month' : '')}</div>
+                                <div className='pd-room-card__price'>
+                                  {fmt(unitPrice, currency)}
+                                  {isPerNight
+                                    ? '/night'
+                                    : rt.pricePerMonth
+                                    ? '/month'
+                                    : ''}
+                                </div>
                               )}
                             </div>
                             {avail > 0 && coverImg && (
-                              <div className='pd-room-card__avail-inline' style={{ color: avail <= 3 ? '#f59e0b' : '#22c55e' }}>
-                                {avail <= 3 ? `${avail} left` : `${avail} available`}
+                              <div
+                                className='pd-room-card__avail-inline'
+                                style={{
+                                  color: avail <= 3 ? '#f59e0b' : '#22c55e'
+                                }}
+                              >
+                                {avail <= 3
+                                  ? `${avail} left`
+                                  : `${avail} available`}
                               </div>
                             )}
                           </div>
 
-                          {rt.description && <p className='pd-room-card__desc'>{rt.description}</p>}
+                          {rt.description && (
+                            <p className='pd-room-card__desc'>
+                              {rt.description}
+                            </p>
+                          )}
 
                           <div className='pd-room-card__meta'>
-                            {rt.sqft && <span><Ruler size={12} /> {rt.sqft} sqft</span>}
-                            {rt.occupancy?.adults > 0 && <span><Users size={12} /> Up to {rt.occupancy.adults} guest{rt.occupancy.adults !== 1 ? 's' : ''}</span>}
-                            {rt.beds > 0 && <span><BedDouble size={12} /> {rt.beds} bed{rt.beds !== 1 ? 's' : ''}</span>}
+                            {rt.sqft && (
+                              <span>
+                                <Ruler size={12} /> {rt.sqft} sqft
+                              </span>
+                            )}
+                            {rt.occupancy?.adults > 0 && (
+                              <span>
+                                <Users size={12} /> Up to {rt.occupancy.adults}{' '}
+                                guest{rt.occupancy.adults !== 1 ? 's' : ''}
+                              </span>
+                            )}
+                            {rt.beds > 0 && (
+                              <span>
+                                <BedDouble size={12} /> {rt.beds} bed
+                                {rt.beds !== 1 ? 's' : ''}
+                              </span>
+                            )}
                           </div>
 
                           {allFeatures.length > 0 && (
                             <div className='pd-room-card__features'>
-                              {(isExpanded ? allFeatures : allFeatures.slice(0, 5)).map(f => (
-                                <span key={f} className='pd-room-feat-chip'>{f}</span>
+                              {(isExpanded
+                                ? allFeatures
+                                : allFeatures.slice(0, 5)
+                              ).map(f => (
+                                <span key={f} className='pd-room-feat-chip'>
+                                  {f}
+                                </span>
                               ))}
                               {allFeatures.length > 5 && (
                                 <button
                                   className='pd-room-feat-more'
-                                  onClick={() => setExpandedRoomId(isExpanded ? null : i)}
+                                  onClick={() =>
+                                    setExpandedRoomId(isExpanded ? null : i)
+                                  }
                                 >
-                                  {isExpanded ? <><ChevronUp size={11} /> less</> : <>+{allFeatures.length - 5} more</>}
+                                  {isExpanded ? (
+                                    <>
+                                      <ChevronUp size={11} /> less
+                                    </>
+                                  ) : (
+                                    <>+{allFeatures.length - 5} more</>
+                                  )}
                                 </button>
                               )}
                             </div>
                           )}
 
                           <div className='pd-room-card__footer'>
-                            {!rt.refundable && <span className='pd-room-card__nonref'>Non-refundable</span>}
+                            {!rt.refundable && (
+                              <span className='pd-room-card__nonref'>
+                                Non-refundable
+                              </span>
+                            )}
                             <button
-                              className={`pd-room-select-btn${isSelected ? ' pd-room-select-btn--selected' : ''}${avail === 0 ? ' pd-room-select-btn--disabled' : ''}`}
+                              className={`pd-room-select-btn${
+                                isSelected
+                                  ? ' pd-room-select-btn--selected'
+                                  : ''
+                              }${
+                                avail === 0
+                                  ? ' pd-room-select-btn--disabled'
+                                  : ''
+                              }`}
                               disabled={avail === 0}
-                              onClick={() => { setSelectedRoomTypeIdx(isSelected ? -1 : i); setRoomQty(1); document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' }) }}
+                              onClick={() => {
+                                setSelectedRoomTypeIdx(isSelected ? -1 : i)
+                                setRoomQty(1)
+                                document
+                                  .getElementById('booking-section')
+                                  ?.scrollIntoView({ behavior: 'smooth' })
+                              }}
                             >
-                              {isSelected ? '✓ Selected' : avail === 0 ? 'Unavailable' : 'Select this'}
+                              {isSelected
+                                ? '✓ Selected'
+                                : avail === 0
+                                ? 'Unavailable'
+                                : 'Select this'}
                             </button>
                           </div>
                         </div>
@@ -1227,17 +2238,53 @@ export default function PropertyDetails () {
           {activeTab === 'land' && property.land && (
             <div className='pd-section'>
               <div className='pd-card'>
-                <h3><Landmark size={16} /> Land Details</h3>
+                <h3>
+                  <Landmark size={16} /> Land Details
+                </h3>
                 <div className='pd-details-grid'>
-                  {property.land.size?.value && <div className='pd-detail'><span>Size</span><strong>{property.land.size.value} {property.land.size.unit || 'sqm'}</strong></div>}
-                  {property.land.pricePerUnit && <div className='pd-detail'><span>Price / Unit</span><strong>{fmt(property.land.pricePerUnit, currency)}</strong></div>}
-                  {property.land.totalPrice && <div className='pd-detail'><span>Total Price</span><strong>{fmt(property.land.totalPrice, currency)}</strong></div>}
-                  {property.land.zoning && <div className='pd-detail'><span>Zoning</span><strong>{property.land.zoning}</strong></div>}
-                  {property.land.isSubdividable && <div className='pd-detail'><span>Subdividable</span><strong>Yes</strong></div>}
+                  {property.land.size?.value && (
+                    <div className='pd-detail'>
+                      <span>Size</span>
+                      <strong>
+                        {property.land.size.value}{' '}
+                        {property.land.size.unit || 'sqm'}
+                      </strong>
+                    </div>
+                  )}
+                  {property.land.pricePerUnit && (
+                    <div className='pd-detail'>
+                      <span>Price / Unit</span>
+                      <strong>
+                        {fmt(property.land.pricePerUnit, currency)}
+                      </strong>
+                    </div>
+                  )}
+                  {property.land.totalPrice && (
+                    <div className='pd-detail'>
+                      <span>Total Price</span>
+                      <strong>{fmt(property.land.totalPrice, currency)}</strong>
+                    </div>
+                  )}
+                  {property.land.zoning && (
+                    <div className='pd-detail'>
+                      <span>Zoning</span>
+                      <strong>{property.land.zoning}</strong>
+                    </div>
+                  )}
+                  {property.land.isSubdividable && (
+                    <div className='pd-detail'>
+                      <span>Subdividable</span>
+                      <strong>Yes</strong>
+                    </div>
+                  )}
                 </div>
                 {property.land.permittedUse?.length > 0 && (
                   <div className='pd-tags' style={{ marginTop: 12 }}>
-                    {property.land.permittedUse.map(u => <span key={u} className='pd-tag'>{u}</span>)}
+                    {property.land.permittedUse.map(u => (
+                      <span key={u} className='pd-tag'>
+                        {u}
+                      </span>
+                    ))}
                   </div>
                 )}
               </div>
@@ -1248,16 +2295,36 @@ export default function PropertyDetails () {
           {activeTab === 'compliance' && (
             <div className='pd-section'>
               <div className='pd-card'>
-                <h3><Shield size={16} /> Compliance & Verification</h3>
+                <h3>
+                  <Shield size={16} /> Compliance & Verification
+                </h3>
                 <div className='pd-compliance-score'>
                   <div className='pd-score-ring'>
                     <svg viewBox='0 0 36 36'>
-                      <circle cx='18' cy='18' r='15.9' fill='none' stroke='#e5e7eb' strokeWidth='3' />
                       <circle
-                        cx='18' cy='18' r='15.9' fill='none'
-                        stroke={complianceScore >= 80 ? '#22c55e' : complianceScore >= 50 ? '#f59e0b' : '#ef4444'}
+                        cx='18'
+                        cy='18'
+                        r='15.9'
+                        fill='none'
+                        stroke='#e5e7eb'
                         strokeWidth='3'
-                        strokeDasharray={`${complianceScore} ${100 - complianceScore}`}
+                      />
+                      <circle
+                        cx='18'
+                        cy='18'
+                        r='15.9'
+                        fill='none'
+                        stroke={
+                          complianceScore >= 80
+                            ? '#22c55e'
+                            : complianceScore >= 50
+                            ? '#f59e0b'
+                            : '#ef4444'
+                        }
+                        strokeWidth='3'
+                        strokeDasharray={`${complianceScore} ${
+                          100 - complianceScore
+                        }`}
                         strokeDashoffset='25'
                         strokeLinecap='round'
                       />
@@ -1265,9 +2332,16 @@ export default function PropertyDetails () {
                     <span>{complianceScore}</span>
                   </div>
                   <div className='pd-score-info'>
-                    <div className='pd-score-label'>{complianceVerified ? 'Verified ✓' : 'Pending review'}</div>
+                    <div className='pd-score-label'>
+                      {complianceVerified ? 'Verified ✓' : 'Pending review'}
+                    </div>
                     {property.compliance?.lastChecked && (
-                      <div className='pd-score-date'>Last checked: {new Date(property.compliance.lastChecked).toLocaleDateString()}</div>
+                      <div className='pd-score-date'>
+                        Last checked:{' '}
+                        {new Date(
+                          property.compliance.lastChecked
+                        ).toLocaleDateString()}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1276,7 +2350,9 @@ export default function PropertyDetails () {
                   <div className='pd-compliance-flags'>
                     <h4>Compliance Flags</h4>
                     {property.compliance.flags.map(f => (
-                      <div key={f} className='pd-flag'><AlertCircle size={13} /> {f.replace(/_/g, ' ')}</div>
+                      <div key={f} className='pd-flag'>
+                        <AlertCircle size={13} /> {f.replace(/_/g, ' ')}
+                      </div>
                     ))}
                   </div>
                 )}
@@ -1289,8 +2365,17 @@ export default function PropertyDetails () {
                         <div key={i} className='pd-doc'>
                           <FileText size={14} />
                           <span>{doc.label || doc.type}</span>
-                          {doc.verified && <CheckCircle2 size={13} className='pd-doc__verified' />}
-                          {doc.url && <a href={doc.url} target='_blank' rel='noreferrer'><ExternalLink size={12} /></a>}
+                          {doc.verified && (
+                            <CheckCircle2
+                              size={13}
+                              className='pd-doc__verified'
+                            />
+                          )}
+                          {doc.url && (
+                            <a href={doc.url} target='_blank' rel='noreferrer'>
+                              <ExternalLink size={12} />
+                            </a>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1301,13 +2386,31 @@ export default function PropertyDetails () {
               {/* Escrow */}
               {property.escrow && (
                 <div className='pd-card'>
-                  <h3><Lock size={16} /> Escrow Status</h3>
+                  <h3>
+                    <Lock size={16} /> Escrow Status
+                  </h3>
                   <div className={`pd-escrow-badge pd-escrow--${escrowStatus}`}>
-                    {escrowStatus === 'active' ? <CheckCircle2 size={15} /> : <Clock size={15} />}
+                    {escrowStatus === 'active' ? (
+                      <CheckCircle2 size={15} />
+                    ) : (
+                      <Clock size={15} />
+                    )}
                     {escrowStatus.replace(/_/g, ' ')}
                   </div>
-                  {property.escrow.provider && <p className='pd-escrow-provider'>Provider: {property.escrow.provider}</p>}
-                  {property.escrow.amount && <p>Amount: {fmt(property.escrow.amount, property.escrow.currency || currency)}</p>}
+                  {property.escrow.provider && (
+                    <p className='pd-escrow-provider'>
+                      Provider: {property.escrow.provider}
+                    </p>
+                  )}
+                  {property.escrow.amount && (
+                    <p>
+                      Amount:{' '}
+                      {fmt(
+                        property.escrow.amount,
+                        property.escrow.currency || currency
+                      )}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -1319,35 +2422,67 @@ export default function PropertyDetails () {
 
             {/* Submit form */}
             <div className='pd-comment-form pd-card'>
-              <h4 style={{ marginBottom:10 }}>Leave a Review</h4>
+              <h4 style={{ marginBottom: 10 }}>Leave a Review</h4>
               {/* Star rating picker */}
-              <div className='pd-star-input' style={{ marginBottom:10 }}>
-                {[1,2,3,4,5].map(n => (
+              <div className='pd-star-input' style={{ marginBottom: 10 }}>
+                {[1, 2, 3, 4, 5].map(n => (
                   <button
                     key={n}
-                    onClick={() => setCommentRating(commentRating === n ? 0 : n)}
-                    style={{ background:'none', border:'none', cursor:'pointer', padding:'2px 1px', fontSize:20, color: n <= commentRating ? '#f59e0b' : '#d1d5db' }}
+                    onClick={() =>
+                      setCommentRating(commentRating === n ? 0 : n)
+                    }
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '2px 1px',
+                      fontSize: 20,
+                      color: n <= commentRating ? '#f59e0b' : '#d1d5db'
+                    }}
                     aria-label={`${n} star`}
-                  >★</button>
+                  >
+                    ★
+                  </button>
                 ))}
-                {commentRating > 0 && <span style={{ fontSize:12, marginLeft:4, opacity:.7 }}>{commentRating}/5</span>}
+                {commentRating > 0 && (
+                  <span style={{ fontSize: 12, marginLeft: 4, opacity: 0.7 }}>
+                    {commentRating}/5
+                  </span>
+                )}
               </div>
               <textarea
                 rows={3}
                 placeholder='Share your experience with this property…'
                 value={commentText}
-                onChange={e => { setCommentText(e.target.value); setCommentStatus(null) }}
-                style={{ width:'100%', padding:'8px 10px', border:'1.5px solid #e5e7eb', borderRadius:8, fontFamily:'inherit', fontSize:14, boxSizing:'border-box', resize:'vertical' }}
+                onChange={e => {
+                  setCommentText(e.target.value)
+                  setCommentStatus(null)
+                }}
+                style={{
+                  width: '100%',
+                  padding: '8px 10px',
+                  border: '1.5px solid #e5e7eb',
+                  borderRadius: 8,
+                  fontFamily: 'inherit',
+                  fontSize: 14,
+                  boxSizing: 'border-box',
+                  resize: 'vertical'
+                }}
               />
               {commentStatus === 'pending' && (
-                <p style={{ color:'#22c55e', fontSize:13, marginTop:6 }}><CheckCircle2 size={13} /> Comment submitted — it will appear after admin approval.</p>
+                <p style={{ color: '#22c55e', fontSize: 13, marginTop: 6 }}>
+                  <CheckCircle2 size={13} /> Comment submitted — it will appear
+                  after admin approval.
+                </p>
               )}
               {commentStatus === 'error' && (
-                <p style={{ color:'#ef4444', fontSize:13, marginTop:6 }}>Failed to submit. Please try again.</p>
+                <p style={{ color: '#ef4444', fontSize: 13, marginTop: 6 }}>
+                  Failed to submit. Please try again.
+                </p>
               )}
               <button
                 className='pd-cta-btn pd-cta-btn--primary'
-                style={{ marginTop:10, padding:'8px 18px' }}
+                style={{ marginTop: 10, padding: '8px 18px' }}
                 onClick={submitComment}
                 disabled={submittingComment || !commentText.trim()}
               >
@@ -1364,35 +2499,74 @@ export default function PropertyDetails () {
                       <img
                         src={c.author.avatar || '/avatar-placeholder.png'}
                         alt={c.author.name}
-                        style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover' }}
+                        style={{
+                          width: 34,
+                          height: 34,
+                          borderRadius: '50%',
+                          objectFit: 'cover'
+                        }}
                       />
                       <div>
-                        <div style={{ fontWeight:600, fontSize:14 }}>
+                        <div style={{ fontWeight: 600, fontSize: 14 }}>
                           {c.author.name}
-                          {c.author.verified && <CheckCircle2 size={12} color='#22c55e' style={{ marginLeft:4 }} />}
+                          {c.author.verified && (
+                            <CheckCircle2
+                              size={12}
+                              color='#22c55e'
+                              style={{ marginLeft: 4 }}
+                            />
+                          )}
                         </div>
-                        <div style={{ fontSize:11, opacity:.6 }}>{new Date(c.createdAt).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })}</div>
+                        <div style={{ fontSize: 11, opacity: 0.6 }}>
+                          {new Date(c.createdAt).toLocaleDateString('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </div>
                       </div>
                       {c.rating && (
-                        <div style={{ marginLeft:'auto', color:'#f59e0b', fontSize:14 }}>
-                          {'★'.repeat(c.rating)}{'☆'.repeat(5 - c.rating)}
+                        <div
+                          style={{
+                            marginLeft: 'auto',
+                            color: '#f59e0b',
+                            fontSize: 14
+                          }}
+                        >
+                          {'★'.repeat(c.rating)}
+                          {'☆'.repeat(5 - c.rating)}
                         </div>
                       )}
                     </div>
-                    <p style={{ margin:'8px 0 0', fontSize:14, lineHeight:1.65, color:'#444' }}>{c.comment}</p>
+                    <p
+                      style={{
+                        margin: '8px 0 0',
+                        fontSize: 14,
+                        lineHeight: 1.65,
+                        color: '#444'
+                      }}
+                    >
+                      {c.comment}
+                    </p>
                   </div>
                 ))}
                 {commentTotal > comments.length && (
                   <button
                     className='pd-show-more'
-                    onClick={() => axios.get(`${API}/api/properties/${id}/comments?limit=50`).then(r => setComments(r.data.comments || []))}
+                    onClick={() =>
+                      axios
+                        .get(`${API}/api/properties/${id}/comments?limit=50`)
+                        .then(r => setComments(r.data.comments || []))
+                    }
                   >
                     Show all {commentTotal} reviews
                   </button>
                 )}
               </div>
             ) : (
-              <p style={{ color:'#888', fontSize:14 }}>No reviews yet. Be the first to review this property.</p>
+              <p style={{ color: '#888', fontSize: 14 }}>
+                No reviews yet. Be the first to review this property.
+              </p>
             )}
           </section>
 
@@ -1402,14 +2576,33 @@ export default function PropertyDetails () {
               <h2>Similar Properties</h2>
               <div className='pd-similar-grid'>
                 {similar.slice(0, 4).map(p => (
-                  <a key={p._id} href={`/property/${p.uid || p._id}`} className='pd-similar-card'>
+                  <a
+                    key={p._id}
+                    href={`/property/${p.uid || p._id}`}
+                    className='pd-similar-card'
+                  >
                     <div className='pd-similar-img'>
-                      <img src={p.images?.[0] || p.media?.[0]?.url || '/placeholder.jpg'} alt={p.title} loading='lazy' />
+                      <img
+                        src={
+                          p.images?.[0] ||
+                          p.media?.[0]?.url ||
+                          '/placeholder.jpg'
+                        }
+                        alt={p.title}
+                        loading='lazy'
+                      />
                     </div>
                     <div className='pd-similar-info'>
                       <div className='pd-similar-name'>{p.title}</div>
-                      <div className='pd-similar-loc'><MapPin size={11} /> {typeof p.location === 'string' ? p.location : p.city || '—'}</div>
-                      <div className='pd-similar-price'>{fmt(p.price || p.rentPrice, p.currency || 'NGN')}</div>
+                      <div className='pd-similar-loc'>
+                        <MapPin size={11} />{' '}
+                        {typeof p.location === 'string'
+                          ? p.location
+                          : p.city || '—'}
+                      </div>
+                      <div className='pd-similar-price'>
+                        {fmt(p.price || p.rentPrice, p.currency || 'NGN')}
+                      </div>
                     </div>
                   </a>
                 ))}
@@ -1431,72 +2624,118 @@ export default function PropertyDetails () {
                 // ── Hotel / Shortlet with room types ──────────────────────────
                 // After dates selected: use live per-room-type count
                 if (liveAvail) {
-                  const liveRt = selectedRoomTypeIdx >= 0
-                    ? liveAvail.roomTypes?.find(r => r.idx === selectedRoomTypeIdx)
-                    : null
-                  const avail = liveRt != null ? liveRt.available
-                    : liveAvail.roomTypes?.reduce((s, r) => s + r.available, 0) ?? 0
-                  if (avail === 0) return (
-                    <div className='pd-fully-booked'>
-                      <AlertCircle size={14} /> {liveRt ? `${liveRt.name} fully booked for these dates` : 'Fully booked for selected dates'}
-                    </div>
-                  )
-                  if (avail <= 3) return (
-                    <div className='pd-low-availability'>
-                      <Zap size={12} /> Only {avail} room{avail !== 1 ? 's' : ''} left for these dates!
-                    </div>
-                  )
+                  const liveRt =
+                    selectedRoomTypeIdx >= 0
+                      ? liveAvail.roomTypes?.find(
+                          r => r.idx === selectedRoomTypeIdx
+                        )
+                      : null
+                  const avail =
+                    liveRt != null
+                      ? liveRt.available
+                      : liveAvail.roomTypes?.reduce(
+                          (s, r) => s + r.available,
+                          0
+                        ) ?? 0
+                  if (avail === 0)
+                    return (
+                      <div className='pd-fully-booked'>
+                        <AlertCircle size={14} />{' '}
+                        {liveRt
+                          ? `${liveRt.name} fully booked for these dates`
+                          : 'Fully booked for selected dates'}
+                      </div>
+                    )
+                  if (avail <= 3)
+                    return (
+                      <div className='pd-low-availability'>
+                        <Zap size={12} /> Only {avail} room
+                        {avail !== 1 ? 's' : ''} left for these dates!
+                      </div>
+                    )
                   return null
                 }
                 // Before dates selected: derive from room-type quantities (ignore stale isAvailable flag)
-                const selectedRt = selectedRoomTypeIdx >= 0 ? property.roomTypes[selectedRoomTypeIdx] : null
+                const selectedRt =
+                  selectedRoomTypeIdx >= 0
+                    ? property.roomTypes[selectedRoomTypeIdx]
+                    : null
                 const staticAvail = selectedRt
-                  ? (selectedRt.availableCount ?? selectedRt.qty ?? 1)
-                  : property.roomTypes.reduce((s, r) => s + (r.availableCount ?? r.qty ?? 1), 0)
-                if (staticAvail === 0) return (
-                  <div className='pd-fully-booked'>
-                    <AlertCircle size={14} /> {selectedRt ? `${selectedRt.name} fully booked` : 'All room types fully booked'}
-                  </div>
-                )
-                if (staticAvail <= 3) return (
-                  <div className='pd-low-availability'>
-                    <Zap size={12} /> Only {staticAvail} room{staticAvail !== 1 ? 's' : ''} left — select dates to confirm
-                  </div>
-                )
+                  ? selectedRt.availableCount ?? selectedRt.qty ?? 1
+                  : property.roomTypes.reduce(
+                      (s, r) => s + (r.availableCount ?? r.qty ?? 1),
+                      0
+                    )
+                if (staticAvail === 0)
+                  return (
+                    <div className='pd-fully-booked'>
+                      <AlertCircle size={14} />{' '}
+                      {selectedRt
+                        ? `${selectedRt.name} fully booked`
+                        : 'All room types fully booked'}
+                    </div>
+                  )
+                if (staticAvail <= 3)
+                  return (
+                    <div className='pd-low-availability'>
+                      <Zap size={12} /> Only {staticAvail} room
+                      {staticAvail !== 1 ? 's' : ''} left — select dates to
+                      confirm
+                    </div>
+                  )
                 return null
               }
 
               // ── Single-unit / non-per-night — use static flag ──────────────
-              if (property?.availability?.isAvailable === false) return (
-                <div className='pd-fully-booked'>
-                  <AlertCircle size={14} /> Fully Booked / Leased — not currently available
-                </div>
-              )
+              if (property?.availability?.isAvailable === false)
+                return (
+                  <div className='pd-fully-booked'>
+                    <AlertCircle size={14} /> Fully Booked / Leased — not
+                    currently available
+                  </div>
+                )
               const units = property?.availability?.availableUnits
-              if (units != null && units <= 3 && units > 0) return (
-                <div className='pd-low-availability'>
-                  <Zap size={12} /> Only {units} unit{units !== 1 ? 's' : ''} left!
-                </div>
-              )
+              if (units != null && units <= 3 && units > 0)
+                return (
+                  <div className='pd-low-availability'>
+                    <Zap size={12} /> Only {units} unit{units !== 1 ? 's' : ''}{' '}
+                    left!
+                  </div>
+                )
               return null
             })()}
             <div className='pd-booking-price'>
               <div className='pd-booking-price__main'>
                 {isPerNight
-                  ? bookingTotal?.total ? fmt(bookingTotal.total, currency) : fmt(activePrice, currency)
+                  ? bookingTotal?.total
+                    ? fmt(bookingTotal.total, currency)
+                    : fmt(activePrice, currency)
                   : fmt(planDisplayPrice, currency)}
               </div>
               <div className='pd-booking-price__sub'>
                 {isPerNight
-                  ? `${fmt(bookingTotal?.perNight || activePrice, currency)}/night${roomQty > 1 ? ` × ${roomQty} rooms` : ''}`
-                  : planSubtitle || (selectedRoomType ? selectedRoomType.name : null)}
+                  ? `${fmt(
+                      bookingTotal?.perNight || activePrice,
+                      currency
+                    )}/night${roomQty > 1 ? ` × ${roomQty} rooms` : ''}`
+                  : planSubtitle ||
+                    (selectedRoomType ? selectedRoomType.name : null)}
               </div>
               {/* Show total when a split plan is selected and first installment < total */}
-              {!isPerNight && selectedPlan?.installments?.length > 0 && selectedPlan.installments[0]?.percent < 100 && (
-                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
-                  Total: {fmt(selectedPlan.priceSnapshot?.total || (activePrice && roomQty > 1 ? activePrice * roomQty : activePrice), currency)}
-                </div>
-              )}
+              {!isPerNight &&
+                selectedPlan?.installments?.length > 0 &&
+                selectedPlan.installments[0]?.percent < 100 && (
+                  <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
+                    Total:{' '}
+                    {fmt(
+                      selectedPlan.priceSnapshot?.total ||
+                        (activePrice && roomQty > 1
+                          ? activePrice * roomQty
+                          : activePrice),
+                      currency
+                    )}
+                  </div>
+                )}
             </div>
 
             {/* Caution fee — shown prominently so guest knows before booking */}
@@ -1504,9 +2743,17 @@ export default function PropertyDetails () {
               <div className='pd-caution-notice'>
                 <Shield size={13} />
                 <div>
-                  <span className='pd-caution-notice__label'>Refundable Caution Fee</span>
-                  <span className='pd-caution-notice__amount'>{fmt(cautionFee.amount, cautionFee.currency || currency)}</span>
-                  {cautionFee.description && <p className='pd-caution-notice__desc'>{cautionFee.description}</p>}
+                  <span className='pd-caution-notice__label'>
+                    Refundable Caution Fee
+                  </span>
+                  <span className='pd-caution-notice__amount'>
+                    {fmt(cautionFee.amount, cautionFee.currency || currency)}
+                  </span>
+                  {cautionFee.description && (
+                    <p className='pd-caution-notice__desc'>
+                      {cautionFee.description}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -1517,22 +2764,40 @@ export default function PropertyDetails () {
                 <label>{isPerNight ? 'Room type' : 'Unit / Space type'}</label>
                 <select
                   value={selectedRoomTypeIdx}
-                  onChange={e => { setSelectedRoomTypeIdx(Number(e.target.value)); setRoomQty(1) }}
+                  onChange={e => {
+                    setSelectedRoomTypeIdx(Number(e.target.value))
+                    setRoomQty(1)
+                  }}
                 >
                   <option value={-1}>Best available</option>
                   {property.roomTypes.map((rt, i) => {
                     if (rt.active === false) return null
-                    const unitPrice = Number(isPerNight
-                      ? (rt.pricePerNight || rt.basePrice)
-                      : (rt.pricePerMonth || rt.pricePerYear || rt.basePrice || rt.pricePerNight)) || 0
+                    const unitPrice =
+                      Number(
+                        isPerNight
+                          ? rt.pricePerNight || rt.basePrice
+                          : rt.pricePerMonth ||
+                              rt.pricePerYear ||
+                              rt.basePrice ||
+                              rt.pricePerNight
+                      ) || 0
                     // Use live count when dates selected, else static qty
                     const liveRt = liveAvail?.roomTypes?.find(r => r.idx === i)
-                    const avail = liveRt ? liveRt.available : (rt.availableCount ?? rt.qty ?? 1)
+                    const avail = liveRt
+                      ? liveRt.available
+                      : rt.availableCount ?? rt.qty ?? 1
                     const isFullyBooked = avail === 0
-                    const suffix = isFullyBooked ? ' (Fully booked)' : avail <= 3 ? ` (${avail} left)` : ''
+                    const suffix = isFullyBooked
+                      ? ' (Fully booked)'
+                      : avail <= 3
+                      ? ` (${avail} left)`
+                      : ''
                     return (
                       <option key={i} value={i} disabled={isFullyBooked}>
-                        {rt.name}{unitPrice ? ` — ${fmt(unitPrice, currency)}` : ''}{isPerNight ? '/night' : ''}{suffix}
+                        {rt.name}
+                        {unitPrice ? ` — ${fmt(unitPrice, currency)}` : ''}
+                        {isPerNight ? '/night' : ''}
+                        {suffix}
                       </option>
                     )
                   })}
@@ -1543,11 +2808,25 @@ export default function PropertyDetails () {
             {/* Quantity selector — how many rooms/units */}
             {selectedRoomTypeIdx >= 0 && roomMaxQty > 1 && (
               <div className='pd-booking-field'>
-                <label>Quantity <span style={{fontSize:11,fontWeight:400,opacity:.7}}>({roomMaxQty} available)</span></label>
+                <label>
+                  Quantity{' '}
+                  <span style={{ fontSize: 11, fontWeight: 400, opacity: 0.7 }}>
+                    ({roomMaxQty} available)
+                  </span>
+                </label>
                 <input
-                  type='number' min='1' max={roomMaxQty}
+                  type='number'
+                  min='1'
+                  max={roomMaxQty}
                   value={roomQty}
-                  onChange={e => setRoomQty(Math.min(roomMaxQty, Math.max(1, Number(e.target.value) || 1)))}
+                  onChange={e =>
+                    setRoomQty(
+                      Math.min(
+                        roomMaxQty,
+                        Math.max(1, Number(e.target.value) || 1)
+                      )
+                    )
+                  }
                 />
               </div>
             )}
@@ -1557,27 +2836,77 @@ export default function PropertyDetails () {
                 <div className='pd-booking-dates__row'>
                   <div className='pd-booking-dates__field'>
                     <label>Check-in</label>
-                    <input type='date' value={bookingStart} onChange={e => setBookingStart(e.target.value)} />
+                    <input
+                      type='date'
+                      value={bookingStart}
+                      onChange={e => setBookingStart(e.target.value)}
+                    />
                   </div>
                   <div className='pd-booking-dates__field'>
                     <label>Check-out</label>
-                    <input type='date' value={bookingEnd} onChange={e => setBookingEnd(e.target.value)} />
+                    <input
+                      type='date'
+                      value={bookingEnd}
+                      onChange={e => setBookingEnd(e.target.value)}
+                    />
                   </div>
                 </div>
                 <div className='pd-booking-field'>
                   <label>Guests</label>
-                  <input type='number' min='1' value={guests} onChange={e => setGuests(Number(e.target.value) || 1)} />
+                  <input
+                    type='number'
+                    min='1'
+                    value={guests}
+                    onChange={e => setGuests(Number(e.target.value) || 1)}
+                  />
                 </div>
                 {nights > 0 && (
                   <div className='pd-booking-summary'>
-                    <div><span>Nights</span><strong>{nights}</strong></div>
-                    {roomQty > 1 && <div><span>Rooms</span><strong>{roomQty}</strong></div>}
-                    <div><span>Per night</span><strong>{fmt(bookingTotal?.perNight || activePrice, currency)}</strong></div>
-                    <div><span>Subtotal</span><strong>{fmt(bookingTotal?.total || 0, currency)}</strong></div>
-                    {cautionFee && <div><span>Caution fee <em style={{fontSize:10,fontWeight:400}}>(refundable)</em></span><strong>{fmt(cautionFee.amount, cautionFee.currency || currency)}</strong></div>}
+                    <div>
+                      <span>Nights</span>
+                      <strong>{nights}</strong>
+                    </div>
+                    {roomQty > 1 && (
+                      <div>
+                        <span>Rooms</span>
+                        <strong>{roomQty}</strong>
+                      </div>
+                    )}
+                    <div>
+                      <span>Per night</span>
+                      <strong>
+                        {fmt(bookingTotal?.perNight || activePrice, currency)}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Subtotal</span>
+                      <strong>{fmt(bookingTotal?.total || 0, currency)}</strong>
+                    </div>
+                    {cautionFee && (
+                      <div>
+                        <span>
+                          Caution fee{' '}
+                          <em style={{ fontSize: 10, fontWeight: 400 }}>
+                            (refundable)
+                          </em>
+                        </span>
+                        <strong>
+                          {fmt(
+                            cautionFee.amount,
+                            cautionFee.currency || currency
+                          )}
+                        </strong>
+                      </div>
+                    )}
                     <div className='pd-booking-summary__total'>
                       <span>Total charged</span>
-                      <strong>{fmt((bookingTotal?.total || 0) + (cautionFee ? cautionFee.amount : 0), currency)}</strong>
+                      <strong>
+                        {fmt(
+                          (bookingTotal?.total || 0) +
+                            (cautionFee ? cautionFee.amount : 0),
+                          currency
+                        )}
+                      </strong>
                     </div>
                   </div>
                 )}
@@ -1587,15 +2916,31 @@ export default function PropertyDetails () {
                 <div className='pd-booking-plans'>
                   <label>Payment plan</label>
                   {property.paymentPlans.map((p, i) => (
-                    <button key={i} className={`pd-plan-btn${selectedPlanIdx === i ? ' active' : ''}`} onClick={() => setSelectedPlanIdx(i)}>
+                    <button
+                      key={i}
+                      className={`pd-plan-btn${
+                        selectedPlanIdx === i ? ' active' : ''
+                      }`}
+                      onClick={() => setSelectedPlanIdx(i)}
+                    >
                       <span>{p.name || p.title || `Plan ${i + 1}`}</span>
                       {(() => {
                         const total = p.priceSnapshot?.total || effectivePrice
                         const firstPct = p.installments?.[0]?.percent
                         if (firstPct && firstPct < 100 && total) {
-                          return <span>{fmt(Math.round(total * firstPct / 100), currency)} now</span>
+                          return (
+                            <span>
+                              {fmt(
+                                Math.round((total * firstPct) / 100),
+                                currency
+                              )}{' '}
+                              now
+                            </span>
+                          )
                         }
-                        return total ? <span>{fmt(total, currency)}</span> : null
+                        return total ? (
+                          <span>{fmt(total, currency)}</span>
+                        ) : null
                       })()}
                     </button>
                   ))}
@@ -1605,11 +2950,20 @@ export default function PropertyDetails () {
 
             {/* ── Not-actionable banner ─────────────────────────────── */}
             {notActionableMsg && (
-              <div style={{
-                background: '#fef3c7', color: '#92400e', borderRadius: 8,
-                padding: '8px 12px', fontSize: 13, fontWeight: 600,
-                display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8
-              }}>
+              <div
+                style={{
+                  background: '#fef3c7',
+                  color: '#92400e',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  marginBottom: 8
+                }}
+              >
                 <AlertCircle size={14} /> {notActionableMsg}
               </div>
             )}
@@ -1620,40 +2974,70 @@ export default function PropertyDetails () {
                 <button
                   className='pd-cta-btn pd-cta-btn--primary'
                   onClick={() => setBookOpen(true)}
-                  disabled={!isActionable || !bookingStart || !bookingEnd || nights < 1}
+                  disabled={
+                    !isActionable || !bookingStart || !bookingEnd || nights < 1
+                  }
                 >
                   <Calendar size={14} /> Book Now
                 </button>
               ) : isRent ? (
-                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setRentOpen(true)} disabled={!isActionable}>
+                <button
+                  className='pd-cta-btn pd-cta-btn--primary'
+                  onClick={() => setRentOpen(true)}
+                  disabled={!isActionable}
+                >
                   <CreditCard size={14} /> Rent Now
                 </button>
               ) : (
                 /* For sale / commercial / land */
-                <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setPurchOpen(true)} disabled={!isActionable}>
+                <button
+                  className='pd-cta-btn pd-cta-btn--primary'
+                  onClick={() => setPurchOpen(true)}
+                  disabled={!isActionable}
+                >
                   <CreditCard size={14} /> Buy / Pay Now
                 </button>
               )}
 
               {/* ── Inspection CTA — platform-controlled, non-perNight applicable categories ── */}
-              {!isPerNight && platformInspFee?.enabled &&
-               (platformInspFee.appliesTo || []).map(c => c.toLowerCase()).includes(cat) && (
-                <button className='pd-cta-btn pd-cta-btn--inspect' onClick={() => setInspOpen(true)} disabled={!isActionable}>
-                  <Eye size={14} /> Schedule Inspection — {fmt(platformInspFee.amount, platformInspFee.currency || currency)}
-                </button>
-              )}
+              {!isPerNight &&
+                platformInspFee?.enabled &&
+                (platformInspFee.appliesTo || [])
+                  .map(c => c.toLowerCase())
+                  .includes(cat) && (
+                  <button
+                    className='pd-cta-btn pd-cta-btn--inspect'
+                    onClick={() => setInspOpen(true)}
+                    disabled={!isActionable}
+                  >
+                    <Eye size={14} /> Schedule Inspection —{' '}
+                    {fmt(
+                      platformInspFee.amount,
+                      platformInspFee.currency || currency
+                    )}
+                  </button>
+                )}
 
               {/* ── Contact row: Chat + Call ── */}
               <div className='pd-contact-row'>
-                <button className='pd-cta-btn pd-cta-btn--outline pd-cta-btn--half' onClick={openOwnerChat}>
+                <button
+                  className='pd-cta-btn pd-cta-btn--outline pd-cta-btn--half'
+                  onClick={openOwnerChat}
+                >
                   <MessageSquare size={14} /> Chat
                 </button>
                 {ownerPhone ? (
-                  <a className='pd-cta-btn pd-cta-btn--call pd-cta-btn--half' href={`tel:${ownerPhone}`}>
+                  <a
+                    className='pd-cta-btn pd-cta-btn--call pd-cta-btn--half'
+                    href={`tel:${ownerPhone}`}
+                  >
                     <PhoneCall size={14} /> Call
                   </a>
                 ) : ownerEmail ? (
-                  <a className='pd-cta-btn pd-cta-btn--outline pd-cta-btn--half' href={`mailto:${ownerEmail}`}>
+                  <a
+                    className='pd-cta-btn pd-cta-btn--outline pd-cta-btn--half'
+                    href={`mailto:${ownerEmail}`}
+                  >
                     <Mail size={14} /> Email
                   </a>
                 ) : null}
@@ -1665,22 +3049,60 @@ export default function PropertyDetails () {
               <div className='pd-agent'>
                 <img
                   src={owner.avatar || '/avatar-placeholder.png'}
-                  alt={owner.firstName ? `${owner.firstName} ${owner.lastName}` : 'Agent'}
+                  alt={
+                    owner.firstName
+                      ? `${owner.firstName} ${owner.lastName}`
+                      : 'Agent'
+                  }
                   loading='lazy'
                 />
                 <div className='pd-agent__info'>
                   <div className='pd-agent__name'>
-                    {owner.firstName ? `${owner.firstName} ${owner.lastName || ''}`.trim() : (owner.name || 'Agent')}
-                    {owner.verified && <CheckCircle2 size={12} color='#22c55e' style={{ marginLeft:4 }} />}
+                    {owner.firstName
+                      ? `${owner.firstName} ${owner.lastName || ''}`.trim()
+                      : owner.name || 'Agent'}
+                    {owner.verified && (
+                      <CheckCircle2
+                        size={12}
+                        color='#22c55e'
+                        style={{ marginLeft: 4 }}
+                      />
+                    )}
                   </div>
                   <div className='pd-agent__role'>
-                    {owner.role ? owner.role.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Property Owner'}
+                    {owner.role
+                      ? owner.role
+                          .replace(/-/g, ' ')
+                          .replace(/\b\w/g, c => c.toUpperCase())
+                      : 'Property Owner'}
                   </div>
                   <div className='pd-agent__contacts'>
-                    {ownerPhone && <a href={`tel:${ownerPhone}`} aria-label='Call' title='Call owner'><Phone size={13} /></a>}
-                    {owner.email && <a href={`mailto:${owner.email}`} aria-label='Email' title='Email owner'><Mail size={13} /></a>}
+                    {ownerPhone && (
+                      <a
+                        href={`tel:${ownerPhone}`}
+                        aria-label='Call'
+                        title='Call owner'
+                      >
+                        <Phone size={13} />
+                      </a>
+                    )}
+                    {owner.email && (
+                      <a
+                        href={`mailto:${owner.email}`}
+                        aria-label='Email'
+                        title='Email owner'
+                      >
+                        <Mail size={13} />
+                      </a>
+                    )}
                     <button
-                      style={{ background:'none', border:'none', cursor:'pointer', padding:0, color:'inherit' }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                        color: 'inherit'
+                      }}
                       title='Chat with owner'
                       onClick={openOwnerChat}
                     >
@@ -1694,8 +3116,16 @@ export default function PropertyDetails () {
             {/* Compliance mini-badge */}
             {(complianceVerified || escrowStatus === 'active') && (
               <div className='pd-trust-badges'>
-                {complianceVerified && <span className='pd-trust-badge'><Shield size={12} /> KYC Verified</span>}
-                {escrowStatus === 'active' && <span className='pd-trust-badge'><Lock size={12} /> Escrow Active</span>}
+                {complianceVerified && (
+                  <span className='pd-trust-badge'>
+                    <Shield size={12} /> KYC Verified
+                  </span>
+                )}
+                {escrowStatus === 'active' && (
+                  <span className='pd-trust-badge'>
+                    <Lock size={12} /> Escrow Active
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -1705,70 +3135,150 @@ export default function PropertyDetails () {
       {/* ── Rent Now Modal ───────────────────────────────────────────── */}
       {rentOpen && (
         <div className='pd-modal-backdrop' onClick={() => setRentOpen(false)}>
-          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
-            <button className='pd-modal__close' onClick={() => setRentOpen(false)}><X size={16} /></button>
-            <h3>{(property?.purpose || '').toLowerCase().includes('lease') ? 'Lease Property' : 'Rent Property'}</h3>
+          <div
+            className='pd-modal pd-modal--booking'
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className='pd-modal__close'
+              onClick={() => setRentOpen(false)}
+            >
+              <X size={16} />
+            </button>
+            <h3>
+              {(property?.purpose || '').toLowerCase().includes('lease')
+                ? 'Lease Property'
+                : 'Rent Property'}
+            </h3>
             <p className='pd-modal__sub'>{property.title}</p>
             {rentErr && <p className='pd-modal__err'>{rentErr}</p>}
             <label>Full name *</label>
-            <input type='text' placeholder='Your full name' value={rentForm.renterName} onChange={e => setRentForm(f => ({ ...f, renterName: e.target.value }))} />
+            <input
+              type='text'
+              placeholder='Your full name'
+              value={rentForm.renterName}
+              onChange={e =>
+                setRentForm(f => ({ ...f, renterName: e.target.value }))
+              }
+            />
             <label>Email address *</label>
-            <input type='email' placeholder='your@email.com' value={rentForm.renterEmail} onChange={e => setRentForm(f => ({ ...f, renterEmail: e.target.value }))} />
+            <input
+              type='email'
+              placeholder='your@email.com'
+              value={rentForm.renterEmail}
+              onChange={e =>
+                setRentForm(f => ({ ...f, renterEmail: e.target.value }))
+              }
+            />
             <label>Phone number</label>
-            <input type='tel' placeholder='+234 800 000 0000' value={rentForm.renterPhone} onChange={e => setRentForm(f => ({ ...f, renterPhone: e.target.value }))} />
+            <input
+              type='tel'
+              placeholder='+234 800 000 0000'
+              value={rentForm.renterPhone}
+              onChange={e =>
+                setRentForm(f => ({ ...f, renterPhone: e.target.value }))
+              }
+            />
             <label>Preferred move-in date</label>
-            <input type='date' value={rentForm.moveInDate} min={new Date().toISOString().split('T')[0]} onChange={e => setRentForm(f => ({ ...f, moveInDate: e.target.value }))} />
+            <input
+              type='date'
+              value={rentForm.moveInDate}
+              min={new Date().toISOString().split('T')[0]}
+              onChange={e =>
+                setRentForm(f => ({ ...f, moveInDate: e.target.value }))
+              }
+            />
             <label>Message to landlord (optional)</label>
-            <textarea rows={3} placeholder='Introduce yourself…' value={rentForm.message} onChange={e => setRentForm(f => ({ ...f, message: e.target.value }))} style={{ width:'100%', padding:'8px 10px', border:'1.5px solid #e5e7eb', borderRadius:8, fontFamily:'inherit', fontSize:14, boxSizing:'border-box' }} />
+            <textarea
+              rows={3}
+              placeholder='Introduce yourself…'
+              value={rentForm.message}
+              onChange={e =>
+                setRentForm(f => ({ ...f, message: e.target.value }))
+              }
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                border: '1.5px solid #e5e7eb',
+                borderRadius: 8,
+                fontFamily: 'inherit',
+                fontSize: 14,
+                boxSizing: 'border-box'
+              }}
+            />
 
             {/* Payment breakdown */}
-            {(() => {
-              const baseTotal = ((activePrice || 0) * roomQty) + (property.cautionFee?.required ? (property.cautionFee.amount || 0) : 0)
-              const activePlan = property.paymentPlans?.[selectedPlanIdx]
-              const firstInst = activePlan?.installments?.[0]
-              const chargeNow = firstInst?.percent && firstInst.percent < 100
-                ? Math.round(baseTotal * firstInst.percent / 100)
-                : baseTotal
-              return (
-                <div className='pd-booking-summary pd-booking-summary--modal'>
-                  <div>
-                    <span>First period rent ({property.rentFrequency || 'monthly'}){roomQty > 1 ? ` × ${roomQty}` : ''}</span>
-                    <strong>{fmt((activePrice || 0) * roomQty, currency)}</strong>
-                  </div>
-                  {property.cautionFee?.required && (
-                    <div>
-                      <span>Security deposit <em style={{ fontSize:10, fontWeight:400 }}>(refundable)</em></span>
-                      <strong>{fmt(property.cautionFee.amount, property.cautionFee.currency || currency)}</strong>
-                    </div>
-                  )}
-                  {activePlan && firstInst?.percent < 100 && (
-                    <div style={{ color:'#b45309', fontSize:12 }}>
-                      <span>Payment plan: {activePlan.name || `Plan ${selectedPlanIdx + 1}`} — pay {firstInst.percent}% now</span>
-                      <span>{activePlan.installments.slice(1).map((ins, i) => (
-                        <span key={i} style={{ display:'block' }}>{ins.percent}% due in {ins.dueInDays} day{ins.dueInDays !== 1 ? 's' : ''}</span>
-                      ))}</span>
-                    </div>
-                  )}
-                  <div className='pd-booking-summary__total'>
-                    <span>Charged today</span>
-                    <strong>{fmt(chargeNow, currency)}</strong>
-                  </div>
-                  <div className='pd-modal__actions'>
-                    <button className='pd-cta-btn pd-cta-btn--primary' onClick={startRent} disabled={renting}>
-                      {renting
-                        ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Redirecting…</>
-                        : `Pay ${fmt(chargeNow, currency)} Now`
-                      }
-                    </button>
-                    <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setRentOpen(false)}>Cancel</button>
-                  </div>
+            <div className='pd-booking-summary pd-booking-summary--modal'>
+              <div>
+                <span>
+                  Rent ({property.rentFrequency || 'monthly'})
+                  {roomQty > 1 ? ` × ${roomQty}` : ''}
+                </span>
+                <strong>{fmt((activePrice || 0) * roomQty, currency)}</strong>
+              </div>
+              {property.cautionFee?.required && (
+                <div>
+                  <span>
+                    Security deposit{' '}
+                    <em style={{ fontSize: 10, fontWeight: 400 }}>
+                      (refundable)
+                    </em>
+                  </span>
+                  <strong>
+                    {fmt(
+                      property.cautionFee.amount,
+                      property.cautionFee.currency || currency
+                    )}
+                  </strong>
                 </div>
-              )
-            })()}
+              )}
+              {selectedPlan && planSubtitle && (
+                <div
+                  style={{ color: '#b45309', fontSize: 12, padding: '4px 0' }}
+                >
+                  <span>
+                    <strong>
+                      {selectedPlan.name || `Plan ${selectedPlanIdx + 1}`}:
+                    </strong>{' '}
+                    {planSubtitle}
+                  </span>
+                </div>
+              )}
+              <div className='pd-booking-summary__total'>
+                <span>Charged today</span>
+                <strong>{fmt(planDisplayPrice, currency)}</strong>
+              </div>
+            </div>
 
             <p className='pd-modal__note'>
-              <Shield size={11} /> Secured by PropNect Escrow · Funds released to landlord after move-in confirmed
+              <Shield size={11} /> Secured by propnekt Escrow · Funds released
+              to landlord after move-in confirmed
             </p>
+            <div className='pd-modal__actions'>
+              <button
+                className='pd-cta-btn pd-cta-btn--primary'
+                onClick={startRent}
+                disabled={renting}
+              >
+                {renting ? (
+                  <>
+                    <Loader2
+                      size={14}
+                      style={{ animation: 'spin 1s linear infinite' }}
+                    />{' '}
+                    Redirecting…
+                  </>
+                ) : (
+                  `Pay ${fmt(planDisplayPrice, currency)} Now`
+                )}
+              </button>
+              <button
+                className='pd-cta-btn pd-cta-btn--outline'
+                onClick={() => setRentOpen(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1776,36 +3286,125 @@ export default function PropertyDetails () {
       {/* ── Inspection Fee Modal (house / land / commercial) ─────────── */}
       {inspOpen && (
         <div className='pd-modal-backdrop' onClick={() => setInspOpen(false)}>
-          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
-            <button className='pd-modal__close' onClick={() => setInspOpen(false)}><X size={16} /></button>
+          <div
+            className='pd-modal pd-modal--booking'
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className='pd-modal__close'
+              onClick={() => setInspOpen(false)}
+            >
+              <X size={16} />
+            </button>
             <h3>Schedule a Viewing</h3>
             <p className='pd-modal__sub'>{property.title}</p>
             <div className='pd-modal__row'>
-              <span><Shield size={13} /> Inspection fee: <strong>{fmt(platformInspFee?.amount, platformInspFee?.currency || currency)}</strong></span>
-              <span style={{ color: '#c53030', fontSize: 12 }}>Non-refundable</span>
+              <span>
+                <Shield size={13} /> Inspection fee:{' '}
+                <strong>
+                  {fmt(
+                    platformInspFee?.amount,
+                    platformInspFee?.currency || currency
+                  )}
+                </strong>
+              </span>
+              <span style={{ color: '#c53030', fontSize: 12 }}>
+                Non-refundable
+              </span>
             </div>
             {inspErr && <p className='pd-modal__err'>{inspErr}</p>}
             <label>Full name *</label>
-            <input type='text' placeholder='Your full name' value={inspForm.requesterName} onChange={e => setInspForm(f => ({ ...f, requesterName: e.target.value }))} />
+            <input
+              type='text'
+              placeholder='Your full name'
+              value={inspForm.requesterName}
+              onChange={e =>
+                setInspForm(f => ({ ...f, requesterName: e.target.value }))
+              }
+            />
             <label>Email *</label>
-            <input type='email' placeholder='your@email.com' value={inspForm.requesterEmail} onChange={e => setInspForm(f => ({ ...f, requesterEmail: e.target.value }))} />
+            <input
+              type='email'
+              placeholder='your@email.com'
+              value={inspForm.requesterEmail}
+              onChange={e =>
+                setInspForm(f => ({ ...f, requesterEmail: e.target.value }))
+              }
+            />
             <label>Phone</label>
-            <input type='tel' placeholder='+234 800 000 0000' value={inspForm.requesterPhone} onChange={e => setInspForm(f => ({ ...f, requesterPhone: e.target.value }))} />
+            <input
+              type='tel'
+              placeholder='+234 800 000 0000'
+              value={inspForm.requesterPhone}
+              onChange={e =>
+                setInspForm(f => ({ ...f, requesterPhone: e.target.value }))
+              }
+            />
             <label>Preferred date *</label>
-            <input type='date' value={inspForm.preferredDate} min={new Date().toISOString().split('T')[0]} onChange={e => setInspForm(f => ({ ...f, preferredDate: e.target.value }))} />
+            <input
+              type='date'
+              value={inspForm.preferredDate}
+              min={new Date().toISOString().split('T')[0]}
+              onChange={e =>
+                setInspForm(f => ({ ...f, preferredDate: e.target.value }))
+              }
+            />
             <label>Preferred time</label>
-            <input type='time' value={inspForm.preferredTime} onChange={e => setInspForm(f => ({ ...f, preferredTime: e.target.value }))} />
+            <input
+              type='time'
+              value={inspForm.preferredTime}
+              onChange={e =>
+                setInspForm(f => ({ ...f, preferredTime: e.target.value }))
+              }
+            />
             <label>Notes for the owner</label>
-            <textarea rows={2} placeholder='Any specific areas you want to inspect?' value={inspForm.notes} onChange={e => setInspForm(f => ({ ...f, notes: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontFamily: 'inherit', fontSize: 14, boxSizing: 'border-box' }} />
+            <textarea
+              rows={2}
+              placeholder='Any specific areas you want to inspect?'
+              value={inspForm.notes}
+              onChange={e =>
+                setInspForm(f => ({ ...f, notes: e.target.value }))
+              }
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                border: '1.5px solid #e5e7eb',
+                borderRadius: 8,
+                fontFamily: 'inherit',
+                fontSize: 14,
+                boxSizing: 'border-box'
+              }}
+            />
             <p className='pd-modal__note'>
-              <AlertCircle size={11} /> The {fmt(platformInspFee?.amount, platformInspFee?.currency || currency)} inspection fee is <strong>non-refundable</strong> — it confirms your viewing slot.
-              {platformInspFee?.partialRefundPct > 0 && ` ${platformInspFee.partialRefundPct}% is refunded if the owner cancels.`}
+              <AlertCircle size={11} /> The{' '}
+              {fmt(
+                platformInspFee?.amount,
+                platformInspFee?.currency || currency
+              )}{' '}
+              inspection fee is <strong>non-refundable</strong> — it confirms
+              your viewing slot.
+              {platformInspFee?.partialRefundPct > 0 &&
+                ` ${platformInspFee.partialRefundPct}% is refunded if the owner cancels.`}
             </p>
             <div className='pd-modal__actions'>
-              <button className='pd-cta-btn pd-cta-btn--primary' onClick={startInspection} disabled={inspLoading}>
-                {inspLoading ? 'Redirecting…' : `Pay ${fmt(platformInspFee?.amount, platformInspFee?.currency || currency)} & Schedule`}
+              <button
+                className='pd-cta-btn pd-cta-btn--primary'
+                onClick={startInspection}
+                disabled={inspLoading}
+              >
+                {inspLoading
+                  ? 'Redirecting…'
+                  : `Pay ${fmt(
+                      platformInspFee?.amount,
+                      platformInspFee?.currency || currency
+                    )} & Schedule`}
               </button>
-              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setInspOpen(false)}>Cancel</button>
+              <button
+                className='pd-cta-btn pd-cta-btn--outline'
+                onClick={() => setInspOpen(false)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -1814,8 +3413,16 @@ export default function PropertyDetails () {
       {/* ── Purchase Modal (for-sale / commercial properties) ────────── */}
       {purchOpen && (
         <div className='pd-modal-backdrop' onClick={() => setPurchOpen(false)}>
-          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
-            <button className='pd-modal__close' onClick={() => setPurchOpen(false)}><X size={16} /></button>
+          <div
+            className='pd-modal pd-modal--booking'
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className='pd-modal__close'
+              onClick={() => setPurchOpen(false)}
+            >
+              <X size={16} />
+            </button>
             <h3>Purchase Property</h3>
             <p className='pd-modal__sub'>{property.title}</p>
 
@@ -1823,7 +3430,14 @@ export default function PropertyDetails () {
             {property.paymentPlans?.length > 0 && (
               <div style={{ marginBottom: 14 }}>
                 <label>Payment plan</label>
-                <div style={{ display:'flex', gap: 8, flexWrap:'wrap', marginTop: 6 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 8,
+                    flexWrap: 'wrap',
+                    marginTop: 6
+                  }}
+                >
                   {property.paymentPlans.map((p, i) => (
                     <button
                       key={i}
@@ -1832,22 +3446,31 @@ export default function PropertyDetails () {
                         flex: '1 1 auto',
                         padding: '8px 12px',
                         borderRadius: 8,
-                        border: `2px solid ${purchPlanIdx === i ? 'var(--color-primary)' : '#e5e7eb'}`,
+                        border: `2px solid ${
+                          purchPlanIdx === i
+                            ? 'var(--color-primary)'
+                            : '#e5e7eb'
+                        }`,
                         background: purchPlanIdx === i ? '#e8f5e9' : '#fafafa',
                         cursor: 'pointer',
                         fontSize: 13,
                         fontWeight: purchPlanIdx === i ? 700 : 500,
-                        color: purchPlanIdx === i ? 'var(--color-primary)' : '#444',
+                        color:
+                          purchPlanIdx === i ? 'var(--color-primary)' : '#444',
                         textAlign: 'center'
                       }}
                     >
                       <div>{p.name || `Plan ${i + 1}`}</div>
                       {(p.priceSnapshot?.total || p.price) && (
-                        <div style={{ fontSize: 12, marginTop: 2 }}>{fmt(p.priceSnapshot?.total || p.price, currency)}</div>
+                        <div style={{ fontSize: 12, marginTop: 2 }}>
+                          {fmt(p.priceSnapshot?.total || p.price, currency)}
+                        </div>
                       )}
                       {p.installments?.length > 0 && (
                         <div style={{ fontSize: 10, opacity: 0.7 }}>
-                          {p.installments.map((inst, j) => `${inst.percent}%`).join(' · ')}
+                          {p.installments
+                            .map((inst, j) => `${inst.percent}%`)
+                            .join(' · ')}
                         </div>
                       )}
                     </button>
@@ -1858,26 +3481,72 @@ export default function PropertyDetails () {
 
             {purchErr && <p className='pd-modal__err'>{purchErr}</p>}
             <label>Full name *</label>
-            <input type='text' placeholder='Your full name' value={purchForm.buyerName} onChange={e => setPurchForm(f => ({ ...f, buyerName: e.target.value }))} />
+            <input
+              type='text'
+              placeholder='Your full name'
+              value={purchForm.buyerName}
+              onChange={e =>
+                setPurchForm(f => ({ ...f, buyerName: e.target.value }))
+              }
+            />
             <label>Email address *</label>
-            <input type='email' placeholder='your@email.com' value={purchForm.buyerEmail} onChange={e => setPurchForm(f => ({ ...f, buyerEmail: e.target.value }))} />
+            <input
+              type='email'
+              placeholder='your@email.com'
+              value={purchForm.buyerEmail}
+              onChange={e =>
+                setPurchForm(f => ({ ...f, buyerEmail: e.target.value }))
+              }
+            />
             <label>Phone number</label>
-            <input type='tel' placeholder='+234 800 000 0000' value={purchForm.buyerPhone} onChange={e => setPurchForm(f => ({ ...f, buyerPhone: e.target.value }))} />
+            <input
+              type='tel'
+              placeholder='+234 800 000 0000'
+              value={purchForm.buyerPhone}
+              onChange={e =>
+                setPurchForm(f => ({ ...f, buyerPhone: e.target.value }))
+              }
+            />
 
             {/* Price summary */}
             <div className='pd-booking-summary pd-booking-summary--modal'>
               {property.paymentPlans?.length > 0 ? (
                 <>
-                  <div><span>Plan</span><strong>{property.paymentPlans[purchPlanIdx]?.name || `Plan ${purchPlanIdx + 1}`}</strong></div>
-                  {property.paymentPlans[purchPlanIdx]?.installments?.map((inst, i) => (
-                    <div key={i}>
-                      <span>Payment {i + 1} (Day {inst.dueInDays})</span>
-                      <strong>{inst.percent}% = {fmt(((property.paymentPlans[purchPlanIdx]?.priceSnapshot?.total || effectivePrice) * inst.percent) / 100, currency)}</strong>
-                    </div>
-                  ))}
+                  <div>
+                    <span>Plan</span>
+                    <strong>
+                      {property.paymentPlans[purchPlanIdx]?.name ||
+                        `Plan ${purchPlanIdx + 1}`}
+                    </strong>
+                  </div>
+                  {property.paymentPlans[purchPlanIdx]?.installments?.map(
+                    (inst, i) => (
+                      <div key={i}>
+                        <span>
+                          Payment {i + 1} (Day {inst.dueInDays})
+                        </span>
+                        <strong>
+                          {inst.percent}% ={' '}
+                          {fmt(
+                            ((property.paymentPlans[purchPlanIdx]?.priceSnapshot
+                              ?.total || effectivePrice) *
+                              inst.percent) /
+                              100,
+                            currency
+                          )}
+                        </strong>
+                      </div>
+                    )
+                  )}
                   <div className='pd-booking-summary__total'>
                     <span>Total</span>
-                    <strong>{fmt(property.paymentPlans[purchPlanIdx]?.priceSnapshot?.total || effectivePrice, currency)}</strong>
+                    <strong>
+                      {fmt(
+                        property.paymentPlans[purchPlanIdx]?.priceSnapshot
+                          ?.total || effectivePrice,
+                        currency
+                      )}
+                    </strong>
                   </div>
                 </>
               ) : (
@@ -1889,16 +3558,37 @@ export default function PropertyDetails () {
             </div>
 
             <p className='pd-modal__note'>
-              <Shield size={11} /> Secured by PropNect Escrow · Payment held until ownership transfer confirmed
+              <Shield size={11} /> Secured by propnekt Escrow · Payment held
+              until ownership transfer confirmed
             </p>
             <div className='pd-modal__actions'>
-              <button className='pd-cta-btn pd-cta-btn--primary' onClick={startPurchase} disabled={purchasing}>
-                {purchasing
-                  ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Redirecting…</>
-                  : `Proceed to Pay ${fmt(property.paymentPlans?.[purchPlanIdx]?.priceSnapshot?.total || effectivePrice, currency)}`
-                }
+              <button
+                className='pd-cta-btn pd-cta-btn--primary'
+                onClick={startPurchase}
+                disabled={purchasing}
+              >
+                {purchasing ? (
+                  <>
+                    <Loader2
+                      size={14}
+                      style={{ animation: 'spin 1s linear infinite' }}
+                    />{' '}
+                    Redirecting…
+                  </>
+                ) : (
+                  `Proceed to Pay ${fmt(
+                    property.paymentPlans?.[purchPlanIdx]?.priceSnapshot
+                      ?.total || effectivePrice,
+                    currency
+                  )}`
+                )}
               </button>
-              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setPurchOpen(false)}>Cancel</button>
+              <button
+                className='pd-cta-btn pd-cta-btn--outline'
+                onClick={() => setPurchOpen(false)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -1907,52 +3597,123 @@ export default function PropertyDetails () {
       {/* ── Booking Form Modal (hotel / shortlet) ────────────────────── */}
       {bookOpen && (
         <div className='pd-modal-backdrop' onClick={() => setBookOpen(false)}>
-          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
-            <button className='pd-modal__close' onClick={() => setBookOpen(false)}><X size={16} /></button>
+          <div
+            className='pd-modal pd-modal--booking'
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className='pd-modal__close'
+              onClick={() => setBookOpen(false)}
+            >
+              <X size={16} />
+            </button>
             <h3>Complete Your Booking</h3>
             <p className='pd-modal__sub'>{property.title}</p>
             <div className='pd-modal__row'>
-              <span><Calendar size={13} /> {new Date(bookingStart).toLocaleDateString('en-GB', {day:'numeric',month:'short'})} → {new Date(bookingEnd).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</span>
-              <span>{nights} night{nights !== 1 ? 's' : ''} · {guests} guest{guests !== 1 ? 's' : ''}</span>
+              <span>
+                <Calendar size={13} />{' '}
+                {new Date(bookingStart).toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short'
+                })}{' '}
+                →{' '}
+                {new Date(bookingEnd).toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric'
+                })}
+              </span>
+              <span>
+                {nights} night{nights !== 1 ? 's' : ''} · {guests} guest
+                {guests !== 1 ? 's' : ''}
+              </span>
             </div>
             {bookErr && <p className='pd-modal__err'>{bookErr}</p>}
             <label>Full name *</label>
             <input
-              type='text' placeholder='Your full name'
+              type='text'
+              placeholder='Your full name'
               value={bookForm.guestName}
-              onChange={e => setBookForm(f => ({ ...f, guestName: e.target.value }))}
+              onChange={e =>
+                setBookForm(f => ({ ...f, guestName: e.target.value }))
+              }
             />
             <label>Email address *</label>
             <input
-              type='email' placeholder='your@email.com'
+              type='email'
+              placeholder='your@email.com'
               value={bookForm.guestEmail}
-              onChange={e => setBookForm(f => ({ ...f, guestEmail: e.target.value }))}
+              onChange={e =>
+                setBookForm(f => ({ ...f, guestEmail: e.target.value }))
+              }
             />
             <label>Phone number</label>
             <input
-              type='tel' placeholder='+234 800 000 0000'
+              type='tel'
+              placeholder='+234 800 000 0000'
               value={bookForm.guestPhone}
-              onChange={e => setBookForm(f => ({ ...f, guestPhone: e.target.value }))}
+              onChange={e =>
+                setBookForm(f => ({ ...f, guestPhone: e.target.value }))
+              }
             />
             <div className='pd-booking-summary pd-booking-summary--modal'>
-              <div><span>{nights} night{nights !== 1 ? 's' : ''} × {fmt(bookingTotal?.perNight || effectivePrice, currency)}</span><strong>{fmt(bookingTotal?.total || 0, currency)}</strong></div>
+              <div>
+                <span>
+                  {nights} night{nights !== 1 ? 's' : ''} ×{' '}
+                  {fmt(bookingTotal?.perNight || effectivePrice, currency)}
+                </span>
+                <strong>{fmt(bookingTotal?.total || 0, currency)}</strong>
+              </div>
               {cautionFee && (
-                <div><span>Caution fee <em style={{fontSize:10,fontWeight:400}}>(refundable)</em></span><strong>{fmt(cautionFee.amount, cautionFee.currency || currency)}</strong></div>
+                <div>
+                  <span>
+                    Caution fee{' '}
+                    <em style={{ fontSize: 10, fontWeight: 400 }}>
+                      (refundable)
+                    </em>
+                  </span>
+                  <strong>
+                    {fmt(cautionFee.amount, cautionFee.currency || currency)}
+                  </strong>
+                </div>
               )}
               <div className='pd-booking-summary__total'>
                 <span>Total charged today</span>
-                <strong>{fmt((bookingTotal?.total || 0) + (cautionFee ? cautionFee.amount : 0), currency)}</strong>
+                <strong>
+                  {fmt(
+                    (bookingTotal?.total || 0) +
+                      (cautionFee ? cautionFee.amount : 0),
+                    currency
+                  )}
+                </strong>
               </div>
             </div>
             <p className='pd-modal__note'>
-              <Shield size={11} /> Secure payment via Paystack · No account needed · Receipt emailed instantly
-              {cautionFee && ' · Caution fee refunded after checkout if no damage'}
+              <Shield size={11} /> Secure payment via Paystack · No account
+              needed · Receipt emailed instantly
+              {cautionFee &&
+                ' · Caution fee refunded after checkout if no damage'}
             </p>
             <div className='pd-modal__actions'>
-              <button className='pd-cta-btn pd-cta-btn--primary' onClick={startBooking} disabled={booking}>
-                {booking ? 'Redirecting to payment…' : `Pay ${fmt((bookingTotal?.total || 0) + (cautionFee ? cautionFee.amount : 0), currency)}`}
+              <button
+                className='pd-cta-btn pd-cta-btn--primary'
+                onClick={startBooking}
+                disabled={booking}
+              >
+                {booking
+                  ? 'Redirecting to payment…'
+                  : `Pay ${fmt(
+                      (bookingTotal?.total || 0) +
+                        (cautionFee ? cautionFee.amount : 0),
+                      currency
+                    )}`}
               </button>
-              <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => setBookOpen(false)}>Cancel</button>
+              <button
+                className='pd-cta-btn pd-cta-btn--outline'
+                onClick={() => setBookOpen(false)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -1961,20 +3722,50 @@ export default function PropertyDetails () {
       {/* ── Lightbox ─────────────────────────────────────────────────── */}
       {lightboxOpen && (
         <div className='pd-lightbox' role='dialog' aria-modal='true'>
-          <button className='pd-lb-close' onClick={() => setLightboxOpen(false)}><X size={20} /></button>
-          <button className='pd-lb-nav pd-lb-nav--left' onClick={() => setThumbIndex(i => Math.max(0, i - 1))} disabled={thumbIndex === 0}><ArrowLeft size={20} /></button>
-          <button className='pd-lb-nav pd-lb-nav--right' onClick={() => setThumbIndex(i => Math.min(gallery.length - 1, i + 1))} disabled={thumbIndex === gallery.length - 1}><ArrowRight size={20} /></button>
-          <div className='pd-lb-content'>
-            {lightboxItem.type === 'video'
-              ? <video src={lightboxItem.url} controls autoPlay />
-              : <img src={lightboxItem.url} alt={`Photo ${thumbIndex + 1}`} />
+          <button
+            className='pd-lb-close'
+            onClick={() => setLightboxOpen(false)}
+          >
+            <X size={20} />
+          </button>
+          <button
+            className='pd-lb-nav pd-lb-nav--left'
+            onClick={() => setThumbIndex(i => Math.max(0, i - 1))}
+            disabled={thumbIndex === 0}
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <button
+            className='pd-lb-nav pd-lb-nav--right'
+            onClick={() =>
+              setThumbIndex(i => Math.min(gallery.length - 1, i + 1))
             }
-            <div className='pd-lb-caption'>{property.title} — {thumbIndex + 1} / {gallery.length}</div>
+            disabled={thumbIndex === gallery.length - 1}
+          >
+            <ArrowRight size={20} />
+          </button>
+          <div className='pd-lb-content'>
+            {lightboxItem.type === 'video' ? (
+              <video src={lightboxItem.url} controls autoPlay />
+            ) : (
+              <img src={lightboxItem.url} alt={`Photo ${thumbIndex + 1}`} />
+            )}
+            <div className='pd-lb-caption'>
+              {property.title} — {thumbIndex + 1} / {gallery.length}
+            </div>
           </div>
           <div className='pd-lb-thumbs'>
             {gallery.map((m, i) => (
-              <button key={i} className={`pd-lb-thumb${i === thumbIndex ? ' active' : ''}`} onClick={() => setThumbIndex(i)}>
-                {m.type === 'video' ? <Video size={12} /> : <img src={m.url} alt={`thumb ${i}`} />}
+              <button
+                key={i}
+                className={`pd-lb-thumb${i === thumbIndex ? ' active' : ''}`}
+                onClick={() => setThumbIndex(i)}
+              >
+                {m.type === 'video' ? (
+                  <Video size={12} />
+                ) : (
+                  <img src={m.url} alt={`thumb ${i}`} />
+                )}
               </button>
             ))}
           </div>
@@ -1986,27 +3777,42 @@ export default function PropertyDetails () {
         <div className='pd-mobile-cta__price'>
           <strong>
             {isPerNight
-              ? (bookingTotal?.total ? fmt(bookingTotal.total, currency) : fmt(activePrice, currency))
+              ? bookingTotal?.total
+                ? fmt(bookingTotal.total, currency)
+                : fmt(activePrice, currency)
               : fmt(planDisplayPrice, currency)}
           </strong>
           <span>
             {isPerNight && nights > 0
               ? `${nights} night${nights !== 1 ? 's' : ''}`
               : isPerNight
-                ? '/ night'
-                : planSubtitle || (property.rentFrequency ? `/ ${property.rentFrequency}` : '')}
+              ? '/ night'
+              : planSubtitle ||
+                (property.rentFrequency ? `/ ${property.rentFrequency}` : '')}
           </span>
         </div>
         {isPerNight ? (
-          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setBookOpen(true)} disabled={!isActionable}>
+          <button
+            className='pd-cta-btn pd-cta-btn--primary'
+            onClick={() => setBookOpen(true)}
+            disabled={!isActionable}
+          >
             <Calendar size={14} /> Book Now
           </button>
         ) : isRent ? (
-          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setRentOpen(true)} disabled={!isActionable}>
+          <button
+            className='pd-cta-btn pd-cta-btn--primary'
+            onClick={() => setRentOpen(true)}
+            disabled={!isActionable}
+          >
             <CreditCard size={14} /> Rent Now
           </button>
         ) : (
-          <button className='pd-cta-btn pd-cta-btn--primary' onClick={() => setPurchOpen(true)} disabled={!isActionable}>
+          <button
+            className='pd-cta-btn pd-cta-btn--primary'
+            onClick={() => setPurchOpen(true)}
+            disabled={!isActionable}
+          >
             <CreditCard size={14} /> Buy Now
           </button>
         )}

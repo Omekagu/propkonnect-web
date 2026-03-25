@@ -135,18 +135,35 @@
 
 // Trial banner variants
 .account-pending-banner--trial {
-  background: linear-gradient(90deg, #0B3D28, #0F6040) !important; // PropNect green = normal trial
+  background: linear-gradient(
+    90deg,
+    #0b3d28,
+    #0f6040
+  ) !important; // propnekt green = normal trial
 }
 .account-pending-banner--warning {
-  background: linear-gradient(90deg, #78350f, #b45309) !important; // amber = 7 days or less
+  background: linear-gradient(
+    90deg,
+    #78350f,
+    #b45309
+  ) !important; // amber = 7 days or less
 }
 .account-pending-banner--urgent {
-  background: linear-gradient(90deg, #7f1d1d, #dc2626) !important; // red = 3 days or less
+  background: linear-gradient(
+    90deg,
+    #7f1d1d,
+    #dc2626
+  ) !important; // red = 3 days or less
   animation: pulse-urgent 2s ease-in-out infinite;
 }
 @keyframes pulse-urgent {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.88; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.88;
+  }
 }
 
 // ── Session Warning Modal ─────────────────────────────────────
@@ -489,12 +506,22 @@ html[data-theme='dark'] {
   }
   .loading-state {
     background: #0d1117;
-    p { color: #8b949e; }
+    p {
+      color: #8b949e;
+    }
   }
-  .loading-spinner p { color: #8b949e; }
-  .account-setup-wrapper { background: #0d1117; }
+  .loading-spinner p {
+    color: #8b949e;
+  }
+  .account-setup-wrapper {
+    background: #0d1117;
+  }
   .kyc-gate {
-    .kyc-gate-title { color: #e6edf3; }
-    .kyc-gate-desc  { color: #8b949e; }
+    .kyc-gate-title {
+      color: #e6edf3;
+    }
+    .kyc-gate-desc {
+      color: #8b949e;
+    }
   }
 }

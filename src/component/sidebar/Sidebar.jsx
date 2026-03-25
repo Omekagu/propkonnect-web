@@ -84,6 +84,11 @@ export default function Sidebar ({
             icon: <Home strokeWidth={0.75} />
           },
           {
+            key: 'Bookings',
+            label: 'Bookings & Reservations',
+            icon: <Calendar strokeWidth={0.75} />
+          },
+          {
             key: 'Finance',
             label: 'Finance',
             icon: <WalletMinimal strokeWidth={0.75} />
