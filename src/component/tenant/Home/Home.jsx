@@ -1,10 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { leases as leasesApi } from '@/libs/api'
 import { Home, MapPin, Phone, Mail, Calendar, FileText, DollarSign } from 'lucide-react'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
 
 const s = {
   page: { padding: '1.5rem', fontFamily: 'sans-serif' },
@@ -36,7 +34,7 @@ export default function MyHome () {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    axios.get(`${API}/api/leases/my`, { withCredentials: true })
+    leasesApi.getMy()
       .then(res => {
         const leases = res.data?.leases || res.data?.data || (res.data?.lease ? [res.data.lease] : [])
         setLease(leases[0] || null)

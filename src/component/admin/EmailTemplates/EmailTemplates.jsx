@@ -1,9 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import axios from 'axios'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
+import { emailTemplates as emailTemplatesApi } from '@/libs/api'
 
 const TYPE_LABELS = {
   welcome:              'Welcome Email',
@@ -29,7 +27,7 @@ export default function EmailTemplates () {
   const load = useCallback(async () => {
     try {
       setLoading(true)
-      const { data } = await axios.get(`${API}/api/admin/email-templates`, { withCredentials: true })
+      const { data } = await emailTemplatesApi.getAll()
       setTemplates(data.templates || [])
       if (data.templates?.length > 0 && !selected) {
         pick(data.templates[0])
@@ -56,11 +54,7 @@ export default function EmailTemplates () {
     setSaving(true)
     setMsg(null)
     try {
-      const { data } = await axios.put(
-        `${API}/api/admin/email-templates/${selected.type}`,
-        { subject, htmlBody, isActive },
-        { withCredentials: true }
-      )
+      const { data } = await emailTemplatesApi.update(selected.type, { subject, htmlBody, isActive })
       setMsg({ type: 'success', text: 'Template saved successfully.' })
       setTemplates(prev => prev.map(t => t.type === selected.type ? data.template : t))
       setSelected(data.template)
@@ -76,11 +70,7 @@ export default function EmailTemplates () {
     setSaving(true)
     setMsg(null)
     try {
-      const { data } = await axios.post(
-        `${API}/api/admin/email-templates/${selected.type}/reset`,
-        {},
-        { withCredentials: true }
-      )
+      const { data } = await emailTemplatesApi.reset(selected.type)
       pick(data.template)
       setMsg({ type: 'success', text: 'Template reset to default.' })
       setTemplates(prev => prev.map(t => t.type === selected.type ? data.template : t))

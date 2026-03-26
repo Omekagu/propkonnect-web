@@ -1,10 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { platformConfig as platformConfigApi, finance as financeApi } from '@/libs/api'
 import { CreditCard, CheckCircle, AlertCircle, DollarSign, Percent, Globe, Shield, Zap } from 'lucide-react'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
 
 const s = {
   page: { padding: '1.5rem', fontFamily: 'sans-serif' },
@@ -54,8 +52,8 @@ export default function PaymentMethod () {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`${API}/api/platform-settings`, { withCredentials: true }).catch(() => ({ data: null })),
-      axios.get(`${API}/api/admin/finance/overview`, { withCredentials: true }).catch(() => ({ data: null })),
+      platformConfigApi.getSettings().catch(() => ({ data: null })),
+      financeApi.getOverview().catch(() => ({ data: null })),
     ]).then(([settingsRes, statsRes]) => {
       const cfg = settingsRes.data?.settings || settingsRes.data || {}
       setSettings(cfg)
@@ -73,12 +71,12 @@ export default function PaymentMethod () {
     setSaving(true)
     setMsg(null)
     try {
-      await axios.patch(`${API}/api/platform-settings/fees`, {
+      await platformConfigApi.updateFees({
         platformFeePercent:  Number(fees.platformFee),
         escrowFeePercent:    Number(fees.escrowFee),
         bnplInterestPercent: Number(fees.bnplInterest),
         withdrawalFeeFlat:   Number(fees.withdrawalFee),
-      }, { withCredentials: true })
+      })
       setMsg({ type: 'success', text: 'Fee configuration saved successfully.' })
       setEditFees(false)
     } catch (e) {
@@ -95,7 +93,7 @@ export default function PaymentMethod () {
     })
   }
 
-  const backendUrl = API || 'https://api.estateproperties.ng'
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.estateproperties.ng'
 
   if (loading) return <div style={{ padding: '1.5rem', color: '#6b7280' }}>Loading payment configuration…</div>
 

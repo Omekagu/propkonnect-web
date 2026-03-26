@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './Landing.scss'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || ''
 const APP_NAME_FALLBACK = process.env.NEXT_PUBLIC_APP_NAME || 'propnekt'
@@ -184,6 +183,18 @@ export default function LandingPage () {
   const heroRef = useRef(null)
   const mobileMenuRef = useRef(null)
 
+  // ── Fetch properties (called on mount + periodic refresh) ────────────────
+  const fetchProperties = useCallback(() => {
+    axios
+      .get(`${API}/api/properties/all?limit=6&sort=-createdAt`)
+      .then(r => {
+        const list = r.data?.properties
+        if (list) setProperties(list)
+      })
+      .catch(() => {})
+      .finally(() => setLoadingProps(false))
+  }, [])
+
   // ── Fetch platform config + data ─────────────────────────────────────────
   useEffect(() => {
     // Platform branding
@@ -194,16 +205,8 @@ export default function LandingPage () {
       })
       .catch(() => {}) // silently fall back to defaults
 
-    // Featured properties (published, public, latest 6)
-    axios
-      .get(`${API}/api/properties/all?limit=6&sort=-createdAt`)
-      .then(r => {
-        const list = r.data?.properties
-        setProperties(list)
-      })
-      .catch(() => setProperties([]))
-      // .catch(() => setProperties(FALLBACK_LISTINGS))
-      .finally(() => setLoadingProps(false))
+    // Featured properties
+    fetchProperties()
 
     // Premium / top-rated artisans
     axios
@@ -214,7 +217,20 @@ export default function LandingPage () {
       })
       .catch(() => setArtisans(FALLBACK_ARTISANS))
       .finally(() => setLoadingArtisans(false))
-  }, [])
+  }, [fetchProperties])
+
+  // ── Real-time: poll every 60s + refresh on tab focus ─────────────────────
+  useEffect(() => {
+    const interval = setInterval(fetchProperties, 60_000)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchProperties()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [fetchProperties])
 
   // Derived branding values
   const appName = branding?.appName || APP_NAME_FALLBACK

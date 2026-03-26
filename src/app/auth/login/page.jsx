@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
+import { auth as authApi } from '@/libs/api'
 import { useRouter } from 'next/navigation'
 import './login.scss'
 
@@ -171,10 +171,7 @@ export default function AuthPage () {
       setStatus('')
 
       const normalizedEmail = email.trim().toLowerCase()
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
-        { email: normalizedEmail }
-      )
+      const res = await authApi.login({ email: normalizedEmail })
 
       const data = res.data
       localStorage.setItem('email', normalizedEmail)
@@ -221,10 +218,7 @@ export default function AuthPage () {
       setError('')
       setStatus('')
 
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
-        { email: (localStorage.getItem('email') || email).trim().toLowerCase() }
-      )
+      const res = await authApi.login({ email: (localStorage.getItem('email') || email).trim().toLowerCase() })
       const data = res.data
 
       setResendAttempts(prev => prev + 1)
@@ -261,13 +255,7 @@ export default function AuthPage () {
     try {
       // Use the exact email stored at login time to prevent any browser normalization mismatch
       const verifyEmail = (localStorage.getItem('email') || email).trim().toLowerCase()
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-otp`,
-        {
-          email: verifyEmail,
-          otp: otpCode
-        }
-      )
+      const response = await authApi.verifyOtp({ email: verifyEmail, otp: otpCode })
 
       const data = response.data
       setSuccess(true)

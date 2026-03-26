@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import axios from 'axios'
+import { properties as propertiesApi, users as usersApi } from '@/libs/api'
 import {
   Search, Filter, Eye, Trash2, FileText,
   CheckCircle, XCircle, Clock, MapPin, Home,
@@ -56,22 +56,16 @@ export default function PropertyManagement () {
   })
   const [uploading, setUploading] = useState(false)
 
-  const backend = process.env.NEXT_PUBLIC_BACKEND_URL || ''
-  const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
-
   const showNotice = useCallback((msg, type = 'success') => {
     setNotice({ msg, type })
     setTimeout(() => setNotice(null), 3500)
   }, [])
 
-  const headers = useMemo(() => ({ Authorization: `Bearer ${authToken}` }), [authToken])
-
   // ── Fetch ALL properties
   const fetchProperties = useCallback(async () => {
-    if (!authToken) return
     setLoading(true)
     try {
-      const res = await axios.get(`${backend}/api/properties/all?limit=200`, { headers })
+      const res = await propertiesApi.getAll({ limit: 200 })
       if (res.data?.success) setProperties(res.data.properties || [])
     } catch (err) {
       console.error('Error fetching properties:', err)
@@ -79,20 +73,17 @@ export default function PropertyManagement () {
     } finally {
       setLoading(false)
     }
-  }, [backend, authToken, headers, showNotice])
+  }, [showNotice])
 
   // ── Fetch applications for all properties
   const fetchApplications = useCallback(async () => {
-    if (!authToken || properties.length === 0) return
+    if (properties.length === 0) return
     setLoading(true)
     try {
       const applicationsData = []
       for (const property of properties) {
         try {
-          const res = await axios.get(
-            `${backend}/api/properties/property-applications/property/${property._id}`,
-            { headers }
-          )
+          const res = await propertiesApi.getApplicationsByProperty(property._id)
           if (res.data?.success && res.data.applications) {
             applicationsData.push(...res.data.applications.map(app => ({
               ...app, propertyTitle: property.title, propertyId: property._id
@@ -107,17 +98,17 @@ export default function PropertyManagement () {
     } finally {
       setLoading(false)
     }
-  }, [backend, authToken, headers, properties, showNotice])
+  }, [properties, showNotice])
 
   // ── Fetch property owners for upload-for-owner
   const fetchOwners = useCallback(async () => {
     try {
-      const res = await axios.get(`${backend}/api/user?role=PROPERTY_OWNER&limit=100`, { headers })
+      const res = await usersApi.getAll({ role: 'PROPERTY_OWNER', limit: 100 })
       setOwners(res.data?.users || res.data?.data || [])
     } catch {
       // owners list will be empty; admin can type owner ID manually
     }
-  }, [backend, headers])
+  }, [])
 
   useEffect(() => { fetchProperties() }, [fetchProperties])
 
@@ -128,7 +119,7 @@ export default function PropertyManagement () {
   // ── Approve property
   const handleApprove = useCallback(async (id) => {
     try {
-      const res = await axios.patch(`${backend}/api/properties/${id}/approve`, {}, { headers })
+      const res = await propertiesApi.approve(id)
       if (res.data?.success) {
         showNotice('Property approved and published')
         setProperties(prev => prev.map(p => p._id === id ? { ...p, status: 'published' } : p))
@@ -136,16 +127,13 @@ export default function PropertyManagement () {
     } catch (err) {
       showNotice(err.response?.data?.msg || 'Failed to approve', 'error')
     }
-  }, [backend, headers, showNotice])
+  }, [showNotice])
 
   // ── Reject property
   const handleRejectConfirm = useCallback(async () => {
     if (!rejectModal) return
     try {
-      const res = await axios.patch(
-        `${backend}/api/properties/${rejectModal.propertyId}/reject`,
-        { reason: rejectReason }, { headers }
-      )
+      const res = await propertiesApi.reject(rejectModal.propertyId, { reason: rejectReason })
       if (res.data?.success) {
         showNotice('Property rejected')
         setProperties(prev => prev.map(p =>
@@ -157,13 +145,13 @@ export default function PropertyManagement () {
     } catch (err) {
       showNotice(err.response?.data?.msg || 'Failed to reject', 'error')
     }
-  }, [backend, headers, rejectModal, rejectReason, showNotice])
+  }, [rejectModal, rejectReason, showNotice])
 
   // ── Delete (archive) property
   const handleDelete = useCallback(async id => {
     if (!window.confirm('Archive this property?')) return
     try {
-      const res = await axios.delete(`${backend}/api/properties/${id}`, { headers })
+      const res = await propertiesApi.remove(id)
       if (res.data?.success) {
         showNotice('Property archived')
         setProperties(prev => prev.filter(p => p._id !== id))
@@ -171,7 +159,7 @@ export default function PropertyManagement () {
     } catch (err) {
       showNotice(err.response?.data?.msg || 'Failed to delete property', 'error')
     }
-  }, [backend, headers, showNotice])
+  }, [showNotice])
 
   // ── Open edit modal
   const openEdit = useCallback((property) => {
@@ -199,10 +187,7 @@ export default function PropertyManagement () {
     if (!editModal) return
     setSaving(true)
     try {
-      const res = await axios.put(
-        `${backend}/api/properties/${editModal._id}`,
-        editForm, { headers }
-      )
+      const res = await propertiesApi.update(editModal._id, editForm)
       if (res.data?.success) {
         showNotice('Property updated')
         setProperties(prev => prev.map(p =>
@@ -215,7 +200,7 @@ export default function PropertyManagement () {
     } finally {
       setSaving(false)
     }
-  }, [backend, headers, editModal, editForm, showNotice])
+  }, [editModal, editForm, showNotice])
 
   // ── Upload for owner
   const openUploadForOwner = useCallback(() => {
@@ -232,7 +217,7 @@ export default function PropertyManagement () {
     }
     setUploading(true)
     try {
-      const res = await axios.post(`${backend}/api/properties`, uploadForm, { headers })
+      const res = await propertiesApi.create(uploadForm)
       if (res.data?.success) {
         showNotice('Property created on behalf of owner')
         setShowUploadForOwner(false)
@@ -248,29 +233,23 @@ export default function PropertyManagement () {
     } finally {
       setUploading(false)
     }
-  }, [backend, headers, uploadForm, showNotice, fetchProperties])
+  }, [uploadForm, showNotice, fetchProperties])
 
   // ── View applications modal
   const viewApplications = useCallback(async propertyId => {
     try {
-      const res = await axios.get(
-        `${backend}/api/properties/property-applications/property/${propertyId}`,
-        { headers }
-      )
+      const res = await propertiesApi.getApplicationsByProperty(propertyId)
       if (res.data?.success) {
         setModalData(res.data.applications || [])
         setModalType('applications')
         setShowModal(true)
       }
     } catch { showNotice('Failed to load applications', 'error') }
-  }, [backend, headers, showNotice])
+  }, [showNotice])
 
   const updateApplicationStatus = useCallback(async (appId, status) => {
     try {
-      const res = await axios.patch(
-        `${backend}/api/properties/property-applications/${appId}/status`,
-        { status }, { headers }
-      )
+      const res = await propertiesApi.updateApplication(appId, { status })
       if (res.data?.success) {
         showNotice(`Application ${status}`)
         fetchApplications()
@@ -280,18 +259,15 @@ export default function PropertyManagement () {
         }
       }
     } catch { showNotice('Failed to update', 'error') }
-  }, [backend, headers, applications, showModal, modalType, showNotice, fetchApplications, viewApplications])
+  }, [applications, showModal, modalType, showNotice, fetchApplications, viewApplications])
 
   const deleteApplication = useCallback(async appId => {
     if (!window.confirm('Delete this application?')) return
     try {
-      const res = await axios.delete(
-        `${backend}/api/properties/property-applications/${appId}`,
-        { headers }
-      )
+      const res = await propertiesApi.deleteApplication(appId)
       if (res.data?.success) { showNotice('Application deleted'); fetchApplications() }
     } catch { showNotice('Failed to delete', 'error') }
-  }, [backend, headers, showNotice, fetchApplications])
+  }, [showNotice, fetchApplications])
 
   // ── Filtered data
   const filteredProperties = useMemo(() => {

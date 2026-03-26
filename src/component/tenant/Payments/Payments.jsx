@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { transactions as transactionsApi, leases as leasesApi } from '@/libs/api'
 import { DollarSign, CheckCircle, Clock, AlertCircle, CreditCard, CalendarDays, ChevronDown, ChevronUp } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
 
 const fmt = amount => `₦${Number(amount).toLocaleString('en-NG')}`
 const fmtDate = date => new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -88,8 +86,8 @@ export default function TenantPayments () {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`${API}/api/transactions/mine`).catch(() => ({ data: { transactions: [] } })),
-      axios.get(`${API}/api/leases/my`).catch(() => ({ data: { leases: [] } })),
+      transactionsApi.getMine().catch(() => ({ data: { transactions: [] } })),
+      leasesApi.getMy().catch(() => ({ data: { leases: [] } })),
     ]).then(([txRes, leaseRes]) => {
       setTransactions(txRes.data?.transactions || txRes.data?.data || [])
       const leases = leaseRes.data?.leases || (leaseRes.data?.lease ? [leaseRes.data.lease] : [])
@@ -104,7 +102,7 @@ export default function TenantPayments () {
     try {
       const body = {}
       if (installmentId) body.installmentId = installmentId
-      const { data } = await axios.post(`${API}/api/leases/${lease._id}/pay-rent`, body)
+      const { data } = await leasesApi.payRent(lease._id, body)
       if (data.paymentUrl || data.checkoutUrl) {
         window.location.href = data.paymentUrl || data.checkoutUrl
       } else {

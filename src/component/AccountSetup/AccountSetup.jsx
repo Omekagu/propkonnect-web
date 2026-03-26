@@ -75,15 +75,55 @@ export default function AccountSetup ({ onComplete, initialStatus = 'pending_kyc
     load()
   }, [])
 
+  // Get the user's registered name for name-matching validation
+  const getUserProfileName = () => {
+    try {
+      const raw = typeof window !== 'undefined'
+        ? (localStorage.getItem('userData') || localStorage.getItem('user'))
+        : null
+      if (!raw) return null
+      const u = JSON.parse(raw)
+      return `${u.firstName || ''} ${u.lastName || ''}`.trim().toLowerCase()
+    } catch { return null }
+  }
+
+  // Normalise a name for loose comparison (remove extra spaces, lowercase)
+  const normaliseName = name =>
+    (name || '').toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim()
+
+  // Check if two names are a reasonable match
+  // Strategy: each word of the profile name (≥3 chars) must appear in the bank name
+  const namesMatch = (profileName, bankAccountName) => {
+    const profile = normaliseName(profileName)
+    const bank = normaliseName(bankAccountName)
+    if (!profile || !bank) return true // skip check if either name unavailable
+    const words = profile.split(' ').filter(w => w.length >= 3)
+    if (words.length === 0) return true
+    return words.some(w => bank.includes(w))
+  }
+
+  const [nameMatchError, setNameMatchError] = useState('')
+
   // Auto-resolve account name when account number + bank code are both filled
   useEffect(() => {
     if (accountNumber.length !== 10 || !bankCode) return
     const resolve = async () => {
       setResolving(true)
       setAccountName('')
+      setNameMatchError('')
       try {
         const res = await api.get(`/api/paystack/resolve-account?accountNumber=${accountNumber}&bankCode=${bankCode}`)
-        if (res.data?.success) setAccountName(res.data.accountName)
+        if (res.data?.success) {
+          const resolvedName = res.data.accountName
+          setAccountName(resolvedName)
+          // Validate name against profile name
+          const profileName = getUserProfileName()
+          if (profileName && resolvedName && !namesMatch(profileName, resolvedName)) {
+            setNameMatchError(
+              `Account name "${resolvedName}" does not match your registered name. Please use a bank account in your own name.`
+            )
+          }
+        }
       } catch { setAccountName('') } finally { setResolving(false) }
     }
     const t = setTimeout(resolve, 600)
@@ -127,6 +167,7 @@ export default function AccountSetup ({ onComplete, initialStatus = 'pending_kyc
   const submitBank = async () => {
     if (!accountNumber || !bankCode || !accountName) return flash('Please fill all bank details', 'error')
     if (accountNumber.length !== 10) return flash('Account number must be 10 digits', 'error')
+    if (nameMatchError) return flash('Please use a bank account registered in your own name to continue.', 'error')
     setLoading(true)
     try {
       const selectedBank = banks.find(b => b.code === bankCode)
@@ -294,15 +335,22 @@ export default function AccountSetup ({ onComplete, initialStatus = 'pending_kyc
 
           <div className='as-field'>
             <label>Account Name</label>
-            <div className={`as-account-name${resolving?' loading':accountName?' found':''}`}>
+            <div className={`as-account-name${resolving?' loading':accountName?(nameMatchError?' mismatch':' found'):''}`}>
               {resolving ? (
                 <><Loader2 size={14} className='spin' /> Resolving account…</>
               ) : accountName ? (
-                <><Check size={14} /> {accountName}</>
+                nameMatchError ? (
+                  <><AlertCircle size={14} /> {accountName}</>
+                ) : (
+                  <><Check size={14} /> {accountName}</>
+                )
               ) : (
                 <span>Will be auto-filled after entering account number</span>
               )}
             </div>
+            {nameMatchError && (
+              <p className='as-field-error'><AlertCircle size={12} /> {nameMatchError}</p>
+            )}
           </div>
 
           <div className='as-notice info'>

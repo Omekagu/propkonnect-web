@@ -56,7 +56,7 @@ export default function Header () {
       <div className='navbar-inner'>
         {/* Left Nav */}
         <div className='nav-left'>
-          <a href='#' className='nav-link'>
+          <a href='/about' className='nav-link'>
             About Us
           </a>
           <div
@@ -71,7 +71,7 @@ export default function Header () {
             </a>
             <div className='dropdown'>
               {['Abuja', 'Kwara', 'Ondo', 'Ekiti', 'Buildings'].map(item => (
-                <p key={item}>{item}</p>
+                <a key={item} href={`/projects/${item.toLowerCase()}`}>{item}</a>
               ))}
             </div> */}
           </div>
@@ -83,13 +83,13 @@ export default function Header () {
             onMouseEnter={() => setActiveDropdown('company')}
             onMouseLeave={() => setActiveDropdown(null)}
           >
-            <a className='nav-link'>
+            <a className='nav-link' style={{ cursor: 'pointer' }}>
               Our Company <ChevronDown className='icon' />
             </a>
             <div className='dropdown'>
-              {['About Pro Hunters', 'Leadership', 'Careers'].map(item => (
-                <p key={item}>{item}</p>
-              ))}
+              <a href='/about' className='dropdown-link'>About Pro Hunters</a>
+              <a href='/leadership' className='dropdown-link'>Leadership</a>
+              <a href='/careers' className='dropdown-link'>Careers</a>
             </div>
           </div>
 
@@ -124,32 +124,21 @@ export default function Header () {
       {/* Mobile Drawer */}
       <div className={`mobile-menu${menuOpen ? ' open' : ''}`}>
         <div>
-          <a href='#'>About Us</a>
-          <details>
-            <summary>Our Projects</summary>
-            <ul>
-              <li>Abuja</li>
-              <li>Kwara</li>
-              <li>Ondo</li>
-              <li>Ekiti</li>
-              <li>Buildings</li>
-            </ul>
-          </details>
+          <a href='/about'>About Us</a>
           <a href='/buy'>Buy</a>
           <a href='/rent'>Rent</a>
           <a href='/contact'>Contact Us</a>
           <details>
             <summary>Our Company</summary>
             <ul>
-              <li>About Pro Hunters</li>
-              <li>Leadership</li>
-              <li>Careers</li>
+              <li><a href='/about'>About Pro Hunters</a></li>
+              <li><a href='/leadership'>Leadership</a></li>
+              <li><a href='/careers'>Careers</a></li>
             </ul>
           </details>
-          <a href='#'>Orange Yakata</a>
         </div>
         <div className='mobile-actions'>
-          <span className='mobile'>Sign Up</span>
+          <a href='/auth/register' className='mobile'>Sign Up</a>
           <span className='mobile'>DOWNLOAD APP</span>
         </div>
       </div>

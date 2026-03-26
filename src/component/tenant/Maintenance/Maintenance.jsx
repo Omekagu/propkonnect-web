@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { serviceRequests as serviceRequestsApi } from '@/libs/api'
 import { Wrench, Plus, Clock, CheckCircle, AlertCircle, ChevronDown, ChevronUp, Star } from 'lucide-react'
 import './Maintenance.scss'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
 
 const STATUS_LABELS = {
   open:        { label: 'Open',        color: '#2563eb' },
@@ -32,7 +30,7 @@ export default function Maintenance () {
   async function fetchRequests () {
     try {
       setLoading(true)
-      const { data } = await axios.get(`${API}/api/service-requests/mine`, { withCredentials: true })
+      const { data } = await serviceRequestsApi.getTenantMine()
       setRequests(data.requests || data.data || [])
     } catch {
       setMsg({ type: 'error', text: 'Failed to load maintenance requests.' })
@@ -49,7 +47,7 @@ export default function Maintenance () {
     setSubmitting(true)
     setMsg(null)
     try {
-      await axios.post(`${API}/api/service-requests`, form, { withCredentials: true })
+      await serviceRequestsApi.create(form)
       setMsg({ type: 'success', text: 'Request submitted successfully.' })
       setShowForm(false)
       setForm({ title: '', description: '', category: '', urgency: 'normal' })
@@ -67,7 +65,7 @@ export default function Maintenance () {
     setReleasing(srId)
     setMsg(null)
     try {
-      await axios.post(`${API}/api/service-requests/${srId}/complete`, {}, { withCredentials: true })
+      await serviceRequestsApi.complete(srId)
       setMsg({ type: 'success', text: 'Job confirmed complete. Payment released to artisan.' })
       fetchRequests()
     } catch (e) {
@@ -85,7 +83,7 @@ export default function Maintenance () {
       return
     }
     try {
-      await axios.post(`${API}/api/service-requests/${srId}/rate`, { rating: score, role: 'client' }, { withCredentials: true })
+      await serviceRequestsApi.rate(srId, { rating: score, role: 'client' })
       setMsg({ type: 'success', text: 'Rating submitted. Thank you!' })
       setRating(prev => ({ ...prev, [srId]: undefined }))
       fetchRequests()

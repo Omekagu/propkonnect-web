@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
-import axios from 'axios'
+import { properties as propertiesApi } from '@/libs/api'
 
 export const usePropertyManagement = () => {
   // State management
@@ -19,9 +19,6 @@ export const usePropertyManagement = () => {
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [activeView, setActiveView] = useState('properties')
 
-  const backend = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
-  const authToken = localStorage.getItem('authToken')
-
   /**
    * Show temporary notification
    */
@@ -31,18 +28,11 @@ export const usePropertyManagement = () => {
   }, [])
 
   const fetchProperties = useCallback(async () => {
-    if (!authToken) {
-      setError('No authentication token')
-      return
-    }
-
     setLoading(true)
     setError(null)
 
     try {
-      const res = await axios.get(`${backend}/api/properties/all`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      })
+      const res = await propertiesApi.getAll()
 
       // Handle both response formats
       let propertiesData = []
@@ -79,10 +69,10 @@ export const usePropertyManagement = () => {
     } finally {
       setLoading(false)
     }
-  }, [backend, showNotice])
+  }, [showNotice])
 
   const fetchApplications = useCallback(async () => {
-    if (!authToken || properties.length === 0) return
+    if (properties.length === 0) return
 
     setLoading(true)
     setError(null)
@@ -92,11 +82,7 @@ export const usePropertyManagement = () => {
 
       // Fetch applications for each property
       const promises = properties.map(property =>
-        axios
-          .get(
-            `${backend}/api/properties/property-applications/property/${property._id}`,
-            { headers: { Authorization: `Bearer ${authToken}` } }
-          )
+        propertiesApi.getApplications({ propertyId: property._id })
           .then(res => {
             if (res.data?.success && res.data.applications) {
               return res.data.applications.map(app => ({
@@ -127,7 +113,7 @@ export const usePropertyManagement = () => {
     } finally {
       setLoading(false)
     }
-  }, [backend, authToken, properties, showNotice])
+  }, [properties, showNotice])
 
   /**
    * Initial load: fetch properties on mount
@@ -156,11 +142,7 @@ export const usePropertyManagement = () => {
   const handleApprove = useCallback(
     async propertyId => {
       try {
-        const res = await axios.patch(
-          `${backend}/api/properties/${propertyId}/approve`,
-          {},
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        )
+        const res = await propertiesApi.updateStatus(propertyId, { status: 'published' })
         if (res.data?.success) {
           showNotice('Property approved and published')
           setProperties(prev =>
@@ -179,7 +161,7 @@ export const usePropertyManagement = () => {
         )
       }
     },
-    [backend, authToken, showNotice]
+    [showNotice]
   )
 
   /**
@@ -197,11 +179,7 @@ export const usePropertyManagement = () => {
   const handleRejectConfirm = useCallback(async () => {
     if (!rejectTargetId) return
     try {
-      const res = await axios.patch(
-        `${backend}/api/properties/${rejectTargetId}/reject`,
-        { reason: rejectReason },
-        { headers: { Authorization: `Bearer ${authToken}` } }
-      )
+      const res = await propertiesApi.updateStatus(rejectTargetId, { status: 'archived', reason: rejectReason })
       if (res.data?.success) {
         showNotice('Property rejected')
         setProperties(prev =>
@@ -222,7 +200,7 @@ export const usePropertyManagement = () => {
         'error'
       )
     }
-  }, [backend, authToken, rejectTargetId, rejectReason, showNotice])
+  }, [rejectTargetId, rejectReason, showNotice])
 
   /**
    * Delete a property
@@ -240,10 +218,7 @@ export const usePropertyManagement = () => {
       setLoading(true)
 
       try {
-        const res = await axios.delete(
-          `${backend}/api/properties/${propertyId}`,
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        )
+        const res = await propertiesApi.remove(propertyId)
 
         if (res.data?.success) {
           showNotice('Property archived successfully')
@@ -270,7 +245,7 @@ export const usePropertyManagement = () => {
         setLoading(false)
       }
     },
-    [backend, authToken, showNotice]
+    [showNotice]
   )
 
   /**
@@ -289,10 +264,7 @@ export const usePropertyManagement = () => {
     async propertyId => {
       try {
         setLoading(true)
-        const res = await axios.get(
-          `${backend}/api/properties/property-applications/property/${propertyId}`,
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        )
+        const res = await propertiesApi.getApplications({ propertyId })
 
         if (res.data?.success) {
           const applicationsWithProperty = (res.data.applications || []).map(
@@ -317,7 +289,7 @@ export const usePropertyManagement = () => {
         setLoading(false)
       }
     },
-    [backend, authToken, properties, showNotice]
+    [properties, showNotice]
   )
 
   /**
@@ -327,11 +299,7 @@ export const usePropertyManagement = () => {
     async (appId, newStatus) => {
       try {
         setLoading(true)
-        const res = await axios.patch(
-          `${backend}/api/properties/property-applications/${appId}/status`,
-          { status: newStatus },
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        )
+        const res = await propertiesApi.updateApplication(appId, { status: newStatus })
 
         if (res.data?.success) {
           showNotice(`Application ${newStatus} successfully`)
@@ -364,7 +332,7 @@ export const usePropertyManagement = () => {
         setLoading(false)
       }
     },
-    [backend, authToken, showModal, modalType, modalData, showNotice]
+    [showModal, modalType, modalData, showNotice]
   )
 
   /**
@@ -380,10 +348,7 @@ export const usePropertyManagement = () => {
 
       try {
         setLoading(true)
-        const res = await axios.delete(
-          `${backend}/api/properties/property-applications/${appId}`,
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        )
+        const res = await propertiesApi.deleteApplication(appId)
 
         if (res.data?.success) {
           showNotice('Application deleted successfully')
@@ -408,7 +373,7 @@ export const usePropertyManagement = () => {
         setLoading(false)
       }
     },
-    [backend, authToken, showModal, modalType, modalData, showNotice]
+    [showModal, modalType, modalData, showNotice]
   )
 
   // ── Property status filter (for admin review queue) ─────────────────────
@@ -554,6 +519,7 @@ export const usePropertyManagement = () => {
     setRejectModal,
     rejectReason,
     setRejectReason,
+    rejectTargetId,
 
     // Actions
     fetchProperties,

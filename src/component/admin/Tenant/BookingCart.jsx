@@ -10,10 +10,8 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
+import { bookings as bookingsApi } from '@/libs/api'
 import { ShoppingCart, Calendar, MapPin, Trash2, ArrowRight, Loader2 } from 'lucide-react'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
 
 function fmt (n, cur = 'NGN') {
   const sym = cur === 'USD' ? '$' : cur === 'GBP' ? '£' : '₦'
@@ -31,9 +29,7 @@ export default function BookingCart () {
   useEffect(() => {
     if (token) {
       // Logged-in: load from server
-      axios.get(`${API}/api/bookings/cart`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      bookingsApi.getCart()
         .then(r => setCart(r.data.cart || []))
         .catch(e => setErr(e.response?.data?.msg || 'Failed to load cart'))
         .finally(() => setLoading(false))
@@ -50,9 +46,7 @@ export default function BookingCart () {
   const removeItem = async (id) => {
     if (token) {
       try {
-        await axios.delete(`${API}/api/bookings/cart/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        await bookingsApi.removeFromCart(id)
         setCart(prev => prev.filter(b => b._id !== id))
       } catch (e) {
         alert(e.response?.data?.msg || 'Could not remove item')

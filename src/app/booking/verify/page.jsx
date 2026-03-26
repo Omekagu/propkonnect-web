@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import axios from 'axios'
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'

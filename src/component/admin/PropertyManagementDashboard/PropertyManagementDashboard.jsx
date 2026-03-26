@@ -44,6 +44,7 @@ const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
     setRejectModal,
     rejectReason,
     setRejectReason,
+    rejectTargetId,
 
     // Filtered data
     filteredProperties,
@@ -325,8 +326,8 @@ const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
               {getSortedProperties().map(property => (
                 <div key={property._id} className='property-card'>
                   <div className='property-image'>
-                    {property.images && property.images[0] ? (
-                      <img src={property.images[0]} alt={property.title} />
+                    {(property.media?.[0]?.url || property.images?.[0]) ? (
+                      <img src={property.media?.[0]?.url || property.images[0]} alt={property.title} />
                     ) : (
                       <div className='no-image'>No Image</div>
                     )}
@@ -375,11 +376,14 @@ const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
                     </p>
 
                     <div className='property-specs'>
-                      {property.units && property.units[0] && (
-                        <>
-                          <span>🛏️ {property.units[0].bedrooms} BR</span>
-                          <span>🚿 {property.units[0].bathrooms} BA</span>
-                        </>
+                      {(property.beds || property.bedrooms) && (
+                        <span>🛏️ {property.beds || property.bedrooms} BR</span>
+                      )}
+                      {(property.baths || property.bathrooms) && (
+                        <span>🚿 {property.baths || property.bathrooms} BA</span>
+                      )}
+                      {property.area && (
+                        <span>📐 {property.area} sqm</span>
                       )}
                     </div>
 
@@ -593,7 +597,7 @@ const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
               {modalType === 'view' && selectedProperty && (
                 <div className='property-detail-view'>
                   <img
-                    src={selectedProperty.images?.[0]}
+                    src={selectedProperty.media?.[0]?.url || selectedProperty.images?.[0]}
                     alt={selectedProperty.title}
                   />
                   <h3>{selectedProperty.title}</h3>

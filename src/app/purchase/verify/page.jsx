@@ -9,10 +9,8 @@
 
 import React, { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import axios from 'axios'
+import { properties as propertiesApi } from '@/libs/api'
 import { CheckCircle2, XCircle, Loader2, Home, ArrowLeft } from 'lucide-react'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
 
 function PurchaseVerifyContent () {
   const params = useSearchParams()
@@ -26,7 +24,7 @@ function PurchaseVerifyContent () {
   useEffect(() => {
     if (!ref) { setStatus('failed'); setMsg('No payment reference found.'); return }
 
-    axios.post(`${API}/api/properties/verify-purchase`, { reference: ref })
+    propertiesApi.verifyPurchase({ reference: ref })
       .then(res => {
         setData(res.data)
         setStatus('success')

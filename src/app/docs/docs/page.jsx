@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import axios from 'axios'
+import { properties as propertiesApi } from '@/libs/api'
 import { useRouter } from 'next/navigation'
 import {
   Search, SlidersHorizontal, X, MapPin, BedDouble, Bath,
@@ -9,7 +9,6 @@ import {
   Landmark, Store, Tag, Heart, Star, Loader2, AlertCircle
 } from 'lucide-react'
 
-const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
 const PAGE_SIZE = 12
 
 const CATEGORIES = ['All', 'Apartment', 'House', 'Shortlet', 'Hotel', 'Land', 'Commercial']
@@ -84,7 +83,7 @@ export default function PropertiesPage () {
       if (f.sort === 'price_desc') { params.sortBy = 'price';     params.sortOrder = 'desc' }
       if (f.sort === 'popular')    { params.sortBy = 'viewCount'; params.sortOrder = 'desc' }
 
-      const res = await axios.get(`${API}/api/properties`, { params })
+      const res = await propertiesApi.list(params)
       const data = res.data
       const list  = data.properties || data.data || (Array.isArray(data) ? data : [])
       const count = data.total ?? data.count ?? list.length

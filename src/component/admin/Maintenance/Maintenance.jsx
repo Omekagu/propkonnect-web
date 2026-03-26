@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { serviceRequests as serviceRequestsApi } from '@/libs/api'
 import { Wrench, Clock, CheckCircle, AlertCircle, ChevronDown, ChevronUp, Search, User } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
 
 const CATEGORIES = ['All', 'Plumbing', 'Electrical', 'Carpentry', 'Painting', 'Cleaning', 'HVAC', 'Security', 'Landscaping', 'General']
 
@@ -70,18 +68,13 @@ export default function Maintenance () {
   const [expanded, setExpanded] = useState(null)
   const [msg, setMsg] = useState(null)
 
-  const authHeader = () => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
-    return token ? { Authorization: `Bearer ${token}` } : {}
-  }
-
   useEffect(() => {
     if (user) fetchRequests()
   }, [user])
 
   async function fetchRequests () {
     try {
-      const { data } = await axios.get(`${API}/api/service-requests`, { headers: authHeader() })
+      const { data } = await serviceRequestsApi.getAll()
       setRequests(data.requests || data.data || data || [])
     } catch { setRequests([]) }
     setLoading(false)
@@ -89,7 +82,7 @@ export default function Maintenance () {
 
   async function markComplete (id) {
     try {
-      await axios.post(`${API}/api/service-requests/${id}/complete`, {}, { headers: authHeader() })
+      await serviceRequestsApi.complete(id)
       setMsg({ type: 'success', text: 'Request marked as completed.' })
       fetchRequests()
     } catch (e) {
@@ -100,7 +93,7 @@ export default function Maintenance () {
   async function cancelRequest (id) {
     if (!confirm('Cancel this maintenance request?')) return
     try {
-      await axios.post(`${API}/api/service-requests/${id}/cancel`, {}, { headers: authHeader() })
+      await serviceRequestsApi.cancel(id)
       setMsg({ type: 'success', text: 'Request cancelled.' })
       fetchRequests()
     } catch (e) {

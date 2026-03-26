@@ -1,10 +1,8 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import { bookings as bookingsApi } from '@/libs/api'
 import { Calendar, MapPin, Shield, Eye, ChevronRight, Loader2, AlertCircle } from 'lucide-react'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
 
 const STATUS_MAP = {
   confirmed:       { label: 'Confirmed',       bg: '#e8f5e9', color: '#0F6040' },
@@ -26,10 +24,7 @@ export default function MyBookings () {
   const [err, setErr] = useState(null)
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken')
-    axios.get(`${API}/api/bookings/my`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    bookingsApi.getMy()
       .then(r => setBookings(r.data.bookings || []))
       .catch(e => setErr(e.response?.data?.msg || 'Failed to load bookings'))
       .finally(() => setLoading(false))

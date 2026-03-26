@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Eye, EyeOff, AlertCircle, CheckCircle, Loader } from 'lucide-react'
 import './register.scss'
-import axios from 'axios'
+import { auth as authApi } from '@/libs/api'
 
 export default function Register () {
   const [userType, setUserType] = useState(null) // 'PROPERTY_OWNER' or 'artisan'
@@ -186,17 +186,9 @@ export default function Register () {
     setLoading(true)
 
     try {
-      const endpoint =
-        userType === 'PROPERTY_OWNER'
-          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register/PROPERTY_OWNER`
-          : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register/artisan`
-
       const payload =
         userType === 'PROPERTY_OWNER'
-          ? {
-              ...formData,
-              ...propertyOwnerData
-            }
+          ? { ...formData, ...propertyOwnerData }
           : {
               ...formData,
               businessName: artisanData.businessName,
@@ -204,7 +196,9 @@ export default function Register () {
               yearsOfExperience: artisanData.yearsOfExperience
             }
 
-      const response = await axios.post(endpoint, payload)
+      const response = userType === 'PROPERTY_OWNER'
+        ? await authApi.registerPropertyOwner(payload)
+        : await authApi.registerArtisan(payload)
 
       // With axios, successful responses are in response.data
       const data = response.data

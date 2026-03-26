@@ -508,9 +508,7 @@ export default function AdminLayout ({ children }) {
         case 'Reviews':
           return <Report />
         case 'Settings':
-          return <Settings />
         case 'Security':
-          return <Settings />
         case 'PlatformSettings':
           return <PlatformSettings />
         case 'EmailTemplates':

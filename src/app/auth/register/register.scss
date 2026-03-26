@@ -79,7 +79,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    background: #0f6040;
+    background: #0f172a;
   }
 }
 
@@ -153,7 +153,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    background: #0f6040;
+    background: #0f172a;
   }
 }
 
@@ -236,7 +236,7 @@
 
   @media (prefers-color-scheme: dark) {
     border-color: #1e293b;
-    background: var(--color-text-primary);
+    background: #1e2d3d;
     color: #334155;
   }
 
@@ -316,7 +316,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    background: var(--color-text-primary);
+    background: #1e2d3d;
     border-color: #1e293b;
 
     &:hover {
@@ -445,7 +445,7 @@
     transition: border-color 180ms ease, box-shadow 180ms ease;
 
     @media (prefers-color-scheme: dark) {
-      background: var(--color-text-primary);
+      background: #1e2d3d;
       border-color: #1e293b;
       color: var(--color-surface-hover);
     }
@@ -573,7 +573,7 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      background: var(--color-text-primary);
+      background: #1e2d3d;
       border-color: #334155;
     }
   }
@@ -641,7 +641,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    background: var(--color-text-primary);
+    background: #1e2d3d;
     border-color: #1e293b;
     color: var(--color-text-muted);
 

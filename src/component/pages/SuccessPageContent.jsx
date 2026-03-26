@@ -5,7 +5,6 @@ export const revalidate = 0
 
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL
 

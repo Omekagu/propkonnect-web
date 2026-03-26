@@ -1,23 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import axios from 'axios'
+import { serviceRequests as serviceRequestsApi, bids as bidsApi, paystack as paystackApi } from '@/libs/api'
 import './FindArtisan.scss'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const API_URL = `${
-  process.env.NEXT_PUBLIC_BACKEND_URL || 'http://10.0.1.42:4001'
-}/api`
 const POLL_INTERVAL = 3000
-
-const getAuthConfig = () => {
-  const token = localStorage.getItem('authToken')
-  if (!token) throw new Error('No auth token found. Please login again.')
-  return {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    }
-  }
-}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -110,10 +96,8 @@ function ServiceRequestView ({ onSuccess }) {
       async pos => {
         try {
           const { latitude, longitude } = pos.coords
-          const { data } = await axios.get(
-            'https://nominatim.openstreetmap.org/reverse',
-            { params: { lat: latitude, lon: longitude, format: 'json' } }
-          )
+          const nominatimRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`)
+          const data = await nominatimRes.json()
           setForm(p => ({
             ...p,
             location: {
@@ -142,20 +126,16 @@ function ServiceRequestView ({ onSuccess }) {
   const submit = async () => {
     setLoading(true)
     try {
-      const { data } = await axios.post(
-        `${API_URL}/service-requests`,
-        {
-          title: form.title,
-          description: form.description,
-          category: form.category,
-          location: form.location,
-          estimatedBudget: form.budget ? parseFloat(form.budget) : null,
-          urgency: form.urgency,
-          status: 'open',
-          images: form.images
-        },
-        getAuthConfig()
-      )
+      const { data } = await serviceRequestsApi.create({
+        title: form.title,
+        description: form.description,
+        category: form.category,
+        location: form.location,
+        estimatedBudget: form.budget ? parseFloat(form.budget) : null,
+        urgency: form.urgency,
+        status: 'open',
+        images: form.images
+      })
       setToast({
         msg: 'Request posted! Artisans will bid soon.',
         type: 'success'
@@ -352,10 +332,7 @@ function MyRequestsView ({ onNegotiate }) {
 
   const fetchRequests = useCallback(async (silent = false) => {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/service-requests/my-requests`,
-        getAuthConfig()
-      )
+      const { data } = await serviceRequestsApi.getMine()
       setRequests(data.data || [])
       console.log(data, data.data)
     } catch {
@@ -369,10 +346,7 @@ function MyRequestsView ({ onNegotiate }) {
     setLoadingBids(true)
     setBids([])
     try {
-      const { data } = await axios.get(
-        `${API_URL}/service-requests/${reqId}/bids`,
-        getAuthConfig()
-      )
+      const { data } = await serviceRequestsApi.getBids(reqId)
       setBids(data.data || [])
     } catch {
       setToast({ msg: 'Could not load bids', type: 'error' })
@@ -409,19 +383,11 @@ function MyRequestsView ({ onNegotiate }) {
     try {
       if (!alreadyAccepted) {
         // Step 1: accept the bid (mark as agreed)
-        await axios.post(
-          `${API_URL}/bids/${bid._id}/accept`,
-          {},
-          getAuthConfig()
-        )
+        await bidsApi.accept(bid._id, {})
       }
       // Step 2: initiate escrow payment via Paystack
       setToast({ msg: 'Preparing payment…', type: 'success' })
-      const payRes = await axios.post(
-        `${API_URL}/paystack/service-payment`,
-        { bidId: bid._id },
-        getAuthConfig()
-      )
+      const payRes = await paystackApi.servicePayment({ bidId: bid._id })
       if (payRes.data?.authorizationUrl) {
         window.location.href = payRes.data.authorizationUrl
       } else {
@@ -442,7 +408,7 @@ function MyRequestsView ({ onNegotiate }) {
 
   const declineBid = async bidId => {
     try {
-      await axios.post(`${API_URL}/bids/${bidId}/decline`, {}, getAuthConfig())
+      await bidsApi.reject(bidId, {})
       setToast({ msg: 'Bid declined', type: 'success' })
       if (selectedReq) fetchBids(selectedReq._id)
     } catch {
@@ -780,10 +746,7 @@ function NegotiationView ({ bid, userType, onBack, onAcceptAndPay }) {
 
   const fetchLatest = useCallback(async () => {
     try {
-      const { data } = await axios.get(
-        `${API_URL}/bids/${bid._id}`,
-        getAuthConfig()
-      )
+      const { data } = await bidsApi.getById(bid._id)
       const b = data.data || data
       setCurrentBid(b)
       setMessages(buildMsgs(b))
@@ -826,11 +789,7 @@ function NegotiationView ({ bid, userType, onBack, onAcceptAndPay }) {
     scrollBottom()
     setSending(true)
     try {
-      await axios.post(
-        `${API_URL}/bids/${bid._id}/negotiate`,
-        { message: msg, from: userType },
-        getAuthConfig()
-      )
+      await bidsApi.negotiate(bid._id, { message: msg, from: userType })
       await fetchLatest()
     } catch {
       showToast('Failed to send', 'error')
@@ -862,11 +821,7 @@ function NegotiationView ({ bid, userType, onBack, onAcceptAndPay }) {
     scrollBottom()
     setSending(true)
     try {
-      await axios.post(
-        `${API_URL}/bids/${bid._id}/negotiate`,
-        { amount, from: userType, message: note },
-        getAuthConfig()
-      )
+      await bidsApi.negotiate(bid._id, { amount, from: userType, message: note })
       await fetchLatest()
       showToast('Counter offer sent!')
     } catch {
@@ -891,21 +846,13 @@ function NegotiationView ({ bid, userType, onBack, onAcceptAndPay }) {
     setSending(true)
     try {
       if (!alreadyAccepted) {
-        await axios.post(
-          `${API_URL}/bids/${bid._id}/accept`,
-          { agreedAmount: offer.amount },
-          getAuthConfig()
-        )
+        await bidsApi.accept(bid._id, { agreedAmount: offer.amount })
         showToast('Offer accepted! Preparing payment…')
       } else {
         showToast('Preparing payment…')
       }
       setPaying(true)
-      const payRes = await axios.post(
-        `${API_URL}/paystack/service-payment`,
-        { bidId: bid._id },
-        getAuthConfig()
-      )
+      const payRes = await paystackApi.servicePayment({ bidId: bid._id })
       if (payRes.data?.authorizationUrl) {
         window.location.href = payRes.data.authorizationUrl
       } else {

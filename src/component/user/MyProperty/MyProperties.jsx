@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import { properties as propertiesApi } from '@/libs/api'
 import './myproperties.scss'
 
 export default function MyProperties () {
@@ -9,8 +9,7 @@ export default function MyProperties () {
 
   useEffect(() => {
     if (!userId) return
-    axios
-      .get(`http://localhost:5000/api/properties/history/${userId}`)
+    propertiesApi.getUserHistory(userId)
       .then(res => setHistory(res.data))
       .catch(err => console.error(err))
   }, [userId])

@@ -22,10 +22,7 @@ import {
   FiUsers,
   FiLoader
 } from 'react-icons/fi'
-import axios from 'axios'
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api'
+import { transactions as transactionsApi } from '@/libs/api'
 
 const CURRENCY = v =>
   v.toLocaleString('en-US', {
@@ -59,13 +56,7 @@ export default function FinanceDashboard () {
     const fetchTransactionData = async () => {
       try {
         setLoading(true)
-        const token = localStorage.getItem('authToken')
-
-        const response = await axios.get(`${API_BASE}/api/transaction/mine`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        })
+        const response = await transactionsApi.getMine()
 
         console.log('Transaction data response:', response)
 

@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import { users as usersApi } from '@/libs/api'
 import {
   AreaChart,
   Area,
@@ -102,9 +102,7 @@ export default function AdminDashboard () {
     setLoading(true)
     setError(null)
     try {
-      const res = await axios.get(`${API_URL}/api/user/stats`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const res = await usersApi.getStats()
       setStats(res.data.stats)
     } catch (err) {
       console.error('Dashboard stats error:', err)

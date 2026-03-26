@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import { users as usersApi } from '@/libs/api'
 import {
   FiSearch,
   FiFilter,
@@ -68,13 +68,7 @@ const EnhancedUserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('authToken')
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      )
+      const response = await usersApi.getAll()
       setUsers(response.data.users || [])
       setStats(response.data.stats)
       setError(null)
@@ -229,12 +223,7 @@ const EnhancedUserManagement = () => {
   const handleCreateUser = async e => {
     e.preventDefault()
     try {
-      const token = localStorage.getItem('authToken')
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user`,
-        formData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await usersApi.create(formData)
       setShowCreateModal(false)
       resetForm()
       fetchUsers()
@@ -247,12 +236,10 @@ const EnhancedUserManagement = () => {
   const handleUpdateUser = async e => {
     e.preventDefault()
     try {
-      const token = localStorage.getItem('authToken')
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${selectedUser._id}`,
-        formData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await usersApi.update(selectedUser._id, formData)
+      if (formData.role && formData.role !== selectedUser.role) {
+        await usersApi.changeRole(selectedUser._id, formData.role)
+      }
       setShowEditModal(false)
       resetForm()
       fetchUsers()
@@ -264,11 +251,7 @@ const EnhancedUserManagement = () => {
   // Delete user
   const handleDeleteUser = async () => {
     try {
-      const token = localStorage.getItem('authToken')
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${selectedUser._id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await usersApi.remove(selectedUser._id)
       setShowDeleteModal(false)
       setSelectedUser(null)
       fetchUsers()
@@ -280,12 +263,7 @@ const EnhancedUserManagement = () => {
   // Verify user
   const handleVerifyUser = async () => {
     try {
-      const token = localStorage.getItem('authToken')
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${selectedUser._id}/verify`,
-        { isVerified: !selectedUser.isVerified },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await usersApi.verify(selectedUser._id, { isVerified: !selectedUser.isVerified })
       setShowVerifyModal(false)
       fetchUsers()
     } catch (err) {
@@ -306,12 +284,8 @@ const EnhancedUserManagement = () => {
   const handleBulkDelete = async () => {
     if (!window.confirm(`Delete ${selectedUsers.length} users?`)) return
     try {
-      const token = localStorage.getItem('authToken')
       for (const userId of selectedUsers) {
-        await axios.delete(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
+        await usersApi.remove(userId)
       }
       setSelectedUsers([])
       fetchUsers()
@@ -427,9 +401,13 @@ const EnhancedUserManagement = () => {
           >
             <option value='all'>All Roles</option>
             <option value='SUPER_ADMIN'>Super Admin</option>
-            <option value='admin'>Admin</option>
-            <option value='user'>User</option>
+            <option value='SUB_ADMIN'>Sub Admin</option>
+            <option value='SUPPORT_ADMIN'>Support Admin</option>
+            <option value='PROPERTY_OWNER'>Property Owner</option>
             <option value='artisan'>Artisan</option>
+            <option value='property-admin'>Property Admin</option>
+            <option value='artisan-admin'>Artisan Admin</option>
+            <option value='user'>User</option>
           </select>
 
           <select
@@ -941,10 +919,22 @@ const EnhancedUserManagement = () => {
                       setFormData({ ...formData, role: e.target.value })
                     }
                   >
-                    <option value='user'>User</option>
-                    <option value='artisan'>Artisan</option>
-                    <option value='admin'>Admin</option>
-                    <option value='SUPER_ADMIN'>Super Admin</option>
+                    <optgroup label='Regular Users'>
+                      <option value='user'>User / Tenant</option>
+                      <option value='PROPERTY_OWNER'>Property Owner</option>
+                      <option value='artisan'>Artisan</option>
+                    </optgroup>
+                    <optgroup label='Specialist Admins'>
+                      <option value='property-admin'>Property Admin</option>
+                      <option value='artisan-admin'>Artisan Admin</option>
+                      <option value='sub-property-admin'>Sub-Property Admin</option>
+                      <option value='sub-artisan-admin'>Sub-Artisan Admin</option>
+                    </optgroup>
+                    <optgroup label='Platform Admins'>
+                      <option value='SUB_ADMIN'>Sub Admin</option>
+                      <option value='SUPPORT_ADMIN'>Support Admin</option>
+                      <option value='SUPER_ADMIN'>Super Admin</option>
+                    </optgroup>
                   </select>
                 </div>
                 <div className='form-group'>
@@ -1044,10 +1034,22 @@ const EnhancedUserManagement = () => {
                     setFormData({ ...formData, role: e.target.value })
                   }
                 >
-                  <option value='user'>User</option>
-                  <option value='artisan'>Artisan</option>
-                  <option value='admin'>Admin</option>
-                  <option value='SUPER_ADMIN'>Super Admin</option>
+                  <optgroup label='Regular Users'>
+                    <option value='user'>User / Tenant</option>
+                    <option value='PROPERTY_OWNER'>Property Owner</option>
+                    <option value='artisan'>Artisan</option>
+                  </optgroup>
+                  <optgroup label='Specialist Admins'>
+                    <option value='property-admin'>Property Admin</option>
+                    <option value='artisan-admin'>Artisan Admin</option>
+                    <option value='sub-property-admin'>Sub-Property Admin</option>
+                    <option value='sub-artisan-admin'>Sub-Artisan Admin</option>
+                  </optgroup>
+                  <optgroup label='Platform Admins'>
+                    <option value='SUB_ADMIN'>Sub Admin</option>
+                    <option value='SUPPORT_ADMIN'>Support Admin</option>
+                    <option value='SUPER_ADMIN'>Super Admin</option>
+                  </optgroup>
                 </select>
               </div>
               <div className='modal-actions'>

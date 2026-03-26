@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle, AlertCircle, Loader, Mail, ArrowLeft } from 'lucide-react'
 import './verify-otp.scss'
-import axios from 'axios'
+import { auth as authApi } from '@/libs/api'
 
 export default function VerifyOTP () {
   const searchParams = useSearchParams()
@@ -102,13 +102,10 @@ export default function VerifyOTP () {
         otp: otpCode
       })
 
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-otp`,
-        {
-          email: email.toLocaleLowerCase(),
-          otp: otpCode
-        }
-      )
+      const response = await authApi.verifyOtp({
+        email: email.toLocaleLowerCase(),
+        otp: otpCode
+      })
 
       const data = response.data
       console.log('Response data:', data)
@@ -149,13 +146,7 @@ export default function VerifyOTP () {
     setResending(true)
 
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/resend-otp`,
-        {
-          email,
-          userId
-        }
-      )
+      await authApi.resendOtp({ email, userId })
 
       // Clear current OTP
       setOtp(['', '', '', '', '', ''])

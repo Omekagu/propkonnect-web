@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
-import axios from 'axios'
+import { artisans as artisansApi } from '@/libs/api'
 
 /**
  * Custom hook for artisan management
@@ -21,9 +21,6 @@ export const useArtisanManagement = () => {
   const [selectedArtisan, setSelectedArtisan] = useState(null)
   const [sortBy, setSortBy] = useState('recent')
 
-  const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'
-  const endpoint = '/api/artisan'
-
   /**
    * Show temporary notification
    */
@@ -33,29 +30,14 @@ export const useArtisanManagement = () => {
   }, [])
 
   /**
-   * Get authentication token
-   */
-  const getToken = useCallback(() => {
-    return localStorage.getItem('authToken')
-  }, [])
-
-  /**
    * Fetch all artisans
    */
   const fetchArtisans = useCallback(async () => {
-    const token = getToken()
-    if (!token) {
-      setError('No authentication token. Please log in.')
-      return
-    }
-
     setLoading(true)
     setError(null)
 
     try {
-      const response = await axios.get(`${API_URL}${endpoint}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const response = await artisansApi.getPublic()
 
       // Handle multiple response formats
       let artisansData = []
@@ -90,28 +72,22 @@ export const useArtisanManagement = () => {
     } finally {
       setLoading(false)
     }
-  }, [API_URL, endpoint, getToken, showNotice])
+  }, [showNotice])
 
   /**
    * Get artisan by ID
    */
   const getArtisanById = useCallback(
     async id => {
-      const token = getToken()
-      if (!token) return null
-
       try {
-        const response = await axios.get(`${API_URL}${endpoint}/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-
+        const response = await artisansApi.getById(id)
         return response.data?.artisan || response.data?.data || response.data
       } catch (err) {
         console.error('Error fetching artisan:', err)
         return null
       }
     },
-    [API_URL, endpoint, getToken]
+    []
   )
 
   /**
@@ -119,23 +95,9 @@ export const useArtisanManagement = () => {
    */
   const createArtisan = useCallback(
     async artisanData => {
-      const token = getToken()
-      if (!token) {
-        showNotice('No authentication token', 'error')
-        return null
-      }
-
       setLoading(true)
-
       try {
-        const response = await axios.post(
-          `${API_URL}${endpoint}`,
-          artisanData,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        )
-
+        const response = await artisansApi.create(artisanData)
         if (response.data?.success || response.data?._id) {
           showNotice('Artisan created successfully')
           await fetchArtisans()
@@ -143,16 +105,13 @@ export const useArtisanManagement = () => {
         }
       } catch (err) {
         console.error('Error creating artisan:', err)
-        showNotice(
-          err.response?.data?.message || 'Failed to create artisan',
-          'error'
-        )
+        showNotice(err.response?.data?.message || 'Failed to create artisan', 'error')
         return null
       } finally {
         setLoading(false)
       }
     },
-    [API_URL, endpoint, getToken, showNotice, fetchArtisans]
+    [showNotice, fetchArtisans]
   )
 
   /**
@@ -160,41 +119,23 @@ export const useArtisanManagement = () => {
    */
   const updateArtisan = useCallback(
     async (id, artisanData) => {
-      const token = getToken()
-      if (!token) {
-        showNotice('No authentication token', 'error')
-        return null
-      }
-
       setLoading(true)
-
       try {
-        const response = await axios.put(
-          `${API_URL}${endpoint}/${id}`,
-          artisanData,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        )
-
+        const response = await artisansApi.update(id, artisanData)
         if (response.data?.success || response.data?._id) {
           showNotice('Artisan updated successfully')
-          // Update local state
           setArtisans(prev => prev.map(a => (a._id === id ? response.data : a)))
           return response.data
         }
       } catch (err) {
         console.error('Error updating artisan:', err)
-        showNotice(
-          err.response?.data?.message || 'Failed to update artisan',
-          'error'
-        )
+        showNotice(err.response?.data?.message || 'Failed to update artisan', 'error')
         return null
       } finally {
         setLoading(false)
       }
     },
-    [API_URL, endpoint, getToken, showNotice]
+    [showNotice]
   )
 
   /**
@@ -202,23 +143,10 @@ export const useArtisanManagement = () => {
    */
   const deleteArtisan = useCallback(
     async id => {
-      if (!window.confirm('Are you sure you want to delete this artisan?')) {
-        return false
-      }
-
-      const token = getToken()
-      if (!token) {
-        showNotice('No authentication token', 'error')
-        return false
-      }
-
+      if (!window.confirm('Are you sure you want to delete this artisan?')) return false
       setLoading(true)
-
       try {
-        const response = await axios.delete(`${API_URL}${endpoint}/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-
+        const response = await artisansApi.remove(id)
         if (response.data?.success) {
           showNotice('Artisan deleted successfully')
           setArtisans(prev => prev.filter(a => a._id !== id))
@@ -226,16 +154,13 @@ export const useArtisanManagement = () => {
         }
       } catch (err) {
         console.error('Error deleting artisan:', err)
-        showNotice(
-          err.response?.data?.message || 'Failed to delete artisan',
-          'error'
-        )
+        showNotice(err.response?.data?.message || 'Failed to delete artisan', 'error')
         return false
       } finally {
         setLoading(false)
       }
     },
-    [API_URL, endpoint, getToken, showNotice]
+    [showNotice]
   )
 
   /**
@@ -243,19 +168,8 @@ export const useArtisanManagement = () => {
    */
   const rateArtisan = useCallback(
     async (id, rating, review) => {
-      const token = getToken()
-      if (!token) {
-        showNotice('No authentication token', 'error')
-        return false
-      }
-
       try {
-        const response = await axios.post(
-          `${API_URL}${endpoint}/${id}/rate`,
-          { rating, review },
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-
+        const response = await artisansApi.rate(id, { rating, review })
         if (response.data?.success) {
           showNotice('Rating submitted successfully')
           await fetchArtisans()
@@ -263,14 +177,11 @@ export const useArtisanManagement = () => {
         }
       } catch (err) {
         console.error('Error rating artisan:', err)
-        showNotice(
-          err.response?.data?.message || 'Failed to submit rating',
-          'error'
-        )
+        showNotice(err.response?.data?.message || 'Failed to submit rating', 'error')
         return false
       }
     },
-    [API_URL, endpoint, getToken, showNotice, fetchArtisans]
+    [showNotice, fetchArtisans]
   )
 
   /**

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import axios from 'axios'
+import { properties as propertiesApi, bookings as bookingsApi, inspections as inspectionsApi, platformConfig as platformConfigApi, payments as paymentsApi } from '@/libs/api'
 import {
   MapPin,
   Phone,
@@ -49,8 +49,6 @@ import {
   Loader2
 } from 'lucide-react'
 import './propertyDetails.scss'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -194,8 +192,8 @@ export default function PropertyDetails () {
       return
     }
     setLoading(true)
-    axios
-      .get(`${API}/api/properties/${id}`)
+    propertiesApi
+      .getById(id)
       .then(res => {
         const p = res.data?.property ?? res.data?.data ?? res.data
         setProperty({
@@ -217,16 +215,16 @@ export default function PropertyDetails () {
 
   useEffect(() => {
     if (!id || !property) return
-    axios
-      .get(`${API}/api/properties/${id}/similar`)
+    propertiesApi
+      .getSimilar(id)
       .then(r => setSimilar(r.data?.properties || r.data?.data || []))
       .catch(() => {})
   }, [id, property])
 
   // Fetch platform inspection fee (public, no auth)
   useEffect(() => {
-    axios
-      .get(`${API}/api/platform-config`)
+    platformConfigApi
+      .get()
       .then(r => {
         if (r.data?.config?.inspectionFee)
           setPlatformInspFee(r.data.config.inspectionFee)
@@ -237,8 +235,8 @@ export default function PropertyDetails () {
   // Fetch comments
   useEffect(() => {
     if (!id) return
-    axios
-      .get(`${API}/api/properties/${id}/comments?limit=10`)
+    propertiesApi
+      .getComments(id, { limit: 10 })
       .then(r => {
         setComments(r.data?.comments || [])
         setCommentTotal(r.data?.total || 0)
@@ -250,12 +248,9 @@ export default function PropertyDetails () {
   useEffect(() => {
     if (!property) return
     setLikeCount(property.likeCount || 0)
-    const token = localStorage.getItem('authToken')
-    if (!token) return
-    axios
-      .get(`${API}/api/properties/${id}/like-status`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+    if (!localStorage.getItem('authToken')) return
+    propertiesApi
+      .getLikeStatus(id)
       .then(r => setLiked(r.data?.liked || false))
       .catch(() => {})
   }, [id, property])
@@ -275,10 +270,8 @@ export default function PropertyDetails () {
     }
     const cat = (property.category || '').toLowerCase()
     if (!['hotel', 'shortlet'].includes(cat)) return
-    axios
-      .get(`${API}/api/bookings/check-availability`, {
-        params: { propertyId: id, checkIn: bookingStart, checkOut: bookingEnd }
-      })
+    bookingsApi
+      .checkAvailability({ propertyId: id, checkIn: bookingStart, checkOut: bookingEnd })
       .then(r => setLiveAvail(r.data || null))
       .catch(() => setLiveAvail(null))
   }, [id, property, bookingStart, bookingEnd])
@@ -512,21 +505,17 @@ export default function PropertyDetails () {
     }
     setRenting(true)
     try {
-      const res = await axios.post(
-        `${API}/api/properties/${id}/initiate-rent`,
-        {
-          renterName: renterName.trim(),
-          renterEmail: renterEmail.trim().toLowerCase(),
-          renterPhone: renterPhone.trim() || undefined,
-          moveInDate: moveInDate || undefined,
-          message: message.trim() || undefined,
-          roomTypeIdx:
-            selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
-          roomTypeName: selectedRoomType?.name || undefined,
-          roomQty,
-          paymentPlanIdx: selectedPlanIdx >= 0 ? selectedPlanIdx : undefined
-        }
-      )
+      const res = await propertiesApi.initiateRent(id, {
+        renterName: renterName.trim(),
+        renterEmail: renterEmail.trim().toLowerCase(),
+        renterPhone: renterPhone.trim() || undefined,
+        moveInDate: moveInDate || undefined,
+        message: message.trim() || undefined,
+        roomTypeIdx: selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
+        roomTypeName: selectedRoomType?.name || undefined,
+        roomQty,
+        paymentPlanIdx: selectedPlanIdx >= 0 ? selectedPlanIdx : undefined
+      })
       if (res.data?.authorizationUrl) {
         window.location.href = res.data.authorizationUrl
       } else {
@@ -560,7 +549,7 @@ export default function PropertyDetails () {
       const rtIdx = selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : 0
       const rt = property.roomTypes?.[rtIdx]
       const rtId = rt?.roomTypeId || `idx_${rtIdx}`
-      const res = await axios.post(`${API}/api/bookings/init-payment`, {
+      const res = await bookingsApi.initPayment({
         propertyId: id,
         roomTypeIdx: rtIdx,
         roomTypeName: rt?.name || undefined,
@@ -605,7 +594,7 @@ export default function PropertyDetails () {
     }
     setInspLoading(true)
     try {
-      const res = await axios.post(`${API}/api/inspections/init-payment`, {
+      const res = await inspectionsApi.initPayment({
         propertyId: id,
         requesterName: requesterName.trim(),
         requesterEmail: requesterEmail.trim().toLowerCase(),
@@ -644,20 +633,16 @@ export default function PropertyDetails () {
     }
     setPurchasing(true)
     try {
-      const res = await axios.post(
-        `${API}/api/properties/${id}/initiate-purchase`,
-        {
-          buyerName: buyerName.trim(),
-          buyerEmail: buyerEmail.trim().toLowerCase(),
-          buyerPhone: buyerPhone.trim() || undefined,
-          paymentPlanId: plan?.id || plan?._id || undefined,
-          amount,
-          roomTypeIdx:
-            selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
-          roomTypeName: selectedRoomType?.name || undefined,
-          roomQty
-        }
-      )
+      const res = await propertiesApi.initiatePurchase(id, {
+        buyerName: buyerName.trim(),
+        buyerEmail: buyerEmail.trim().toLowerCase(),
+        buyerPhone: buyerPhone.trim() || undefined,
+        paymentPlanId: plan?.id || plan?._id || undefined,
+        amount,
+        roomTypeIdx: selectedRoomTypeIdx >= 0 ? selectedRoomTypeIdx : undefined,
+        roomTypeName: selectedRoomType?.name || undefined,
+        roomQty
+      })
       if (res.data?.authorizationUrl) {
         window.location.href = res.data.authorizationUrl
       } else {
@@ -680,11 +665,7 @@ export default function PropertyDetails () {
     setSubmittingComment(true)
     setCommentStatus(null)
     try {
-      await axios.post(
-        `${API}/api/properties/${id}/comments`,
-        { comment: commentText.trim(), rating: commentRating || undefined },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await propertiesApi.addComment(id, { comment: commentText.trim(), rating: commentRating || undefined })
       setCommentText('')
       setCommentRating(0)
       setCommentStatus('pending')
@@ -702,11 +683,7 @@ export default function PropertyDetails () {
       return
     }
     try {
-      const res = await axios.post(
-        `${API}/api/properties/${id}/like`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      const res = await propertiesApi.like(id)
       setLiked(res.data.liked)
       setLikeCount(c => (res.data.liked ? c + 1 : Math.max(0, c - 1)))
     } catch {}
@@ -735,15 +712,12 @@ export default function PropertyDetails () {
       return
     }
     try {
-      const res = await axios.post(
-        `${API}/api/payment/initialize-monnify-transaction`,
-        {
-          amount,
-          customerName: 'Guest',
-          customerEmail: 'guest@example.com',
-          paymentReference: 'REF-' + Date.now()
-        }
-      )
+      const res = await paymentsApi.initMonnify({
+        amount,
+        customerName: 'Guest',
+        customerEmail: 'guest@example.com',
+        paymentReference: 'REF-' + Date.now()
+      })
       if (res.data?.requestSuccessful)
         window.location.href = res.data.responseBody.checkoutUrl
       else alert('Failed to initialize payment')

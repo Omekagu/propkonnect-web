@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { uploadToCloudinary } from '@/context/cloudinaryHelper'
 import './UploadPorfolio.scss'
-import axios from 'axios'
+import { artisans as artisansApi } from '@/libs/api'
 import { useRouter } from 'next/navigation'
 const ArtisanPortfolio = () => {
   const [formData, setFormData] = useState({
@@ -9,7 +9,6 @@ const ArtisanPortfolio = () => {
     bio: '',
     experience: ''
   })
-  const backend = process.env.NEXT_PUBLIC_BACKEND_URL || ''
   const [images, setImages] = useState([])
   const [previews, setPreviews] = useState([])
   const [loading, setLoading] = useState(false)
@@ -110,16 +109,7 @@ const ArtisanPortfolio = () => {
       setMessage({ type: 'info', text: 'Saving portfolio...' })
       setUploadProgress(75)
 
-      const response = await axios.post(
-        `${backend}/api/artisan/portfolio`,
-        submitData,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      )
+      const response = await artisansApi.createPortfolio(submitData)
 
       setUploadProgress(100)
 

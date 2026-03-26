@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useState, useEffect } from 'react'
-import axios from 'axios'
+import { dashboard as dashboardApi, leases as leasesApi } from '@/libs/api'
 import {
   Users,
   Home,
@@ -15,8 +15,6 @@ import {
   BedDouble
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL
 
 // ── Styles ──────────────────────────────────────────────────────────────────
 const s = {
@@ -114,11 +112,10 @@ export default function Tenant ({ title = 'Tenants' }) {
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
     if (!token) { setLoading(false); return }
-    const h = { headers: { Authorization: `Bearer ${token}` } }
 
     Promise.all([
-      axios.get(`${API}/api/dashboard/tenants`, h),
-      axios.get(`${API}/api/leases/landlord`, h).catch(() => ({ data: { leases: [] } }))
+      dashboardApi.getTenants(),
+      leasesApi.getLandlord().catch(() => ({ data: { leases: [] } }))
     ])
       .then(([tenRes, leaseRes]) => {
         // Prefer the richer /dashboard/tenants data; fallback to /leases/landlord

@@ -84,6 +84,18 @@ const RELATIONSHIPS = [
   'Other'
 ]
 
+// ── Document number max lengths by type ────────────────────────────────────────
+const DOC_MAX_LENGTH = {
+  nin: 11,
+  bvn: 11,
+  passport: 9,
+  drivers_license: 12,
+  voters_card: 19
+}
+
+// ── Max file size: 8 MB ────────────────────────────────────────────────────────
+const MAX_FILE_BYTES = 8 * 1024 * 1024
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function UploadBox ({
@@ -468,6 +480,11 @@ export default function KYCForm ({
   const makeFileHandler = (setUrl, setBusy) => async e => {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > MAX_FILE_BYTES) {
+      flash('File too large — maximum size is 8 MB')
+      e.target.value = ''
+      return
+    }
     setBusy(true)
     try {
       const url = await uploadToCloudinary(file, 'document')
@@ -483,14 +500,18 @@ export default function KYCForm ({
   // ── Step validation ───────────────────────────────────────────────────────────
   const canProceed = () => {
     switch (currentStep) {
-      case 1:
+      case 1: {
         // Required only for strict roles
         if (isStrict) {
           if (!dateOfBirth) return false
+          // Enforce 18+ minimum age
+          const ageMs = Date.now() - new Date(dateOfBirth).getTime()
+          if (ageMs < 18 * 365.25 * 86400000) return false
           if (!gender) return false
           if (!maritalStatus) return false
         }
         return true
+      }
       case 2:
         if (!documentType) return false
         if (!docFrontUrl) return false
@@ -807,7 +828,13 @@ export default function KYCForm ({
               value={documentNumber}
               onChange={e => setDocumentNumber(e.target.value)}
               placeholder='e.g. 12345678901'
+              maxLength={DOC_MAX_LENGTH[documentType] || 20}
             />
+            {DOC_MAX_LENGTH[documentType] && (
+              <span className='kyc-form-hint'>
+                Max {DOC_MAX_LENGTH[documentType]} characters for {DOC_TYPES.find(d => d.value === documentType)?.label}.
+              </span>
+            )}
           </div>
 
           <div className='kyc-form-field'>

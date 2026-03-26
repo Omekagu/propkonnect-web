@@ -330,6 +330,7 @@ const mkBlankForm = () => ({
     }
   ],
   cautionFee: { required: false, amount: '', description: '' },
+  intentDeposit: { enabled: false, amount: '', pct: 10, description: '' },
   inspectionFee: { required: false, amount: '', durationMinutes: 60 },
   totalUnits: 1,
   seoTitle: '',
@@ -339,6 +340,13 @@ const mkBlankForm = () => ({
   amenitiesDetailed: {},
   languagesSpoken: [],
   nearbyPlaces: [],
+  landDetails: {
+    isFenced: false,
+    hasAccessRoad: false,
+    landUse: '',
+    plotUnit: 'sqm',
+    topography: ''
+  },
   houseRules: {
     checkIn: { from: '14:00', to: '22:00' },
     checkOut: { from: '08:00', to: '11:00' },
@@ -1102,6 +1110,26 @@ export default function UploadPropertyWizard ({
                 durationMinutes: form.inspectionFee.durationMinutes || 60
               }
             : undefined,
+        intentDeposit:
+          form.intentDeposit?.enabled && form.intentDeposit?.amount
+            ? {
+                enabled: true,
+                amount: Number(form.intentDeposit.amount),
+                pct: Number(form.intentDeposit.pct) || 10,
+                currency: form.currency || 'NGN',
+                description: form.intentDeposit.description || undefined
+              }
+            : undefined,
+        landDetails:
+          form.category === 'Land'
+            ? {
+                isFenced: !!form.landDetails?.isFenced,
+                hasAccessRoad: !!form.landDetails?.hasAccessRoad,
+                landUse: form.landDetails?.landUse || undefined,
+                plotUnit: form.landDetails?.plotUnit || 'sqm',
+                topography: form.landDetails?.topography || undefined
+              }
+            : undefined,
         // Initialise availability tracking with total units declared by owner
         availability: {
           totalUnits: Number(form.totalUnits) || 1,
@@ -1528,6 +1556,88 @@ export default function UploadPropertyWizard ({
               </div>
             )}
 
+            {/* ── Land-specific fields ──────────────────────────────── */}
+            {form.category === 'Land' && (
+              <>
+                <div className='wz-row c3' style={{ marginBottom: 16 }}>
+                  <div className='wz-field'>
+                    <label>
+                      <Maximize2 size={12} style={{ display: 'inline', marginRight: 4 }} />
+                      Plot Size
+                    </label>
+                    <input
+                      type='number'
+                      min='0'
+                      value={form.area}
+                      onChange={e => set('area', e.target.value)}
+                      placeholder='500'
+                    />
+                  </div>
+                  <div className='wz-field'>
+                    <label>Unit</label>
+                    <select
+                      value={form.landDetails?.plotUnit || 'sqm'}
+                      onChange={e => set('landDetails', { ...form.landDetails, plotUnit: e.target.value })}
+                    >
+                      <option value='sqm'>sqm</option>
+                      <option value='sqft'>sqft</option>
+                      <option value='acres'>Acres</option>
+                      <option value='hectares'>Hectares</option>
+                    </select>
+                  </div>
+                  <div className='wz-field'>
+                    <label>Land Use</label>
+                    <select
+                      value={form.landDetails?.landUse || ''}
+                      onChange={e => set('landDetails', { ...form.landDetails, landUse: e.target.value })}
+                    >
+                      <option value=''>Select…</option>
+                      <option value='Residential'>Residential</option>
+                      <option value='Commercial'>Commercial</option>
+                      <option value='Agricultural'>Agricultural</option>
+                      <option value='Industrial'>Industrial</option>
+                      <option value='Mixed Use'>Mixed Use</option>
+                    </select>
+                  </div>
+                </div>
+                <div className='wz-row c3' style={{ marginBottom: 16 }}>
+                  <div className='wz-field'>
+                    <label>Fenced</label>
+                    <select
+                      value={form.landDetails?.isFenced ? 'yes' : 'no'}
+                      onChange={e => set('landDetails', { ...form.landDetails, isFenced: e.target.value === 'yes' })}
+                    >
+                      <option value='no'>No</option>
+                      <option value='yes'>Yes</option>
+                    </select>
+                  </div>
+                  <div className='wz-field'>
+                    <label>Access Road</label>
+                    <select
+                      value={form.landDetails?.hasAccessRoad ? 'yes' : 'no'}
+                      onChange={e => set('landDetails', { ...form.landDetails, hasAccessRoad: e.target.value === 'yes' })}
+                    >
+                      <option value='no'>No</option>
+                      <option value='yes'>Yes</option>
+                    </select>
+                  </div>
+                  <div className='wz-field'>
+                    <label>Topography</label>
+                    <select
+                      value={form.landDetails?.topography || ''}
+                      onChange={e => set('landDetails', { ...form.landDetails, topography: e.target.value })}
+                    >
+                      <option value=''>Select…</option>
+                      <option value='Flat'>Flat</option>
+                      <option value='Sloped'>Sloped</option>
+                      <option value='Hilly'>Hilly</option>
+                      <option value='Waterfront'>Waterfront</option>
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className='wz-field'>
               <label>Amenities & Features</label>
               <div className='wz-feat-grid'>
@@ -1717,6 +1827,122 @@ export default function UploadPropertyWizard ({
                 </div>
               )}
             </div>
+
+            {/* ── Intent / Expression-of-Interest Deposit (For Sale only) ── */}
+            {(form.purpose === 'For Sale' || form.purpose === 'Both') && (
+              <>
+                <hr className='wz-divider' />
+                <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
+                  Intent / Expression-of-Interest Deposit
+                </p>
+                <p style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>
+                  Allow buyers to pay a small deposit upfront to reserve this
+                  property while they arrange full payment. The deposit is
+                  deducted from the sale price on completion.
+                </p>
+                <div
+                  className='wz-row'
+                  style={{ alignItems: 'center', gap: 12, marginBottom: 12 }}
+                >
+                  <label
+                    className='wz-toggle-label'
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      cursor: 'pointer',
+                      fontSize: 14
+                    }}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={!!form.intentDeposit?.enabled}
+                      onChange={e =>
+                        set('intentDeposit', {
+                          ...form.intentDeposit,
+                          enabled: e.target.checked
+                        })
+                      }
+                      style={{ width: 16, height: 16 }}
+                    />
+                    Enable intent deposit for this property
+                  </label>
+                </div>
+                {form.intentDeposit?.enabled && (
+                  <div className='wz-row c2'>
+                    <div className='wz-field'>
+                      <label>Deposit Amount ({form.currency})</label>
+                      <input
+                        type='number'
+                        min='0'
+                        value={form.intentDeposit?.amount || ''}
+                        onChange={e => {
+                          const amt = e.target.value
+                          const salePct =
+                            form.price && Number(form.price) > 0
+                              ? Math.round(
+                                  (Number(amt) / Number(form.price)) * 100
+                                )
+                              : form.intentDeposit?.pct || 10
+                          set('intentDeposit', {
+                            ...form.intentDeposit,
+                            amount: amt,
+                            pct: salePct
+                          })
+                        }}
+                        placeholder='e.g. 500000'
+                      />
+                      {form.intentDeposit?.pct > 0 && form.price && (
+                        <span style={{ fontSize: 12, color: '#666' }}>
+                          ≈ {form.intentDeposit.pct}% of sale price
+                        </span>
+                      )}
+                    </div>
+                    <div className='wz-field'>
+                      <label>% of Sale Price (auto-calculated)</label>
+                      <input
+                        type='number'
+                        min='1'
+                        max='50'
+                        value={form.intentDeposit?.pct || 10}
+                        onChange={e => {
+                          const pct = Number(e.target.value)
+                          const amt =
+                            form.price && Number(form.price) > 0
+                              ? Math.round(
+                                  (pct / 100) * Number(form.price)
+                                )
+                              : form.intentDeposit?.amount || ''
+                          set('intentDeposit', {
+                            ...form.intentDeposit,
+                            pct,
+                            amount: String(amt)
+                          })
+                        }}
+                        placeholder='10'
+                      />
+                      <span style={{ fontSize: 12, color: '#666' }}>
+                        Editing % auto-fills amount when sale price is set
+                      </span>
+                    </div>
+                    <div className='wz-field' style={{ gridColumn: '1 / -1' }}>
+                      <label>Terms / Description (optional)</label>
+                      <input
+                        type='text'
+                        value={form.intentDeposit?.description || ''}
+                        onChange={e =>
+                          set('intentDeposit', {
+                            ...form.intentDeposit,
+                            description: e.target.value
+                          })
+                        }
+                        placeholder='e.g. Holds property for 30 days pending full payment'
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
             {/* Caution / Security deposit — not for Land */}
             {form.category !== 'Land' && (

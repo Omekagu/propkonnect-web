@@ -887,6 +887,7 @@ const PLAN_FEATURE_OPTIONS = [
 
 function PlansTab ({ settings, onSave, saving }) {
   const [plans, setPlans] = useState(settings?.subscriptionPlans || [])
+  const tierOptions = (settings?.listingTiers || []).map(t => t.name)
 
   useEffect(() => {
     setPlans(settings?.subscriptionPlans || [])
@@ -977,7 +978,7 @@ function PlansTab ({ settings, onSave, saving }) {
                   }
                 />
               </div>
-              <div className='ps-plan-field' style={{ gridColumn: '1/-1' }}>
+              <div className='ps-plan-field'>
                 <label>Paystack Plan Code</label>
                 <input
                   type='text'
@@ -988,6 +989,18 @@ function PlansTab ({ settings, onSave, saving }) {
                     setField(idx, 'paystackPlanCode', e.target.value)
                   }
                 />
+              </div>
+              <div className='ps-plan-field'>
+                <label>Listing Tier Granted</label>
+                <select
+                  className='ps-input'
+                  value={plan.listingTier || 'Standard'}
+                  onChange={e => setField(idx, 'listingTier', e.target.value)}
+                >
+                  {(tierOptions.length ? tierOptions : ['Standard', 'Gold', 'Diamond', 'Elite']).map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className='ps-plan-features'>

@@ -1,17 +1,7 @@
 'use client'
 import React, { useEffect, useState, useCallback } from 'react'
 import { CheckCircle2, Trash2, Star, RefreshCw, Filter } from 'lucide-react'
-import axios from 'axios'
-
-const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
-
-function getToken () {
-  return typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
-}
-
-function headers () {
-  return { Authorization: `Bearer ${getToken()}` }
-}
+import { adminComments as adminCommentsApi } from '@/libs/api'
 
 export default function Comments () {
   const [comments, setComments] = useState([])
@@ -28,8 +18,7 @@ export default function Comments () {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const params = filter !== 'all' ? `?status=${filter}` : ''
-      const res = await axios.get(`${API}/api/admin/comments${params}`, { headers: headers() })
+      const res = await adminCommentsApi.getAll(filter !== 'all' ? { status: filter } : {})
       setComments(res.data.comments || [])
       setTotal(res.data.total || 0)
     } catch {
@@ -41,7 +30,7 @@ export default function Comments () {
 
   const approve = async (id) => {
     try {
-      await axios.patch(`${API}/api/admin/comments/${id}/approve`, {}, { headers: headers() })
+      await adminCommentsApi.approve(id)
       setComments(prev => prev.map(c => c._id === id ? { ...c, approved: true } : c))
       notify('Comment approved — now visible to users')
     } catch { notify('Failed to approve', 'error') }
@@ -50,7 +39,7 @@ export default function Comments () {
   const remove = async (id) => {
     if (!confirm('Delete this comment permanently?')) return
     try {
-      await axios.delete(`${API}/api/admin/comments/${id}`, { headers: headers() })
+      await adminCommentsApi.remove(id)
       setComments(prev => prev.filter(c => c._id !== id))
       notify('Comment deleted')
     } catch { notify('Failed to delete', 'error') }

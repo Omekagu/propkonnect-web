@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import { properties as propertiesApi } from '@/libs/api'
 import './rent.scss'
 import { Bath, BedDouble, MapPin, Ruler, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -34,10 +34,8 @@ export default function BuyPropertyList () {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/properties`
-        )
-        setProperties(Array.isArray(res.data) ? res.data : [])
+        const res = await propertiesApi.getAll()
+        setProperties(Array.isArray(res.data?.properties) ? res.data.properties : Array.isArray(res.data) ? res.data : [])
       } catch (error) {
         setProperties([])
         console.log('Error fetching properties:', error)
