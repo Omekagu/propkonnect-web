@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './Landing.scss'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || ''
 const APP_NAME_FALLBACK = process.env.NEXT_PUBLIC_APP_NAME || 'propnekt'
