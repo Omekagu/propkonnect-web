@@ -823,10 +823,10 @@ export default function LandingPage () {
               escrow-protected payments.
             </p>
             <ul className='lp-artisan__perks'>
-              <li>✅ Background-checked &amp; certified</li>
-              <li>✅ Read reviews before you book</li>
-              <li>✅ Escrow payment — pay on completion</li>
-              <li>✅ Real-time messaging &amp; scheduling</li>
+              <li> Background-checked &amp; certified</li>
+              <li> Read reviews before you book</li>
+              <li> Escrow payment — pay on completion</li>
+              <li> Real-time messaging &amp; scheduling</li>
             </ul>
             <button
               className='lp-btn-lime'

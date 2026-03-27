@@ -14,6 +14,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import axios from 'axios'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL
 

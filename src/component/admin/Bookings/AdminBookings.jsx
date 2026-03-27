@@ -205,7 +205,7 @@ export default function AdminBookings () {
       const params = new URLSearchParams({ page: pg, limit: LIMIT })
       if (q)  params.set('search', q)
       if (st) params.set('status', st)
-      const res = await apiClient.get(`/dashboard/admin/bookings?${params}`)
+      const res = await apiClient.get(`/api/dashboard/admin/bookings?${params}`)
       if (res.data.success) {
         setBookings(res.data.bookings)
         setPagination(res.data.pagination)

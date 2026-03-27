@@ -9,12 +9,26 @@ const APP = process.env.NEXT_PUBLIC_APP_NAME
 
 // Window patterns per building (1 = lit, 0 = dark)
 const BUILDINGS = [
-  { cls: 'lp-building--1', wins: [1,0,1, 0,1,0, 1,1,0, 0,0,1] },
-  { cls: 'lp-building--2', wins: [0,1,1, 1,0,1, 0,1,0, 1,0,1, 1,1,0, 0,1,1] },
-  { cls: 'lp-building--3', wins: [1,0,1, 0,1,0, 1,0,1, 0,1,1, 1,1,0, 1,0,0, 0,1,1, 1,0,1] },
-  { cls: 'lp-building--4', wins: [0,1,0, 1,0,1, 0,1,1, 1,0,0, 0,1,0, 1,1,0] },
-  { cls: 'lp-building--5', wins: [1,1,0, 0,1,0, 1,0,1, 0,1,0, 1,0,1] },
-  { cls: 'lp-building--6', wins: [0,1,0, 1,1,0, 0,0,1] },
+  { cls: 'lp-building--1', wins: [1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1] },
+  {
+    cls: 'lp-building--2',
+    wins: [0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1]
+  },
+  {
+    cls: 'lp-building--3',
+    wins: [
+      1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1
+    ]
+  },
+  {
+    cls: 'lp-building--4',
+    wins: [0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0]
+  },
+  {
+    cls: 'lp-building--5',
+    wins: [1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+  },
+  { cls: 'lp-building--6', wins: [0, 1, 0, 1, 1, 0, 0, 0, 1] }
 ]
 
 export default function AuthPage () {
@@ -58,17 +72,29 @@ export default function AuthPage () {
     return () => window.removeEventListener('storage', handler)
   }, [])
 
-  useEffect(() => () => { if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current) }, [])
+  useEffect(
+    () => () => {
+      if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current)
+    },
+    []
+  )
 
   useEffect(() => {
     if (resendCooldown <= 0) {
-      if (cooldownTimerRef.current) { clearInterval(cooldownTimerRef.current); cooldownTimerRef.current = null }
+      if (cooldownTimerRef.current) {
+        clearInterval(cooldownTimerRef.current)
+        cooldownTimerRef.current = null
+      }
       return
     }
     if (!cooldownTimerRef.current) {
       cooldownTimerRef.current = setInterval(() => {
         setResendCooldown(p => {
-          if (p <= 1) { clearInterval(cooldownTimerRef.current); cooldownTimerRef.current = null; return 0 }
+          if (p <= 1) {
+            clearInterval(cooldownTimerRef.current)
+            cooldownTimerRef.current = null
+            return 0
+          }
           return p - 1
         })
       }, 1000)
@@ -78,87 +104,165 @@ export default function AuthPage () {
   // ── Helpers ────────────────────────────────────────────────
   const getOrCreateDeviceId = () => {
     let id = localStorage.getItem('deviceId')
-    if (!id) { id = btoa(`${navigator.userAgent}-${navigator.language}-${new Date().getTimezoneOffset()}`) + '-' + Date.now(); localStorage.setItem('deviceId', id) }
+    if (!id) {
+      id =
+        btoa(
+          `${navigator.userAgent}-${
+            navigator.language
+          }-${new Date().getTimezoneOffset()}`
+        ) +
+        '-' +
+        Date.now()
+      localStorage.setItem('deviceId', id)
+    }
     return id
   }
 
   const formatCooldown = s => {
     if (!s) return ''
     const m = Math.floor(s / 60)
-    return m > 0 ? `${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}` : `${s}s`
+    return m > 0
+      ? `${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+      : `${s}s`
   }
 
   const redirectBasedOnRole = () => {
-    if (localStorage.getItem('userData')) window.location.href = '/admin/dashboard'
+    if (localStorage.getItem('userData'))
+      window.location.href = '/admin/dashboard'
   }
 
   const handleLogoutFromDifferentDevice = () => {
-    ['authToken','email','userId'].forEach(k => localStorage.removeItem(k))
+    ;['authToken', 'email', 'userId'].forEach(k => localStorage.removeItem(k))
     setError('Session detected on another device. Please sign in again.')
-    setStep('role'); setEmail(''); setCode('')
+    setStep('role')
+    setEmail('')
+    setCode('')
   }
 
   const handleLogout = () => {
-    ['authToken','deviceId','email','userId','userData'].forEach(k => localStorage.removeItem(k))
-    setStep('role'); setEmail(''); setCode(''); setError(''); setSuccess(false)
+    ;['authToken', 'deviceId', 'email', 'userId', 'userData'].forEach(k =>
+      localStorage.removeItem(k)
+    )
+    setStep('role')
+    setEmail('')
+    setCode('')
+    setError('')
+    setSuccess(false)
   }
 
-  const handleSelectRole = role => { setSelectedRole(role); setStep('email'); setError('') }
+  const handleSelectRole = role => {
+    setSelectedRole(role)
+    setStep('email')
+    setError('')
+  }
 
   // ── Step actions ───────────────────────────────────────────
   const handleContinue = async () => {
-    if (!email) { setError('Please enter your email'); return }
+    if (!email) {
+      setError('Please enter your email')
+      return
+    }
     try {
-      setLoading(true); setError(''); setStatus('')
+      setLoading(true)
+      setError('')
+      setStatus('')
       const norm = email.trim().toLowerCase()
       const res = await authApi.login({ email: norm })
       localStorage.setItem('email', norm)
       if (res.data.user?._id) localStorage.setItem('userId', res.data.user._id)
-      setStep('otp'); setStatus('Code sent — check your inbox.')
-      setResendCooldown(cooldownSeconds); setResendAttempts(0)
-      if (announceRef.current) announceRef.current.textContent = 'Code sent to your email.'
+      setStep('otp')
+      setStatus('Code sent — check your inbox.')
+      setResendCooldown(cooldownSeconds)
+      setResendAttempts(0)
+      if (announceRef.current)
+        announceRef.current.textContent = 'Code sent to your email.'
     } catch (err) {
       setError(err.response?.data?.msg || err.message || 'Something went wrong')
-    } finally { setLoading(false) }
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleResend = async () => {
-    if (resendCooldown > 0) { setError(`Wait ${formatCooldown(resendCooldown)} before resending.`); return }
-    if (resendAttempts >= maxResendAttempts) { setError('Maximum resend attempts reached.'); return }
+    if (resendCooldown > 0) {
+      setError(`Wait ${formatCooldown(resendCooldown)} before resending.`)
+      return
+    }
+    if (resendAttempts >= maxResendAttempts) {
+      setError('Maximum resend attempts reached.')
+      return
+    }
     try {
-      setLoading(true); setError(''); setStatus('')
-      await authApi.login({ email: (localStorage.getItem('email') || email).trim().toLowerCase() })
-      setResendAttempts(p => p + 1); setResendCooldown(cooldownSeconds)
+      setLoading(true)
+      setError('')
+      setStatus('')
+      await authApi.login({
+        email: (localStorage.getItem('email') || email).trim().toLowerCase()
+      })
+      setResendAttempts(p => p + 1)
+      setResendCooldown(cooldownSeconds)
       setStatus('New code sent.')
     } catch (err) {
       setError(err.response?.data?.msg || err.message || 'Failed to resend')
-    } finally { setLoading(false) }
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleVerify = async e => {
     e.preventDefault()
     const otp = code.trim()
-    if (otp.length !== 6) { setError('Enter the complete 6-digit code'); return }
-    setError(''); setLoading(true)
+    if (otp.length !== 6) {
+      setError('Enter the complete 6-digit code')
+      return
+    }
+    setError('')
+    setLoading(true)
     try {
-      const verifyEmail = (localStorage.getItem('email') || email).trim().toLowerCase()
+      const verifyEmail = (localStorage.getItem('email') || email)
+        .trim()
+        .toLowerCase()
       const res = await authApi.verifyOtp({ email: verifyEmail, otp })
       const data = res.data
       setSuccess(true)
       const deviceId = getOrCreateDeviceId()
-      if (data.token) { localStorage.setItem('authToken', data.token); localStorage.setItem('deviceId', deviceId) }
-      if (data.data)  localStorage.setItem('userData', JSON.stringify(data.data))
-      window.dispatchEvent(new CustomEvent('authStatusChanged', { detail: { status: 'login', token: data.token, userData: data.data, deviceId } }))
+      if (data.token) {
+        localStorage.setItem('authToken', data.token)
+        localStorage.setItem('deviceId', deviceId)
+      }
+      if (data.data) localStorage.setItem('userData', JSON.stringify(data.data))
+      window.dispatchEvent(
+        new CustomEvent('authStatusChanged', {
+          detail: {
+            status: 'login',
+            token: data.token,
+            userData: data.data,
+            deviceId
+          }
+        })
+      )
       setTimeout(redirectBasedOnRole, 1800)
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.msg || err.message || 'Verification failed.')
-    } finally { setLoading(false) }
+      setError(
+        err.response?.data?.message ||
+          err.response?.data?.msg ||
+          err.message ||
+          'Verification failed.'
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleBackToEmail = () => { setStep('email'); setCode(''); setStatus(''); setError('') }
+  const handleBackToEmail = () => {
+    setStep('email')
+    setCode('')
+    setStatus('')
+    setError('')
+  }
 
   return (
-    <div className='lp'>
+    <div className='lp auth-login'>
       {/* Animated BG */}
       <div className='lp-bg'>
         <div className='lp-bg__grid' />
@@ -171,8 +275,13 @@ export default function AuthPage () {
         <div className='lp-visual'>
           <div className='lp-logo'>
             <div className='lp-logo__hex'>
-              <svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor'>
-                <path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/>
+              <svg
+                width='16'
+                height='16'
+                viewBox='0 0 24 24'
+                fill='currentColor'
+              >
+                <path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z' />
               </svg>
             </div>
             <span className='lp-logo__name'>{APP}</span>
@@ -240,12 +349,19 @@ export default function AuthPage () {
         {/* ── RIGHT: Form panel ──────────────────────────── */}
         <div className='lp-panel'>
           <div className='lp-card'>
-
             {/* Progress dots */}
             <div className='lp-dots'>
-              <div className={`lp-dot${step === 'role'  ? ' active' : step !== 'role'  ? ' done' : ''}`} />
-              <div className={`lp-dot${step === 'email' ? ' active' : step === 'otp'   ? ' done' : ''}`} />
-              <div className={`lp-dot${step === 'otp'   ? ' active' : ''}`} />
+              <div
+                className={`lp-dot${
+                  step === 'role' ? ' active' : step !== 'role' ? ' done' : ''
+                }`}
+              />
+              <div
+                className={`lp-dot${
+                  step === 'email' ? ' active' : step === 'otp' ? ' done' : ''
+                }`}
+              />
+              <div className={`lp-dot${step === 'otp' ? ' active' : ''}`} />
             </div>
 
             <div ref={announceRef} aria-live='polite' className='lp-announce' />
@@ -257,42 +373,85 @@ export default function AuthPage () {
                 <p className='lp-sub'>How do you use {APP}?</p>
 
                 <div className='lp-roles'>
-                  <button className='lp-role' onClick={() => handleSelectRole('PROPERTY_OWNER')}>
+                  <button
+                    className='lp-role'
+                    onClick={() => handleSelectRole('PROPERTY_OWNER')}
+                  >
                     <div className='lp-role__icon'>🏢</div>
                     <div className='lp-role__text'>
                       <h3>Property Owner</h3>
                       <p>Manage properties and find trusted artisans</p>
                     </div>
-                    <svg className='lp-role__arrow' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
-                      <path d='M9 18l6-6-6-6'/>
+                    <svg
+                      className='lp-role__arrow'
+                      width='18'
+                      height='18'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='2.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    >
+                      <path d='M9 18l6-6-6-6' />
                     </svg>
                   </button>
 
-                  <button className='lp-role' onClick={() => handleSelectRole('artisan')}>
+                  <button
+                    className='lp-role'
+                    onClick={() => handleSelectRole('artisan')}
+                  >
                     <div className='lp-role__icon'>🔧</div>
                     <div className='lp-role__text'>
                       <h3>Professional / Artisan</h3>
                       <p>Find jobs and build your professional profile</p>
                     </div>
-                    <svg className='lp-role__arrow' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
-                      <path d='M9 18l6-6-6-6'/>
+                    <svg
+                      className='lp-role__arrow'
+                      width='18'
+                      height='18'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='2.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    >
+                      <path d='M9 18l6-6-6-6' />
                     </svg>
                   </button>
 
-                  <button className='lp-role' onClick={() => handleSelectRole('user')}>
+                  <button
+                    className='lp-role'
+                    onClick={() => handleSelectRole('user')}
+                  >
                     <div className='lp-role__icon'>🏠</div>
                     <div className='lp-role__text'>
                       <h3>Tenant / Buyer</h3>
                       <p>Find your perfect property to rent or buy</p>
                     </div>
-                    <svg className='lp-role__arrow' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
-                      <path d='M9 18l6-6-6-6'/>
+                    <svg
+                      className='lp-role__arrow'
+                      width='18'
+                      height='18'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='2.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    >
+                      <path d='M9 18l6-6-6-6' />
                     </svg>
                   </button>
                 </div>
 
-                <div className='lp-divider'><span>New to {APP}?</span></div>
-                <p className='lp-prompt'>Create an account <a href='/auth/register'>here</a></p>
+                <div className='lp-divider'>
+                  <span>New to {APP}?</span>
+                </div>
+                <p className='lp-prompt'>
+                  Create an account <a href='/auth/register'>here</a>
+                </p>
               </div>
             )}
 
@@ -301,23 +460,53 @@ export default function AuthPage () {
               <div className='lp-step'>
                 <div className='lp-badge'>
                   <span className='lp-badge__icon'>
-                    {selectedRole === 'PROPERTY_OWNER' ? '🏢' : selectedRole === 'artisan' ? '🔧' : '🏠'}
+                    {selectedRole === 'PROPERTY_OWNER'
+                      ? '🏢'
+                      : selectedRole === 'artisan'
+                      ? '🔧'
+                      : '🏠'}
                   </span>
                   <span className='lp-badge__label'>
-                    {selectedRole === 'PROPERTY_OWNER' ? 'Property Owner' : selectedRole === 'artisan' ? 'Professional' : 'Tenant / Buyer'}
+                    {selectedRole === 'PROPERTY_OWNER'
+                      ? 'Property Owner'
+                      : selectedRole === 'artisan'
+                      ? 'Professional'
+                      : 'Tenant / Buyer'}
                   </span>
-                  <button className='lp-badge__change' onClick={() => { setStep('role'); setError('') }}>Change</button>
+                  <button
+                    className='lp-badge__change'
+                    onClick={() => {
+                      setStep('role')
+                      setError('')
+                    }}
+                  >
+                    Change
+                  </button>
                 </div>
 
                 <h2 className='lp-h1'>Sign in to your account</h2>
-                <p className='lp-sub'>Enter your email to receive a verification code</p>
+                <p className='lp-sub'>
+                  Enter your email to receive a verification code
+                </p>
 
                 <div className='lp-field'>
                   <label className='lp-label'>Email address</label>
-                  <div className={`lp-input-wrap${emailFocused ? ' focused' : ''}`}>
-                    <svg className='lp-icon' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round'>
-                      <path d='M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z'/>
-                      <polyline points='22,6 12,13 2,6'/>
+                  <div
+                    className={`lp-input-wrap${emailFocused ? ' focused' : ''}`}
+                  >
+                    <svg
+                      className='lp-icon'
+                      width='18'
+                      height='18'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='1.8'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    >
+                      <path d='M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z' />
+                      <polyline points='22,6 12,13 2,6' />
                     </svg>
                     <input
                       className='lp-input'
@@ -333,17 +522,63 @@ export default function AuthPage () {
                   </div>
                 </div>
 
-                {error  && <div className='lp-alert lp-alert--err'><svg width='16' height='16' viewBox='0 0 20 20' fill='currentColor'><path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z' clipRule='evenodd'/></svg><span>{error}</span></div>}
-                {status && <div className='lp-alert lp-alert--ok'><svg width='16' height='16' viewBox='0 0 20 20' fill='currentColor'><path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd'/></svg><span>{status}</span></div>}
+                {error && (
+                  <div className='lp-alert lp-alert--err'>
+                    <svg
+                      width='16'
+                      height='16'
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span>{error}</span>
+                  </div>
+                )}
+                {status && (
+                  <div className='lp-alert lp-alert--ok'>
+                    <svg
+                      width='16'
+                      height='16'
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span>{status}</span>
+                  </div>
+                )}
 
                 <div className='lp-btn-group'>
-                  <button className='lp-btn lp-btn--primary' onClick={handleContinue} disabled={loading || !email}>
-                    {loading ? <><span className='lp-spinner'/> Sending code...</> : 'Continue →'}
+                  <button
+                    className='lp-btn lp-btn--primary'
+                    onClick={handleContinue}
+                    disabled={loading || !email}
+                  >
+                    {loading ? (
+                      <>
+                        <span className='lp-spinner' /> Sending code...
+                      </>
+                    ) : (
+                      'Continue →'
+                    )}
                   </button>
                 </div>
 
-                <div className='lp-divider'><span>New to {APP}?</span></div>
-                <p className='lp-prompt'>Create an account <a href='/auth/register'>here</a></p>
+                <div className='lp-divider'>
+                  <span>New to {APP}?</span>
+                </div>
+                <p className='lp-prompt'>
+                  Create an account <a href='/auth/register'>here</a>
+                </p>
               </div>
             )}
 
@@ -351,11 +586,18 @@ export default function AuthPage () {
             {step === 'otp' && (
               <div className='lp-step'>
                 <h2 className='lp-h1'>Check your inbox</h2>
-                <p className='lp-sub'>Enter the 6-digit code sent to <strong style={{color:'rgba(196,229,60,0.85)'}}>{email}</strong></p>
+                <p className='lp-sub'>
+                  Enter the 6-digit code sent to{' '}
+                  <strong style={{ color: 'rgba(196,229,60,0.85)' }}>
+                    {email}
+                  </strong>
+                </p>
 
                 <div className='lp-field'>
                   <label className='lp-label'>Verification code</label>
-                  <div className={`lp-input-wrap${codeFocused ? ' focused' : ''}`}>
+                  <div
+                    className={`lp-input-wrap${codeFocused ? ' focused' : ''}`}
+                  >
                     <input
                       className='lp-input lp-input--code'
                       type='text'
@@ -372,37 +614,110 @@ export default function AuthPage () {
                   <div className='lp-hint'>{code.length}/6</div>
                 </div>
 
-                {error  && <div className='lp-alert lp-alert--err'><svg width='16' height='16' viewBox='0 0 20 20' fill='currentColor'><path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z' clipRule='evenodd'/></svg><span>{error}</span></div>}
-                {status && <div className='lp-alert lp-alert--ok'><svg width='16' height='16' viewBox='0 0 20 20' fill='currentColor'><path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd'/></svg><span>{status}</span></div>}
-                {success && <div className='lp-alert lp-alert--ok'><svg width='16' height='16' viewBox='0 0 20 20' fill='currentColor'><path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd'/></svg><span>Verified! Redirecting...</span></div>}
+                {error && (
+                  <div className='lp-alert lp-alert--err'>
+                    <svg
+                      width='16'
+                      height='16'
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span>{error}</span>
+                  </div>
+                )}
+                {status && (
+                  <div className='lp-alert lp-alert--ok'>
+                    <svg
+                      width='16'
+                      height='16'
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span>{status}</span>
+                  </div>
+                )}
+                {success && (
+                  <div className='lp-alert lp-alert--ok'>
+                    <svg
+                      width='16'
+                      height='16'
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span>Verified! Redirecting...</span>
+                  </div>
+                )}
 
                 <div className='lp-btn-group'>
-                  <button className='lp-btn lp-btn--primary' onClick={handleVerify} disabled={loading || code.length !== 6}>
-                    {loading ? <><span className='lp-spinner'/> Verifying...</> : 'Verify & Sign In'}
+                  <button
+                    className='lp-btn lp-btn--primary'
+                    onClick={handleVerify}
+                    disabled={loading || code.length !== 6}
+                  >
+                    {loading ? (
+                      <>
+                        <span className='lp-spinner' /> Verifying...
+                      </>
+                    ) : (
+                      'Verify & Sign In'
+                    )}
                   </button>
-                  <button className='lp-btn lp-btn--outline' onClick={handleResend}
-                    disabled={loading || resendCooldown > 0 || resendAttempts >= maxResendAttempts}>
-                    {resendAttempts >= maxResendAttempts ? 'Limit reached' : resendCooldown > 0 ? `Resend in ${formatCooldown(resendCooldown)}` : 'Resend code'}
+                  <button
+                    className='lp-btn lp-btn--outline'
+                    onClick={handleResend}
+                    disabled={
+                      loading ||
+                      resendCooldown > 0 ||
+                      resendAttempts >= maxResendAttempts
+                    }
+                  >
+                    {resendAttempts >= maxResendAttempts
+                      ? 'Limit reached'
+                      : resendCooldown > 0
+                      ? `Resend in ${formatCooldown(resendCooldown)}`
+                      : 'Resend code'}
                   </button>
-                  <button className='lp-btn lp-btn--ghost' onClick={handleBackToEmail} disabled={loading}>
+                  <button
+                    className='lp-btn lp-btn--ghost'
+                    onClick={handleBackToEmail}
+                    disabled={loading}
+                  >
                     Use a different email
                   </button>
                 </div>
 
                 <div className='lp-resend-info'>
-                  Resend attempts: <strong>{resendAttempts}</strong> / {maxResendAttempts}
+                  Resend attempts: <strong>{resendAttempts}</strong> /{' '}
+                  {maxResendAttempts}
                 </div>
               </div>
             )}
 
-            <div className='lp-footer'>
+            <div className='logp-footer'>
               <a href='/auth/privacy'>Privacy</a>
               <span>·</span>
               <a href='/auth/terms'>Terms</a>
               <span>·</span>
               <a href='/auth/contact'>Support</a>
             </div>
-
           </div>
         </div>
       </div>
