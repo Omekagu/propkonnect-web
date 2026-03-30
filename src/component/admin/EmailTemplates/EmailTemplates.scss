@@ -1,0 +1,324 @@
+/* EmailTemplates.scss — Dark admin theme */
+
+$bg:      #0d1117;
+$surface: #161b22;
+$border:  rgba(255,255,255,0.07);
+$border2: rgba(255,255,255,0.12);
+$text:    #e6edf3;
+$muted:   rgba(230,237,243,0.45);
+$accent:  #C4E53C;
+$green:   #0B3D28;
+$mid:     #0F6040;
+$success: #3fb950;
+$warning: #d29922;
+$danger:  #f85149;
+$blue:    #58a6ff;
+$mono:    'JetBrains Mono', 'Fira Code', monospace;
+
+.et-wrap {
+  display: flex;
+  min-height: 80vh;
+  background: $bg;
+  color: $text;
+  font-family: var(--font, Inter, sans-serif);
+}
+
+// ── Sidebar ────────────────────────────────────────────────────────────────────
+.et-sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  border-right: 1px solid $border;
+  display: flex;
+  flex-direction: column;
+  background: $surface;
+}
+
+.et-sidebar-title {
+  padding: 18px 16px 10px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $muted;
+}
+
+.et-sidebar-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  border: none;
+  border-left: 3px solid transparent;
+  background: transparent;
+  color: $muted;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &:hover:not(.active) {
+    background: rgba(255,255,255,0.03);
+    color: $text;
+  }
+
+  &.active {
+    background: rgba($accent, 0.06);
+    border-left-color: $accent;
+    color: $text;
+    font-weight: 700;
+  }
+}
+
+.et-off-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba($danger, 0.15);
+  color: $danger;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+// ── Main Editor ────────────────────────────────────────────────────────────────
+.et-main {
+  flex: 1;
+  padding: 28px;
+  max-width: 860px;
+  overflow-y: auto;
+}
+
+.et-main-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+    background: linear-gradient(120deg, #e6edf3 0%, $accent 120%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    font-size: 0.78rem;
+    color: $muted;
+    margin: 0;
+    font-family: $mono;
+  }
+}
+
+// ── Toggle ─────────────────────────────────────────────────────────────────────
+.et-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: $muted;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.et-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+
+    &:checked + .et-toggle-track {
+      background: $accent;
+
+      .et-toggle-knob { transform: translateX(16px); }
+    }
+  }
+}
+
+.et-toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: $border2;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.et-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: $text;
+  transition: transform 0.2s;
+}
+
+// ── Alert ──────────────────────────────────────────────────────────────────────
+.et-alert {
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid;
+
+  &--success { background: rgba($success,0.1); color: $success; border-color: rgba($success,0.25); }
+  &--error   { background: rgba($danger,0.1);  color: $danger;  border-color: rgba($danger,0.25); }
+}
+
+// ── Form Fields ────────────────────────────────────────────────────────────────
+.et-field {
+  margin-bottom: 18px;
+}
+
+.et-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $muted;
+  margin-bottom: 7px;
+}
+
+.et-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: $surface;
+  border: 1px solid $border2;
+  border-radius: 8px;
+  color: $text;
+  font-size: 0.875rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: var(--font, Inter, sans-serif);
+
+  &::placeholder { color: $muted; }
+  &:focus { border-color: $accent; }
+}
+
+.et-textarea {
+  width: 100%;
+  padding: 12px;
+  background: $bg;
+  border: 1px solid $border2;
+  border-radius: 8px;
+  color: $text;
+  font-size: 0.8rem;
+  font-family: $mono;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+  line-height: 1.65;
+  transition: border-color 0.2s;
+  min-height: 340px;
+
+  &:focus { border-color: $accent; }
+}
+
+// ── Preview ────────────────────────────────────────────────────────────────────
+.et-preview-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: $surface;
+  border: 1px solid $border2;
+  border-radius: 8px;
+  color: $muted;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+
+  &:hover { border-color: $accent; color: $text; }
+}
+
+.et-preview-frame {
+  margin-top: 8px;
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid $border2;
+  background: #fff;
+  color: #111;
+}
+
+// ── Actions ────────────────────────────────────────────────────────────────────
+.et-actions { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+
+.et-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--save {
+    background: $accent;
+    border-color: $accent;
+    color: $green;
+    &:hover:not(:disabled) { opacity: 0.9; }
+  }
+
+  &--reset {
+    background: transparent;
+    border-color: $border2;
+    color: $muted;
+    &:hover:not(:disabled) { border-color: $danger; color: $danger; }
+  }
+}
+
+// ── Empty / Loading states ─────────────────────────────────────────────────────
+.et-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px 24px;
+  color: $muted;
+  font-size: 0.875rem;
+}
+
+.et-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid $border2;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: etSpin 0.7s linear infinite;
+}
+
+.et-empty {
+  padding: 60px 24px;
+  color: $muted;
+  font-size: 0.875rem;
+}
+
+@keyframes etSpin { to { transform: rotate(360deg); } }

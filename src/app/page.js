@@ -330,7 +330,7 @@ export default function LandingPage () {
           {/* Desktop links */}
           <div className='lp-nav__links'>
             <a onClick={() => scrollTo('listings')}>Buy &amp; Rent</a>
-            <a href='/search?intent=shortlet'>Shortlets</a>
+            <a href='/search?intent=shortlet'>Book </a>
             <a
               onClick={() => {
                 scrollTo('artisans')
@@ -420,7 +420,7 @@ export default function LandingPage () {
               <span className='lp-nav__drawer-icon'>🔑</span> Rent
             </a>
             <a href='/search?intent=shortlet' onClick={closeMobile}>
-              <span className='lp-nav__drawer-icon'>🛏️</span> Shortlets
+              <span className='lp-nav__drawer-icon'>🛏️</span> Book
             </a>
             <a
               onClick={() => {
@@ -502,7 +502,7 @@ export default function LandingPage () {
               {[
                 { key: 'buy', label: 'Buy' },
                 { key: 'rent', label: 'Rent' },
-                { key: 'shortlet', label: 'Shortlet' },
+                { key: 'booking', label: 'Booking' },
                 { key: 'artisan', label: '🔧 Artisans' }
               ].map(t => (
                 <button
@@ -570,6 +570,7 @@ export default function LandingPage () {
                         <option value='land'>Land</option>
                         <option value='commercial'>Commercial</option>
                         <option value='shortlet'>Shortlet</option>
+                        <option value='booking'>Hotels</option>
                       </>
                     )}
                   </select>

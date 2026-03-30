@@ -82,7 +82,7 @@ export const usePropertyManagement = () => {
 
       // Fetch applications for each property
       const promises = properties.map(property =>
-        propertiesApi.getApplications({ propertyId: property._id })
+        propertiesApi.getApplicationsByProperty(property._id)
           .then(res => {
             if (res.data?.success && res.data.applications) {
               return res.data.applications.map(app => ({
@@ -264,7 +264,7 @@ export const usePropertyManagement = () => {
     async propertyId => {
       try {
         setLoading(true)
-        const res = await propertiesApi.getApplications({ propertyId })
+        const res = await propertiesApi.getApplicationsByProperty(propertyId)
 
         if (res.data?.success) {
           const applicationsWithProperty = (res.data.applications || []).map(

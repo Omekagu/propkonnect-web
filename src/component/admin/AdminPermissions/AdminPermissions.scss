@@ -1,581 +1,212 @@
-// AdminPermissions.scss — Light theme
+/* AdminPermissions.scss — Dark admin theme */
+
+$bg:      #0d1117;
+$surface: #161b22;
+$border:  rgba(255,255,255,0.07);
+$border2: rgba(255,255,255,0.12);
+$text:    #e6edf3;
+$muted:   rgba(230,237,243,0.45);
+$accent:  #C4E53C;
+$green:   #0B3D28;
+$mid:     #0F6040;
+$success: #3fb950;
+$warning: #d29922;
+$danger:  #f85149;
+$blue:    #58a6ff;
+$purple:  #a78bfa;
+$orange:  #f0883e;
 
 .admin-permissions {
-  padding: 24px;
-  max-width: 1000px;
-  font-family: var(--color-font, 'Inter', sans-serif);
+  padding: 28px 28px 60px;
+  min-height: 100%;
+  background: $bg;
+  color: $text;
+  font-family: var(--font, Inter, sans-serif);
+
+  @media (max-width: 768px) { padding: 16px; }
 }
 
-// ── Header ──────────────────────────────────────────────────────────────────
+// ── Header ────────────────────────────────────────────────────────────────────
 .ap-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 24px;
+  display: flex; align-items: flex-start;
+  justify-content: space-between; flex-wrap: wrap; gap: 14px;
+  margin-bottom: 22px;
+}
 
-  .ap-header-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+.ap-header-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: rgba($accent,0.12); color: $accent;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
 
-    svg {
-      color: var(--color-primary);
-      flex-shrink: 0;
-    }
+.ap-title {
+  font-size: 1.6rem; font-weight: 800; margin: 0 0 4px;
+  background: linear-gradient(120deg, #e6edf3 0%, $accent 120%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; letter-spacing: -0.02em;
+}
 
-    h2 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--color-text-primary);
-    }
-    p {
-      margin: 2px 0 0;
-      font-size: 13px;
-      color: var(--color-text-secondary);
-    }
-  }
+.ap-subtitle { color: $muted; font-size: 0.875rem; margin: 0; }
 
-  .ap-stats {
-    .ap-stat {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13.5px;
-      color: var(--color-primary);
-      font-weight: 600;
-      background: var(--color-primary-light);
-      padding: 6px 14px;
-      //r(--radius-xl);
-      svg {
-        color: var(--color-primary-mid);
-      }
-    }
+.ap-stats {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  .ap-stat {
+    background: $surface; border: 1px solid $border; border-radius: 10px;
+    padding: 10px 16px; display: flex; flex-direction: column;
+    .ap-stat-val { font-size: 1.2rem; font-weight: 800; color: $text; }
+    .ap-stat-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: $muted; }
   }
 }
 
-// ── Filters ─────────────────────────────────────────────────────────────────
+// ── Filters ───────────────────────────────────────────────────────────────────
 .ap-filters {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;
 }
 
 .ap-search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
-  //r(--radius-sm);
-  padding: 0 12px;
-  flex: 1;
-  min-width: 220px;
-  max-width: 360px;
-
-  svg {
-    color: #8890a8;
-    flex-shrink: 0;
-  }
-
+  position: relative; flex: 1; min-width: 200px; max-width: 280px;
+  svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: $muted; pointer-events: none; }
   input {
-    flex: 1;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 13.5px;
-    color: var(--color-text-primary);
-    padding: 10px 0;
-
-    &::placeholder {
-      color: #a0aab8;
-    }
-  }
-
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #8890a8;
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    &:hover {
-      color: var(--color-error);
-    }
-  }
-
-  &:focus-within {
-    border-color: var(--color-primary-mid);
+    width: 100%; padding: 8px 12px 8px 32px;
+    background: $surface; border: 1px solid $border2;
+    border-radius: 8px; color: $text; font-size: 0.82rem;
+    box-sizing: border-box; outline: none; transition: border-color 0.2s;
+    &::placeholder { color: $muted; }
+    &:focus { border-color: $accent; }
   }
 }
 
-.ap-role-filter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
-  //r(--radius-sm);
-  padding: 0 12px;
-
-  svg {
-    color: #8890a8;
-  }
-
-  select {
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 13.5px;
-    color: var(--color-text-primary);
-    padding: 10px 0;
-    cursor: pointer;
-  }
-
-  &:focus-within {
-    border-color: var(--color-primary-mid);
-  }
+.ap-role-select {
+  padding: 8px 12px; background: $surface; border: 1px solid $border2;
+  border-radius: 8px; color: $text; font-size: 0.82rem; cursor: pointer;
+  outline: none; transition: border-color 0.2s;
+  &:focus { border-color: $accent; }
+  option { background: $surface; }
 }
 
-// ── States ───────────────────────────────────────────────────────────────────
-.ap-loading,
-.ap-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 60px 20px;
-  color: #8890a8;
-
-  svg {
-    color: #c0cbd8;
-  }
-  p {
-    margin: 0;
-    font-size: 14px;
-  }
-}
-
-.ap-error {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #fff5f5;
-  border: 1px solid #f5c6c6;
-  //r(--radius-sm);
-  padding: 14px 18px;
-  font-size: 13.5px;
-  color: #c0392b;
-
-  button {
-    margin-left: auto;
-    padding: 5px 12px;
-    background: #c0392b;
-    color: var(--color-surface);
-    border: none;
-    //r(--radius-sm);
-    cursor: pointer;
-    font-size: 12.5px;
-  }
-}
-
-// ── Admin list ───────────────────────────────────────────────────────────────
-.admin-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+// ── Admin List ────────────────────────────────────────────────────────────────
+.admin-list { display: flex; flex-direction: column; gap: 8px; }
 
 .admin-row {
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
-
-  overflow: hidden;
-  transition: border-color 0.2s;
-
-  &.open {
-    border-color: var(--color-primary-mid);
-  }
-  &:hover:not(.open) {
-    border-color: #b8cbf5;
-  }
+  background: $surface; border: 1px solid $border;
+  border-radius: 12px; overflow: hidden; transition: border-color 0.2s;
+  &:hover { border-color: $border2; }
+  &.open { border-color: rgba($accent,0.3); }
 }
 
 .admin-row-summary {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 18px;
-  cursor: pointer;
-  user-select: none;
-
-  &:hover {
-    background: var(--color-surface-hover);
-  }
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; cursor: pointer; flex-wrap: wrap;
 }
 
-.admin-avatar {
-  width: 38px;
-  height: 38px;
-
-  background: linear-gradient(
-    135deg,
-    var(--color-primary),
-    var(--color-primary-mid)
-  );
-  color: var(--color-surface);
-  font-weight: 700;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  text-transform: uppercase;
+.admin-row-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, $green, $mid);
+  color: $accent; font-size: 0.82rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; text-transform: uppercase; overflow: hidden;
+  img { width: 100%; height: 100%; object-fit: cover; }
 }
 
-.admin-info {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-
-  .admin-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .admin-email {
-    font-size: 12px;
-    color: #8890a8;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
+.admin-row-info { flex: 1; min-width: 0; }
+.admin-row-name { font-weight: 700; color: $text; font-size: 0.88rem; }
+.admin-row-email { font-size: 0.72rem; color: $muted; margin-top: 1px; }
 
 .role-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  //r(--radius-xl);
-  border: 1px solid;
-  font-size: 11.5px;
-  font-weight: 600;
-  white-space: nowrap;
-  flex-shrink: 0;
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 0.68rem; font-weight: 700; text-transform: capitalize;
+
+  &.role-super   { background: rgba($accent,0.15); color: $accent; }
+  &.role-sub     { background: rgba($blue,0.12);   color: $blue; }
+  &.role-support { background: rgba($purple,0.12); color: $purple; }
+  &.role-prop    { background: rgba($success,0.12); color: $success; }
+  &.role-artisan { background: rgba($orange,0.12); color: $orange; }
 }
 
-.admin-perm-count {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12.5px;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  flex-shrink: 0;
-  svg {
-    color: var(--color-primary-mid);
-  }
+.admin-row-actions { display: flex; align-items: center; gap: 8px; }
+
+.perm-count {
+  font-size: 0.72rem; color: $muted;
+  span { color: $text; font-weight: 700; }
 }
 
-.admin-chevron {
-  color: #8890a8;
-  flex-shrink: 0;
+.expand-btn {
+  width: 28px; height: 28px; border-radius: 6px;
+  border: 1px solid $border2; background: transparent; color: $muted;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+  &:hover { border-color: $accent; color: $accent; }
 }
 
-// ── Editor ───────────────────────────────────────────────────────────────────
+// ── Editor ────────────────────────────────────────────────────────────────────
 .admin-editor {
-  border-top: 1px solid var(--color-border);
-  padding: 20px 20px 18px;
-  background: #f9fbff;
+  border-top: 1px solid $border; padding: 18px 16px;
 }
 
-.editor-notice {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-
-  font-size: 13px;
-  margin-bottom: 14px;
-
-  &.success {
-    background: #f0fff4;
-    color: #1a6b3a;
-    border: 1px solid #b0e8c4;
-  }
-  &.error {
-    background: #fff5f5;
-    color: #c0392b;
-    border: 1px solid #f5c6c6;
-  }
-  &.info {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-    border: 1px solid #b8cbf5;
-  }
+.editor-title {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: $muted; margin-bottom: 14px;
 }
 
-.editor-legend {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-// ── Permission groups ─────────────────────────────────────────────────────────
 .perm-groups {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px; margin-bottom: 16px;
 }
 
 .perm-group {
-  border: 1px solid var(--color-border);
-  //r(--radius-sm);
-  overflow: hidden;
-  background: var(--color-surface);
+  background: rgba(255,255,255,0.02); border: 1px solid $border;
+  border-radius: 10px; overflow: hidden;
 }
 
 .perm-group-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  cursor: pointer;
-  background: var(--color-surface-hover);
-  user-select: none;
-
-  &:hover {
-    background: #eef3fb;
-  }
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; cursor: pointer;
+  &:hover { background: rgba(255,255,255,0.03); }
 }
 
-.perm-group-toggle {
-  width: 18px;
-  height: 18px;
-  border: 1.5px solid #c0cbd8;
-
-  background: var(--color-surface);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.15s;
-
-  &.all {
-    background: var(--color-primary-mid);
-    border-color: var(--color-primary-mid);
-    color: var(--color-surface);
-  }
-  &.some {
-    background: var(--color-primary-light);
-    border-color: var(--color-primary-mid);
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-
-  .dash {
-    width: 8px;
-    height: 2px;
-    background: var(--color-primary-mid);
-    border-radius: 1px;
-    display: block;
-  }
+.perm-group-title {
+  font-size: 0.78rem; font-weight: 700; color: $text;
 }
+.perm-group-count { font-size: 0.7rem; color: $muted; }
 
-.perm-group-name {
-  flex: 1;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.perm-group-count {
-  font-size: 12px;
-  color: var(--color-primary-mid);
-  font-weight: 600;
-  background: var(--color-primary-light);
-  padding: 2px 8px;
-}
-
-.perm-list {
-  padding: 8px 14px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.perm-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  padding: 4px 0;
-
-  &.is-default {
-    cursor: default;
-  }
-}
+.perm-items { padding: 4px 0 8px; }
 
 .perm-check {
-  width: 18px;
-  height: 18px;
-  border: 1.5px solid #c0cbd8;
-
-  background: var(--color-surface);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-  cursor: pointer;
-
-  &.checked {
-    background: var(--color-primary-mid);
-    border-color: var(--color-primary-mid);
-    color: var(--color-surface);
-  }
-  &.locked {
-    background: #f0f4ff;
-    border-color: #b8cbf5;
-    cursor: default;
-  }
-  &.checked.locked {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-  }
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 14px; cursor: pointer; transition: background 0.15s;
+  &:hover:not(.locked) { background: rgba(255,255,255,0.03); }
+  &.locked { opacity: 0.5; cursor: not-allowed; }
 }
 
-.perm-label {
-  flex: 1;
-  font-size: 13px;
-  color: #2d3748;
+.perm-check-box {
+  width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+  border: 1.5px solid $border2; transition: all 0.18s;
+  display: flex; align-items: center; justify-content: center;
+
+  .perm-check.checked & { background: $accent; border-color: $accent; }
+  .perm-check.locked.checked & { background: rgba($accent,0.4); border-color: rgba($accent,0.4); }
+}
+
+.perm-check-label {
+  font-size: 0.78rem; color: $text; flex: 1;
+  display: flex; align-items: center; gap: 6px;
 }
 
 .perm-tag {
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 1px 7px;
-
-  white-space: nowrap;
-
-  &.default {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-  }
-  &.custom {
-    background: #f5fff0;
-    color: #2e7d32;
-    border: 1px solid #c3e9c5;
-  }
+  font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+  padding: 1px 5px; border-radius: 4px;
+  &.default { background: rgba($muted, 0.15); color: $muted; }
+  &.custom  { background: rgba($accent,0.15);  color: $accent; }
 }
 
-// ── Editor actions ────────────────────────────────────────────────────────────
-.editor-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-border);
+// ── Footer ────────────────────────────────────────────────────────────────────
+.editor-footer { display: flex; gap: 8px; }
 
-  button {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 18px;
-
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  .btn-reset {
-    background: var(--color-surface);
-    border: 1.5px solid var(--color-border) !important;
-    color: var(--color-text-secondary);
-    &:hover:not(:disabled) {
-      border-color: var(--color-primary) !important;
-      color: var(--color-primary);
-    }
-  }
-
-  .btn-save {
-    background: var(--color-primary);
-    color: var(--color-surface);
-    box-shadow: 0 2px 8px rgba(0, 53, 128, 0.2);
-    &:hover:not(:disabled) {
-      background: #00224f;
-    }
-  }
-}
-
-// ── Pagination ────────────────────────────────────────────────────────────────
-.ap-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 20px;
-
-  button {
-    padding: 7px 16px;
-    background: var(--color-surface);
-    border: 1.5px solid var(--color-border);
-
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    color: var(--color-primary);
-    transition: all 0.15s;
-
-    &:hover:not(:disabled) {
-      border-color: var(--color-primary-mid);
-      background: var(--color-primary-light);
-    }
-    &:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-  }
-
-  span {
-    font-size: 13px;
-    color: var(--color-text-secondary);
-  }
-}
-
-// ── Spinner ───────────────────────────────────────────────────────────────────
-.spin {
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.save-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; background: $accent; color: $green;
+  border: none; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer;
+  transition: all 0.2s;
+  &:hover { filter: brightness(1.1); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }

@@ -1,463 +1,246 @@
-// Document.scss — propnekt design tokens
+/* Document.scss — Dark admin theme */
+
+$bg:      #0d1117;
+$surface: #161b22;
+$border:  rgba(255,255,255,0.07);
+$border2: rgba(255,255,255,0.12);
+$text:    #e6edf3;
+$muted:   rgba(230,237,243,0.45);
+$accent:  #C4E53C;
+$green:   #0B3D28;
+$mid:     #0F6040;
+$success: #3fb950;
+$warning: #d29922;
+$danger:  #f85149;
+$blue:    #58a6ff;
+$purple:  #a78bfa;
 
 .docs-page {
-  padding: 24px;
-  background: var(--color-background);
+  padding: 28px 28px 60px;
   min-height: 100%;
+  background: $bg;
+  color: $text;
+  font-family: var(--font, Inter, sans-serif);
+
+  @media (max-width: 768px) { padding: 16px; }
 }
 
-// ── Header ─────────────────────────────────────────────────────
+// ── Header ────────────────────────────────────────────────────────────────────
 .docs-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 24px;
+  display: flex; align-items: flex-start;
+  justify-content: space-between; flex-wrap: wrap; gap: 14px;
+  margin-bottom: 22px;
 
-  h1 {
-    font-size: 22px;
-    font-weight: 800;
-    background: linear-gradient(
-      135deg,
-      var(--color-primary),
-      var(--color-primary-mid)
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 4px;
+  h2 {
+    font-size: 1.6rem; font-weight: 800; margin: 0 0 4px;
+    background: linear-gradient(120deg, #e6edf3 0%, $accent 120%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; letter-spacing: -0.02em;
   }
-
-  p {
-    font-size: 13px;
-    color: var(--color-text-muted);
-    margin: 0;
-  }
+  p { color: $muted; font-size: 0.875rem; margin: 0; }
 }
 
-// ── Stat Cards ─────────────────────────────────────────────────
+// ── Stats ─────────────────────────────────────────────────────────────────────
 .docs-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 14px;
-  margin-bottom: 24px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 18px;
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
 }
 
 .docs-stat-card {
-  background: var(--color-surface);
-  border-radius: 14px;
-  padding: 18px 16px;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-
-  &:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-
-  .stat-icon {
-    width: 38px;
-    height: 38px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-
-    &--primary {
-      background: rgba(11, 61, 40, 0.08);
-      color: var(--color-primary);
-    }
-    &--green {
-      background: rgba(16, 185, 129, 0.1);
-      color: #059669;
-    }
-    &--amber {
-      background: rgba(245, 158, 11, 0.1);
-      color: #d97706;
-    }
-    &--red {
-      background: rgba(239, 68, 68, 0.1);
-      color: #dc2626;
-    }
-  }
-
-  .stat-value {
-    font-size: 26px;
-    font-weight: 800;
-    color: var(--color-text-primary);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .stat-label {
-    font-size: 12px;
-    color: var(--color-text-muted);
-    font-weight: 500;
-  }
+  background: $surface; border: 1px solid $border;
+  border-radius: 12px; padding: 16px;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color 0.2s;
+  &:hover { border-color: $border2; }
 }
 
-// ── Filters ────────────────────────────────────────────────────
-.docs-filters {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
+.stat-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+
+  &.active     { background: rgba($success,0.12); color: $success; }
+  &.pending    { background: rgba($warning,0.12); color: $warning; }
+  &.signed     { background: rgba($blue,0.12);    color: $blue; }
+  &.terminated { background: rgba(255,255,255,0.07); color: $muted; }
 }
 
-.docs-search {
-  position: relative;
-  flex: 1;
-  min-width: 220px;
+.stat-value { font-size: 1.45rem; font-weight: 800; color: $text; line-height: 1; }
+.stat-label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: $muted; margin-top: 3px;
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+.docs-search-wrap {
+  position: relative; margin-bottom: 14px;
 
   svg {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-text-muted);
-    pointer-events: none;
-  }
-
-  input {
-    width: 100%;
-    padding: 9px 14px 9px 38px;
-    border: 1px solid var(--color-border);
-
-    background: var(--color-surface);
-    font-size: 13px;
-    color: var(--color-text-primary);
-    outline: none;
-    transition: var(--transition);
-    box-sizing: border-box;
-
-    &:focus {
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(11, 61, 40, 0.08);
-    }
-
-    &::placeholder {
-      color: var(--color-text-muted);
-    }
+    position: absolute; left: 10px; top: 50%;
+    transform: translateY(-50%); color: $muted; pointer-events: none;
   }
 }
 
+.docs-search-input {
+  width: 100%; max-width: 300px; padding: 8px 12px 8px 32px;
+  background: $surface; border: 1px solid $border2;
+  border-radius: 8px; color: $text; font-size: 0.82rem;
+  box-sizing: border-box; outline: none; transition: border-color 0.2s;
+  &::placeholder { color: $muted; }
+  &:focus { border-color: $accent; box-shadow: 0 0 0 3px rgba($accent,0.1); }
+}
+
+// ── Status Tabs ───────────────────────────────────────────────────────────────
 .docs-status-tabs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  display: flex; gap: 4px; flex-wrap: wrap;
+  background: $surface; border: 1px solid $border2;
+  border-radius: 10px; padding: 4px;
+  width: fit-content; margin-bottom: 18px;
 }
 
 .docs-tab-btn {
-  padding: 7px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: var(--transition);
-  white-space: nowrap;
+  padding: 7px 14px; border-radius: 7px; border: none;
+  background: transparent; color: $muted;
+  font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  &:hover:not(.docs-tab-btn--active) { background: rgba(255,255,255,0.05); color: $text; }
 
-  &:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-  }
-
-  &--active {
-    background: var(--color-primary);
-    color: #fff;
-    border-color: var(--color-primary);
-  }
+  &--active { background: $accent; color: $green; }
 }
 
-// ── Lease Cards ────────────────────────────────────────────────
-.docs-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+// ── Loading / Empty ───────────────────────────────────────────────────────────
+.docs-spinner {
+  width: 28px; height: 28px; margin: 60px auto; display: block;
+  border: 2.5px solid $border2; border-top-color: $accent;
+  border-radius: 50%; animation: docSpin 0.7s linear infinite;
 }
+
+.docs-empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 60px 24px; text-align: center;
+  svg { opacity: 0.2; margin-bottom: 12px; color: $muted; }
+  p { font-size: 0.875rem; color: $muted; margin: 0; }
+}
+
+// ── Card List ─────────────────────────────────────────────────────────────────
+.docs-list { display: flex; flex-direction: column; gap: 10px; }
 
 .docs-card {
-  background: var(--color-surface);
-  border-radius: 14px;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  transition: var(--transition);
-
-  &:hover {
-    box-shadow: var(--shadow-md);
-  }
-
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    padding: 16px 20px;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
-
-    &:hover {
-      background: var(--color-surface-hover, rgba(11, 61, 40, 0.03));
-    }
-  }
-
-  &__title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin: 0 0 4px;
-  }
-
-  &__meta {
-    font-size: 12px;
-    color: var(--color-text-muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  &__amount {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--color-primary);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  &__body {
-    padding: 14px 20px 18px;
-    border-top: 1px solid var(--color-border);
-  }
-
-  &__row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text-secondary);
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    strong {
-      color: var(--color-text-primary);
-      font-weight: 600;
-    }
-  }
-
-  &__actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 14px;
-    flex-wrap: wrap;
-  }
+  background: $surface; border: 1px solid $border;
+  border-radius: 12px; overflow: hidden; transition: border-color 0.2s;
+  &:hover { border-color: $border2; }
 }
 
-// ── Status Badge ───────────────────────────────────────────────
+.docs-card__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; flex-wrap: wrap; gap: 10px;
+}
+
+.docs-card__header-left { display: flex; align-items: center; gap: 12px; }
+
+.docs-tenant-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, $green, $mid);
+  color: $accent; font-size: 0.82rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; text-transform: uppercase; overflow: hidden;
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.docs-tenant-name { font-weight: 700; font-size: 0.88rem; color: $text; }
+.docs-tenant-email { font-size: 0.72rem; color: $muted; margin-top: 1px; }
+
+.docs-card__meta {
+  display: flex; gap: 20px; padding: 0 16px 14px; flex-wrap: wrap;
+  border-top: 1px solid $border; padding-top: 12px;
+}
+
+.docs-meta-item { display: flex; flex-direction: column; gap: 2px; }
+.docs-meta-label {
+  font-size: 0.66rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; color: $muted;
+}
+.docs-meta-value { font-size: 0.82rem; color: $text; font-weight: 500; }
+
+.docs-card__footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-top: 1px solid $border; flex-wrap: wrap; gap: 8px;
+}
+
 .docs-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: capitalize;
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 0.68rem; font-weight: 700; text-transform: capitalize;
 
-  &--active {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-  }
-  &--pending {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-  }
-  &--signed {
-    background: rgba(11, 61, 40, 0.08);
-    color: var(--color-primary);
-  }
-  &--terminated {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-  }
-  &--expired {
-    background: rgba(100, 116, 139, 0.1);
-    color: #64748b;
-  }
+  &--active     { background: rgba($success,0.12); color: $success; }
+  &--pending    { background: rgba($warning,0.12); color: $warning; }
+  &--signed     { background: rgba($blue,0.12);    color: $blue; }
+  &--terminated { background: rgba(255,255,255,0.07); color: $muted; }
 }
 
-// ── Buttons ────────────────────────────────────────────────────
-.docs-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 9px;
-  border: none;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-
-  &--primary {
-    background: var(--color-primary);
-    color: #fff;
-    &:hover {
-      background: var(--color-primary-dark, #052418);
-    }
-  }
-
-  &--outline {
-    background: var(--color-surface);
-    color: var(--color-primary);
-    border: 1px solid var(--color-primary);
-    &:hover {
-      background: var(--color-primary-light);
-    }
-  }
-
-  &--danger {
-    background: rgba(239, 68, 68, 0.08);
-    color: #dc2626;
-    &:hover {
-      background: rgba(239, 68, 68, 0.18);
-    }
-  }
+.docs-view-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; background: rgba($accent,0.1);
+  border: 1px solid rgba($accent,0.3); border-radius: 7px;
+  color: $accent; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  transition: all 0.18s;
+  &:hover { background: rgba($accent,0.18); }
 }
 
-// ── Modal ──────────────────────────────────────────────────────
+// ── Modal ─────────────────────────────────────────────────────────────────────
 .docs-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-  backdrop-filter: blur(2px);
+  position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; padding: 20px;
 }
 
 .docs-modal {
-  background: var(--color-surface);
-  border-radius: 18px;
-  width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
-
-  &__header {
-    padding: 20px 24px 16px;
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    background: var(--color-surface);
-    z-index: 1;
-
-    h2 {
-      font-size: 17px;
-      font-weight: 800;
-      color: var(--color-text-primary);
-      margin: 0;
-    }
-  }
-
-  &__body {
-    padding: 20px 24px 24px;
-  }
-
-  &__close {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: none;
-    background: var(--color-background);
-    color: var(--color-text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-    &:hover {
-      background: var(--color-border);
-      color: var(--color-text-primary);
-    }
-  }
+  background: $surface; border: 1px solid $border2;
+  border-radius: 14px; width: 100%; max-width: 580px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5); max-height: 90vh;
+  display: flex; flex-direction: column; overflow: hidden;
 }
 
-// ── Empty State ────────────────────────────────────────────────
-.docs-empty {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--color-text-muted);
-
-  svg {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 12px;
-    opacity: 0.35;
-    display: block;
-    margin-inline: auto;
-  }
-
-  p {
-    font-size: 14px;
-    margin: 0;
-  }
+.docs-modal__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid $border;
+  h3 { font-size: 1rem; font-weight: 700; margin: 0; color: $text; }
 }
 
-// ── Dark Mode ──────────────────────────────────────────────────
-html[data-theme='dark'] {
-  .docs-card {
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .docs-search input {
-    background: var(--color-surface-hover);
-    color: var(--color-text-primary);
-  }
-
-  .docs-modal {
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-  }
+.docs-modal__close {
+  width: 30px; height: 30px; border-radius: 6px;
+  border: 1px solid $border2; background: transparent;
+  color: $muted; cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  &:hover { border-color: $danger; color: $danger; }
 }
 
-@media (prefers-color-scheme: dark) {
-  .docs-card {
-    border-color: rgba(255, 255, 255, 0.08);
-  }
+.docs-modal__body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+
+.docs-modal__section { margin-bottom: 20px; &:last-child { margin-bottom: 0; } }
+
+.docs-modal__section-title {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: $muted; margin-bottom: 10px;
 }
 
-// ── Mobile ─────────────────────────────────────────────────────
-@media (max-width: 600px) {
-  .docs-page {
-    padding: 14px;
-  }
-  .docs-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .docs-modal {
-    border-radius: 14px;
-    max-height: 95vh;
-  }
-  .docs-modal__header {
-    padding: 16px 18px 14px;
-  }
-  .docs-modal__body {
-    padding: 16px 18px 20px;
-  }
+.docs-modal__grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0; border: 1px solid $border; border-radius: 10px; overflow: hidden;
 }
+
+.docs-modal__field {
+  padding: 10px 14px; border-bottom: 1px solid $border; border-right: 1px solid $border;
+}
+
+.docs-modal__label {
+  font-size: 0.66rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; color: $muted; margin-bottom: 3px; display: block;
+}
+.docs-modal__value { font-size: 0.82rem; color: $text; font-weight: 500; }
+
+.docs-modal__footer {
+  padding: 16px 22px; border-top: 1px solid $border;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+
+@keyframes docSpin { to { transform: rotate(360deg); } }

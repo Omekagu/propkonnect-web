@@ -1,521 +1,341 @@
 import React, { useState } from 'react'
-// import usePropertyManagement from './usePropertyManagement/usePropertyManagement'
+import {
+  Search, Home, FileText, TrendingUp, Clock, CheckCircle,
+  XCircle, Eye, Trash2, ChevronDown, MapPin, Bed, Bath,
+  SquareArrowOutUpRight, AlertTriangle, X, RefreshCw,
+  Building2, DollarSign, BarChart3, ArrowUpRight
+} from 'lucide-react'
 import './PropertyManagementDashboard.scss'
 import usePropertyManagement from '../../../hooks/UsePropertyManagement'
 
-/**
- * Main dashboard component for property and application management
- */
-const ADMIN_ROLES = [
-  'SUPER_ADMIN',
-  'SUB_ADMIN',
-  'property-admin',
-  'sub-property-admin'
-]
+const ADMIN_ROLES = ['SUPER_ADMIN', 'SUB_ADMIN', 'property-admin', 'sub-property-admin']
 
-const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
+const STATUS_META = {
+  published:      { label: 'Published',      cls: 'pm-s-published' },
+  pending_review: { label: 'Pending Review', cls: 'pm-s-pending'   },
+  draft:          { label: 'Draft',           cls: 'pm-s-draft'     },
+  archived:       { label: 'Archived',        cls: 'pm-s-archived'  },
+  suspended:      { label: 'Suspended',       cls: 'pm-s-suspended' },
+}
+
+const APP_STATUS_META = {
+  pending:  { label: 'Pending',  cls: 'pm-a-pending'  },
+  approved: { label: 'Approved', cls: 'pm-a-approved' },
+  rejected: { label: 'Rejected', cls: 'pm-a-rejected' },
+}
+
+const fmtCurrency = v =>
+  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(v || 0)
+
+const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+
+const locStr = loc =>
+  typeof loc === 'string'
+    ? loc
+    : [loc?.address, loc?.city, loc?.state].filter(Boolean).join(', ')
+
+export default function PropertyManagementDashboard ({ backend, authToken, userRole }) {
   const isAdmin = ADMIN_ROLES.includes(userRole)
 
   const {
-    // State
-    properties,
-    applications,
-    loading,
-    error,
-    notice,
-    showModal,
-    modalType,
-    modalData,
-    selectedProperty,
-    activeView,
-
-    // Filters
-    searchQuery,
-    setSearchQuery,
-    categoryFilter,
-    setCategoryFilter,
-    statusFilter,
-    setStatusFilter,
-    propertyStatusFilter,
-    setPropertyStatusFilter,
-
-    // Reject modal state
-    rejectModal,
-    setRejectModal,
-    rejectReason,
-    setRejectReason,
-    rejectTargetId,
-
-    // Filtered data
-    filteredProperties,
-    filteredApplications,
-    categories,
-    stats,
-
-    // Actions
-    fetchProperties,
-    fetchApplications,
-    handleDeleteProperty,
-    handleApprove,
-    openRejectModal,
-    handleRejectConfirm,
-    viewPropertyDetails,
-    viewPropertyApplications,
-    updateApplicationStatus,
-    deleteApplication,
-    closeModal,
-    setActiveView,
-    showNotice
+    properties, applications, loading, error, notice,
+    showModal, modalType, modalData, selectedProperty, activeView,
+    searchQuery, setSearchQuery,
+    categoryFilter, setCategoryFilter,
+    statusFilter, setStatusFilter,
+    propertyStatusFilter, setPropertyStatusFilter,
+    rejectModal, setRejectModal,
+    rejectReason, setRejectReason, rejectTargetId,
+    filteredProperties, filteredApplications, categories, stats,
+    fetchProperties, fetchApplications,
+    handleDeleteProperty, handleApprove, openRejectModal, handleRejectConfirm,
+    viewPropertyDetails, viewPropertyApplications,
+    updateApplicationStatus, deleteApplication,
+    closeModal, setActiveView, showNotice
   } = usePropertyManagement(backend, authToken)
 
   const [sortBy, setSortBy] = useState('recent')
+  const [refreshing, setRefreshing] = useState(false)
 
-  /**
-   * Sort properties based on selected criteria
-   */
-  const getSortedProperties = () => {
-    const props = [...filteredProperties]
-
-    switch (sortBy) {
-      case 'price_high':
-        return props.sort(
-          (a, b) => (Number(b.price) || 0) - (Number(a.price) || 0)
-        )
-      case 'price_low':
-        return props.sort(
-          (a, b) => (Number(a.price) || 0) - (Number(b.price) || 0)
-        )
-      case 'recent':
-      default:
-        return props.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        )
-    }
+  const doRefresh = async () => {
+    setRefreshing(true)
+    await Promise.all([fetchProperties?.(), fetchApplications?.()])
+    setRefreshing(false)
   }
 
-  /**
-   * Format currency
-   */
-  const formatCurrency = value => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0
-    }).format(value)
-  }
-
-  /**
-   * Get status badge color
-   */
-  const getStatusColor = status => {
-    const colors = {
-      pending: '#ffc107',
-      approved: '#28a745',
-      rejected: '#dc3545',
-      active: '#17a2b8',
-      inactive: '#6c757d'
-    }
-    return colors[status] || '#6c757d'
+  const sorted = () => {
+    const arr = [...filteredProperties]
+    if (sortBy === 'price_high') return arr.sort((a, b) => (b.price || 0) - (a.price || 0))
+    if (sortBy === 'price_low')  return arr.sort((a, b) => (a.price || 0) - (b.price || 0))
+    return arr.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
   }
 
   return (
-    <div className='dashboard-container'>
-      {/* Error Banner */}
+    <div className='pm-wrap'>
+
+      {/* Alerts */}
       {error && (
-        <div className='alert alert-danger' role='alert'>
-          <strong>Error:</strong> {error}
-          <button
-            className='btn-close'
-            onClick={() => {}}
-            aria-label='Close'
-          ></button>
+        <div className='pm-alert pm-alert-error'>
+          <AlertTriangle size={15} /> {error}
         </div>
       )}
-
-      {/* Notification */}
       {notice && (
-        <div
-          className={`alert alert-${
-            notice.type === 'error' ? 'danger' : 'success'
-          }`}
-        >
+        <div className={`pm-alert ${notice.type === 'error' ? 'pm-alert-error' : 'pm-alert-success'}`}>
+          {notice.type === 'error' ? <XCircle size={15} /> : <CheckCircle size={15} />}
           {notice.msg}
         </div>
       )}
-
-      {/* Pending review banner — admin only */}
       {isAdmin && stats.pendingReview > 0 && (
-        <div
-          className='alert alert-warning d-flex align-items-center justify-content-between'
-          style={{ cursor: 'pointer' }}
-          onClick={() => {
-            setActiveView('properties')
-            setPropertyStatusFilter('pending_review')
-          }}
-        >
-          <span>
-            <strong>{stats.pendingReview}</strong> propert
-            {stats.pendingReview === 1 ? 'y' : 'ies'} pending review
-          </span>
-          <span className='badge bg-warning text-dark'>Review Now →</span>
+        <div className='pm-alert pm-alert-warn pm-alert-click'
+          onClick={() => { setActiveView('properties'); setPropertyStatusFilter('pending_review') }}>
+          <Clock size={15} />
+          <span><strong>{stats.pendingReview}</strong> propert{stats.pendingReview === 1 ? 'y' : 'ies'} pending review</span>
+          <span className='pm-alert-cta'>Review Now →</span>
         </div>
       )}
 
       {/* Header */}
-      <div className='dashboard-header'>
-        <h1>Property Management</h1>
-        <div className='view-toggle'>
-          <button
-            className={`btn ${
-              activeView === 'properties'
-                ? 'btn-primary'
-                : 'btn-outline-primary'
-            }`}
-            onClick={() => setActiveView('properties')}
-          >
-            Properties ({properties.length})
+      <div className='pm-head'>
+        <div>
+          <h2>Property Management</h2>
+          <p>Oversee listings, applications and performance</p>
+        </div>
+        <div className='pm-head-right'>
+          <button className={`pm-btn-icon ${refreshing ? 'spin' : ''}`} onClick={doRefresh} title='Refresh'>
+            <RefreshCw size={16} />
           </button>
-          <button
-            className={`btn ${
-              activeView === 'applications'
-                ? 'btn-primary'
-                : 'btn-outline-primary'
-            }`}
-            onClick={() => setActiveView('applications')}
-          >
-            Applications ({applications.length})
-          </button>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className='stats-grid'>
-        <div className='stat-card'>
-          <div className='stat-value'>{stats.totalProperties}</div>
-          <div className='stat-label'>Total Properties</div>
-        </div>
-        <div className='stat-card'>
-          <div className='stat-value'>{stats.activeListings}</div>
-          <div className='stat-label'>Published</div>
-        </div>
-        {isAdmin && (
-          <div
-            className='stat-card'
-            style={{
-              cursor: 'pointer',
-              borderColor: stats.pendingReview > 0 ? '#ffc107' : undefined
-            }}
-            onClick={() =>
-              setPropertyStatusFilter(
-                propertyStatusFilter === 'pending_review'
-                  ? 'all'
-                  : 'pending_review'
-              )
-            }
-          >
-            <div className='stat-value'>{stats.pendingReview}</div>
-            <div className='stat-label'>Pending Review</div>
+          <div className='pm-tab-group'>
+            <button className={activeView === 'properties'   ? 'active' : ''} onClick={() => setActiveView('properties')}>
+              <Home size={14} /> Properties <span className='pm-tab-count'>{properties.length}</span>
+            </button>
+            <button className={activeView === 'applications' ? 'active' : ''} onClick={() => setActiveView('applications')}>
+              <FileText size={14} /> Applications <span className='pm-tab-count'>{applications.length}</span>
+            </button>
           </div>
-        )}
-        <div className='stat-card'>
-          <div className='stat-value'>{stats.totalApplications}</div>
-          <div className='stat-label'>Total Applications</div>
-        </div>
-        <div className='stat-card'>
-          <div className='stat-value'>{stats.pendingApplications}</div>
-          <div className='stat-label'>Pending Applications</div>
-        </div>
-        <div className='stat-card highlight'>
-          <div className='stat-value'>{formatCurrency(stats.totalRevenue)}</div>
-          <div className='stat-label'>Total Revenue</div>
-        </div>
-        <div className='stat-card'>
-          <div className='stat-value'>{stats.conversionRate}%</div>
-          <div className='stat-label'>Conversion Rate</div>
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className='filters-section'>
-        <div className='search-box'>
+      {/* Stats */}
+      <div className='pm-stats'>
+        {[
+          { icon: <Building2 size={18} />, cls: 'total',    val: stats.totalProperties,    lbl: 'Total Properties' },
+          { icon: <CheckCircle size={18} />, cls: 'active', val: stats.activeListings,      lbl: 'Published' },
+          isAdmin && { icon: <Clock size={18} />,  cls: 'pending', val: stats.pendingReview,       lbl: 'Pending Review',
+            onClick: () => setPropertyStatusFilter(propertyStatusFilter === 'pending_review' ? 'all' : 'pending_review') },
+          { icon: <FileText size={18} />,   cls: 'apps',   val: stats.totalApplications,   lbl: 'Applications' },
+          { icon: <DollarSign size={18} />, cls: 'rev',    val: fmtCurrency(stats.totalRevenue), lbl: 'Total Revenue', wide: true },
+          { icon: <BarChart3 size={18} />,  cls: 'conv',   val: `${stats.conversionRate}%`,lbl: 'Conversion' },
+        ].filter(Boolean).map((s, i) => (
+          <div key={i} className={`pm-stat ${s.wide ? 'pm-stat-wide' : ''}`}
+            style={s.onClick ? { cursor: 'pointer' } : undefined}
+            onClick={s.onClick}>
+            <div className={`pm-stat-icon ${s.cls}`}>{s.icon}</div>
+            <div className='pm-stat-body'>
+              <div className='pm-stat-val'>{s.val ?? 0}</div>
+              <div className='pm-stat-lbl'>{s.lbl}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Toolbar */}
+      <div className='pm-toolbar'>
+        <div className='pm-search'>
+          <Search size={14} />
           <input
-            type='text'
-            placeholder='Search properties or applicants...'
+            placeholder='Search properties or applicants…'
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className='form-control'
           />
         </div>
-
-        {activeView === 'properties' && (
-          <>
-            <select
-              value={categoryFilter}
-              onChange={e => setCategoryFilter(e.target.value)}
-              className='form-select'
-            >
-              {categories.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-
-            {isAdmin && (
-              <select
-                value={propertyStatusFilter}
-                onChange={e => setPropertyStatusFilter(e.target.value)}
-                className='form-select'
-              >
-                <option value='all'>All Statuses</option>
-                <option value='pending_review'>Pending Review</option>
-                <option value='published'>Published</option>
-                <option value='draft'>Draft</option>
-                <option value='archived'>Archived</option>
-                <option value='suspended'>Suspended</option>
+        <div className='pm-filters'>
+          {activeView === 'properties' && (
+            <>
+              <select className='pm-select' value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+                {categories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-            )}
-
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-              className='form-select'
-            >
-              <option value='recent'>Recent</option>
-              <option value='price_low'>Price: Low to High</option>
-              <option value='price_high'>Price: High to Low</option>
+              {isAdmin && (
+                <select className='pm-select' value={propertyStatusFilter} onChange={e => setPropertyStatusFilter(e.target.value)}>
+                  <option value='all'>All Statuses</option>
+                  <option value='pending_review'>Pending Review</option>
+                  <option value='published'>Published</option>
+                  <option value='draft'>Draft</option>
+                  <option value='archived'>Archived</option>
+                  <option value='suspended'>Suspended</option>
+                </select>
+              )}
+              <select className='pm-select' value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                <option value='recent'>Recent</option>
+                <option value='price_low'>Price: Low → High</option>
+                <option value='price_high'>Price: High → Low</option>
+              </select>
+            </>
+          )}
+          {activeView === 'applications' && (
+            <select className='pm-select' value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+              <option value='all'>All Statuses</option>
+              <option value='pending'>Pending</option>
+              <option value='approved'>Approved</option>
+              <option value='rejected'>Rejected</option>
             </select>
-          </>
-        )}
-
-        {activeView === 'applications' && (
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className='form-select'
-          >
-            <option value='all'>All Statuses</option>
-            <option value='pending'>Pending</option>
-            <option value='approved'>Approved</option>
-            <option value='rejected'>Rejected</option>
-          </select>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Loading State */}
+      {/* Loading */}
       {loading && (
-        <div className='loading-container'>
-          <div className='spinner-border text-primary' role='status'>
-            <span className='visually-hidden'>Loading...</span>
-          </div>
-          <p>Loading data...</p>
+        <div className='pm-state'>
+          <div className='pm-spinner' />
+          <p>Loading data…</p>
         </div>
       )}
 
-      {/* Properties View */}
+      {/* ── Properties view ─────────────────────────────────────────────── */}
       {activeView === 'properties' && !loading && (
-        <div className='properties-section'>
-          <h2>Properties ({filteredProperties.length})</h2>
+        <div>
+          <div className='pm-section-head'>
+            <span>Properties <span className='pm-section-count'>({filteredProperties.length})</span></span>
+          </div>
 
           {filteredProperties.length === 0 ? (
-            <div className='empty-state'>
-              <p>No properties found</p>
+            <div className='pm-state'>
+              <Home size={40} />
+              <h3>No properties found</h3>
+              <p>Try adjusting your filters</p>
             </div>
           ) : (
-            <div className='properties-grid'>
-              {getSortedProperties().map(property => (
-                <div key={property._id} className='property-card'>
-                  <div className='property-image'>
-                    {(property.media?.[0]?.url || property.images?.[0]) ? (
-                      <img src={property.media?.[0]?.url || property.images[0]} alt={property.title} />
-                    ) : (
-                      <div className='no-image'>No Image</div>
-                    )}
-                  </div>
-
-                  <div className='property-details'>
-                    <h3>{property.title}</h3>
-                    <p className='location'>
-                      📍{' '}
-                      {typeof property.location === 'string'
-                        ? property.location
-                        : [
-                            property.location?.address,
-                            property.location?.city,
-                            property.location?.state
-                          ]
-                            .filter(Boolean)
-                            .join(', ') ||
-                          property.city ||
-                          property.address ||
-                          ''}
-                    </p>
-                    <p className='category'>
-                      <span className='badge'>{property.category}</span>{' '}
-                      <span
-                        className='badge'
-                        style={{
-                          backgroundColor:
-                            property.status === 'published'
-                              ? '#28a745'
-                              : property.status === 'pending_review'
-                              ? '#ffc107'
-                              : property.status === 'archived'
-                              ? '#dc3545'
-                              : property.status === 'draft'
-                              ? '#6c757d'
-                              : '#17a2b8',
-                          color:
-                            property.status === 'pending_review'
-                              ? '#000'
-                              : '#fff'
-                        }}
-                      >
-                        {property.status || 'draft'}
-                      </span>
-                    </p>
-
-                    <div className='property-specs'>
-                      {(property.beds || property.bedrooms) && (
-                        <span>🛏️ {property.beds || property.bedrooms} BR</span>
-                      )}
-                      {(property.baths || property.bathrooms) && (
-                        <span>🚿 {property.baths || property.bathrooms} BA</span>
-                      )}
-                      {property.area && (
-                        <span>📐 {property.area} sqm</span>
-                      )}
+            <div className='pm-prop-grid'>
+              {sorted().map(p => {
+                const sm = STATUS_META[p.status] || { label: p.status || 'draft', cls: 'pm-s-draft' }
+                const img = p.media?.[0]?.url || p.images?.[0]
+                return (
+                  <div key={p._id} className='pm-prop-card'>
+                    <div className='pm-prop-img'>
+                      {img
+                        ? <img src={img} alt={p.title} />
+                        : <div className='pm-prop-no-img'><Home size={28} /></div>}
+                      <span className={`pm-status-badge ${sm.cls}`}>{sm.label}</span>
                     </div>
-
-                    <div className='property-price'>
-                      {formatCurrency(
-                        property.price || property.rentPrice || 0
-                      )}
-                      {property.rentFrequency && (
-                        <span className='frequency'>
-                          {' '}
-                          / {property.rentFrequency}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className='property-actions'>
-                      <a
-                        className='btn btn-sm btn-info'
-                        href={`/property/${property.uid || property._id}`}
-                        target='_blank'
-                        rel='noreferrer'
-                      >
-                        Preview
-                      </a>
-                      <button
-                        className='btn btn-sm btn-success'
-                        onClick={() => viewPropertyApplications(property._id)}
-                      >
-                        Applications
-                      </button>
-                      {isAdmin && property.status === 'pending_review' && (
-                        <>
-                          <button
-                            className='btn btn-sm btn-primary'
-                            onClick={() => handleApprove(property._id)}
-                          >
-                            ✓ Approve
-                          </button>
-                          <button
-                            className='btn btn-sm btn-warning'
-                            onClick={() => openRejectModal(property._id)}
-                          >
-                            ✗ Reject
-                          </button>
-                        </>
-                      )}
-                      <button
-                        className='btn btn-sm btn-danger'
-                        onClick={() => handleDeleteProperty(property._id)}
-                      >
-                        Delete
-                      </button>
+                    <div className='pm-prop-body'>
+                      <h3 className='pm-prop-title'>{p.title}</h3>
+                      <p className='pm-prop-loc'>
+                        <MapPin size={12} />
+                        {locStr(p.location) || p.city || p.address || 'No location'}
+                      </p>
+                      <div className='pm-prop-meta'>
+                        {(p.beds || p.bedrooms) &&
+                          <span><Bed size={12} /> {p.beds || p.bedrooms} BD</span>}
+                        {(p.baths || p.bathrooms) &&
+                          <span><Bath size={12} /> {p.baths || p.bathrooms} BA</span>}
+                        {p.area && <span>{p.area} m²</span>}
+                        <span className='pm-cat-pill'>{p.category}</span>
+                      </div>
+                      <div className='pm-prop-price'>
+                        {fmtCurrency(p.price || p.rentPrice)}
+                        {p.rentFrequency && <span className='pm-freq'>/{p.rentFrequency}</span>}
+                      </div>
+                      <div className='pm-prop-actions'>
+                        <a className='pm-act-btn view'
+                          href={`/property/${p.uid || p._id}`} target='_blank' rel='noreferrer'>
+                          <SquareArrowOutUpRight size={12} /> Preview
+                        </a>
+                        <button className='pm-act-btn apps'
+                          onClick={() => viewPropertyApplications(p._id)}>
+                          <FileText size={12} /> Apps
+                        </button>
+                        {isAdmin && p.status === 'pending_review' && (
+                          <>
+                            <button className='pm-act-btn approve' onClick={() => handleApprove(p._id)}>
+                              <CheckCircle size={12} /> Approve
+                            </button>
+                            <button className='pm-act-btn reject' onClick={() => openRejectModal(p._id)}>
+                              <XCircle size={12} /> Reject
+                            </button>
+                          </>
+                        )}
+                        <button className='pm-act-btn del' onClick={() => handleDeleteProperty(p._id)}>
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
       )}
 
-      {/* Applications View */}
+      {/* ── Applications view ────────────────────────────────────────────── */}
       {activeView === 'applications' && !loading && (
-        <div className='applications-section'>
-          <h2>All Applications ({filteredApplications.length})</h2>
+        <div>
+          <div className='pm-section-head'>
+            <span>Applications <span className='pm-section-count'>({filteredApplications.length})</span></span>
+          </div>
 
           {filteredApplications.length === 0 ? (
-            <div className='empty-state'>
-              <p>No applications found</p>
+            <div className='pm-state'>
+              <FileText size={40} />
+              <h3>No applications found</h3>
+              <p>Try adjusting your filters</p>
             </div>
           ) : (
-            <div className='applications-table'>
-              <table className='table table-hover'>
+            <div className='pm-table-wrap'>
+              <table className='pm-table'>
                 <thead>
                   <tr>
-                    <th>Applicant Name</th>
+                    <th>Applicant</th>
                     <th>Property</th>
-                    <th>Email</th>
+                    <th>Type</th>
                     <th>Status</th>
-                    <th>Applied Date</th>
-                    <th>Actions</th>
+                    <th>Applied</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredApplications.map(app => (
-                    <tr key={app._id}>
-                      <td>{app.userName || 'N/A'}</td>
-                      <td>{app.propertyTitle || 'N/A'}</td>
-                      <td>{app.userEmail || 'N/A'}</td>
-                      <td>
-                        <span
-                          className='badge'
-                          style={{
-                            backgroundColor: getStatusColor(app.status)
-                          }}
-                        >
-                          {app.status}
-                        </span>
-                      </td>
-                      <td>{new Date(app.appliedAt).toLocaleDateString()}</td>
-                      <td>
-                        <div className='action-buttons'>
-                          {app.status === 'pending' && (
-                            <>
-                              <button
-                                className='btn btn-sm btn-success'
-                                onClick={() =>
-                                  updateApplicationStatus(app._id, 'approved')
-                                }
-                              >
-                                Approve
-                              </button>
-                              <button
-                                className='btn btn-sm btn-warning'
-                                onClick={() =>
-                                  updateApplicationStatus(app._id, 'rejected')
-                                }
-                              >
-                                Reject
-                              </button>
-                            </>
-                          )}
-                          <button
-                            className='btn btn-sm btn-danger'
-                            onClick={() => deleteApplication(app._id)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredApplications.map(app => {
+                    const am = APP_STATUS_META[app.status] || { label: app.status, cls: 'pm-a-pending' }
+                    return (
+                      <tr key={app._id}>
+                        <td>
+                          <div className='pm-app-user'>
+                            <div className='pm-app-av'>
+                              {(app.userName || 'U')[0].toUpperCase()}
+                            </div>
+                            <div>
+                              <div className='pm-app-name'>{app.userName || 'N/A'}</div>
+                              <div className='pm-app-email'>{app.userEmail || '—'}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className='pm-td-prop'>{app.propertyTitle || 'N/A'}</td>
+                        <td>
+                          <span className='pm-type-pill'>{app.type || app.applicationType || '—'}</span>
+                        </td>
+                        <td><span className={`pm-app-badge ${am.cls}`}>{am.label}</span></td>
+                        <td className='pm-td-date'>{fmtDate(app.appliedAt || app.createdAt)}</td>
+                        <td>
+                          <div className='pm-app-actions'>
+                            {app.status === 'pending' && (
+                              <>
+                                <button className='pm-act-btn approve'
+                                  onClick={() => updateApplicationStatus(app._id, 'approved')}>
+                                  <CheckCircle size={12} /> Approve
+                                </button>
+                                <button className='pm-act-btn reject'
+                                  onClick={() => updateApplicationStatus(app._id, 'rejected')}>
+                                  <XCircle size={12} /> Reject
+                                </button>
+                              </>
+                            )}
+                            <button className='pm-act-btn del' onClick={() => deleteApplication(app._id)}>
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -523,162 +343,96 @@ const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
         </div>
       )}
 
-      {/* Reject Reason Modal */}
+      {/* ── Reject modal ─────────────────────────────────────────────────── */}
       {rejectModal && (
-        <div className='modal-overlay' onClick={() => setRejectModal(false)}>
-          <div
-            className='modal-content'
-            style={{ maxWidth: 420 }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div className='modal-header'>
-              <h5>Reject Property</h5>
+        <div className='pm-overlay' onClick={() => setRejectModal(false)}>
+          <div className='pm-modal' onClick={e => e.stopPropagation()}>
+            <div className='pm-modal-head'>
+              <h3>Reject Property</h3>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {rejectTargetId && (
-                  <a
-                    href={`/property/${rejectTargetId}`}
-                    target='_blank'
-                    rel='noreferrer'
-                    className='btn btn-sm btn-outline-secondary'
-                    style={{ fontSize: 12 }}
-                  >
-                    Open Preview ↗
+                  <a href={`/property/${rejectTargetId}`} target='_blank' rel='noreferrer'
+                    className='pm-act-btn view' style={{ textDecoration: 'none', fontSize: 12 }}>
+                    <SquareArrowOutUpRight size={12} /> Preview
                   </a>
                 )}
-                <button
-                  className='btn-close'
-                  onClick={() => setRejectModal(false)}
-                ></button>
+                <button className='pm-modal-close' onClick={() => setRejectModal(false)}><X size={15} /></button>
               </div>
             </div>
-            <div className='modal-body'>
-              <label
-                htmlFor='reject-reason'
-                style={{ fontWeight: 600, marginBottom: 6, display: 'block' }}
-              >
-                Reason for rejection (optional)
-              </label>
+            <div className='pm-modal-body'>
+              <label className='pm-label'>Reason for rejection (optional)</label>
               <textarea
-                id='reject-reason'
-                className='form-control'
+                className='pm-textarea'
                 rows={3}
-                placeholder='e.g. Missing documents, incorrect pricing...'
+                placeholder='e.g. Missing documents, incorrect pricing…'
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
               />
             </div>
-            <div className='modal-footer'>
-              <button
-                className='btn btn-secondary'
-                onClick={() => setRejectModal(false)}
-              >
-                Cancel
-              </button>
-              <button className='btn btn-danger' onClick={handleRejectConfirm}>
-                Confirm Reject
-              </button>
+            <div className='pm-modal-foot'>
+              <button className='pm-foot-cancel' onClick={() => setRejectModal(false)}>Cancel</button>
+              <button className='pm-foot-danger' onClick={handleRejectConfirm}>Confirm Reject</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal */}
+      {/* ── Detail / Applications modal ──────────────────────────────────── */}
       {showModal && (
-        <div className='modal-overlay' onClick={closeModal}>
-          <div className='modal-content' onClick={e => e.stopPropagation()}>
-            <div className='modal-header'>
-              <h5>
-                {modalType === 'view' ? 'Property Details' : 'Applications'}
-              </h5>
-              <button className='btn-close' onClick={closeModal}></button>
+        <div className='pm-overlay' onClick={closeModal}>
+          <div className='pm-modal pm-modal-lg' onClick={e => e.stopPropagation()}>
+            <div className='pm-modal-head'>
+              <h3>{modalType === 'view' ? 'Property Details' : 'Property Applications'}</h3>
+              <button className='pm-modal-close' onClick={closeModal}><X size={15} /></button>
             </div>
-
-            <div className='modal-body'>
+            <div className='pm-modal-body'>
               {modalType === 'view' && selectedProperty && (
-                <div className='property-detail-view'>
-                  <img
-                    src={selectedProperty.media?.[0]?.url || selectedProperty.images?.[0]}
-                    alt={selectedProperty.title}
-                  />
+                <div className='pm-detail-view'>
+                  {(selectedProperty.media?.[0]?.url || selectedProperty.images?.[0]) && (
+                    <img src={selectedProperty.media?.[0]?.url || selectedProperty.images?.[0]}
+                      alt={selectedProperty.title} />
+                  )}
                   <h3>{selectedProperty.title}</h3>
                   <p>{selectedProperty.description}</p>
-                  <p>
-                    <strong>Location:</strong>{' '}
-                    {typeof selectedProperty.location === 'string'
-                      ? selectedProperty.location
-                      : [
-                          selectedProperty.location?.address,
-                          selectedProperty.location?.city,
-                          selectedProperty.location?.state
-                        ]
-                          .filter(Boolean)
-                          .join(', ') ||
-                        selectedProperty.city ||
-                        selectedProperty.address ||
-                        ''}
-                  </p>
-                  <p>
-                    <strong>Category:</strong> {selectedProperty.category}
-                  </p>
-                  <p>
-                    <strong>Price:</strong>{' '}
-                    {formatCurrency(
-                      selectedProperty.price || selectedProperty.rentPrice
-                    )}
-                  </p>
+                  <div className='pm-detail-grid'>
+                    <div><label>Location</label><p>{locStr(selectedProperty.location) || selectedProperty.city || '—'}</p></div>
+                    <div><label>Category</label><p>{selectedProperty.category}</p></div>
+                    <div><label>Price</label><p>{fmtCurrency(selectedProperty.price || selectedProperty.rentPrice)}</p></div>
+                    <div><label>Status</label><p>{selectedProperty.status}</p></div>
+                  </div>
                 </div>
               )}
-
               {modalType === 'applications' && modalData && (
-                <div className='applications-list'>
-                  {modalData.length === 0 ? (
-                    <p>No applications for this property</p>
-                  ) : (
-                    modalData.map(app => (
-                      <div key={app._id} className='application-item'>
-                        <div className='application-info'>
-                          <h6>{app.userName}</h6>
-                          <p>{app.userEmail}</p>
-                          <span
-                            className='badge'
-                            style={{
-                              backgroundColor: getStatusColor(app.status)
-                            }}
-                          >
-                            {app.status}
-                          </span>
-                        </div>
-                        {app.status === 'pending' && (
-                          <div className='application-actions'>
-                            <button
-                              className='btn btn-sm btn-success'
-                              onClick={() =>
-                                updateApplicationStatus(app._id, 'approved')
-                              }
-                            >
-                              Approve
-                            </button>
-                            <button
-                              className='btn btn-sm btn-warning'
-                              onClick={() =>
-                                updateApplicationStatus(app._id, 'rejected')
-                              }
-                            >
-                              Reject
-                            </button>
+                <div className='pm-modal-apps'>
+                  {modalData.length === 0
+                    ? <p style={{ color: 'rgba(230,237,243,0.45)', textAlign: 'center', padding: '2rem' }}>No applications for this property</p>
+                    : modalData.map(app => {
+                        const am = APP_STATUS_META[app.status] || { label: app.status, cls: 'pm-a-pending' }
+                        return (
+                          <div key={app._id} className='pm-modal-app-row'>
+                            <div>
+                              <div className='pm-app-name'>{app.userName}</div>
+                              <div className='pm-app-email'>{app.userEmail}</div>
+                              <span className={`pm-app-badge ${am.cls}`} style={{ marginTop: 6, display: 'inline-block' }}>{am.label}</span>
+                            </div>
+                            {app.status === 'pending' && (
+                              <div className='pm-app-actions'>
+                                <button className='pm-act-btn approve' onClick={() => updateApplicationStatus(app._id, 'approved')}>
+                                  <CheckCircle size={12} /> Approve
+                                </button>
+                                <button className='pm-act-btn reject' onClick={() => updateApplicationStatus(app._id, 'rejected')}>
+                                  <XCircle size={12} /> Reject
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))
-                  )}
+                        )
+                      })}
                 </div>
               )}
             </div>
-
-            <div className='modal-footer'>
-              <button className='btn btn-secondary' onClick={closeModal}>
-                Close
-              </button>
+            <div className='pm-modal-foot'>
+              <button className='pm-foot-cancel' onClick={closeModal}>Close</button>
             </div>
           </div>
         </div>
@@ -686,5 +440,3 @@ const PropertyManagementDashboard = ({ backend, authToken, userRole }) => {
     </div>
   )
 }
-
-export default PropertyManagementDashboard

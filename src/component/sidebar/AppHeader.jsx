@@ -64,6 +64,13 @@ export default function AppHeader ({
   const notifRef = useRef(null)
   const userMenuRef = useRef(null)
 
+  const handleClick = key => {
+    setActiveKey(key)
+    localStorage.setItem('ep_activePage', key)
+    onRouteChange(key)
+    if (mobileOpen) onCloseMobile()
+  }
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClick = e => {
@@ -349,7 +356,10 @@ export default function AppHeader ({
 
               <div className='menu-divider' />
 
-              <button className='menu-item'>
+              <button
+                className='menu-item'
+                onClick={() => handleClick('Settings')}
+              >
                 <svg
                   width='18'
                   height='18'

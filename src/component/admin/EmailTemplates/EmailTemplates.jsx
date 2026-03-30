@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Save, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react'
 import { emailTemplates as emailTemplatesApi } from '@/libs/api'
+import './EmailTemplates.scss'
 
 const TYPE_LABELS = {
   welcome:              'Welcome Email',
@@ -23,6 +25,7 @@ export default function EmailTemplates () {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState(null)
+  const [preview, setPreview] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -47,6 +50,7 @@ export default function EmailTemplates () {
     setHtmlBody(t.htmlBody)
     setIsActive(t.isActive ?? true)
     setMsg(null)
+    setPreview(false)
   }
 
   async function save () {
@@ -65,7 +69,7 @@ export default function EmailTemplates () {
     }
   }
 
-  async function reset () {
+  async function resetTemplate () {
     if (!selected || !confirm('Reset this template to its default content?')) return
     setSaving(true)
     setMsg(null)
@@ -81,132 +85,119 @@ export default function EmailTemplates () {
     }
   }
 
-  if (loading) return <div style={{ padding: 32, color: '#888' }}>Loading templates…</div>
+  if (loading) {
+    return (
+      <div className='et-state'>
+        <div className='et-spinner' />
+        <span>Loading templates…</span>
+      </div>
+    )
+  }
 
   return (
-    <div style={{ display: 'flex', gap: 0, minHeight: '80vh', fontFamily: 'sans-serif' }}>
+    <div className='et-wrap'>
       {/* Sidebar */}
-      <aside style={{
-        width: 220, borderRight: '1px solid #e5e7eb', padding: '16px 0',
-        background: '#fafafa', flexShrink: 0
-      }}>
-        <div style={{ padding: '0 16px 12px', fontWeight: 700, fontSize: 13, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1 }}>
-          Templates
-        </div>
+      <aside className='et-sidebar'>
+        <div className='et-sidebar-title'>Templates</div>
         {templates.map(t => (
           <button
             key={t.type}
+            className={`et-sidebar-item${selected?.type === t.type ? ' active' : ''}`}
             onClick={() => pick(t)}
-            style={{
-              width: '100%', textAlign: 'left', padding: '10px 16px',
-              border: 'none', cursor: 'pointer', fontSize: 14,
-              background: selected?.type === t.type ? '#eff6ff' : 'transparent',
-              color: selected?.type === t.type ? '#2563eb' : '#374151',
-              fontWeight: selected?.type === t.type ? 700 : 400,
-              borderLeft: selected?.type === t.type ? '3px solid #2563eb' : '3px solid transparent'
-            }}
           >
-            {TYPE_LABELS[t.type] || t.name}
-            {!t.isActive && <span style={{ marginLeft: 6, fontSize: 10, color: '#ef4444' }}>OFF</span>}
+            <span>{TYPE_LABELS[t.type] || t.name}</span>
+            {!t.isActive && <span className='et-off-badge'>Off</span>}
           </button>
         ))}
       </aside>
 
       {/* Editor */}
-      <main style={{ flex: 1, padding: 28, maxWidth: 860 }}>
+      <main className='et-main'>
         {selected ? (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div className='et-main-head'>
               <div>
-                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{TYPE_LABELS[selected.type] || selected.name}</h2>
-                <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6b7280' }}>
+                <h2>{TYPE_LABELS[selected.type] || selected.name}</h2>
+                <p>
                   Variables: {(selected.variables || []).map(v => `{{${v}}}`).join(', ') || 'none'}
                 </p>
               </div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, cursor: 'pointer' }}>
-                <input type='checkbox' checked={isActive} onChange={e => setIsActive(e.target.checked)} />
+              <label className='et-toggle-label'>
+                <span className='et-toggle'>
+                  <input
+                    type='checkbox'
+                    checked={isActive}
+                    onChange={e => setIsActive(e.target.checked)}
+                  />
+                  <span className='et-toggle-track'>
+                    <span className='et-toggle-knob' />
+                  </span>
+                </span>
                 Active
               </label>
             </div>
 
             {msg && (
-              <div style={{
-                padding: '10px 16px', borderRadius: 8, marginBottom: 16,
-                background: msg.type === 'success' ? '#f0fdf4' : '#fef2f2',
-                color: msg.type === 'success' ? '#16a34a' : '#dc2626',
-                border: `1px solid ${msg.type === 'success' ? '#bbf7d0' : '#fecaca'}`
-              }}>{msg.text}</div>
+              <div className={`et-alert et-alert--${msg.type}`}>{msg.text}</div>
             )}
 
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontWeight: 600, fontSize: 13, marginBottom: 6, color: '#374151' }}>
-                Subject
-              </label>
+            <div className='et-field'>
+              <label className='et-label'>Subject</label>
               <input
+                className='et-input'
                 value={subject}
                 onChange={e => setSubject(e.target.value)}
-                style={{
-                  width: '100%', padding: '10px 12px', borderRadius: 8,
-                  border: '1px solid #d1d5db', fontSize: 14, boxSizing: 'border-box'
-                }}
+                placeholder='Email subject line…'
               />
             </div>
 
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontWeight: 600, fontSize: 13, marginBottom: 6, color: '#374151' }}>
-                HTML Body
-              </label>
+            <div className='et-field'>
+              <label className='et-label'>HTML Body</label>
               <textarea
+                className='et-textarea'
                 value={htmlBody}
                 onChange={e => setHtmlBody(e.target.value)}
                 rows={16}
-                style={{
-                  width: '100%', padding: '10px 12px', borderRadius: 8,
-                  border: '1px solid #d1d5db', fontSize: 13, fontFamily: 'monospace',
-                  resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.6
-                }}
+                spellCheck={false}
               />
             </div>
 
-            {/* Preview pane */}
-            <details style={{ marginBottom: 20 }}>
-              <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: 13, color: '#6b7280', userSelect: 'none' }}>
-                Preview (rendered HTML)
-              </summary>
-              <div style={{
-                marginTop: 12, padding: 16, borderRadius: 8,
-                border: '1px solid #e5e7eb', background: '#fff'
-              }}
+            {/* Preview */}
+            <button
+              className='et-preview-toggle'
+              onClick={() => setPreview(p => !p)}
+            >
+              Preview (rendered HTML)
+              {preview ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+            {preview && (
+              <div
+                className='et-preview-frame'
                 dangerouslySetInnerHTML={{ __html: htmlBody }}
               />
-            </details>
+            )}
 
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div className='et-actions'>
               <button
+                className='et-btn et-btn--save'
                 onClick={save}
                 disabled={saving}
-                style={{
-                  padding: '10px 24px', background: '#2563eb', color: '#fff',
-                  border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer',
-                  opacity: saving ? 0.6 : 1
-                }}
               >
+                <Save size={14} />
                 {saving ? 'Saving…' : 'Save Changes'}
               </button>
               <button
-                onClick={reset}
+                className='et-btn et-btn--reset'
+                onClick={resetTemplate}
                 disabled={saving}
-                style={{
-                  padding: '10px 24px', background: '#f3f4f6', color: '#374151',
-                  border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer'
-                }}
               >
+                <RotateCcw size={14} />
                 Reset to Default
               </button>
             </div>
           </>
         ) : (
-          <p style={{ color: '#9ca3af' }}>Select a template to edit.</p>
+          <p className='et-empty'>Select a template to edit.</p>
         )}
       </main>
     </div>

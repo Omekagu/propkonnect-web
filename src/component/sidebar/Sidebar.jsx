@@ -94,11 +94,6 @@ export default function Sidebar ({
             icon: <WalletMinimal strokeWidth={0.75} />
           },
           {
-            key: 'Payouts',
-            label: 'Payouts',
-            icon: <DollarSign strokeWidth={0.75} />
-          },
-          {
             key: 'Maintenance',
             label: 'Maintenance',
             icon: <Drill strokeWidth={0.75} />
@@ -112,16 +107,6 @@ export default function Sidebar ({
             key: 'Documents',
             label: 'Documents',
             icon: <ClipboardMinus strokeWidth={0.75} />
-          },
-          {
-            key: 'SupportTickets',
-            label: 'Support Tickets',
-            icon: <MessageSquareWarning strokeWidth={0.75} />
-          },
-          {
-            key: 'PlatformSettings',
-            label: 'Platform Settings',
-            icon: <ChevronsRightLeft strokeWidth={0.75} />
           },
           {
             key: 'EmailTemplates',

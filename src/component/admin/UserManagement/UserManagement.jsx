@@ -2,1156 +2,566 @@
 import React, { useState, useEffect } from 'react'
 import { users as usersApi } from '@/libs/api'
 import {
-  FiSearch,
-  FiFilter,
-  FiPlus,
-  FiEdit2,
-  FiTrash2,
-  FiCheck,
-  FiX,
-  FiEye,
-  FiEyeOff,
-  FiMoreVertical,
-  FiLogOut,
-  FiUser,
-  FiUserCheck,
-  FiActivity,
-  FiDownload,
-  FiRefreshCw
-} from 'react-icons/fi'
+  Search, RefreshCw, Plus, Edit2, Trash2, CheckCircle,
+  XCircle, Eye, UserCheck, User, ArrowUp, ArrowDown,
+  Users, Activity, Shield, Wrench, Home, ChevronLeft, ChevronRight, X
+} from 'lucide-react'
 import './UserManagement.scss'
 
-const EnhancedUserManagement = () => {
-  // States
-  const [users, setUsers] = useState([])
-  const [filteredUsers, setFilteredUsers] = useState([])
-  const [stats, setStats] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+// ── helpers ───────────────────────────────────────────────────────────────────
 
-  // Filters
-  const [searchTerm, setSearchTerm] = useState('')
-  const [roleFilter, setRoleFilter] = useState('all')
-  const [userTypeFilter, setUserTypeFilter] = useState('all') // all, owner, artisan
-  const [statusFilter, setStatusFilter] = useState('all') // all, active, inactive
-  const [verificationFilter, setVerificationFilter] = useState('all')
-  const [sortBy, setSortBy] = useState('createdAt')
-  const [sortOrder, setSortOrder] = useState('desc')
-  const [viewMode, setViewMode] = useState('grid') // grid, table
+const roleBadgeClass = role => {
+  if (!role) return 'role-user'
+  const r = role.toLowerCase()
+  if (r.includes('super')) return 'role-super'
+  if (r.includes('admin')) return 'role-admin'
+  if (r === 'property-owner' || r === 'property_owner') return 'role-owner'
+  if (r === 'artisan') return 'role-artisan'
+  return 'role-user'
+}
 
-  // Pagination
+const roleLabel = role => {
+  if (!role) return 'User'
+  return role.replace(/_/g, ' ').replace(/-/g, ' ')
+    .split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
+const isOnline = user => {
+  if (!user.status?.lastSeen) return false
+  return Date.now() - new Date(user.status.lastSeen).getTime() < 5 * 60 * 1000
+}
+
+const timeAgo = date => {
+  if (!date) return 'Never'
+  const s = Math.floor((Date.now() - new Date(date)) / 1000)
+  if (s < 60) return 'Just now'
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`
+  if (s < 604800) return `${Math.floor(s / 86400)}d ago`
+  return new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+const fmtDate = d =>
+  d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
+
+function Avatar ({ user, size = 38 }) {
+  const online = isOnline(user)
+  const initials = `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`
+  return (
+    <div className='um-avatar' style={{ width: size, height: size, fontSize: size * 0.36 }}>
+      {user.avatar ? <img src={user.avatar} alt='' /> : initials || '?'}
+      <span className={`um-online-dot ${online ? '' : 'offline'}`} />
+    </div>
+  )
+}
+
+// ── main component ────────────────────────────────────────────────────────────
+export default function UserManagement () {
+  const [users, setUsers]       = useState([])
+  const [filtered, setFiltered] = useState([])
+  const [stats, setStats]       = useState(null)
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState(null)
+  const [refreshing, setRefreshing] = useState(false)
+
+  // filters
+  const [search, setSearch]           = useState('')
+  const [roleFilter, setRoleFilter]   = useState('all')
+  const [statusFilter, setStatus]     = useState('all')
+  const [verifyFilter, setVerify]     = useState('all')
+  const [sortBy, setSortBy]           = useState('createdAt')
+  const [sortDir, setSortDir]         = useState('desc')
+
+  // pagination
+  const PER_PAGE = 15
   const [page, setPage] = useState(1)
-  const [itemsPerPage] = useState(12)
 
-  // Modals
-  const [showUserDetail, setShowUserDetail] = useState(false)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showVerifyModal, setShowVerifyModal] = useState(false)
+  // selection
+  const [selected, setSelected]   = useState([])
 
-  // Selected user
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [selectedUsers, setSelectedUsers] = useState([])
+  // modals
+  const [detailUser, setDetailUser]   = useState(null)
+  const [editUser, setEditUser]       = useState(null)
+  const [deleteUser, setDeleteUser]   = useState(null)
+  const [verifyUser, setVerifyUser]   = useState(null)
+  const [showCreate, setShowCreate]   = useState(false)
 
-  // Form data
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    role: 'user',
-    password: ''
-  })
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', phone: '', role: 'user', password: '' })
 
-  // Fetch users
-  const fetchUsers = async () => {
+  // ── fetch ──────────────────────────────────────────────────────────────────
+  const fetchUsers = async (silent = false) => {
     try {
-      setLoading(true)
-      const response = await usersApi.getAll()
-      setUsers(response.data.users || [])
-      setStats(response.data.stats)
+      if (!silent) setLoading(true)
+      else setRefreshing(true)
+      const res = await usersApi.getAll({ limit: 5000 })
+      const allUsers = res.data.users || []
+      setUsers(allUsers)
+
+      // Map backend stats shape → component stats shape
+      const rs = res.data.stats?.roleStats || {}
+      const vs = res.data.stats?.verificationStats || {}
+      setStats({
+        totalUsers:     allUsers.length,
+        activeUsers:    allUsers.filter(u => isOnline(u)).length,
+        verifiedUsers:  vs.verified || 0,
+        artisans:       rs.artisan  || 0,
+        propertyOwners: rs['property-owner'] || 0
+      })
       setError(null)
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch users')
-      console.error('Error:', err)
+    } catch (e) {
+      setError(e.response?.data?.message || 'Failed to load users')
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }
 
-  useEffect(() => {
-    fetchUsers()
-  }, [])
+  useEffect(() => { fetchUsers() }, [])
 
-  // Filter and search users
+  // ── filter + sort ──────────────────────────────────────────────────────────
   useEffect(() => {
-    let result = [...users]
+    let r = [...users]
 
-    // Search filter
-    if (searchTerm) {
-      result = result.filter(
-        user =>
-          user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.phone?.includes(searchTerm)
+    if (search) {
+      const q = search.toLowerCase()
+      r = r.filter(u =>
+        `${u.firstName} ${u.lastName}`.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.phone?.includes(q)
       )
     }
+    if (roleFilter !== 'all') r = r.filter(u => u.role === roleFilter)
+    if (statusFilter === 'online')   r = r.filter(u => isOnline(u))
+    if (statusFilter === 'offline')  r = r.filter(u => !isOnline(u))
+    if (verifyFilter === 'verified')   r = r.filter(u => u.isVerified)
+    if (verifyFilter === 'unverified') r = r.filter(u => !u.isVerified)
 
-    // Role filter
-    if (roleFilter !== 'all') {
-      result = result.filter(user => user.role === roleFilter)
-    }
-
-    // User type filter (owner vs artisan)
-    if (userTypeFilter !== 'all') {
-      result = result.filter(user => {
-        if (userTypeFilter === 'PROPERTY_OWNER') {
-          return !user.artisanProfile?.isActive
-        }
-        if (userTypeFilter === 'artisan') {
-          return user.artisanProfile?.isActive
-        }
-        return true
-      })
-    }
-
-    // Verification filter
-    if (verificationFilter !== 'all') {
-      result = result.filter(user => {
-        if (verificationFilter === 'verified') {
-          return user.isVerified === true
-        }
-        if (verificationFilter === 'unverified') {
-          return user.isVerified === false
-        }
-        return true
-      })
-    }
-
-    // Status filter (online/offline)
-    if (statusFilter !== 'all') {
-      result = result.filter(user => {
-        const isActive = isUserOnline(user)
-        if (statusFilter === 'active') return isActive
-        if (statusFilter === 'inactive') return !isActive
-        return true
-      })
-    }
-
-    // Sort
-    result.sort((a, b) => {
-      let aValue = a[sortBy]
-      let bValue = b[sortBy]
-
-      if (sortBy === 'fullName') {
-        aValue = `${a.firstName} ${a.lastName}`
-        bValue = `${b.firstName} ${b.lastName}`
-      }
-
-      if (typeof aValue === 'string') {
-        aValue = aValue.toLowerCase()
-        bValue = bValue.toLowerCase()
-      }
-
-      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1
-      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1
+    r.sort((a, b) => {
+      let av = sortBy === 'name' ? `${a.firstName} ${a.lastName}` : a[sortBy]
+      let bv = sortBy === 'name' ? `${b.firstName} ${b.lastName}` : b[sortBy]
+      if (typeof av === 'string') { av = av.toLowerCase(); bv = bv?.toLowerCase() || '' }
+      if (av < bv) return sortDir === 'asc' ? -1 : 1
+      if (av > bv) return sortDir === 'asc' ? 1 : -1
       return 0
     })
 
-    setFilteredUsers(result)
+    setFiltered(r)
     setPage(1)
-  }, [
-    users,
-    searchTerm,
-    roleFilter,
-    userTypeFilter,
-    statusFilter,
-    verificationFilter,
-    sortBy,
-    sortOrder
-  ])
+  }, [users, search, roleFilter, statusFilter, verifyFilter, sortBy, sortDir])
 
-  // Check if user is online
-  const isUserOnline = user => {
-    if (!user.status?.lastSeen) return false
-    const lastLogin = new Date(user.status.lastSeen).getTime()
-    const now = Date.now()
-    const fiveMinutes = 5 * 60 * 1000
-    return now - lastLogin < fiveMinutes
+  const totalPages  = Math.ceil(filtered.length / PER_PAGE)
+  const paginated   = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+
+  // ── actions ────────────────────────────────────────────────────────────────
+  const resetForm = () => setForm({ firstName: '', lastName: '', email: '', phone: '', role: 'user', password: '' })
+
+  const doCreate = async e => {
+    e.preventDefault()
+    try { await usersApi.create(form); setShowCreate(false); resetForm(); fetchUsers(true) }
+    catch (e) { alert(e.response?.data?.message || 'Failed') }
   }
 
-  // Get user type label
-  const getUserType = user => {
-    if (user.artisanProfile?.isActive) {
-      return 'Artisan'
-    }
-    if (user.properties?.length > 0) {
-      return 'PROPERTY_OWNER'
-    }
-    return 'User'
-  }
-
-  // Format date
-  const formatDate = date => {
-    if (!date) return '—'
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  // Get time ago
-  const getTimeAgo = date => {
-    if (!date) return 'Never'
-    const seconds = Math.floor((new Date() - new Date(date)) / 1000)
-    if (seconds < 60) return 'Just now'
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
-    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
-  // Create user
-  const handleCreateUser = async e => {
+  const doEdit = async e => {
     e.preventDefault()
     try {
-      await usersApi.create(formData)
-      setShowCreateModal(false)
-      resetForm()
-      fetchUsers()
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to create user')
-    }
+      await usersApi.update(editUser._id, form)
+      if (form.role !== editUser.role) await usersApi.changeRole(editUser._id, form.role)
+      setEditUser(null); resetForm(); fetchUsers(true)
+    } catch (e) { alert(e.response?.data?.message || 'Failed') }
   }
 
-  // Update user
-  const handleUpdateUser = async e => {
-    e.preventDefault()
-    try {
-      await usersApi.update(selectedUser._id, formData)
-      if (formData.role && formData.role !== selectedUser.role) {
-        await usersApi.changeRole(selectedUser._id, formData.role)
-      }
-      setShowEditModal(false)
-      resetForm()
-      fetchUsers()
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update user')
-    }
+  const doDelete = async () => {
+    try { await usersApi.remove(deleteUser._id); setDeleteUser(null); fetchUsers(true) }
+    catch (e) { alert(e.response?.data?.message || 'Failed') }
   }
 
-  // Delete user
-  const handleDeleteUser = async () => {
-    try {
-      await usersApi.remove(selectedUser._id)
-      setShowDeleteModal(false)
-      setSelectedUser(null)
-      fetchUsers()
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete user')
-    }
+  const doVerify = async () => {
+    try { await usersApi.verify(verifyUser._id, { isVerified: !verifyUser.isVerified }); setVerifyUser(null); fetchUsers(true) }
+    catch (e) { alert(e.response?.data?.message || 'Failed') }
   }
 
-  // Verify user
-  const handleVerifyUser = async () => {
-    try {
-      await usersApi.verify(selectedUser._id, { isVerified: !selectedUser.isVerified })
-      setShowVerifyModal(false)
-      fetchUsers()
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to verify user')
-    }
+  const doBulkDelete = async () => {
+    if (!confirm(`Delete ${selected.length} users?`)) return
+    for (const id of selected) { try { await usersApi.remove(id) } catch {} }
+    setSelected([]); fetchUsers(true)
   }
 
-  // Toggle user selection
-  const toggleUserSelection = userId => {
-    setSelectedUsers(prev =>
-      prev.includes(userId)
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
-    )
+  const toggleSelect = id => setSelected(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
+  const toggleAll    = () => setSelected(selected.length === paginated.length ? [] : paginated.map(u => u._id))
+
+  const openEdit = u => {
+    setForm({ firstName: u.firstName || '', lastName: u.lastName || '', email: u.email || '', phone: u.phone || '', role: u.role || 'user', password: '' })
+    setEditUser(u)
   }
 
-  // Bulk delete
-  const handleBulkDelete = async () => {
-    if (!window.confirm(`Delete ${selectedUsers.length} users?`)) return
-    try {
-      for (const userId of selectedUsers) {
-        await usersApi.remove(userId)
-      }
-      setSelectedUsers([])
-      fetchUsers()
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete users')
-    }
-  }
-
-  // Open edit modal
-  const openEditModal = user => {
-    setSelectedUser(user)
-    console.log('user to edit:', user)
-    setFormData({
-      firstName: user.firstName || '',
-      lastName: user.lastName || '',
-      email: user.email || '',
-      phone: user.phone || '',
-      role: user.role || 'user'
-    })
-    setShowEditModal(true)
-  }
-
-  // Reset form
-  const resetForm = () => {
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      role: 'user',
-      password: ''
-    })
-    setSelectedUser(null)
-  }
-
-  // Pagination
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-  const startIndex = (page - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const paginatedUsers = filteredUsers.slice(startIndex, endIndex)
-
+  // ── render ─────────────────────────────────────────────────────────────────
   return (
-    <div className='enhanced-user-management'>
+    <div className='um-wrap'>
+
       {/* Header */}
-      <header className='user-header'>
-        <div className='header-top'>
-          <div className='title-section'>
-            <h1>User Management</h1>
-            <p>Manage and monitor all system users</p>
-          </div>
-          <div className='header-actions'>
-            <button className='btn-icon' onClick={fetchUsers} title='Refresh'>
-              <FiRefreshCw />
-            </button>
-            <button
-              className='btn-primary'
-              onClick={() => setShowCreateModal(true)}
-            >
-              <FiPlus /> Create User
-            </button>
-          </div>
+      <div className='um-head'>
+        <div>
+          <h2>User Management</h2>
+          <p>Manage and monitor all platform users</p>
         </div>
+        <div className='um-head-actions'>
+          <button className={`um-btn-icon ${refreshing ? 'spin' : ''}`} onClick={() => fetchUsers(true)} title='Refresh'>
+            <RefreshCw size={16} />
+          </button>
+          <button className='um-btn-ghost' title='Export'>
+            Export CSV
+          </button>
+          <button className='um-btn-primary' onClick={() => { resetForm(); setShowCreate(true) }}>
+            <Plus size={15} /> Create User
+          </button>
+        </div>
+      </div>
 
-        {/* Stats Cards */}
-        {stats && (
-          <div className='stats-container'>
-            <div className='stat-card total'>
-              <div className='stat-icon'>👥</div>
-              <div className='stat-value'>{stats.totalUsers || 0}</div>
-              <div className='stat-label'>Total Users</div>
-            </div>
-            <div className='stat-card active'>
-              <div className='stat-icon'>🟢</div>
-              <div className='stat-value'>{stats.activeUsers || 0}</div>
-              <div className='stat-label'>Active Now</div>
-            </div>
-            <div className='stat-card verified'>
-              <div className='stat-icon'>✓</div>
-              <div className='stat-value'>{stats.verifiedUsers || 0}</div>
-              <div className='stat-label'>Verified</div>
-            </div>
-            <div className='stat-card artisans'>
-              <div className='stat-icon'>🔧</div>
-              <div className='stat-value'>{stats.artisans || 0}</div>
-              <div className='stat-label'>Artisans</div>
-            </div>
-            <div className='stat-card owners'>
-              <div className='stat-icon'>🏠</div>
-              <div className='stat-value'>{stats.propertyOwners || 0}</div>
-              <div className='stat-label'>Owners</div>
+      {/* Stats */}
+      <div className='um-stats'>
+        {[
+          { icon: <Users size={18} />,     cls: 'total',    val: stats?.totalUsers    || 0, lbl: 'Total Users' },
+          { icon: <Activity size={18} />,  cls: 'active',   val: stats?.activeUsers   || 0, lbl: 'Active Now' },
+          { icon: <Shield size={18} />,    cls: 'verified', val: stats?.verifiedUsers || 0, lbl: 'Verified' },
+          { icon: <Wrench size={18} />,    cls: 'artisan',  val: stats?.artisans      || 0, lbl: 'Artisans' },
+          { icon: <Home size={18} />,      cls: 'owners',   val: stats?.propertyOwners|| 0, lbl: 'Owners' }
+        ].map(s => (
+          <div className='um-stat' key={s.cls}>
+            <div className={`um-stat-icon ${s.cls}`}>{s.icon}</div>
+            <div className='um-stat-text'>
+              <div className='um-stat-val'>{s.val}</div>
+              <div className='um-stat-lbl'>{s.lbl}</div>
             </div>
           </div>
-        )}
-      </header>
+        ))}
+      </div>
 
-      {/* Filters */}
-      <div className='filters-section'>
-        <div className='search-container'>
-          <FiSearch className='search-icon' />
+      {/* Toolbar */}
+      <div className='um-toolbar'>
+        <div className='um-search'>
+          <Search size={14} />
           <input
-            type='text'
-            placeholder='Search by name, email, or phone...'
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            placeholder='Search name, email, phone…'
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
-
-        <div className='filters-grid'>
-          <select
-            value={roleFilter}
-            onChange={e => setRoleFilter(e.target.value)}
-            className='filter-select'
-          >
+        <div className='um-filters'>
+          <select className='um-select' value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
             <option value='all'>All Roles</option>
             <option value='SUPER_ADMIN'>Super Admin</option>
-            <option value='SUB_ADMIN'>Sub Admin</option>
-            <option value='SUPPORT_ADMIN'>Support Admin</option>
-            <option value='PROPERTY_OWNER'>Property Owner</option>
+            <option value='sub-admin'>Sub Admin</option>
+            <option value='support-admin'>Support Admin</option>
+            <option value='property-owner'>Property Owner</option>
             <option value='artisan'>Artisan</option>
             <option value='property-admin'>Property Admin</option>
-            <option value='artisan-admin'>Artisan Admin</option>
             <option value='user'>User</option>
           </select>
-
-          <select
-            value={userTypeFilter}
-            onChange={e => setUserTypeFilter(e.target.value)}
-            className='filter-select'
-          >
-            <option value='all'>All Types</option>
-            <option value='owner'>Property Owner</option>
-            <option value='artisan'>Artisan</option>
-          </select>
-
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className='filter-select'
-          >
+          <select className='um-select' value={statusFilter} onChange={e => setStatus(e.target.value)}>
             <option value='all'>All Status</option>
-            <option value='active'>Online</option>
-            <option value='inactive'>Offline</option>
+            <option value='online'>Online</option>
+            <option value='offline'>Offline</option>
           </select>
-
-          <select
-            value={verificationFilter}
-            onChange={e => setVerificationFilter(e.target.value)}
-            className='filter-select'
-          >
-            <option value='all'>All Verification</option>
+          <select className='um-select' value={verifyFilter} onChange={e => setVerify(e.target.value)}>
+            <option value='all'>All Verified</option>
             <option value='verified'>Verified</option>
             <option value='unverified'>Unverified</option>
           </select>
-
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
-            className='filter-select'
-          >
-            <option value='createdAt'>Newest First</option>
-            <option value='firstName'>First Name</option>
+          <select className='um-select' value={sortBy} onChange={e => setSortBy(e.target.value)}>
+            <option value='createdAt'>Joined</option>
+            <option value='name'>Name</option>
             <option value='email'>Email</option>
-            <option value='status.lastSeen'>Last Login</option>
           </select>
-
-          <button
-            className='btn-sort'
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            title={`Sort ${sortOrder === 'asc' ? 'descending' : 'ascending'}`}
-          >
-            {sortOrder === 'asc' ? '↑' : '↓'}
+          <button className='um-sort-btn' onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+            title={sortDir === 'asc' ? 'Ascending' : 'Descending'}>
+            {sortDir === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
           </button>
         </div>
-
-        {selectedUsers.length > 0 && (
-          <div className='bulk-actions'>
-            <span>{selectedUsers.length} selected</span>
-            <button className='btn-danger' onClick={handleBulkDelete}>
-              <FiTrash2 /> Delete Selected
-            </button>
-          </div>
-        )}
       </div>
 
-      {/* Users Display */}
-      <div className='users-content'>
+      {/* Bulk actions */}
+      {selected.length > 0 && (
+        <div className='um-bulk'>
+          <span>{selected.length} selected</span>
+          <button className='um-btn-danger' onClick={doBulkDelete}>
+            <Trash2 size={13} /> Delete Selected
+          </button>
+          <button className='um-btn-ghost' onClick={() => setSelected([])}>
+            <X size={13} /> Clear
+          </button>
+        </div>
+      )}
+
+      {/* Table */}
+      <div className='um-table-wrap'>
         {loading ? (
-          <div className='loading-state'>
-            <div className='spinner'></div>
-            <p>Loading users...</p>
+          <div className='um-state'>
+            <div className='um-spinner' />
+            <p>Loading users…</p>
           </div>
         ) : error ? (
-          <div className='error-state'>
+          <div className='um-state error'>
+            <XCircle size={36} />
+            <h3>Failed to load</h3>
             <p>{error}</p>
-            <button onClick={fetchUsers}>Retry</button>
+            <button className='um-btn-ghost' onClick={() => fetchUsers()}>Retry</button>
           </div>
-        ) : paginatedUsers.length === 0 ? (
-          <div className='empty-state'>
-            <div className='empty-icon'>📭</div>
+        ) : filtered.length === 0 ? (
+          <div className='um-state'>
+            <Users size={40} />
             <h3>No users found</h3>
-            <p>Try adjusting your filters or create a new user</p>
+            <p>Try adjusting your filters</p>
           </div>
         ) : (
-          <div className='users-grid'>
-            {paginatedUsers.map(user => {
-              const isOnline = isUserOnline(user)
-              const userType = getUserType(user)
-
-              return (
-                <div
-                  key={user._id}
-                  className='user-card'
-                  onClick={() => {
-                    setSelectedUser(user)
-                    setShowUserDetail(true)
-                  }}
-                >
-                  {/* User Card Header */}
-                  <div className='card-header'>
-                    <div className='avatar-section'>
-                      <div className='avatar'>
-                        <span>
-                          {user.firstName?.[0]}
-                          {user.lastName?.[0]}
-                        </span>
-                      </div>
-                      <div
-                        className='status-badge'
-                        title={isOnline ? 'Online' : 'Offline'}
-                      >
-                        <span
-                          className={`status-dot ${
-                            isOnline ? 'online' : 'offline'
-                          }`}
-                        ></span>
+          <table className='um-table'>
+            <thead>
+              <tr>
+                <th style={{ width: 40 }}>
+                  <input type='checkbox'
+                    checked={selected.length === paginated.length && paginated.length > 0}
+                    onChange={toggleAll}
+                    style={{ accentColor: '#C4E53C', cursor: 'pointer' }}
+                  />
+                </th>
+                <th>User</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Verified</th>
+                <th>Phone</th>
+                <th>Joined</th>
+                <th>Last Seen</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.map(u => (
+                <tr key={u._id} className={selected.includes(u._id) ? 'um-row-selected' : ''}
+                  onClick={() => setDetailUser(u)}>
+                  <td onClick={e => e.stopPropagation()}>
+                    <input type='checkbox'
+                      checked={selected.includes(u._id)}
+                      onChange={() => toggleSelect(u._id)}
+                      style={{ accentColor: '#C4E53C', cursor: 'pointer' }}
+                    />
+                  </td>
+                  <td>
+                    <div className='um-user-cell'>
+                      <Avatar user={u} />
+                      <div className='um-user-info'>
+                        <div className='um-user-name'>{u.firstName} {u.lastName}</div>
+                        <div className='um-user-email'>{u.email}</div>
                       </div>
                     </div>
-                    <div className='menu-button'>
-                      <button className='btn-menu'>
-                        <FiMoreVertical />
+                  </td>
+                  <td>
+                    <span className={`um-badge ${roleBadgeClass(u.role)}`}>
+                      {roleLabel(u.role)}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`um-badge ${isOnline(u) ? 'online' : 'offline'}`}>
+                      {isOnline(u) ? '● Online' : '○ Offline'}
+                    </span>
+                  </td>
+                  <td>
+                    {u.isVerified
+                      ? <span className='um-badge verified'><CheckCircle size={11} /> Verified</span>
+                      : <span className='um-badge unverified'><XCircle size={11} /> Unverified</span>}
+                  </td>
+                  <td style={{ color: 'rgba(230,237,243,0.55)', fontSize: '0.82rem' }}>{u.phone || '—'}</td>
+                  <td style={{ color: 'rgba(230,237,243,0.55)', fontSize: '0.82rem' }}>{fmtDate(u.createdAt)}</td>
+                  <td style={{ color: 'rgba(230,237,243,0.55)', fontSize: '0.82rem' }}>{timeAgo(u.status?.lastSeen)}</td>
+                  <td onClick={e => e.stopPropagation()}>
+                    <div className='um-row-actions'>
+                      <button className='view' title='View' onClick={() => setDetailUser(u)}><Eye size={13} /></button>
+                      <button className='edit' title='Edit' onClick={() => openEdit(u)}><Edit2 size={13} /></button>
+                      <button className='verify' title={u.isVerified ? 'Unverify' : 'Verify'} onClick={() => setVerifyUser(u)}>
+                        {u.isVerified ? <UserCheck size={13} /> : <User size={13} />}
                       </button>
+                      <button className='del' title='Delete' onClick={() => setDeleteUser(u)}><Trash2 size={13} /></button>
                     </div>
-                  </div>
-
-                  {/* User Card Body */}
-                  <div className='card-body'>
-                    <h3 className='user-name'>
-                      {user.firstName} {user.lastName}
-                    </h3>
-                    <p className='user-email'>{user.email}</p>
-
-                    {/* User Type Badge */}
-                    <div className='badges'>
-                      <span className={`type-badge ${userType.toLowerCase()}`}>
-                        {userType}
-                      </span>
-                      <span className={`role-badge role-${user.role}`}>
-                        {user.role}
-                      </span>
-                      {user.isVerified ? (
-                        <span className='verify-badge verified'>
-                          <FiCheck /> Verified
-                        </span>
-                      ) : (
-                        <span className='verify-badge unverified'>
-                          <FiX /> Unverified
-                        </span>
-                      )}
-                    </div>
-
-                    {/* User Stats */}
-                    <div className='user-stats'>
-                      <div className='stat'>
-                        <span className='label'>Phone:</span>
-                        <span className='value'>{user.phone || '—'}</span>
-                      </div>
-                      <div className='stat'>
-                        <span className='label'>Joined:</span>
-                        <span className='value'>
-                          {formatDate(user.createdAt)}
-                        </span>
-                      </div>
-                      <div className='stat'>
-                        <span className='label'>Last Login:</span>
-                        <span className='value'>
-                          {getTimeAgo(user.status?.lastSeen)}
-                        </span>
-                      </div>
-                      {user.properties?.length > 0 && (
-                        <div className='stat'>
-                          <span className='label'>Properties:</span>
-                          <span className='value'>
-                            {user.properties.length}
-                          </span>
-                        </div>
-                      )}
-                      {user.artisanProfile?.isActive && (
-                        <div className='stat'>
-                          <span className='label'>Jobs Done:</span>
-                          <span className='value'>
-                            {user.jobsCompleted?.length || 0}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Card Actions */}
-                  <div className='card-actions'>
-                    <button
-                      className='btn-action verify'
-                      onClick={e => {
-                        e.stopPropagation()
-                        setSelectedUser(user)
-                        setShowVerifyModal(true)
-                      }}
-                      title={user.isVerified ? 'Unverify' : 'Verify'}
-                    >
-                      {user.isVerified ? <FiUserCheck /> : <FiUser />}
-                    </button>
-                    <button
-                      className='btn-action edit'
-                      onClick={e => {
-                        e.stopPropagation()
-                        openEditModal(user)
-                      }}
-                      title='Edit'
-                    >
-                      <FiEdit2 />
-                    </button>
-                    <button
-                      className='btn-action delete'
-                      onClick={e => {
-                        e.stopPropagation()
-                        setSelectedUser(user)
-                        setShowDeleteModal(true)
-                      }}
-                      title='Delete'
-                    >
-                      <FiTrash2 />
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className='pagination-section'>
-          <button
-            className='page-btn'
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-          >
-            Previous
-          </button>
-          <div className='page-info'>
-            Page {page} of {totalPages} ({filteredUsers.length} users)
-          </div>
-          <button
-            className='page-btn'
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-      {/* User Detail Modal */}
-      {showUserDetail && selectedUser && (
-        <div className='modal-overlay' onClick={() => setShowUserDetail(false)}>
-          <div className='modal modal-large' onClick={e => e.stopPropagation()}>
-            <div className='modal-header'>
-              <h2>User Details</h2>
-              <button
-                className='close-btn'
-                onClick={() => setShowUserDetail(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className='modal-body'>
-              {/* User Info Header */}
-              <div className='detail-header'>
-                <div className='detail-avatar'>
-                  <span>
-                    {selectedUser.firstName?.[0]}
-                    {selectedUser.lastName?.[0]}
-                  </span>
-                </div>
-                <div className='detail-info'>
-                  <h3>
-                    {selectedUser.firstName} {selectedUser.lastName}
-                  </h3>
-                  <p>{selectedUser.email}</p>
-                  <div className='detail-badges'>
-                    <span className='badge-type'>
-                      {getUserType(selectedUser)}
-                    </span>
-                    <span className='badge-role'>{selectedUser.role}</span>
-                    <span
-                      className={`badge-status ${
-                        isUserOnline(selectedUser) ? 'online' : 'offline'
-                      }`}
-                    >
-                      {isUserOnline(selectedUser) ? '🟢 Online' : '⚪ Offline'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Detailed Information */}
-              <div className='detail-sections'>
-                {/* Personal Info */}
-                <div className='detail-section'>
-                  <h4>Personal Information</h4>
-                  <div className='info-grid'>
-                    <div className='info-item'>
-                      <label>First Name</label>
-                      <p>{selectedUser.firstName}</p>
-                    </div>
-                    <div className='info-item'>
-                      <label>Last Name</label>
-                      <p>{selectedUser.lastName}</p>
-                    </div>
-                    <div className='info-item'>
-                      <label>Email</label>
-                      <p>{selectedUser.email}</p>
-                    </div>
-                    <div className='info-item'>
-                      <label>Phone</label>
-                      <p>{selectedUser.phone || '—'}</p>
-                    </div>
-                    <div className='info-item'>
-                      <label>Role</label>
-                      <p className='role-text'>{selectedUser.role}</p>
-                    </div>
-                    <div className='info-item'>
-                      <label>Verification Status</label>
-                      <p
-                        className={
-                          selectedUser.isVerified ? 'verified' : 'unverified'
-                        }
-                      >
-                        {selectedUser.isVerified
-                          ? '✓ Verified'
-                          : '✗ Unverified'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Activity Information */}
-                <div className='detail-section'>
-                  <h4>Activity</h4>
-                  <div className='info-grid'>
-                    <div className='info-item'>
-                      <label>Account Created</label>
-                      <p>{formatDate(selectedUser.createdAt)}</p>
-                    </div>
-                    <div className='info-item'>
-                      <label>Last Login</label>
-                      <p>
-                        {formatDate(selectedUser.status?.lastSeen) || 'Never'}
-                      </p>
-                    </div>
-                    <div className='info-item'>
-                      <label>Current Status</label>
-                      <p>
-                        {isUserOnline(selectedUser) ? (
-                          <span className='status-online'>🟢 Online</span>
-                        ) : (
-                          <span className='status-offline'>⚪ Offline</span>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Artisan Info (if applicable) */}
-                {selectedUser.artisanProfile?.isActive && (
-                  <div className='detail-section'>
-                    <h4>Artisan Information</h4>
-                    <div className='info-grid'>
-                      <div className='info-item'>
-                        <label>Jobs Completed</label>
-                        <p>{selectedUser.jobsCompleted?.length || 0}</p>
-                      </div>
-                      <div className='info-item'>
-                        <label>Services</label>
-                        <p>{selectedUser.artisanServices?.length || 0}</p>
-                      </div>
-                      <div className='info-item'>
-                        <label>Rating</label>
-                        <p>{selectedUser.stats?.rating?.toFixed(1) || 'N/A'}</p>
-                      </div>
-                      <div className='info-item'>
-                        <label>Profile Status</label>
-                        <p>Active</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Property Owner Info (if applicable) */}
-                {selectedUser.properties?.length > 0 && (
-                  <div className='detail-section'>
-                    <h4>Property Ownership</h4>
-                    <div className='info-grid'>
-                      <div className='info-item'>
-                        <label>Properties Listed</label>
-                        <p>{selectedUser.properties.length}</p>
-                      </div>
-                      <div className='info-item'>
-                        <label>Maintenance Requests</label>
-                        <p>{selectedUser.maintenanceRequests?.length || 0}</p>
-                      </div>
-                      <div className='info-item'>
-                        <label>Favorites</label>
-                        <p>{selectedUser.favorites?.length || 0}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Modal Actions */}
-            <div className='modal-actions'>
-              <button
-                className='btn-cancel'
-                onClick={() => setShowUserDetail(false)}
-              >
-                Close
-              </button>
-              <button
-                className='btn-verify'
-                onClick={() => {
-                  setShowUserDetail(false)
-                  setShowVerifyModal(true)
-                }}
-              >
-                {selectedUser.isVerified ? 'Unverify' : 'Verify'}
-              </button>
-              <button
-                className='btn-edit'
-                onClick={() => {
-                  setShowUserDetail(false)
-                  openEditModal(selectedUser)
-                }}
-              >
-                Edit
-              </button>
-            </div>
+        <div className='um-pagination'>
+          <span>{filtered.length} users · Page {page} of {totalPages}</span>
+          <div className='um-page-btns'>
+            <button disabled={page === 1} onClick={() => setPage(p => p - 1)}><ChevronLeft size={13} /></button>
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i + 1).map(n => (
+              <button key={n} className={page === n ? 'active' : ''} onClick={() => setPage(n)}>{n}</button>
+            ))}
+            {totalPages > 7 && <button disabled>…</button>}
+            <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}><ChevronRight size={13} /></button>
           </div>
         </div>
       )}
 
-      {/* Create Modal */}
-      {showCreateModal && (
-        <div
-          className='modal-overlay'
-          onClick={() => setShowCreateModal(false)}
-        >
-          <div className='modal' onClick={e => e.stopPropagation()}>
-            <div className='modal-header'>
-              <h2>Create New User</h2>
-              <button
-                className='close-btn'
-                onClick={() => setShowCreateModal(false)}
-              >
-                ×
-              </button>
+      {/* ── Detail Modal ─────────────────────────────────────────────────── */}
+      {detailUser && (
+        <Modal title='User Details' onClose={() => setDetailUser(null)} size='lg'
+          footer={<>
+            <button className='um-foot-cancel' onClick={() => setDetailUser(null)}>Close</button>
+            <button className='um-foot-submit' onClick={() => { setDetailUser(null); openEdit(detailUser) }}>Edit User</button>
+          </>}>
+          <div className='um-detail-hero'>
+            <Avatar user={detailUser} size={58} />
+            <div>
+              <h3>{detailUser.firstName} {detailUser.lastName}</h3>
+              <p>{detailUser.email}</p>
+              <div className='um-detail-badges'>
+                <span className={`um-badge ${roleBadgeClass(detailUser.role)}`}>{roleLabel(detailUser.role)}</span>
+                {detailUser.isVerified
+                  ? <span className='um-badge verified'><CheckCircle size={11} /> Verified</span>
+                  : <span className='um-badge unverified'>Unverified</span>}
+                <span className={`um-badge ${isOnline(detailUser) ? 'online' : 'offline'}`}>
+                  {isOnline(detailUser) ? '● Online' : '○ Offline'}
+                </span>
+              </div>
             </div>
-            <form onSubmit={handleCreateUser} className='modal-form'>
-              <div className='form-grid'>
-                <div className='form-group'>
-                  <label>First Name *</label>
-                  <input
-                    type='text'
-                    value={formData.firstName}
-                    onChange={e =>
-                      setFormData({ ...formData, firstName: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Last Name *</label>
-                  <input
-                    type='text'
-                    value={formData.lastName}
-                    onChange={e =>
-                      setFormData({ ...formData, lastName: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-              <div className='form-group'>
-                <label>Email *</label>
-                <input
-                  type='email'
-                  value={formData.email}
-                  onChange={e =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className='form-group'>
-                <label>Phone</label>
-                <input
-                  type='tel'
-                  value={formData.phone}
-                  onChange={e =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                />
-              </div>
-              <div className='form-grid'>
-                <div className='form-group'>
-                  <label>Role</label>
-                  <select
-                    value={formData.role}
-                    onChange={e =>
-                      setFormData({ ...formData, role: e.target.value })
-                    }
-                  >
-                    <optgroup label='Regular Users'>
-                      <option value='user'>User / Tenant</option>
-                      <option value='PROPERTY_OWNER'>Property Owner</option>
-                      <option value='artisan'>Artisan</option>
-                    </optgroup>
-                    <optgroup label='Specialist Admins'>
-                      <option value='property-admin'>Property Admin</option>
-                      <option value='artisan-admin'>Artisan Admin</option>
-                      <option value='sub-property-admin'>Sub-Property Admin</option>
-                      <option value='sub-artisan-admin'>Sub-Artisan Admin</option>
-                    </optgroup>
-                    <optgroup label='Platform Admins'>
-                      <option value='SUB_ADMIN'>Sub Admin</option>
-                      <option value='SUPPORT_ADMIN'>Support Admin</option>
-                      <option value='SUPER_ADMIN'>Super Admin</option>
-                    </optgroup>
-                  </select>
-                </div>
-                <div className='form-group'>
-                  <label>Password</label>
-                  <input
-                    type='password'
-                    value={formData.password}
-                    onChange={e =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    placeholder='Auto-generate if empty'
-                  />
-                </div>
-              </div>
-              <div className='modal-actions'>
-                <button
-                  type='button'
-                  className='btn-cancel'
-                  onClick={() => {
-                    setShowCreateModal(false)
-                    resetForm()
-                  }}
-                >
-                  Cancel
-                </button>
-                <button type='submit' className='btn-submit'>
-                  Create User
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
+          <div className='um-detail-grid'>
+            {[
+              ['Phone',        detailUser.phone || '—'],
+              ['Account Type', detailUser.accountStatus || '—'],
+              ['Joined',       fmtDate(detailUser.createdAt)],
+              ['Last Seen',    timeAgo(detailUser.status?.lastSeen)],
+              ['Properties',   detailUser.properties?.length ?? '—'],
+              ['Plan',         detailUser.plan?.name || 'Free'],
+              ['KYC Status',   detailUser.kycStatus || '—'],
+              ['Trial',        detailUser.plan?.isOnTrial ? 'Active' : '—'],
+            ].map(([lbl, val]) => (
+              <div className='um-detail-item' key={lbl}>
+                <label>{lbl}</label>
+                <p>{val}</p>
+              </div>
+            ))}
+          </div>
+        </Modal>
       )}
 
-      {/* Edit Modal */}
-      {showEditModal && selectedUser && (
-        <div className='modal-overlay' onClick={() => setShowEditModal(false)}>
-          <div className='modal' onClick={e => e.stopPropagation()}>
-            <div className='modal-header'>
-              <h2>Edit User</h2>
-              <button
-                className='close-btn'
-                onClick={() => setShowEditModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            <form onSubmit={handleUpdateUser} className='modal-form'>
-              <div className='form-grid'>
-                <div className='form-group'>
-                  <label>First Name</label>
-                  <input
-                    type='text'
-                    value={formData.firstName}
-                    onChange={e =>
-                      setFormData({ ...formData, firstName: e.target.value })
-                    }
-                  />
-                </div>
-                <div className='form-group'>
-                  <label>Last Name</label>
-                  <input
-                    type='text'
-                    value={formData.lastName}
-                    onChange={e =>
-                      setFormData({ ...formData, lastName: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-              <div className='form-group'>
-                <label>Email</label>
-                <input
-                  type='email'
-                  value={formData.email}
-                  onChange={e =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  disabled
-                />
-              </div>
-              <div className='form-group'>
-                <label>Phone</label>
-                <input
-                  type='tel'
-                  value={formData.phone}
-                  onChange={e =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                />
-              </div>
-              <div className='form-group'>
-                <label>Role</label>
-                <select
-                  value={formData.role}
-                  onChange={e =>
-                    setFormData({ ...formData, role: e.target.value })
-                  }
-                >
-                  <optgroup label='Regular Users'>
-                    <option value='user'>User / Tenant</option>
-                    <option value='PROPERTY_OWNER'>Property Owner</option>
-                    <option value='artisan'>Artisan</option>
-                  </optgroup>
-                  <optgroup label='Specialist Admins'>
-                    <option value='property-admin'>Property Admin</option>
-                    <option value='artisan-admin'>Artisan Admin</option>
-                    <option value='sub-property-admin'>Sub-Property Admin</option>
-                    <option value='sub-artisan-admin'>Sub-Artisan Admin</option>
-                  </optgroup>
-                  <optgroup label='Platform Admins'>
-                    <option value='SUB_ADMIN'>Sub Admin</option>
-                    <option value='SUPPORT_ADMIN'>Support Admin</option>
-                    <option value='SUPER_ADMIN'>Super Admin</option>
-                  </optgroup>
-                </select>
-              </div>
-              <div className='modal-actions'>
-                <button
-                  type='button'
-                  className='btn-cancel'
-                  onClick={() => {
-                    setShowEditModal(false)
-                    resetForm()
-                  }}
-                >
-                  Cancel
-                </button>
-                <button type='submit' className='btn-submit'>
-                  Update User
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {/* ── Create Modal ─────────────────────────────────────────────────── */}
+      {showCreate && (
+        <Modal title='Create User' onClose={() => setShowCreate(false)}
+          footer={<>
+            <button className='um-foot-cancel' onClick={() => setShowCreate(false)}>Cancel</button>
+            <button className='um-foot-submit' onClick={doCreate}>Create</button>
+          </>}>
+          <UserForm form={form} setForm={setForm} isCreate />
+        </Modal>
       )}
 
-      {/* Delete Modal */}
-      {showDeleteModal && selectedUser && (
-        <div
-          className='modal-overlay'
-          onClick={() => setShowDeleteModal(false)}
-        >
-          <div className='modal modal-small' onClick={e => e.stopPropagation()}>
-            <div className='modal-header'>
-              <h2>Confirm Delete</h2>
-              <button
-                className='close-btn'
-                onClick={() => setShowDeleteModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className='modal-body'>
-              <p>
-                Are you sure you want to delete{' '}
-                <strong>
-                  {selectedUser.firstName} {selectedUser.lastName}
-                </strong>
-                ?
-              </p>
-              <p className='warning-text'>This action cannot be undone.</p>
-            </div>
-            <div className='modal-actions'>
-              <button
-                className='btn-cancel'
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancel
-              </button>
-              <button className='btn-delete' onClick={handleDeleteUser}>
-                Delete User
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* ── Edit Modal ───────────────────────────────────────────────────── */}
+      {editUser && (
+        <Modal title='Edit User' onClose={() => setEditUser(null)}
+          footer={<>
+            <button className='um-foot-cancel' onClick={() => setEditUser(null)}>Cancel</button>
+            <button className='um-foot-submit' onClick={doEdit}>Save Changes</button>
+          </>}>
+          <UserForm form={form} setForm={setForm} />
+        </Modal>
       )}
 
-      {/* Verify Modal */}
-      {showVerifyModal && selectedUser && (
-        <div
-          className='modal-overlay'
-          onClick={() => setShowVerifyModal(false)}
-        >
-          <div className='modal modal-small' onClick={e => e.stopPropagation()}>
-            <div className='modal-header'>
-              <h2>{selectedUser.isVerified ? 'Unverify' : 'Verify'} User</h2>
-              <button
-                className='close-btn'
-                onClick={() => setShowVerifyModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className='modal-body'>
-              <p>
-                {selectedUser.isVerified
-                  ? `Are you sure you want to unverify ${selectedUser.firstName} ${selectedUser.lastName}?`
-                  : `Are you sure you want to verify ${selectedUser.firstName} ${selectedUser.lastName}?`}
-              </p>
-            </div>
-            <div className='modal-actions'>
-              <button
-                className='btn-cancel'
-                onClick={() => setShowVerifyModal(false)}
-              >
-                Cancel
-              </button>
-              <button className='btn-verify' onClick={handleVerifyUser}>
-                {selectedUser.isVerified ? 'Unverify' : 'Verify'}
-              </button>
-            </div>
+      {/* ── Verify Modal ─────────────────────────────────────────────────── */}
+      {verifyUser && (
+        <Modal title={verifyUser.isVerified ? 'Unverify User' : 'Verify User'} onClose={() => setVerifyUser(null)} size='sm'
+          footer={<>
+            <button className='um-foot-cancel' onClick={() => setVerifyUser(null)}>Cancel</button>
+            <button className='um-foot-verify' onClick={doVerify}>{verifyUser.isVerified ? 'Remove Verification' : 'Mark as Verified'}</button>
+          </>}>
+          <div className='um-modal-body'>
+            <p>
+              {verifyUser.isVerified
+                ? `Remove verification from ${verifyUser.firstName} ${verifyUser.lastName}?`
+                : `Mark ${verifyUser.firstName} ${verifyUser.lastName} as verified?`}
+            </p>
           </div>
-        </div>
+        </Modal>
+      )}
+
+      {/* ── Delete Modal ─────────────────────────────────────────────────── */}
+      {deleteUser && (
+        <Modal title='Delete User' onClose={() => setDeleteUser(null)} size='sm'
+          footer={<>
+            <button className='um-foot-cancel' onClick={() => setDeleteUser(null)}>Cancel</button>
+            <button className='um-foot-danger' onClick={doDelete}>Delete</button>
+          </>}>
+          <div className='um-modal-body'>
+            <p>Permanently delete <strong>{deleteUser.firstName} {deleteUser.lastName}</strong> ({deleteUser.email})?</p>
+            <p style={{ color: '#f85149', fontSize: '0.82rem', marginTop: 8 }}>This cannot be undone.</p>
+          </div>
+        </Modal>
       )}
     </div>
   )
 }
 
-export default EnhancedUserManagement
+// ── Shared modal wrapper ──────────────────────────────────────────────────────
+function Modal ({ title, children, onClose, footer, size = '' }) {
+  return (
+    <div className='um-overlay' onClick={onClose}>
+      <div className={`um-modal ${size}`} onClick={e => e.stopPropagation()}>
+        <div className='um-modal-head'>
+          <h3>{title}</h3>
+          <button onClick={onClose}><X size={15} /></button>
+        </div>
+        {children}
+        {footer && <div className='um-modal-foot'>{footer}</div>}
+      </div>
+    </div>
+  )
+}
+
+// ── User form (create / edit) ─────────────────────────────────────────────────
+function UserForm ({ form, setForm, isCreate = false }) {
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+  return (
+    <div className='um-form'>
+      <div className='um-form-row'>
+        <div className='um-field'>
+          <label>First Name</label>
+          <input value={form.firstName} onChange={e => f('firstName', e.target.value)} placeholder='First name' />
+        </div>
+        <div className='um-field'>
+          <label>Last Name</label>
+          <input value={form.lastName} onChange={e => f('lastName', e.target.value)} placeholder='Last name' />
+        </div>
+      </div>
+      <div className='um-field'>
+        <label>Email</label>
+        <input type='email' value={form.email} onChange={e => f('email', e.target.value)} placeholder='email@example.com' disabled={!isCreate} />
+      </div>
+      <div className='um-form-row'>
+        <div className='um-field'>
+          <label>Phone</label>
+          <input value={form.phone} onChange={e => f('phone', e.target.value)} placeholder='+234…' />
+        </div>
+        <div className='um-field'>
+          <label>Role</label>
+          <select value={form.role} onChange={e => f('role', e.target.value)}>
+            <option value='user'>User</option>
+            <option value='property-owner'>Property Owner</option>
+            <option value='artisan'>Artisan</option>
+            <option value='property-admin'>Property Admin</option>
+            <option value='artisan-admin'>Artisan Admin</option>
+            <option value='sub-admin'>Sub Admin</option>
+            <option value='support-admin'>Support Admin</option>
+            <option value='SUPER_ADMIN'>Super Admin</option>
+          </select>
+        </div>
+      </div>
+      {isCreate && (
+        <div className='um-field'>
+          <label>Password</label>
+          <input type='password' value={form.password} onChange={e => f('password', e.target.value)} placeholder='Temporary password' />
+        </div>
+      )}
+    </div>
+  )
+}

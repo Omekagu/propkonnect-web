@@ -1,98 +1,410 @@
-.user-section {
-  background: var(--color-surface);
-  //r(--radius-lg);
-  padding: 2rem;
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.05);
+/* Tenant.scss — Dark admin theme */
 
-  .section-header {
+$bg:      #0d1117;
+$surface: #161b22;
+$border:  rgba(255,255,255,0.07);
+$border2: rgba(255,255,255,0.12);
+$text:    #e6edf3;
+$muted:   rgba(230,237,243,0.45);
+$accent:  #C4E53C;
+$green:   #0B3D28;
+$mid:     #0F6040;
+$success: #3fb950;
+$warning: #d29922;
+$danger:  #f85149;
+$blue:    #58a6ff;
+$purple:  #a78bfa;
+
+.tn-wrap {
+  padding: 28px 28px 60px;
+  min-height: 100%;
+  background: $bg;
+  color: $text;
+  font-family: var(--font, Inter, sans-serif);
+
+  @media (max-width: 768px) { padding: 16px; }
+}
+
+// ── Header ───────────────────────────────────────────────────────────────────
+.tn-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 22px;
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+    background: linear-gradient(120deg, #e6edf3 0%, $accent 120%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+  }
+
+  p { color: $muted; font-size: 0.875rem; margin: 0; }
+
+  .tn-head-right {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
 
-    h2 {
-      font-size: 1.4rem;
-      font-weight: 600;
+.tn-icon-btn {
+  width: 36px; height: 36px;
+  background: $surface;
+  border: 1px solid $border2;
+  border-radius: 8px;
+  color: $muted;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  &:hover { border-color: $accent; color: $accent; }
+  &.spin svg { animation: tnSpin 0.7s linear infinite; }
+}
+
+.tn-search {
+  position: relative;
+  width: 260px;
+
+  svg {
+    position: absolute; left: 10px; top: 50%;
+    transform: translateY(-50%); color: $muted; pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 8px 12px 8px 30px;
+    background: $surface;
+    border: 1px solid $border2;
+    border-radius: 8px;
+    color: $text;
+    font-size: 0.82rem;
+    box-sizing: border-box;
+    transition: all 0.2s;
+
+    &::placeholder { color: $muted; }
+    &:focus { outline: none; border-color: $accent; box-shadow: 0 0 0 3px rgba($accent, 0.1); }
+  }
+
+  @media (max-width: 600px) { width: 100%; }
+}
+
+// ── Alert ────────────────────────────────────────────────────────────────────
+.tn-alert {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: rgba($danger, 0.1);
+  border: 1px solid rgba($danger, 0.25);
+  border-radius: 10px;
+  color: $danger;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+.tn-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 480px) { grid-template-columns: 1fr 1fr; }
+}
+
+.tn-stat {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color 0.2s;
+  &:hover { border-color: $border2; }
+
+  .tn-stat-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+
+    &.total  { background: rgba($blue,0.12);    color: $blue; }
+    &.active { background: rgba($success,0.12); color: $success; }
+    &.guests { background: rgba($warning,0.12); color: $warning; }
+    &.book   { background: rgba($purple,0.12);  color: $purple; }
+  }
+
+  .tn-stat-body {
+    .tn-stat-val { font-size: 1.5rem; font-weight: 800; line-height: 1; color: $text; }
+    .tn-stat-lbl { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: $muted; margin-top: 3px; }
+  }
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+.tn-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  background: $surface;
+  border: 1px solid $border2;
+  border-radius: 10px;
+  padding: 4px;
+  width: fit-content;
+
+  button {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: $muted;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.active { background: $accent; color: $green; }
+    &:not(.active):hover { background: rgba(255,255,255,0.05); color: $text; }
+
+    .tn-tab-count {
+      padding: 1px 7px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      background: rgba(255,255,255,0.1);
     }
 
-    .add-btn {
-      background: var(--color-primary);
-      color: var(--color-surface);
-      border: none;
-      //r(--radius-sm);
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      transition: 0.3s;
+    &.active .tn-tab-count { background: rgba($green, 0.3); }
+  }
+}
 
-      &:hover {
-        background: var(--color-primary-mid);
-      }
+// ── Status filter chips ───────────────────────────────────────────────────────
+.tn-filter-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.tn-chip {
+  padding: 5px 13px;
+  border: 1px solid $border2;
+  border-radius: 20px;
+  background: transparent;
+  color: $muted;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+
+  &:hover { border-color: $accent; color: $accent; }
+  &.active { background: $accent; border-color: $accent; color: $green; }
+}
+
+// ── States ────────────────────────────────────────────────────────────────────
+.tn-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 24px;
+  color: $muted; gap: 12px; text-align: center;
+  p { font-size: 0.875rem; margin: 0; }
+}
+
+.tn-spinner {
+  width: 30px; height: 30px;
+  border: 2.5px solid $border2;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: tnSpin 0.7s linear infinite;
+}
+
+.tn-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  svg { opacity: 0.2; margin-bottom: 12px; color: $muted; }
+  p { font-size: 0.875rem; margin: 0; color: $muted; }
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+.tn-table-wrap {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 12px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.tn-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+
+  thead tr {
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid $border;
+
+    th {
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: $muted;
+      white-space: nowrap;
     }
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background 0.15s;
 
-    th {
-      background: var(--color-background);
-      text-align: left;
-      padding: 0.8rem;
-      font-weight: 600;
-      color: var(--color-text-primary);
-    }
+    &:last-child { border-bottom: none; }
+    &:hover:not(.tn-detail-row) { background: rgba(255,255,255,0.02); }
+    &.tn-row-open { background: rgba($accent, 0.04); }
 
     td {
-      padding: 0.8rem;
-      border-bottom: 1px solid var(--color-border-light);
-      color: var(--color-text-secondary);
-    }
-
-    .status {
-      padding: 0.3rem 0.8rem;
-      //r(--radius-sm);
-      font-size: 0.85rem;
-      font-weight: 500;
-
-      &.active {
-        background: var(--color-success-bg);
-        color: var(--color-success);
-      }
-
-      &.pending {
-        background: var(--color-warning-bg);
-        color: var(--color-warning);
-      }
-    }
-
-    button {
-      border: none;
-      //r(--radius-sm);
-      padding: 0.3rem 0.6rem;
-      margin-right: 0.4rem;
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 500;
-      transition: 0.3s;
-
-      &.btn-view {
-        background: var(--color-primary-light);
-        color: var(--color-primary);
-      }
-
-      &.btn-edit {
-        background: var(--color-warning-bg);
-        color: var(--color-warning);
-      }
-
-      &.btn-delete {
-        background: var(--color-error-bg);
-        color: var(--color-error);
-      }
-
-      &:hover {
-        opacity: 0.8;
-      }
+      padding: 13px 14px;
+      vertical-align: middle;
+      color: $text;
     }
   }
 }
+
+// ── Table cell helpers ────────────────────────────────────────────────────────
+.tn-person {
+  display: flex; align-items: center; gap: 10px; min-width: 170px;
+}
+
+.tn-av {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $green, $mid);
+  color: $accent;
+  font-size: 0.82rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; text-transform: uppercase;
+  overflow: hidden;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.tn-name  { font-weight: 600; color: $text; line-height: 1.3; }
+.tn-sub   { font-size: 0.72rem; color: $muted; display: flex; align-items: center; gap: 3px; margin-top: 2px; }
+.tn-sub-green { font-size: 0.72rem; color: $success; margin-top: 2px; }
+.tn-sub-warn  { font-size: 0.72rem; color: $warning; margin-top: 1px; }
+.tn-date  { font-size: 0.8rem; color: $text; }
+.tn-price { font-weight: 700; font-size: 0.9rem; color: $accent; }
+.tn-none  { color: $muted; font-size: 0.8rem; }
+
+// Countdown badge
+.tn-cd {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 0.68rem; font-weight: 600; white-space: nowrap;
+
+  &.ok     { background: rgba($blue,0.12);    color: $blue; }
+  &.warn   { background: rgba($warning,0.12); color: $warning; }
+  &.urgent { background: rgba($danger,0.12);  color: $danger; }
+  &.overdue{ background: rgba($danger,0.2);   color: $danger; }
+}
+.tn-cd-none { color: $muted; font-size: 0.75rem; }
+
+// Status badges
+.tn-badge {
+  display: inline-block;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 0.68rem; font-weight: 700; text-transform: capitalize;
+
+  &.tn-s-active     { background: rgba($success,0.12); color: $success; }
+  &.tn-s-pending    { background: rgba($warning,0.12); color: $warning; }
+  &.tn-s-signed     { background: rgba($blue,0.12);    color: $blue; }
+  &.tn-s-terminated { background: rgba(255,255,255,0.07); color: $muted; }
+}
+
+// Expand button
+.tn-expand-btn {
+  width: 28px; height: 28px;
+  border-radius: 6px; border: 1px solid $border2;
+  background: transparent; color: $muted;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+  &:hover { border-color: $accent; color: $accent; background: rgba($accent, 0.08); }
+}
+
+// ── Detail panel ──────────────────────────────────────────────────────────────
+.tn-detail-row td { padding: 0 !important; border-bottom: 1px solid $border; }
+
+.tn-detail {
+  padding: 16px 20px;
+  background: rgba(0,0,0,0.2);
+}
+
+.tn-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0;
+  border: 1px solid $border;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.tn-detail-item {
+  padding: 11px 14px;
+  border-bottom: 1px solid $border;
+  border-right: 1px solid $border;
+
+  label {
+    display: block;
+    font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: $muted; margin-bottom: 3px;
+  }
+
+  p { font-size: 0.82rem; color: $text; font-weight: 500; margin: 0; }
+}
+
+// Installments sub-table
+.tn-inst-title {
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: $muted; margin-bottom: 8px;
+}
+
+.tn-inst-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  border: 1px solid $border;
+  border-radius: 8px;
+  overflow: hidden;
+
+  th {
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.66rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: $muted;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid $border;
+  }
+
+  td {
+    padding: 8px 12px;
+    color: $text;
+    border-bottom: 1px solid $border;
+  }
+
+  tr:last-child td { border-bottom: none; }
+}
+
+// ── Animation ─────────────────────────────────────────────────────────────────
+@keyframes tnSpin { to { transform: rotate(360deg); } }

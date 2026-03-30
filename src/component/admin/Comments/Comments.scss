@@ -1,0 +1,153 @@
+/* Comments.scss — Dark admin theme */
+
+$bg:      #0d1117;
+$surface: #161b22;
+$border:  rgba(255,255,255,0.07);
+$border2: rgba(255,255,255,0.12);
+$text:    #e6edf3;
+$muted:   rgba(230,237,243,0.45);
+$accent:  #C4E53C;
+$green:   #0B3D28;
+$mid:     #0F6040;
+$success: #3fb950;
+$warning: #d29922;
+$danger:  #f85149;
+
+.cmt-wrap {
+  padding: 28px 28px 60px;
+  min-height: 100%;
+  background: $bg;
+  color: $text;
+  font-family: var(--font, Inter, sans-serif);
+  max-width: 860px;
+
+  @media (max-width: 768px) { padding: 16px; }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+.cmt-toast {
+  position: fixed; top: 20px; right: 20px; z-index: 9999;
+  padding: 10px 18px; border-radius: 10px; font-size: 0.875rem;
+  font-weight: 500; border: 1px solid;
+
+  &--success { background: rgba($success,0.1); color: $success; border-color: rgba($success,0.25); }
+  &--error   { background: rgba($danger,0.1);  color: $danger;  border-color: rgba($danger,0.25); }
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.cmt-head {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; flex-wrap: wrap; gap: 14px;
+  margin-bottom: 22px;
+
+  h2 {
+    font-size: 1.6rem; font-weight: 800; margin: 0 0 4px;
+    background: linear-gradient(120deg, #e6edf3 0%, $accent 120%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; letter-spacing: -0.02em;
+  }
+  p { color: $muted; font-size: 0.875rem; margin: 0; }
+}
+
+.cmt-head-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+.cmt-tab {
+  padding: 6px 13px; border-radius: 7px; border: 1px solid $border2;
+  background: transparent; color: $muted; font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: all 0.18s; text-transform: capitalize;
+  &:hover:not(.active) { border-color: $accent; color: $accent; }
+  &.active { background: $accent; border-color: $accent; color: $green; }
+}
+
+.cmt-refresh-btn {
+  width: 32px; height: 32px; border-radius: 7px;
+  border: 1px solid $border2; background: transparent;
+  color: $muted; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+  &:hover { border-color: $accent; color: $accent; }
+}
+
+// ── States ────────────────────────────────────────────────────────────────────
+.cmt-state {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; padding: 60px 24px; color: $muted; font-size: 0.875rem;
+}
+.cmt-spinner {
+  width: 24px; height: 24px; border: 2.5px solid $border2; border-top-color: $accent;
+  border-radius: 50%; animation: cmtSpin 0.7s linear infinite;
+}
+.cmt-empty {
+  padding: 60px 24px; text-align: center;
+  p { font-size: 0.875rem; color: $muted; margin: 0; }
+}
+
+// ── Card List ─────────────────────────────────────────────────────────────────
+.cmt-list { display: flex; flex-direction: column; gap: 10px; }
+
+.cmt-card {
+  background: $surface; border: 1px solid $border;
+  border-radius: 12px; padding: 14px 16px;
+  transition: border-color 0.2s;
+  &:hover { border-color: $border2; }
+}
+
+.cmt-card-top {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 12px; margin-bottom: 10px;
+}
+
+.cmt-card-meta { flex: 1; min-width: 0; }
+
+.cmt-property {
+  font-size: 0.72rem; color: $muted; margin-bottom: 6px;
+  strong { color: $text; }
+}
+
+.cmt-author { display: flex; align-items: center; gap: 8px; }
+
+.cmt-av {
+  width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+  background: $border2; flex-shrink: 0;
+}
+
+.cmt-name { font-weight: 600; font-size: 0.82rem; color: $text; }
+.cmt-email { font-size: 0.72rem; color: $muted; margin-left: 6px; }
+
+.cmt-actions { display: flex; gap: 7px; flex-shrink: 0; }
+
+.cmt-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 11px; border-radius: 6px; border: 1px solid;
+  font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.18s;
+
+  &--approve { background: rgba($success,0.1); border-color: rgba($success,0.3); color: $success;
+    &:hover { background: rgba($success,0.18); } }
+  &--delete  { background: rgba($danger,0.1);  border-color: rgba($danger,0.3);  color: $danger;
+    &:hover { background: rgba($danger,0.18); } }
+}
+
+// ── Rating ────────────────────────────────────────────────────────────────────
+.cmt-rating {
+  color: $warning; font-size: 14px; margin-bottom: 8px;
+}
+.cmt-rating-val { font-size: 0.72rem; color: $muted; margin-left: 4px; }
+
+// ── Text ──────────────────────────────────────────────────────────────────────
+.cmt-text {
+  font-size: 0.85rem; color: $text; line-height: 1.6; margin: 0 0 10px;
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.cmt-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.72rem;
+}
+.cmt-date { color: $muted; }
+.cmt-status {
+  font-weight: 700;
+  &.approved { color: $success; }
+  &.pending  { color: $warning; }
+}
+
+@keyframes cmtSpin { to { transform: rotate(360deg); } }

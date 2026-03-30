@@ -108,7 +108,7 @@ export const properties = {
   getApplicationsBatch:(data)             => api.post('/api/properties/property-applications/batch', data),
   getApplicationsByProperty: (propertyId) => api.get(`/api/properties/property-applications/property/${propertyId}`),
   getApplications:     (params)           => api.get('/api/properties/applications', { params }),
-  updateApplication:   (id, data)         => api.patch(`/api/properties/applications/${id}`, data),
+  updateApplication:   (id, data)         => api.patch(`/api/properties/property-applications/${id}/status`, data),
   deleteApplication:   (id)               => api.delete(`/api/properties/property-applications/${id}`),
 }
 
