@@ -304,31 +304,31 @@ export default function LandingPage () {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
   return (
-    <div className='lp'>
+    <div className='home'>
       {/* ── Navbar ── */}
       <nav
-        className={`lp-nav${scrolled ? ' lp-nav--scrolled' : ''}`}
+        className={`home-nav${scrolled ? ' home-nav--scrolled' : ''}`}
         ref={mobileMenuRef}
       >
-        <div className='lp-nav__inner'>
+        <div className='home-nav__inner'>
           {/* Logo */}
-          <a className='lp-nav__logo' href='/'>
+          <a className='home-nav__logo' href='/'>
             {branding?.logoUrl ? (
               <img
                 src={branding.logoUrl}
                 alt={appName}
-                className='lp-nav__logo-img'
+                className='home-nav__logo-img'
               />
             ) : (
               <>
-                <span className='lp-nav__logo-icon'>P</span>
-                <span className='lp-nav__logo-text'>{appName}</span>
+                <span className='home-nav__logo-icon'>P</span>
+                <span className='home-nav__logo-text'>{appName}</span>
               </>
             )}
           </a>
 
           {/* Desktop links */}
-          <div className='lp-nav__links'>
+          <div className='home-nav__links'>
             <a onClick={() => scrollTo('listings')}>Buy &amp; Rent</a>
             <a href='/search?intent=shortlet'>Book </a>
             <a
@@ -343,15 +343,15 @@ export default function LandingPage () {
           </div>
 
           {/* Desktop actions */}
-          <div className='lp-nav__actions'>
+          <div className='home-nav__actions'>
             <button
-              className='lp-nav__btn-ghost'
+              className='home-nav__btn-ghost'
               onClick={() => router.push('/auth/login')}
             >
               Sign In
             </button>
             <button
-              className='lp-nav__btn-cta'
+              className='home-nav__btn-cta'
               onClick={() => router.push('/auth/register')}
             >
               Sign Up
@@ -360,7 +360,7 @@ export default function LandingPage () {
 
           {/* Hamburger */}
           <button
-            className={`lp-nav__burger${mobileMenuOpen ? ' open' : ''}`}
+            className={`home-nav__burger${mobileMenuOpen ? ' open' : ''}`}
             onClick={() => setMobileMenuOpen(o => !o)}
             aria-label='Toggle menu'
             aria-expanded={mobileMenuOpen}
@@ -373,29 +373,29 @@ export default function LandingPage () {
 
         {/* Mobile backdrop */}
         <div
-          className={`lp-nav__backdrop${mobileMenuOpen ? ' visible' : ''}`}
+          className={`home-nav__backdrop${mobileMenuOpen ? ' visible' : ''}`}
           onClick={closeMobile}
         />
 
         {/* Mobile drawer */}
-        <div className={`lp-nav__drawer${mobileMenuOpen ? ' open' : ''}`}>
-          <div className='lp-nav__drawer-header'>
-            <a className='lp-nav__logo' href='/' onClick={closeMobile}>
+        <div className={`home-nav__drawer${mobileMenuOpen ? ' open' : ''}`}>
+          <div className='home-nav__drawer-header'>
+            <a className='home-nav__logo' href='/' onClick={closeMobile}>
               {branding?.logoUrl ? (
                 <img
                   src={branding.logoUrl}
                   alt={appName}
-                  className='lp-nav__logo-img'
+                  className='home-nav__logo-img'
                 />
               ) : (
                 <>
-                  <span className='lp-nav__logo-icon'>P</span>
-                  <span className='lp-nav__logo-text'>{appName}</span>
+                  <span className='home-nav__logo-icon'>P</span>
+                  <span className='home-nav__logo-text'>{appName}</span>
                 </>
               )}
             </a>
             <button
-              className='lp-nav__drawer-close'
+              className='home-nav__drawer-close'
               onClick={closeMobile}
               aria-label='Close menu'
             >
@@ -412,15 +412,15 @@ export default function LandingPage () {
             </button>
           </div>
 
-          <nav className='lp-nav__drawer-links'>
+          <nav className='home-nav__drawer-links'>
             <a href='/buy' onClick={closeMobile}>
-              <span className='lp-nav__drawer-icon'>🏠</span> Buy
+              <span className='home-nav__drawer-icon'>🏠</span> Buy
             </a>
             <a href='/rent' onClick={closeMobile}>
-              <span className='lp-nav__drawer-icon'>🔑</span> Rent
+              <span className='home-nav__drawer-icon'>🔑</span> Rent
             </a>
             <a href='/search?intent=shortlet' onClick={closeMobile}>
-              <span className='lp-nav__drawer-icon'>🛏️</span> Book
+              <span className='home-nav__drawer-icon'>🛏️</span> Book
             </a>
             <a
               onClick={() => {
@@ -428,7 +428,7 @@ export default function LandingPage () {
                 closeMobile()
               }}
             >
-              <span className='lp-nav__drawer-icon'>🔧</span> Artisans
+              <span className='home-nav__drawer-icon'>🔧</span> Artisans
             </a>
             <a
               onClick={() => {
@@ -436,18 +436,18 @@ export default function LandingPage () {
                 closeMobile()
               }}
             >
-              <span className='lp-nav__drawer-icon'>💡</span> How It Works
+              <span className='home-nav__drawer-icon'>💡</span> How It Works
             </a>
             <a href='/about' onClick={closeMobile}>
-              <span className='lp-nav__drawer-icon'>ℹ️</span> About
+              <span className='home-nav__drawer-icon'>ℹ️</span> About
             </a>
           </nav>
 
-          <div className='lp-nav__drawer-divider' />
+          <div className='home-nav__drawer-divider' />
 
-          <div className='lp-nav__drawer-actions'>
+          <div className='home-nav__drawer-actions'>
             <button
-              className='lp-nav__drawer-btn-ghost'
+              className='home-nav__drawer-btn-ghost'
               onClick={() => {
                 router.push('/auth/login')
                 closeMobile()
@@ -456,7 +456,7 @@ export default function LandingPage () {
               Sign In
             </button>
             <button
-              className='lp-nav__drawer-btn-cta'
+              className='home-nav__drawer-btn-cta'
               onClick={() => {
                 router.push('/auth/register')
                 closeMobile()
@@ -466,25 +466,25 @@ export default function LandingPage () {
             </button>
           </div>
 
-          <p className='lp-nav__drawer-trust'>
+          <p className='home-nav__drawer-trust'>
             ✓ Free to join &nbsp;·&nbsp; ✓ Verified listings
           </p>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <section className='lp-hero' ref={heroRef}>
-        <div className='lp-hero__bg'>
+      <section className='home-hero' ref={heroRef}>
+        <div className='home-hero__bg'>
           <img src={heroImage} alt='Property' loading='eager' />
-          <div className='lp-hero__overlay' />
+          <div className='home-hero__overlay' />
         </div>
 
-        <div className='lp-hero__content'>
-          <p className='lp-hero__eyebrow'>
+        <div className='home-hero__content'>
+          <p className='home-hero__eyebrow'>
             {stats.verifiedUsers || '50,000+'} verified users ·{' '}
             {stats.activeListings || '10,000+'} listings
           </p>
-          <h1 className='lp-hero__title'>
+          <h1 className='home-hero__title'>
             {heroTitle.includes(' ') ? (
               <>
                 {heroTitle.split(' ').slice(0, 3).join(' ')}{' '}
@@ -494,11 +494,11 @@ export default function LandingPage () {
               heroTitle
             )}
           </h1>
-          <p className='lp-hero__sub'>{heroSub}</p>
+          <p className='home-hero__sub'>{heroSub}</p>
 
           {/* Search Widget */}
-          <div className='lp-search'>
-            <div className='lp-search__tabs'>
+          <div className='home-search'>
+            <div className='home-search__tabs'>
               {[
                 { key: 'buy', label: 'Buy' },
                 { key: 'rent', label: 'Rent' },
@@ -507,7 +507,7 @@ export default function LandingPage () {
               ].map(t => (
                 <button
                   key={t.key}
-                  className={`lp-search__tab${
+                  className={`home-search__tab${
                     searchTab === t.key ? ' active' : ''
                   }`}
                   onClick={() => setSearchTab(t.key)}
@@ -517,13 +517,13 @@ export default function LandingPage () {
               ))}
             </div>
 
-            <div className='lp-search__body'>
-              <div className='lp-search__field lp-search__field--location'>
-                <span className='lp-search__icon'>📍</span>
-                <div className='lp-search__field-inner'>
+            <div className='home-search__body'>
+              <div className='home-search__field home-search__field--location'>
+                <span className='home-search__icon'>📍</span>
+                <div className='home-search__field-inner'>
                   <label>
                     {searchTab === 'artisan'
-                      ? 'Where do you need help?'
+                      ? 'Where do you need hehome?'
                       : 'Where do you want to stay?'}
                   </label>
                   <input
@@ -540,11 +540,11 @@ export default function LandingPage () {
                 </div>
               </div>
 
-              <div className='lp-search__field lp-search__field--type'>
-                <span className='lp-search__icon'>
+              <div className='home-search__field home-search__field--type'>
+                <span className='home-search__icon'>
                   {searchTab === 'artisan' ? '🔧' : '🏠'}
                 </span>
-                <div className='lp-search__field-inner'>
+                <div className='home-search__field-inner'>
                   <label>
                     {searchTab === 'artisan' ? 'Service Type' : 'Property Type'}
                   </label>
@@ -577,7 +577,7 @@ export default function LandingPage () {
                 </div>
               </div>
 
-              <button className='lp-search__btn' onClick={handleSearch}>
+              <button className='home-search__btn' onClick={handleSearch}>
                 <svg
                   width='18'
                   height='18'
@@ -597,34 +597,34 @@ export default function LandingPage () {
       </section>
 
       {/* ── Trust Strip ── */}
-      <div className='lp-trust'>
-        <div className='lp-trust__inner'>
-          <div className='lp-trust__item'>
+      <div className='home-trust'>
+        <div className='home-trust__inner'>
+          <div className='home-trust__item'>
             <span>✅</span>
             <span>
               <strong>Verified</strong> listings only
             </span>
           </div>
-          <div className='lp-trust__item'>
+          <div className='home-trust__item'>
             <span>🔐</span>
             <span>
               <strong>Escrow</strong> on all payments
             </span>
           </div>
-          <div className='lp-trust__item'>
+          <div className='home-trust__item'>
             <span>⭐</span>
             <span>
               <strong>{stats.avgRating || '4.9/5'}</strong> avg rating
             </span>
           </div>
-          <div className='lp-trust__item'>
+          <div className='home-trust__item'>
             <span>🏘️</span>
             <span>
               <strong>{stats.activeListings || '10,000+'}</strong> active
               listings
             </span>
           </div>
-          <div className='lp-trust__item'>
+          <div className='home-trust__item'>
             <span>⚡</span>
             <span>
               <strong>Real-time</strong> chat &amp; booking
@@ -634,18 +634,18 @@ export default function LandingPage () {
       </div>
 
       {/* ── Categories ── */}
-      <section className='lp-cats'>
-        <div className='lp-cats__inner'>
-          <h2 className='lp-cats__title'>What are you looking for?</h2>
-          <div className='lp-cats__grid'>
+      <section className='home-cats'>
+        <div className='home-cats__inner'>
+          <h2 className='home-cats__title'>What are you looking for?</h2>
+          <div className='home-cats__grid'>
             {CATEGORIES.map(cat => (
               <button
                 key={cat.query}
-                className='lp-cat'
+                className='home-cat'
                 onClick={() => router.push(`/search?type=${cat.query}`)}
               >
-                <span className='lp-cat__icon'>{cat.icon}</span>
-                <span className='lp-cat__label'>{cat.label}</span>
+                <span className='home-cat__icon'>{cat.icon}</span>
+                <span className='home-cat__label'>{cat.label}</span>
               </button>
             ))}
           </div>
@@ -653,16 +653,16 @@ export default function LandingPage () {
       </section>
 
       {/* ── Featured Listings ── */}
-      <section id='listings' className='lp-listings'>
-        <div className='lp-listings__inner'>
-          <div className='lp-listings__header'>
+      <section id='listings' className='home-listings'>
+        <div className='home-listings__inner'>
+          <div className='home-listings__header'>
             <div>
-              <h2 className='lp-listings__title'>Featured Properties</h2>
-              <p className='lp-listings__sub'>
+              <h2 className='home-listings__title'>Featured Properties</h2>
+              <p className='home-listings__sub'>
                 Handpicked verified listings across Nigeria
               </p>
             </div>
-            <div className='lp-listings__tabs'>
+            <div className='home-listings__tabs'>
               {[
                 { key: 'all', label: 'All' },
                 { key: 'rent', label: 'Rent' },
@@ -671,7 +671,7 @@ export default function LandingPage () {
               ].map(t => (
                 <button
                   key={t.key}
-                  className={`lp-tab${listingTab === t.key ? ' active' : ''}`}
+                  className={`home-tab${listingTab === t.key ? ' active' : ''}`}
                   onClick={() => setListingTab(t.key)}
                 >
                   {t.label}
@@ -681,13 +681,13 @@ export default function LandingPage () {
           </div>
 
           {loadingProps ? (
-            <div className='lp-cards-loading'>
+            <div className='home-cards-loading'>
               {[1, 2, 3].map(i => (
-                <div key={i} className='lp-card lp-card--skeleton' />
+                <div key={i} className='home-card home-card--skeleton' />
               ))}
             </div>
           ) : (
-            <div className='lp-cards'>
+            <div className='home-cards'>
               {(filteredListings.length ? filteredListings : properties)
                 .slice(0, 6)
                 .map(listing => {
@@ -704,22 +704,22 @@ export default function LandingPage () {
                   return (
                     <div
                       key={id}
-                      className='lp-card'
+                      className='home-card'
                       onClick={() =>
                         router.push(
                           listing.isFallback ? '/search' : `/property/${id}`
                         )
                       }
                     >
-                      <div className='lp-card__img-wrap'>
+                      <div className='home-card__img-wrap'>
                         <img src={img} alt={listing.title} loading='lazy' />
                         <span
-                          className={`lp-card__badge lp-card__badge--${type}`}
+                          className={`home-card__badge home-card__badge--${type}`}
                         >
                           {label}
                         </span>
                         <button
-                          className={`lp-card__save${
+                          className={`home-card__save${
                             savedCards.has(id) ? ' saved' : ''
                           }`}
                           onClick={e => {
@@ -731,10 +731,10 @@ export default function LandingPage () {
                           {savedCards.has(id) ? '❤️' : '🤍'}
                         </button>
                       </div>
-                      <div className='lp-card__body'>
-                        <h3 className='lp-card__title'>{listing.title}</h3>
-                        {loc && <p className='lp-card__loc'>📍 {loc}</p>}
-                        <div className='lp-card__stats'>
+                      <div className='home-card__body'>
+                        <h3 className='home-card__title'>{listing.title}</h3>
+                        {loc && <p className='home-card__loc'>📍 {loc}</p>}
+                        <div className='home-card__stats'>
                           {listing.bedrooms != null && (
                             <span>
                               🛏 {listing.bedrooms} bed
@@ -751,12 +751,12 @@ export default function LandingPage () {
                             <span>🏷 {listing.category}</span>
                           )}
                         </div>
-                        <div className='lp-card__footer'>
-                          <div className='lp-card__price'>
+                        <div className='home-card__footer'>
+                          <div className='home-card__price'>
                             {formatPrice(listing.price, listing.purpose)}
                           </div>
                           {listing.stats?.averageRating > 0 && (
-                            <div className='lp-card__rating'>
+                            <div className='home-card__rating'>
                               ⭐{' '}
                               <strong>
                                 {listing.stats.averageRating.toFixed(1)}
@@ -771,9 +771,9 @@ export default function LandingPage () {
             </div>
           )}
 
-          <div className='lp-listings__cta'>
+          <div className='home-listings__cta'>
             <button
-              className='lp-btn-outline'
+              className='home-btn-outline'
               onClick={() => router.push('/search')}
             >
               Explore All Properties →
@@ -783,22 +783,22 @@ export default function LandingPage () {
       </section>
 
       {/* ── Popular Locations ── */}
-      <section className='lp-locations'>
-        <div className='lp-locations__inner'>
-          <h2 className='lp-locations__title'>Popular Destinations</h2>
-          <p className='lp-locations__sub'>
+      <section className='home-locations'>
+        <div className='home-locations__inner'>
+          <h2 className='home-locations__title'>Popular Destinations</h2>
+          <p className='home-locations__sub'>
             Browse thousands of listings in Nigeria's top cities
           </p>
-          <div className='lp-locations__grid'>
+          <div className='home-locations__grid'>
             {LOCATIONS.map(loc => (
               <div
                 key={loc.city}
-                className='lp-loc'
+                className='home-loc'
                 onClick={() => router.push(`/search?location=${loc.city}`)}
               >
                 <img src={loc.image} alt={loc.city} loading='lazy' />
-                <div className='lp-loc__overlay' />
-                <div className='lp-loc__info'>
+                <div className='home-loc__overlay' />
+                <div className='home-loc__info'>
                   <h3>{loc.city}</h3>
                   <p>{loc.listings} listings</p>
                 </div>
@@ -809,10 +809,10 @@ export default function LandingPage () {
       </section>
 
       {/* ── Artisan Marketplace ── */}
-      <section id='artisans' className='lp-artisan'>
-        <div className='lp-artisan__inner'>
-          <div className='lp-artisan__text'>
-            <span className='lp-tag'>Service Marketplace</span>
+      <section id='artisans' className='home-artisan'>
+        <div className='home-artisan__inner'>
+          <div className='home-artisan__text'>
+            <span className='home-tag'>Service Marketplace</span>
             <h2>
               Find Trusted Artisans
               <br />
@@ -823,21 +823,21 @@ export default function LandingPage () {
               more trades — with rated profiles, upfront quotes, and
               escrow-protected payments.
             </p>
-            <ul className='lp-artisan__perks'>
+            <ul className='home-artisan__perks'>
               <li> Background-checked &amp; certified</li>
               <li> Read reviews before you book</li>
               <li> Escrow payment — pay on completion</li>
               <li> Real-time messaging &amp; scheduling</li>
             </ul>
             <button
-              className='lp-btn-lime'
+              className='home-btn-lime'
               onClick={() => router.push('/search?type=artisan')}
             >
               Find an Artisan →
             </button>
           </div>
 
-          <div className='lp-artisan__cards'>
+          <div className='home-artisan__cards'>
             {(loadingArtisans ? [] : artisans).map(a => {
               // Handle both API shape (flat) and fallback shape (nested)
               const name =
@@ -857,26 +857,26 @@ export default function LandingPage () {
               return (
                 <div
                   key={a._id}
-                  className='lp-artisan-card'
+                  className='home-artisan-card'
                   onClick={() => router.push('/search?type=artisan')}
                 >
-                  <div className='lp-artisan-card__head'>
-                    <span className='lp-artisan-card__avatar'>
+                  <div className='home-artisan-card__head'>
+                    <span className='home-artisan-card__avatar'>
                       {artisanTradeIcon(spec)}
                     </span>
                     <div>
                       <h4>{name}</h4>
                       <p>{spec}</p>
                     </div>
-                    <span className='lp-artisan-card__badge'>
+                    <span className='home-artisan-card__badge'>
                       {isTopRated ? 'Top Rated' : 'Verified'}
                     </span>
                   </div>
-                  <div className='lp-artisan-card__foot'>
+                  <div className='home-artisan-card__foot'>
                     {rating > 0 && <span>⭐ {rating.toFixed(1)}</span>}
                     {jobs > 0 && <span>{jobs} jobs</span>}
                     {isVerified && (
-                      <span className='lp-artisan-card__verified'>
+                      <span className='home-artisan-card__verified'>
                         ✓ Verified
                       </span>
                     )}
@@ -889,19 +889,19 @@ export default function LandingPage () {
       </section>
 
       {/* ── How It Works ── */}
-      <section id='how-it-works' className='lp-hiw'>
-        <div className='lp-hiw__inner'>
-          <span className='lp-tag'>Simple Process</span>
-          <h2 className='lp-hiw__title'>How {appName} Works</h2>
-          <div className='lp-hiw__steps'>
+      <section id='how-it-works' className='home-hiw'>
+        <div className='home-hiw__inner'>
+          <span className='home-tag'>Simple Process</span>
+          <h2 className='home-hiw__title'>How {appName} Works</h2>
+          <div className='home-hiw__steps'>
             {HOW_IT_WORKS.map((s, i) => (
-              <div key={s.step} className='lp-step'>
-                <div className='lp-step__num'>{s.step}</div>
-                <div className='lp-step__icon'>{s.icon}</div>
+              <div key={s.step} className='home-step'>
+                <div className='home-step__num'>{s.step}</div>
+                <div className='home-step__icon'>{s.icon}</div>
                 <h3>{s.title}</h3>
                 <p>{s.desc}</p>
                 {i < HOW_IT_WORKS.length - 1 && (
-                  <div className='lp-step__arrow'>→</div>
+                  <div className='home-step__arrow'>→</div>
                 )}
               </div>
             ))}
@@ -910,20 +910,20 @@ export default function LandingPage () {
       </section>
 
       {/* ── Testimonials ── */}
-      <section className='lp-reviews'>
-        <div className='lp-reviews__inner'>
-          <span className='lp-tag'>Testimonials</span>
-          <h2 className='lp-reviews__title'>Loved by Thousands</h2>
-          <div className='lp-reviews__grid'>
+      <section className='home-reviews'>
+        <div className='home-reviews__inner'>
+          <span className='home-tag'>Testimonials</span>
+          <h2 className='home-reviews__title'>Loved by Thousands</h2>
+          <div className='home-reviews__grid'>
             {TESTIMONIALS.map(t => (
-              <div key={t.name} className='lp-review'>
-                <div className='lp-review__stars'>{'⭐'.repeat(t.stars)}</div>
-                <p className='lp-review__text'>"{t.text}"</p>
-                <div className='lp-review__author'>
-                  <span className='lp-review__avatar'>{t.avatar}</span>
+              <div key={t.name} className='home-review'>
+                <div className='home-review__stars'>{'⭐'.repeat(t.stars)}</div>
+                <p className='home-review__text'>"{t.text}"</p>
+                <div className='home-review__author'>
+                  <span className='home-review__avatar'>{t.avatar}</span>
                   <div>
-                    <div className='lp-review__name'>{t.name}</div>
-                    <div className='lp-review__role'>{t.role}</div>
+                    <div className='home-review__name'>{t.name}</div>
+                    <div className='home-review__role'>{t.role}</div>
                   </div>
                 </div>
               </div>
@@ -933,28 +933,28 @@ export default function LandingPage () {
       </section>
 
       {/* ── Final CTA ── */}
-      <section className='lp-cta'>
-        <div className='lp-cta__inner'>
+      <section className='home-cta'>
+        <div className='home-cta__inner'>
           <h2>Ready to Find Your Perfect Property?</h2>
           <p>
             Join {stats.verifiedUsers || '50,000+'} users already buying,
             renting, and connecting on {appName}
           </p>
-          <div className='lp-cta__btns'>
+          <div className='home-cta__btns'>
             <button
-              className='lp-btn-lime'
+              className='home-btn-lime'
               onClick={() => router.push('/auth/register')}
             >
               Get Started Free →
             </button>
             <button
-              className='lp-btn-ghost-white'
+              className='home-btn-ghost-white'
               onClick={() => router.push('/search')}
             >
               Browse Listings
             </button>
           </div>
-          <div className='lp-cta__trust'>
+          <div className='home-cta__trust'>
             <span>✓ Free to join</span>
             <span>✓ No hidden fees</span>
             <span>✓ Verified listings</span>

@@ -168,6 +168,11 @@ export default function Sidebar ({
             icon: <Users strokeWidth={0.75} />
           },
           {
+            key: 'Applicants',
+            label: 'Applicants',
+            icon: <ClipboardList strokeWidth={0.75} />
+          },
+          {
             key: 'Maintenance',
             label: 'Maintenance',
             icon: <Drill strokeWidth={0.75} />
@@ -186,14 +191,19 @@ export default function Sidebar ({
             key: 'FindArtisan',
             label: 'Find Artisan',
             icon: <Wrench strokeWidth={0.75} />
+          },
+          {
+            key: 'Messages',
+            label: 'Messages',
+            icon: <MessageSquareWarning strokeWidth={0.75} />
           }
         ],
         account: [
-          // {
-          //   key: 'Profile',
-          //   label: 'Profile',
-          //   icon: <UserCircle strokeWidth={0.75} />
-          // },
+          {
+            key: 'Profile',
+            label: 'Profile',
+            icon: <UserCircle strokeWidth={0.75} />
+          },
           {
             key: 'Settings',
             label: 'Settings',
@@ -412,6 +422,11 @@ export default function Sidebar ({
             key: 'MyLease',
             label: 'My Lease',
             icon: <ClipboardMinus strokeWidth={0.75} />
+          },
+          {
+            key: 'MyApplications',
+            label: 'My Applications',
+            icon: <ClipboardList strokeWidth={0.75} />
           },
           {
             key: 'findArtisan',
@@ -729,17 +744,30 @@ export default function Sidebar ({
             }
 
             // ── Expanded mode ────────────────────────────────────────
+            // Accent colors for badge/highlights that read well on dark bg
+            const accentColor = isUrgent
+              ? '#f87171'
+              : isWarning
+              ? '#fbbf24'
+              : tier === 'pro'
+              ? '#a78bfa'
+              : tier === 'enterprise'
+              ? '#fbbf24'
+              : tier === 'basic'
+              ? '#4ade80'
+              : '#94a3b8' // free
+
             return (
               <div
                 style={{
-                  margin: '8px 12px 4px',
-                  background: cardBg,
+                  margin: '4px 12px 8px',
+                  background: 'rgba(255,255,255,0.07)',
                   borderRadius: 10,
                   padding: '10px 12px',
-                  border: `1px solid ${cardBorder}`
+                  border: '1px solid rgba(255,255,255,0.1)'
                 }}
               >
-                {/* Header row: tier badge + trial tag */}
+                {/* Header row */}
                 <div
                   style={{
                     display: 'flex',
@@ -748,47 +776,47 @@ export default function Sidebar ({
                     marginBottom: trialLive ? 6 : 8
                   }}
                 >
-                  <div
-                    style={{ display: 'flex', alignItems: 'center', gap: 5 }}
-                  >
-                    <span style={{ fontSize: 13 }}>{meta.icon}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 14, lineHeight: 1 }}>{meta.icon}</span>
                     <span
                       style={{
-                        fontSize: 12,
-                        fontWeight: 800,
-                        color: cardColor,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: accentColor,
                         textTransform: 'uppercase',
-                        letterSpacing: '0.04em'
+                        letterSpacing: '0.06em'
                       }}
                     >
                       {meta.label}
                     </span>
                     <span
                       style={{
-                        fontSize: 10,
+                        fontSize: 9,
                         fontWeight: 600,
-                        color: '#fff',
-                        background: cardColor,
-                        borderRadius: 4,
-                        padding: '1px 5px'
+                        color: accentColor,
+                        border: `1px solid ${accentColor}`,
+                        borderRadius: 3,
+                        padding: '1px 4px',
+                        opacity: 0.8
                       }}
                     >
-                      Plan
+                      PLAN
                     </span>
                   </div>
                   {trialLive && (
                     <span
                       style={{
-                        fontSize: 10,
+                        fontSize: 9,
                         fontWeight: 700,
-                        color: cardColor,
-                        background: `${cardColor}18`,
+                        color: accentColor,
+                        background: `${accentColor}22`,
+                        border: `1px solid ${accentColor}44`,
                         borderRadius: 4,
-                        padding: '2px 6px',
+                        padding: '2px 5px',
                         whiteSpace: 'nowrap'
                       }}
                     >
-                      {isUrgent ? '⏰' : '🎁'} Trial
+                      {isUrgent ? '⏰' : '🎁'} TRIAL
                     </span>
                   )}
                 </div>
@@ -800,10 +828,11 @@ export default function Sidebar ({
                       style={{
                         display: 'flex',
                         justifyContent: 'space-between',
-                        fontSize: 11,
-                        color: cardColor,
-                        fontWeight: 700,
-                        marginBottom: 4
+                        fontSize: 10,
+                        color: accentColor,
+                        fontWeight: 600,
+                        marginBottom: 5,
+                        opacity: 0.9
                       }}
                     >
                       <span>
@@ -813,17 +842,17 @@ export default function Sidebar ({
                           ? '1 day left'
                           : `${daysLeft} days left`}
                       </span>
-                      <span style={{ opacity: 0.75, fontWeight: 500 }}>
-                        {new Date(plan.trialEndsAt).toLocaleDateString(
-                          'en-GB',
-                          { day: 'numeric', month: 'short' }
-                        )}
+                      <span style={{ opacity: 0.6 }}>
+                        {new Date(plan.trialEndsAt).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short'
+                        })}
                       </span>
                     </div>
                     <div
                       style={{
-                        height: 4,
-                        background: '#e0e0e0',
+                        height: 3,
+                        background: 'rgba(255,255,255,0.12)',
                         borderRadius: 99,
                         overflow: 'hidden',
                         marginBottom: 8
@@ -833,7 +862,7 @@ export default function Sidebar ({
                         style={{
                           height: '100%',
                           width: `${pct}%`,
-                          background: cardColor,
+                          background: accentColor,
                           borderRadius: 99,
                           transition: 'width .4s'
                         }}
@@ -846,7 +875,7 @@ export default function Sidebar ({
                 <div
                   style={{
                     display: 'flex',
-                    gap: 8,
+                    gap: 6,
                     marginBottom: showUpgrade ? 8 : 0
                   }}
                 >
@@ -854,28 +883,23 @@ export default function Sidebar ({
                     <div
                       style={{
                         flex: 1,
-                        background: 'rgba(0,0,0,0.04)',
+                        background: 'rgba(255,255,255,0.06)',
                         borderRadius: 6,
-                        padding: '4px 7px',
+                        padding: '5px 4px',
                         textAlign: 'center'
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 800,
-                          color: cardColor
-                        }}
-                      >
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>
                         {plan.listingLimit}
                       </div>
                       <div
                         style={{
-                          fontSize: 9,
-                          color: '#888',
+                          fontSize: 8,
+                          color: 'rgba(255,255,255,0.45)',
                           fontWeight: 600,
                           textTransform: 'uppercase',
-                          letterSpacing: '0.03em'
+                          letterSpacing: '0.04em',
+                          marginTop: 1
                         }}
                       >
                         Listings
@@ -886,28 +910,23 @@ export default function Sidebar ({
                     <div
                       style={{
                         flex: 1,
-                        background: 'rgba(0,0,0,0.04)',
+                        background: 'rgba(255,255,255,0.06)',
                         borderRadius: 6,
-                        padding: '4px 7px',
+                        padding: '5px 4px',
                         textAlign: 'center'
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 800,
-                          color: cardColor
-                        }}
-                      >
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>
                         {plan.aiCredits}
                       </div>
                       <div
                         style={{
-                          fontSize: 9,
-                          color: '#888',
+                          fontSize: 8,
+                          color: 'rgba(255,255,255,0.45)',
                           fontWeight: 600,
                           textTransform: 'uppercase',
-                          letterSpacing: '0.03em'
+                          letterSpacing: '0.04em',
+                          marginTop: 1
                         }}
                       >
                         AI Credits
@@ -918,28 +937,23 @@ export default function Sidebar ({
                     <div
                       style={{
                         flex: 1,
-                        background: 'rgba(0,0,0,0.04)',
+                        background: 'rgba(255,255,255,0.06)',
                         borderRadius: 6,
-                        padding: '4px 7px',
+                        padding: '5px 4px',
                         textAlign: 'center'
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 800,
-                          color: cardColor
-                        }}
-                      >
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>
                         {plan.mediaPerListing}
                       </div>
                       <div
                         style={{
-                          fontSize: 9,
-                          color: '#888',
+                          fontSize: 8,
+                          color: 'rgba(255,255,255,0.45)',
                           fontWeight: 600,
                           textTransform: 'uppercase',
-                          letterSpacing: '0.03em'
+                          letterSpacing: '0.04em',
+                          marginTop: 1
                         }}
                       >
                         Photos
@@ -954,15 +968,15 @@ export default function Sidebar ({
                     onClick={() => handleClick('Settings')}
                     style={{
                       width: '100%',
-                      background: cardColor,
-                      color: '#fff',
+                      background: '#C4E53C',
+                      color: '#0B3D28',
                       border: 'none',
                       borderRadius: 6,
                       padding: '6px 10px',
-                      fontSize: 12,
-                      fontWeight: 700,
+                      fontSize: 11,
+                      fontWeight: 800,
                       cursor: 'pointer',
-                      marginTop: 2
+                      letterSpacing: '0.02em'
                     }}
                   >
                     {tier === 'free' ? 'Upgrade Plan →' : 'Manage Plan →'}

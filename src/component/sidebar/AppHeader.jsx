@@ -2,7 +2,6 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import './admin.scss'
 
 // Map page keys to human-readable titles
@@ -37,8 +36,10 @@ const PAGE_TITLES = {
   SupportTickets: 'Support Tickets',
   PlatformSettings: 'Platform Settings',
   EmailTemplates: 'Email Templates',
-  PropertyUpload: 'Upload Property',
-  PropertyOwners: 'Property Owners'
+  PropertyUpload:    'Upload Property',
+  PropertyOwners:    'Property Owners',
+  MyApplications:    'My Applications',
+  Applicants:        'Applicants'
 }
 
 export default function AppHeader ({
@@ -48,15 +49,18 @@ export default function AppHeader ({
   user,
   onLogout,
   currentPage,
+  onRouteChange,
   // Notification props from layout
   notifications = [],
   unreadCount = 0,
   onMarkAsRead,
   onMarkAllAsRead,
   onDeleteNotification,
-  onClearAll
+  onClearAll,
+  // Message props from layout
+  unreadMsgCount = 0,
+  onOpenMessages
 }) {
-  const router = useRouter()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
@@ -64,11 +68,9 @@ export default function AppHeader ({
   const notifRef = useRef(null)
   const userMenuRef = useRef(null)
 
-  const handleClick = key => {
-    setActiveKey(key)
-    localStorage.setItem('ep_activePage', key)
-    onRouteChange(key)
-    if (mobileOpen) onCloseMobile()
+  const navigateTo = key => {
+    if (onRouteChange) onRouteChange(key)
+    setIsUserMenuOpen(false)
   }
 
   // Close dropdowns when clicking outside
@@ -148,6 +150,23 @@ export default function AppHeader ({
 
       {/* Right Actions */}
       <div className='header-right'>
+        {/* ── Messages ── */}
+        <button
+          className='header-icon-btn'
+          title='Messages'
+          onClick={onOpenMessages}
+          aria-label='Messages'
+        >
+          <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
+            <path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' />
+          </svg>
+          {unreadMsgCount > 0 && (
+            <span className='notification-badge'>
+              {unreadMsgCount > 99 ? '99+' : unreadMsgCount}
+            </span>
+          )}
+        </button>
+
         {/* ── Notifications ── */}
         <div className='notif-container' ref={notifRef}>
           <button
@@ -358,7 +377,7 @@ export default function AppHeader ({
 
               <button
                 className='menu-item'
-                onClick={() => handleClick('Settings')}
+                onClick={() => navigateTo('Profile')}
               >
                 <svg
                   width='18'
@@ -373,7 +392,7 @@ export default function AppHeader ({
                 <span>Profile</span>
               </button>
 
-              <button className='menu-item'>
+              <button className='menu-item' onClick={() => navigateTo('Settings')}>
                 <svg
                   width='18'
                   height='18'

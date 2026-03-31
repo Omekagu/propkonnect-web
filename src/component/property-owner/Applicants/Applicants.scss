@@ -1,0 +1,634 @@
+/* Applicants.scss — Property owner applicant management, dark theme */
+
+$bg:      #0d1117;
+$surface: #161b22;
+$border:  rgba(255,255,255,0.07);
+$border2: rgba(255,255,255,0.12);
+$text:    #e6edf3;
+$muted:   rgba(230,237,243,0.45);
+$accent:  #C4E53C;
+$green:   #0B3D28;
+$mid:     #0F6040;
+$success: #3fb950;
+$warning: #d29922;
+$danger:  #f85149;
+$blue:    #58a6ff;
+$purple:  #a78bfa;
+
+.ap-wrap {
+  padding: 24px;
+  background: $bg;
+  min-height: 100vh;
+  color: $text;
+  position: relative;
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────────
+.ap-head { margin-bottom: 20px; }
+
+.ap-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+  background: linear-gradient(120deg, #e6edf3 0%, $accent 120%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ap-subtitle { font-size: 0.82rem; color: $muted; margin: 0; }
+
+.ap-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid $border2;
+  color: $muted;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { border-color: $accent; color: $accent; }
+}
+
+// ── Property grid ───────────────────────────────────────────────────────────────
+.ap-prop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.ap-prop-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.18s;
+  outline: none;
+
+  &:hover, &:focus-visible {
+    border-color: rgba($accent, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+
+.ap-prop-img-wrap { position: relative; }
+
+.ap-prop-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+  background: rgba(255,255,255,0.04);
+
+  &--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $muted;
+    border-bottom: 1px solid $border;
+  }
+}
+
+.ap-prop-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: $accent;
+  color: $green;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.ap-prop-body { padding: 14px; }
+
+.ap-prop-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ap-prop-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.73rem;
+    color: $muted;
+
+    svg { opacity: 0.7; }
+  }
+}
+
+// ── Selected property bar ────────────────────────────────────────────────────────
+.ap-selected-prop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba($accent, 0.06);
+  border: 1px solid rgba($accent, 0.18);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+  color: $muted;
+
+  svg { color: $accent; flex-shrink: 0; }
+}
+
+.ap-selected-name {
+  font-weight: 700;
+  color: $text;
+  margin-right: 4px;
+}
+
+.ap-selected-loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  svg { opacity: 0.6; }
+}
+
+// ── Stats row ────────────────────────────────────────────────────────────────────
+.ap-app-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.ap-stat {
+  flex: 1;
+  min-width: 90px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &--blue    { border-top: 2px solid $blue; }
+  &--warning { border-top: 2px solid $warning; }
+  &--success { border-top: 2px solid $success; }
+  &--danger  { border-top: 2px solid $danger; }
+}
+
+.ap-stat-num {
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+
+  .ap-stat--blue    & { color: $blue; }
+  .ap-stat--warning & { color: $warning; }
+  .ap-stat--success & { color: $success; }
+  .ap-stat--danger  & { color: $danger; }
+}
+
+.ap-stat-label { font-size: 0.68rem; color: $muted; text-transform: uppercase; letter-spacing: 0.05em; }
+
+// ── Toolbar ──────────────────────────────────────────────────────────────────────
+.ap-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.ap-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.ap-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $muted;
+  pointer-events: none;
+}
+
+.ap-search {
+  width: 100%;
+  padding: 8px 12px 8px 32px;
+  background: $surface;
+  border: 1px solid $border2;
+  border-radius: 8px;
+  color: $text;
+  font-size: 0.82rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+
+  &::placeholder { color: $muted; }
+  &:focus { border-color: $accent; }
+}
+
+.ap-status-tabs {
+  display: flex;
+  gap: 4px;
+  background: $surface;
+  border: 1px solid $border2;
+  border-radius: 9px;
+  padding: 3px;
+  flex-wrap: wrap;
+}
+
+.ap-tab {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: $muted;
+  font-size: 0.76rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  &:hover:not(.active) { color: $text; }
+
+  &.active {
+    background: $accent;
+    color: $green;
+    font-weight: 700;
+  }
+}
+
+.ap-tab-count {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.1);
+
+  .ap-tab.active & { background: rgba($green, 0.25); }
+}
+
+// ── Applicant cards ──────────────────────────────────────────────────────────────
+.ap-app-list { display: flex; flex-direction: column; gap: 10px; }
+
+.ap-app-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.18s;
+
+  &:hover { border-color: $border2; }
+  &--open { border-color: rgba($accent, 0.28); }
+}
+
+.ap-app-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+
+  &:focus-visible { box-shadow: inset 0 0 0 2px rgba($accent, 0.35); }
+}
+
+// ── Avatar ───────────────────────────────────────────────────────────────────────
+.ap-av {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+
+  &--initials {
+    background: linear-gradient(135deg, $green, $mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $accent;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font, Inter, sans-serif);
+  }
+}
+
+// ── App info row ─────────────────────────────────────────────────────────────────
+.ap-app-info { flex: 1; min-width: 0; }
+
+.ap-app-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+
+.ap-app-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: $text;
+}
+
+// KYC badge
+.ap-kyc {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  &--verified { background: rgba($success,0.12); color: $success; }
+  &--pending  { background: rgba($warning,0.12); color: $warning; }
+  &--none     { background: rgba($muted,0.12);   color: $muted;   }
+}
+
+// Status badge
+.ap-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  &--pending  { background: rgba($warning,0.12); color: $warning; }
+  &--approved { background: rgba($success,0.12); color: $success; }
+  &--rejected { background: rgba($danger,0.12);  color: $danger;  }
+}
+
+.ap-app-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ap-app-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: $muted;
+}
+
+// Quick action area (right side of head row)
+.ap-app-quick {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ap-quick-chat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1px solid $border2;
+  background: transparent;
+  color: $muted;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { border-color: $accent; color: $accent; background: rgba($accent,0.08); }
+}
+
+.ap-chevron {
+  background: none;
+  border: none;
+  color: $muted;
+  cursor: pointer;
+  padding: 4px;
+  &:hover { color: $text; }
+}
+
+// ── Expanded detail ───────────────────────────────────────────────────────────────
+.ap-app-detail {
+  border-top: 1px solid $border;
+  padding: 18px 16px;
+  animation: apSlide 0.17s ease;
+}
+
+@keyframes apSlide {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ap-app-message { margin-bottom: 16px; }
+
+.ap-app-quote {
+  margin: 6px 0 0;
+  padding: 10px 14px;
+  border-left: 3px solid rgba($accent, 0.4);
+  background: rgba(255,255,255,0.02);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: $muted;
+  font-style: italic;
+}
+
+.ap-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  @media (max-width: 520px) { grid-template-columns: 1fr; }
+}
+
+.ap-detail-col {}
+
+.ap-detail-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: $muted;
+  margin: 0 0 8px;
+}
+
+.ap-detail-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.8rem;
+    color: $muted;
+    svg { flex-shrink: 0; }
+  }
+}
+
+.ap-link {
+  color: $blue;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+// ── Action buttons ───────────────────────────────────────────────────────────────
+.ap-app-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ap-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.18s;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--chat {
+    background: transparent;
+    border-color: $accent;
+    color: $accent;
+    &:hover:not(:disabled) { background: rgba($accent,0.1); }
+  }
+
+  &--approve {
+    background: rgba($success,0.1);
+    border-color: rgba($success,0.3);
+    color: $success;
+    &:hover:not(:disabled) { background: rgba($success,0.18); }
+  }
+
+  &--reject {
+    background: rgba($danger,0.08);
+    border-color: rgba($danger,0.25);
+    color: $danger;
+    &:hover:not(:disabled) { background: rgba($danger,0.16); }
+  }
+}
+
+// ── States ────────────────────────────────────────────────────────────────────────
+.ap-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: $muted;
+  font-size: 0.875rem;
+}
+
+.ap-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid $border2;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: apSpin 0.7s linear infinite;
+}
+@keyframes apSpin { to { transform: rotate(360deg); } }
+
+.ap-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba($danger,0.08);
+  border: 1px solid rgba($danger,0.2);
+  border-radius: 10px;
+  color: $danger;
+  font-size: 0.85rem;
+}
+
+.ap-retry {
+  margin-left: auto;
+  background: none;
+  border: 1px solid rgba($danger,0.4);
+  color: $danger;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  &:hover { background: rgba($danger,0.1); }
+}
+
+.ap-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: $muted;
+  text-align: center;
+
+  svg { opacity: 0.3; }
+  p { font-size: 0.875rem; margin: 0; }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────────
+.ap-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 9999;
+  animation: apFadeIn 0.2s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+
+  &--success { background: rgba($success,0.15); border: 1px solid rgba($success,0.3); color: $success; }
+  &--error   { background: rgba($danger,0.15);  border: 1px solid rgba($danger,0.3);  color: $danger;  }
+}
+
+@keyframes apFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Mobile ──────────────────────────────────────────────────────────────────────
+@media (max-width: 600px) {
+  .ap-wrap { padding: 16px; }
+  .ap-prop-grid { grid-template-columns: 1fr; }
+  .ap-app-head { flex-wrap: wrap; }
+  .ap-toolbar { flex-direction: column; align-items: stretch; }
+  .ap-search-wrap { min-width: 0; }
+}

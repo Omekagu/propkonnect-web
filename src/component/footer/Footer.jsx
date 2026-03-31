@@ -33,10 +33,10 @@ export default function Footer () {
   ].filter(s => s.href)
 
   return (
-    <footer className='lp-footer'>
-      <div className='lp-footer__inner'>
-        <div className='lp-footer__brand'>
-          <a className='lp-footer__logo' href='/'>
+    <footer className='home-footer'>
+      <div className='home-footer__inner'>
+        <div className='home-footer__brand'>
+          <a className='home-footer__logo' href='/'>
             {logoUrl ? (
               <img
                 src={logoUrl}
@@ -45,18 +45,18 @@ export default function Footer () {
               />
             ) : (
               <>
-                <span className='lp-nav__logo-icon'>P</span>
+                <span className='home-nav__logo-icon'>P</span>
                 <span>{appName}</span>
               </>
             )}
           </a>
           <p>{tagline}</p>
           {socialLinks.length > 0 && (
-            <div className='lp-footer__socials'>
+            <div className='home-footer__socials'>
               {socialLinks.map(s => (
                 <a
                   key={s.key}
-                  className='lp-footer__social'
+                  className='home-footer__social'
                   href={s.href}
                   target='_blank'
                   rel='noopener noreferrer'
@@ -67,9 +67,9 @@ export default function Footer () {
             </div>
           )}
           {socialLinks.length === 0 && (
-            <div className='lp-footer__socials'>
+            <div className='home-footer__socials'>
               {['𝕏', 'in', 'f', '▶'].map(s => (
-                <a key={s} className='lp-footer__social' href='#'>
+                <a key={s} className='home-footer__social' href='#'>
                   {s}
                 </a>
               ))}
@@ -77,7 +77,7 @@ export default function Footer () {
           )}
         </div>
 
-        <div className='lp-footer__col'>
+        <div className='home-footer__col'>
           <h4>Properties</h4>
           <a href='/buy'>Buy a Home</a>
           <a href='/rent'>Rent a Property</a>
@@ -86,7 +86,7 @@ export default function Footer () {
           <a href='/search?type=land'>Land</a>
         </div>
 
-        <div className='lp-footer__col'>
+        <div className='home-footer__col'>
           <h4>Services</h4>
           <a href='/search?type=artisan'>Find Artisans</a>
           <a href='/auth/register?role=artisan'>Join as Artisan</a>
@@ -94,7 +94,7 @@ export default function Footer () {
           <a href='/auth/register'>Sign Up</a>
         </div>
 
-        <div className='lp-footer__col'>
+        <div className='home-footer__col'>
           <h4>Company</h4>
           <a href='/about'>About Us</a>
           <a href='/contact'>Contact</a>
@@ -103,7 +103,7 @@ export default function Footer () {
           <a href='#'>Press</a>
         </div>
 
-        <div className='lp-footer__col'>
+        <div className='home-footer__col'>
           <h4>Support</h4>
           <a href='/contact'>Help Center</a>
           <a href='#'>Privacy Policy</a>
@@ -112,7 +112,7 @@ export default function Footer () {
         </div>
       </div>
 
-      <div className='lp-footer__bottom'>
+      <div className='home-footer__bottom'>
         <p>
           © {new Date().getFullYear()} {appName}. All rights reserved.
         </p>

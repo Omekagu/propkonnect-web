@@ -141,17 +141,24 @@
 }
 
 // ── Page Shell ────────────────────────────────────────────────
-// .lp.auth-login (double class) beats Landing.scss's single .lp selector
-// .lp .auth-login {
-//   min-height: 100vh;
-//   width: 100%;
-//   display: flex;
-//   background: #020c06;
-//   position: relative;
-//   overflow: hidden;
-//   font-family: var(--font);
-//   color: #dff0e4;
-// }
+// BEFORE (broken)
+.lp .auth-login {
+  min-height: 100vh;
+  display: flex;
+  background: #020c06;
+}
+
+// AFTER (fix)
+.auth-login {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background: #020c06;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font);
+  color: #dff0e4;
+}
 
 // ── Animated background layer ─────────────────────────────────
 .lp-bg {

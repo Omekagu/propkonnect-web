@@ -21,6 +21,7 @@ import PropertyOwnerDashboard from '@/component/property-owner/Dashboard/Dashboa
 import MyProperties from '@/component/property-owner/Properties/MyProperties'
 import FindArtisan from '@/component/property-owner/Artisan/FindArtisan'
 import PropertyOwnerPayments from '@/component/property-owner/Payments/PropertyOwnerPayments'
+import Applicants from '@/component/property-owner/Applicants/Applicants'
 
 // Artisan Components
 import ArtisanDashboard from '@/component/artisan/Dashboard/Dashboard'
@@ -34,6 +35,7 @@ import Certifications from '@/component/artisan/Certifications/Certifications'
 import BidNegotiations from '@/component/artisan/Negotiations/BidNegotiations'
 
 // Tenant Components
+import MyApplications  from '@/component/tenant/MyApplications/MyApplications'
 import TenantDashboard from '@/component/tenant/Dashboard/Dashboard'
 import MyLease         from '@/component/tenant/MyLease/MyLease'
 import MyHome from '@/component/tenant/Home/Home'
@@ -109,6 +111,8 @@ export default function AdminLayout ({ children }) {
   } = useNotifications(token)
 
   const { isDark, toggleTheme } = useTheme()
+
+  const [unreadMsgCount, setUnreadMsgCount] = useState(0)
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
@@ -250,6 +254,53 @@ export default function AdminLayout ({ children }) {
 
     return () => clearInterval(interval)
   }, [isLoggedIn, user])
+
+  // ✅ Fetch unread message count + live socket updates
+  useEffect(() => {
+    if (!isLoggedIn || !token) return
+    const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
+
+    const fetchUnreadMsgCount = async () => {
+      try {
+        const res = await fetch(`${API}/api/messages/conversations`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        const total = (data.conversations || []).reduce(
+          (sum, c) => sum + (c.unreadCount || 0),
+          0
+        )
+        setUnreadMsgCount(total)
+      } catch (_) {}
+    }
+
+    fetchUnreadMsgCount()
+
+    // Listen for new messages via Socket.IO to bump the counter in real-time
+    let socket
+    try {
+      const { io } = require('socket.io-client')
+      socket = io(API, {
+        auth: { token },
+        transports: ['websocket', 'polling'],
+        reconnectionAttempts: 3
+      })
+      socket.on('new-message', () => {
+        // Only increment if the user is not already on the Messages page
+        setActivePage(page => {
+          if (page !== 'Messages') {
+            setUnreadMsgCount(n => n + 1)
+          }
+          return page
+        })
+      })
+    } catch (_) {}
+
+    return () => {
+      if (socket) socket.disconnect()
+    }
+  }, [isLoggedIn, token])
 
   // ✅ Session timeout setup
   useEffect(() => {
@@ -553,22 +604,21 @@ export default function AdminLayout ({ children }) {
 
     // Property Owner Pages
     if (userRole === 'PROPERTY_OWNER') {
+      const ownerNavigate = page => {
+        setActivePage(page)
+        localStorage.setItem('ep_activePage', page)
+      }
       switch (activePage) {
         case 'Dashboard':
-          return (
-            <PropertyOwnerDashboard
-              onRouteChange={page => {
-                setActivePage(page)
-                localStorage.setItem('ep_activePage', page)
-              }}
-            />
-          )
+          return <PropertyOwnerDashboard onRouteChange={ownerNavigate} />
         case 'MyProperties':
           return gated(<MyProperties />)
         case 'PropertyUpload':
           return gated(<MyProperties initialView='tier-select' />)
         case 'Tenants':
           return gated(<Tenant />)
+        case 'Applicants':
+          return gated(<Applicants onRouteChange={ownerNavigate} />)
         case 'Maintenance':
           return gated(<Maintenance />)
         case 'Payments':
@@ -579,6 +629,10 @@ export default function AdminLayout ({ children }) {
           return <Report />
         case 'FindArtisan':
           return gated(<FindArtisan />)
+        case 'Messages':
+          return gated(<Messages />)
+        case 'Profile':
+          return <Settings />
         case 'Settings':
           return <Settings />
         case 'KYCVerification':
@@ -666,6 +720,10 @@ export default function AdminLayout ({ children }) {
 
     // Tenant Pages
     if (userRole === 'user' || userRole === 'tenant') {
+      const navigate = page => {
+        setActivePage(page)
+        localStorage.setItem('ep_activePage', page)
+      }
       switch (activePage) {
         case 'Dashboard':
           return <TenantDashboard />
@@ -675,6 +733,8 @@ export default function AdminLayout ({ children }) {
           return gated(<FindArtisan />)
         case 'MyHome':
           return gated(<MyHome />)
+        case 'MyApplications':
+          return gated(<MyApplications onRouteChange={navigate} />)
         case 'Payments':
           return gated(<TenantPayments />)
         case 'Maintenance':
@@ -804,6 +864,10 @@ export default function AdminLayout ({ children }) {
           user={user}
           onLogout={logout}
           currentPage={activePage}
+          onRouteChange={page => {
+            setActivePage(page)
+            localStorage.setItem('ep_activePage', page)
+          }}
           supportTicketCount={supportTicketCount}
           notifications={notifications}
           unreadCount={unreadCount}
@@ -811,6 +875,12 @@ export default function AdminLayout ({ children }) {
           onMarkAllAsRead={markAllNotifsRead}
           onDeleteNotification={deleteNotif}
           onClearAll={clearAllNotifs}
+          unreadMsgCount={unreadMsgCount}
+          onOpenMessages={() => {
+            setActivePage('Messages')
+            localStorage.setItem('ep_activePage', 'Messages')
+            setUnreadMsgCount(0)
+          }}
         />
 
         {/* KYC Banner — not submitted, rejected, or cancelled */}
