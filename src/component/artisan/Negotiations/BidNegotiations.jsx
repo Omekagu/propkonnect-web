@@ -197,6 +197,15 @@ function ChatView ({ bid, currentUser, onBack }) {
         {currentBid.serviceRequest?.estimatedBudget && (
           <span style={{ fontSize: 12, color: '#8b949e', marginLeft: 'auto' }}>Budget: ₦{currentBid.serviceRequest.estimatedBudget?.toLocaleString()}</span>
         )}
+        {canSend && (
+          <button
+            onClick={() => acceptOffer({ amount: currentBid.amount })}
+            disabled={sending}
+            style={{ marginLeft: 'auto', padding: '5px 12px', background: '#3fb950', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 12 }}
+          >
+            ✓ Accept my price
+          </button>
+        )}
       </div>
 
       {/* Messages */}

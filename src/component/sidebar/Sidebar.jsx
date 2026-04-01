@@ -73,11 +73,16 @@ export default function Sidebar ({
             label: 'Properties',
             icon: <HousePlus strokeWidth={0.75} />
           },
-          // {
-          //   key: 'ArtisanManagement',
-          //   label: 'Artisans',
-          //   icon: <Wrench strokeWidth={0.75} />
-          // },
+          {
+            key: 'PropertySales',
+            label: 'Properties Bought',
+            icon: <ShoppingCart strokeWidth={0.75} />
+          },
+          {
+            key: 'RentManagement',
+            label: 'Rents',
+            icon: <Receipt strokeWidth={0.75} />
+          },
           {
             key: 'Tenants',
             label: 'Tenants',
@@ -148,14 +153,14 @@ export default function Sidebar ({
         brand: `${process.env.NEXT_PUBLIC_APP_NAME} OWNER`,
         nav: [
           {
-            key: 'KYCVerification',
-            label: 'Identity Verification',
-            icon: <ScanFace strokeWidth={0.75} />
-          },
-          {
             key: 'Dashboard',
             label: 'Dashboard',
             icon: <LayoutDashboard strokeWidth={0.75} />
+          },
+          {
+            key: 'KYCVerification',
+            label: 'Identity Verification',
+            icon: <ScanFace strokeWidth={0.75} />
           },
           {
             key: 'MyProperties',
@@ -169,8 +174,13 @@ export default function Sidebar ({
           },
           {
             key: 'Applicants',
-            label: 'Applicants',
+            label: 'Applications',
             icon: <ClipboardList strokeWidth={0.75} />
+          },
+          {
+            key: 'Bookings',
+            label: 'Bookings',
+            icon: <Calendar strokeWidth={0.75} />
           },
           {
             key: 'Maintenance',
@@ -188,13 +198,18 @@ export default function Sidebar ({
             icon: <ClipboardMinus strokeWidth={0.75} />
           },
           {
+            key: 'Messages',
+            label: 'Messages',
+            icon: <MessageSquare strokeWidth={0.75} />
+          },
+          {
             key: 'FindArtisan',
-            label: 'Find Artisan',
+            label: 'Find Artisans',
             icon: <Wrench strokeWidth={0.75} />
           },
           {
-            key: 'Messages',
-            label: 'Messages',
+            key: 'OwnerComments',
+            label: 'Reviews & Comments',
             icon: <MessageSquareWarning strokeWidth={0.75} />
           }
         ],
@@ -329,6 +344,11 @@ export default function Sidebar ({
             key: 'Certifications',
             label: 'Certifications',
             icon: <Award strokeWidth={0.75} />
+          },
+          {
+            key: 'ArtisanReviews',
+            label: 'My Reviews',
+            icon: <Star strokeWidth={0.75} />
           }
         ],
         account: [
@@ -424,39 +444,19 @@ export default function Sidebar ({
             icon: <ClipboardMinus strokeWidth={0.75} />
           },
           {
-            key: 'MyApplications',
-            label: 'My Applications',
-            icon: <ClipboardList strokeWidth={0.75} />
-          },
-          {
-            key: 'findArtisan',
-            label: 'Find Artisan',
-            icon: <Search strokeWidth={0.75} />
-          },
-          {
-            key: 'MyHome',
-            label: 'My Home',
-            icon: <Home strokeWidth={0.75} />
-          },
-          {
-            key: 'Payments',
-            label: 'Payments',
-            icon: <Receipt strokeWidth={0.75} />
-          },
-          {
-            key: 'Maintenance',
-            label: 'Maintenance Requests',
-            icon: <FileText strokeWidth={0.75} />
-          },
-          {
-            key: 'Documents',
-            label: 'Documents',
-            icon: <FileText strokeWidth={0.75} />
-          },
-          {
             key: 'MyBookings',
             label: 'My Bookings',
             icon: <Calendar strokeWidth={0.75} />
+          },
+          {
+            key: 'FindArtisan',
+            label: 'Find Artisans',
+            icon: <Search strokeWidth={0.75} />
+          },
+          {
+            key: 'History',
+            label: 'History',
+            icon: <Star strokeWidth={0.75} />
           },
           {
             key: 'BookingCart',
@@ -466,12 +466,27 @@ export default function Sidebar ({
           {
             key: 'Messages',
             label: 'Messages',
-            icon: <MessageSquareWarning strokeWidth={0.75} />
+            icon: <MessageSquare strokeWidth={0.75} />
           },
           {
-            key: 'History',
-            label: 'History',
-            icon: <Star strokeWidth={0.75} />
+            key: 'Maintenance',
+            label: 'Maintenance Requests',
+            icon: <Wrench strokeWidth={0.75} />
+          },
+          {
+            key: 'MyHome',
+            label: 'My Home',
+            icon: <Home strokeWidth={0.75} />
+          },
+          {
+            key: 'MyApplications',
+            label: 'My Applications',
+            icon: <ClipboardList strokeWidth={0.75} />
+          },
+          {
+            key: 'Payments',
+            label: 'Payments',
+            icon: <Receipt strokeWidth={0.75} />
           }
         ],
         account: [

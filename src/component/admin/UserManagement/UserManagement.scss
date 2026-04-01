@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /* UserManagement.scss — Dark admin theme */
 
 $bg: #0d1117;
@@ -194,7 +196,7 @@ $blue: #58a6ff;
     }
     &.owners {
       background: rgba($mid, 0.3);
-      color: lighten($accent, 10%);
+      color: color.scale($accent, $lightness: 23.0769230769%);
     }
   }
 
@@ -467,7 +469,7 @@ $blue: #58a6ff;
   }
   &.role-owner {
     background: rgba($mid, 0.25);
-    color: lighten($accent, 5%);
+    color: color.scale($accent, $lightness: 11.5384615385%);
   }
   &.role-artisan {
     background: rgba($warning, 0.12);

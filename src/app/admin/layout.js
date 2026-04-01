@@ -573,6 +573,10 @@ export default function AdminLayout ({ children }) {
         case 'Bookings':
         case 'AllBookings':
           return <AdminBookings />
+        case 'PropertySales':
+          return <Finance initialTab='Transactions' />
+        case 'RentManagement':
+          return <Finance initialTab='Transactions' />
         case 'KYCVerification':
           return (
             <KYCForm
@@ -631,6 +635,10 @@ export default function AdminLayout ({ children }) {
           return gated(<FindArtisan />)
         case 'Messages':
           return gated(<Messages />)
+        case 'Bookings':
+          return gated(<AdminBookings />)
+        case 'OwnerComments':
+          return gated(<Comments />)
         case 'Profile':
           return <Settings />
         case 'Settings':
@@ -685,6 +693,8 @@ export default function AdminLayout ({ children }) {
           return gated(<Certifications />)
         case 'Negotiations':
           return gated(<BidNegotiations />)
+        case 'ArtisanReviews':
+          return gated(<Comments />)
         case 'Profile':
           return <Settings />
         case 'Settings':
@@ -730,7 +740,10 @@ export default function AdminLayout ({ children }) {
         case 'Finance':
           return gated(<FinanceDashboard />)
         case 'FindArtisan':
+        case 'findArtisan':
           return gated(<FindArtisan />)
+        case 'History':
+          return <MyBookings />
         case 'MyHome':
           return gated(<MyHome />)
         case 'MyApplications':
