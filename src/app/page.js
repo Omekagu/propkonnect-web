@@ -718,18 +718,6 @@ export default function LandingPage () {
                         >
                           {label}
                         </span>
-                        <button
-                          className={`home-card__save${
-                            savedCards.has(id) ? ' saved' : ''
-                          }`}
-                          onClick={e => {
-                            e.stopPropagation()
-                            toggleSave(id)
-                          }}
-                          aria-label='Save property'
-                        >
-                          {savedCards.has(id) ? '❤️' : '🤍'}
-                        </button>
                       </div>
                       <div className='home-card__body'>
                         <h3 className='home-card__title'>{listing.title}</h3>
@@ -753,7 +741,7 @@ export default function LandingPage () {
                         </div>
                         <div className='home-card__footer'>
                           <div className='home-card__price'>
-                            {formatPrice(listing.price, listing.purpose)}
+                            {formatPrice(listing.rentPrice, listing.purpose)}
                           </div>
                           {listing.stats?.averageRating > 0 && (
                             <div className='home-card__rating'>

@@ -1,0 +1,708 @@
+// ── Properties listing page ────────────────────────────────────────────────
+// Design tokens (matches Landing.scss palette)
+$bg:       #020c06;
+$bg-alt:   #040f08;
+$surface:  rgba(255,255,255,0.04);
+$surface2: rgba(255,255,255,0.07);
+$border:   rgba(255,255,255,0.08);
+$accent:   #c4e53c;
+$green:    #0b3d28;
+$text:     #e8f5ee;
+$text2:    rgba(232,245,238,0.65);
+$text3:    rgba(232,245,238,0.38);
+$radius:   14px;
+
+// ── Page shell ────────────────────────────────────────────────────────────────
+.props-page {
+  min-height: 100vh;
+  background: $bg;
+  color: $text;
+  font-family: var(--font, 'Inter', sans-serif);
+}
+
+// ── Search bar ────────────────────────────────────────────────────────────────
+.props-searchbar {
+  background: $bg-alt;
+  border-bottom: 1px solid $border;
+  padding: 14px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(8px);
+
+  &__inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  &__field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: $surface2;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 0 12px;
+    height: 44px;
+    min-width: 160px;
+    transition: border-color .15s;
+
+    &:focus-within { border-color: rgba($accent, 0.5); }
+
+    svg { color: $text3; flex-shrink: 0; }
+
+    input, select {
+      background: none;
+      border: none;
+      outline: none;
+      color: $text;
+      font-size: 14px;
+      width: 100%;
+      &::placeholder { color: $text3; }
+    }
+
+    select {
+      cursor: pointer;
+      option { background: #0d1a10; }
+    }
+
+    &--grow { flex: 1; min-width: 220px; }
+
+    button {
+      background: none;
+      border: none;
+      color: $text3;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      &:hover { color: $text; }
+    }
+  }
+}
+
+// ── Category strip ────────────────────────────────────────────────────────────
+.props-cats {
+  display: flex;
+  gap: 8px;
+  padding: 14px 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.props-cat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid $border;
+  background: $surface;
+  color: $text2;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+
+  &:hover { border-color: rgba($accent, 0.4); color: $text; }
+  &--active {
+    background: $accent;
+    border-color: $accent;
+    color: #0b1a06;
+    font-weight: 700;
+    svg { color: #0b1a06; }
+  }
+}
+
+// ── Body layout ───────────────────────────────────────────────────────────────
+.props-body {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Filter panel ──────────────────────────────────────────────────────────────
+.filter-panel {
+  background: $bg-alt;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 20px;
+  position: sticky;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+
+  &--mobile {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    top: unset;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 85vh;
+    border-radius: 20px 20px 0 0;
+    overflow-y: auto;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+  }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h3 { font-size: 16px; font-weight: 700; color: $text; margin: 0; }
+    button {
+      background: none; border: none; color: $text2; cursor: pointer;
+      display: flex; align-items: center;
+    }
+  }
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: $text3;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  &--wrap { flex-wrap: wrap; }
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 20px;
+  border: 1px solid $border;
+  background: $surface;
+  color: $text2;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+
+  &:hover { border-color: rgba($accent, 0.4); color: $text; }
+  &--active {
+    background: rgba($accent, 0.15);
+    border-color: rgba($accent, 0.6);
+    color: $accent;
+    font-weight: 700;
+  }
+}
+
+.filter-range {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+
+  span { color: $text3; font-size: 12px; }
+
+  input {
+    flex: 1;
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: $text;
+    font-size: 13px;
+    outline: none;
+    width: 0; // flex takes over
+    &::placeholder { color: $text3; }
+    &:focus { border-color: rgba($accent, 0.5); }
+  }
+}
+
+.filter-checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.filter-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: $text2;
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    accent-color: $accent;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+  }
+
+  &:hover span { color: $text; }
+}
+
+.btn-clear {
+  background: none;
+  border: 1px solid rgba(248,81,73,.3);
+  color: #f85149;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  &:hover { background: rgba(248,81,73,.1); }
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+.props-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  &__left, &__right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+.props-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: $surface2;
+  border: 1px solid $border;
+  border-radius: 10px;
+  color: $text2;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+
+  @media (min-width: 901px) { display: none; }
+
+  &--active { border-color: rgba($accent, 0.5); color: $accent; }
+}
+
+.props-filter-badge {
+  background: $accent;
+  color: #0b1a06;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 5px;
+}
+
+.props-count {
+  font-size: 13px;
+  color: $text2;
+}
+
+.props-sort {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 0 10px;
+  height: 36px;
+
+  svg { color: $text3; flex-shrink: 0; }
+
+  select {
+    background: none;
+    border: none;
+    outline: none;
+    color: $text2;
+    font-size: 13px;
+    cursor: pointer;
+    option { background: #0d1a10; }
+  }
+}
+
+.props-view-toggle {
+  display: flex;
+  gap: 2px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 3px;
+
+  button {
+    padding: 5px 8px;
+    border: none;
+    border-radius: 7px;
+    background: none;
+    color: $text3;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all .15s;
+
+    &.active, &:hover { background: $surface2; color: $text; }
+    &.active { color: $accent; }
+  }
+}
+
+// ── Active filter chips ───────────────────────────────────────────────────────
+.props-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba($accent, 0.1);
+  border: 1px solid rgba($accent, 0.3);
+  border-radius: 20px;
+  color: $accent;
+  font-size: 12px;
+  font-weight: 600;
+
+  button {
+    background: none;
+    border: none;
+    color: $accent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    opacity: 0.7;
+    &:hover { opacity: 1; }
+  }
+
+  &--clear {
+    background: rgba(248,81,73,.1);
+    border-color: rgba(248,81,73,.3);
+    color: #f85149;
+    cursor: pointer;
+    button { display: none; }
+  }
+}
+
+// ── Grid / List ───────────────────────────────────────────────────────────────
+.props-grid {
+  display: grid;
+  gap: 16px;
+
+  &--grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  &--list {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Property card ─────────────────────────────────────────────────────────────
+.prop-card {
+  display: flex;
+  flex-direction: column;
+  background: $bg-alt;
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: rgba($accent, 0.25);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  &--list {
+    flex-direction: row;
+    max-height: 180px;
+
+    .prop-card__img { width: 240px; min-width: 240px; height: 180px; }
+    .prop-card__body { flex: 1; padding: 16px 20px; }
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+      max-height: unset;
+      .prop-card__img { width: 100%; height: 180px; }
+    }
+  }
+
+  &__img {
+    position: relative;
+    height: 200px;
+    background: $surface2;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .3s;
+    }
+
+    &:hover img { transform: scale(1.04); }
+
+    &-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $text3;
+    }
+  }
+
+  &__tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+
+    &--sale { background: rgba(0,0,0,0.65); color: $accent; border: 1px solid rgba($accent,.3); }
+    &--rent { background: rgba(0,0,0,0.65); color: #58a6ff; border: 1px solid rgba(88,166,255,.3); }
+    &--short { background: rgba(0,0,0,0.65); color: #d29922; border: 1px solid rgba(210,153,34,.3); }
+    &--premier {
+      left: unset;
+      right: 10px;
+      background: rgba(210,153,34,.85);
+      color: #0d1117;
+    }
+  }
+
+  &__save {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: all .15s;
+    &:hover { background: rgba(248,81,73,.8); }
+  }
+
+  &__body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+  }
+
+  &__cat {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: $accent;
+    margin: 0;
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: $text;
+    margin: 0;
+    line-height: 1.3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  &__loc {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: $text2;
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    svg { flex-shrink: 0; color: $text3; }
+  }
+
+  &__meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: $text3;
+      svg { color: $text3; }
+    }
+  }
+
+  &__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid $border;
+  }
+
+  &__price {
+    font-size: 16px;
+    font-weight: 800;
+    color: $accent;
+  }
+
+  &__cta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $text2;
+    transition: color .15s;
+
+    .prop-card:hover & { color: $accent; }
+  }
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.prop-skeleton {
+  height: 320px;
+  border-radius: $radius;
+  background: linear-gradient(90deg, $surface 25%, $surface2 50%, $surface 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+
+  .props-grid--list & { height: 180px; }
+}
+
+// ── States ────────────────────────────────────────────────────────────────────
+.props-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 80px 20px;
+  color: $text3;
+  text-align: center;
+
+  svg { opacity: 0.3; }
+  p { margin: 0; font-size: 15px; }
+
+  button {
+    padding: 8px 20px;
+    background: $surface2;
+    border: 1px solid $border;
+    border-radius: 8px;
+    color: $text2;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    &:hover { border-color: rgba($accent,.4); color: $text; }
+  }
+
+  &--error { color: #f85149; svg { opacity: 0.5; } }
+}
+
+// ── Pagination ────────────────────────────────────────────────────────────────
+.props-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+
+  span { font-size: 13px; color: $text2; }
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    background: $surface2;
+    border: 1px solid $border;
+    border-radius: 10px;
+    color: $text2;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+
+    &:hover:not(:disabled) { border-color: rgba($accent,.4); color: $text; }
+    &:disabled { opacity: 0.35; cursor: not-allowed; }
+  }
+}
+
+// ── Mobile filter overlay ─────────────────────────────────────────────────────
+.filter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 199;
+  display: flex;
+  align-items: flex-end;
+}

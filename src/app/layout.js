@@ -19,7 +19,7 @@ const SCHEMA_ORGANIZATION = JSON.stringify({
   url: APP_URL,
   logo: {
     '@type': 'ImageObject',
-    url: `${APP_URL}/logo.png`, // must be absolute URL
+    url: `https://i.postimg.cc/jd5wRf33/propnekt.png`, // must be absolute URL
     width: 512,
     height: 512
   },
@@ -103,7 +103,7 @@ export const metadata = {
     images: [
       {
         // FIX: absolute URL — relative URLs break WhatsApp, Slack, LinkedIn previews
-        url: `${APP_URL}/images/seo-banner.jpg`,
+        url: `https://i.postimg.cc/jd5wRf33/propnekt.png`,
         width: 1200,
         height: 630,
         alt: `${APP_NAME} – Find Properties in Nigeria`,
@@ -120,7 +120,7 @@ export const metadata = {
     creator: `@${APP_SLUG}`,
     title: `${APP_NAME} – Real Estate Solutions`,
     description: `${APP_DESC} Find your dream home with ${APP_NAME}. Buy, sell or rent properties easily.`,
-    images: [`${APP_URL}/images/seo-banner.jpg`] // FIX: absolute URL
+    images: [`https://i.postimg.cc/jd5wRf33/propnekt.png`] // FIX: absolute URL
   },
 
   // ─── Robots ─────────────────────────────────────────────────────────────────
@@ -139,16 +139,26 @@ export const metadata = {
   // ─── Icons ──────────────────────────────────────────────────────────────────
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/icon-16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/icon-32.png', sizes: '32x32', type: 'image/png' }
+      { url: 'https://i.postimg.cc/jd5wRf33/propnekt.png' },
+      {
+        url: 'https://i.postimg.cc/jd5wRf33/propnekt.png',
+        sizes: '16x16',
+        type: 'image/png'
+      },
+      {
+        url: 'https://i.postimg.cc/jd5wRf33/propnekt.png',
+        sizes: '32x32',
+        type: 'image/png'
+      }
     ],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+    apple: [
+      { url: 'https://i.postimg.cc/jd5wRf33/propnekt.png', sizes: '180x180' }
+    ],
     other: [
       {
         rel: 'mask-icon',
-        url: '/safari-pinned-tab.svg',
-        color: '#your-brand-color'
+        url: 'https://i.postimg.cc/jd5wRf33/propnekt.png',
+        color: '#000000'
       }
     ]
   },
