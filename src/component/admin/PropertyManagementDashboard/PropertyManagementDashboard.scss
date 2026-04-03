@@ -1,4 +1,5 @@
 /* PropertyManagementDashboard.scss — Dark admin theme */
+@use "sass:color";
 
 $bg:      #0d1117;
 $surface: #161b22;
@@ -174,7 +175,7 @@ $blue:    #58a6ff;
     &.pending { background: rgba($warning,0.12); color: $warning; }
     &.apps    { background: rgba($blue,0.12);    color: $blue; }
     &.rev     { background: rgba($accent,0.12);  color: $accent; }
-    &.conv    { background: rgba($mid,0.3);       color: lighten($accent,10%); }
+    &.conv    { background: rgba($mid,0.3);       color: color.scale($accent, $lightness: 23.0769230769%); }
   }
 
   .pm-stat-body {

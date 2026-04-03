@@ -1,4 +1,5 @@
 /* Finance.scss — Dark admin theme */
+@use "sass:color";
 
 $bg:      #0d1117;
 $surface: #161b22;
@@ -510,7 +511,7 @@ $orange:  #f0883e;
     background: $accent;
     color: $green;
     border-color: $accent;
-    &:hover:not(:disabled) { background: darken($accent, 8%); }
+    &:hover:not(:disabled) { background: color.scale($accent, $lightness: -14.1176470588%); }
   }
 
   &--ghost {
