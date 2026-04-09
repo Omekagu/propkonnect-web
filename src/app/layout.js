@@ -43,9 +43,6 @@ const SCHEMA_ORGANIZATION = JSON.stringify({
   ]
 })
 
-// ─── Schema 2: WebSite (Sitelinks Searchbox) ─────────────────────────────────
-// This is what makes Google show sub-links (like Booking.com's "Find a Flight",
-// "Book Now", etc.) and a search box beneath your result.
 const SCHEMA_WEBSITE = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'WebSite',

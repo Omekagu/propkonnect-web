@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Eye, EyeOff, AlertCircle, CheckCircle, Loader } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 import './register.scss'
 import { auth as authApi } from '@/libs/api'
 
@@ -17,6 +17,8 @@ const BUILDINGS = [
 ]
 
 const ARTISAN_SPECS = ['Plumbing','Electrical','Carpentry','Painting','HVAC','Roofing','Masonry','Landscaping','Cleaning','General Maintenance']
+const PROPERTY_INTERESTS = ['Apartment','House','Land','Commercial','Shortlet / Vacation','Hotel Room']
+const NIGERIAN_CITIES = ['Lagos','Abuja','Port Harcourt','Ibadan','Kano','Enugu','Benin City','Kaduna','Owerri','Uyo']
 
 export default function Register () {
   const [userType, setUserType] = useState(null)
@@ -37,11 +39,16 @@ export default function Register () {
   const [artisanData, setArtisanData] = useState({
     businessName: '', specialization: [], yearsOfExperience: '', serviceRadius: 50
   })
+  const [userData, setUserData] = useState({
+    lookingFor: 'rent', interests: [], preferredCity: '', maxBudget: ''
+  })
 
   const handle       = e => { const { name, value, type, checked } = e.target; setFormData(p => ({ ...p, [name]: type === 'checkbox' ? checked : value })) }
   const handleOwner  = e => { const { name, value } = e.target; setPropertyOwnerData(p => ({ ...p, [name]: value })) }
   const handleArtis  = e => { const { name, value } = e.target; setArtisanData(p => ({ ...p, [name]: value })) }
+  const handleUser   = e => { const { name, value } = e.target; setUserData(p => ({ ...p, [name]: value })) }
   const toggleSpec   = s  => setArtisanData(p => ({ ...p, specialization: p.specialization.includes(s) ? p.specialization.filter(x => x !== s) : [...p.specialization, s] }))
+  const toggleInterest = s => setUserData(p => ({ ...p, interests: p.interests.includes(s) ? p.interests.filter(x => x !== s) : [...p.interests, s] }))
 
   const validateBasic = () => {
     if (!formData.firstName.trim())                             { setError('First name is required'); return false }
@@ -71,6 +78,7 @@ export default function Register () {
     else if (step === 2) {
       if (userType === 'PROPERTY_OWNER' && validateOwner()) setStep(3)
       else if (userType === 'artisan' && validateArtisan()) setStep(3)
+      else if (userType === 'user') setStep(3) // preferences are optional
     }
   }
 
@@ -80,14 +88,19 @@ export default function Register () {
     e?.preventDefault()
     setError(''); setLoading(true)
     try {
-      const payload = userType === 'PROPERTY_OWNER'
-        ? { ...formData, ...propertyOwnerData }
-        : { ...formData, businessName: artisanData.businessName, specialization: artisanData.specialization, yearsOfExperience: artisanData.yearsOfExperience }
-      const res = userType === 'PROPERTY_OWNER' ? await authApi.registerPropertyOwner(payload) : await authApi.registerArtisan(payload)
+      let res
+      if (userType === 'PROPERTY_OWNER') {
+        res = await authApi.registerPropertyOwner({ ...formData, ...propertyOwnerData })
+      } else if (userType === 'artisan') {
+        res = await authApi.registerArtisan({ ...formData, businessName: artisanData.businessName, specialization: artisanData.specialization, yearsOfExperience: artisanData.yearsOfExperience })
+      } else {
+        res = await authApi.register({ ...formData, userType: 'user' })
+      }
+      const userId = res.data?.userId || res.data?.data?.userId || res.data?._id
       setSuccess(true)
-      setTimeout(() => { window.location.href = `/auth/verify-otp?email=${encodeURIComponent(formData.email)}&userId=${res.data.userId}` }, 2000)
+      setTimeout(() => { window.location.href = `/auth/verify-otp?email=${encodeURIComponent(formData.email)}${userId ? `&userId=${userId}` : ''}` }, 2000)
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Registration failed. Please try again.')
+      setError(err.response?.data?.message || err.response?.data?.msg || err.message || 'Registration failed. Please try again.')
     } finally { setLoading(false) }
   }
 
@@ -95,6 +108,8 @@ export default function Register () {
     ? ['List and manage properties', 'Collect rent with escrow protection', 'Find & hire trusted artisans']
     : userType === 'artisan'
     ? ['Browse and bid on available jobs', 'Manage your schedule & earnings', 'Build your verified portfolio']
+    : userType === 'user'
+    ? ['Find your perfect home to rent or buy', 'Book inspections instantly', 'Secure payments & lease contracts']
     : ['Find properties to rent or buy', 'Book inspections instantly', 'Secure payments & contracts']
 
   return (
@@ -139,6 +154,8 @@ export default function Register () {
                 ? 'Your Property Empire Starts Here'
                 : userType === 'artisan'
                 ? 'Build Your Professional Legacy'
+                : userType === 'user'
+                ? 'Find Your Perfect Home'
                 : 'Join Nigeria\'s Smartest Property Platform'}
             </h2>
             <p>
@@ -146,6 +163,8 @@ export default function Register () {
                 ? 'AI-powered tools that help you manage, grow, and monetise your property portfolio.'
                 : userType === 'artisan'
                 ? 'Connect with property owners, earn consistently, and build a verified track record.'
+                : userType === 'user'
+                ? 'Search thousands of verified properties, book inspections, and move in with confidence.'
                 : 'Buy, rent, and discover properties powered by AI, escrow, and real-time data.'}
             </p>
           </div>
@@ -170,10 +189,10 @@ export default function Register () {
 
             <div className='rp-header'>
               <h1 className='rp-h1'>
-                {!userType ? 'Create your account' : userType === 'PROPERTY_OWNER' ? 'Property Owner Registration' : 'Artisan Registration'}
+                {!userType ? 'Create your account' : userType === 'PROPERTY_OWNER' ? 'Property Owner Registration' : userType === 'user' ? 'Create Your Account' : 'Artisan Registration'}
               </h1>
               <p className='rp-sub'>
-                {!userType ? 'Choose your account type to get started' : userType === 'PROPERTY_OWNER' ? 'Register as a Property Owner' : 'Register as a Professional Artisan'}
+                {!userType ? 'Choose your account type to get started' : userType === 'PROPERTY_OWNER' ? 'Register as a Property Owner' : userType === 'user' ? 'Start your property search journey' : 'Register as a Professional Artisan'}
               </p>
             </div>
 
@@ -181,6 +200,15 @@ export default function Register () {
             {!userType && (
               <>
                 <div className='rp-types'>
+                  <button className='rp-type' onClick={() => { setUserType('user'); setStep(1) }}>
+                    <div className='rp-type__icon'>🏠</div>
+                    <div className='rp-type__text'>
+                      <h3>Tenant / Buyer</h3>
+                      <p>Find your perfect property to rent or buy</p>
+                    </div>
+                    <svg className='rp-type__arrow' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'><path d='M9 18l6-6-6-6'/></svg>
+                  </button>
+
                   <button className='rp-type' onClick={() => { setUserType('PROPERTY_OWNER'); setStep(1) }}>
                     <div className='rp-type__icon'>🏢</div>
                     <div className='rp-type__text'>
@@ -210,8 +238,8 @@ export default function Register () {
             {userType && (
               <>
                 <div className='rp-badge'>
-                  <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? '🏢' : '🔧'}</span>
-                  <span className='rp-badge__label'>{userType === 'PROPERTY_OWNER' ? 'Property Owner' : 'Artisan'}</span>
+                  <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? '🏢' : userType === 'user' ? '🏠' : '🔧'}</span>
+                  <span className='rp-badge__label'>{userType === 'PROPERTY_OWNER' ? 'Property Owner' : userType === 'user' ? 'Tenant / Buyer' : 'Artisan'}</span>
                   <button className='rp-badge__change' onClick={() => { setUserType(null); setStep(1); setError('') }}>Change</button>
                 </div>
 
@@ -286,7 +314,49 @@ export default function Register () {
                   {/* Step 2 — Type-specific */}
                   {step === 2 && (
                     <div className='rp-form-step'>
-                      <p className='rp-step-title'>{userType === 'PROPERTY_OWNER' ? 'Business Information' : 'Professional Information'}</p>
+                      <p className='rp-step-title'>
+                        {userType === 'PROPERTY_OWNER' ? 'Business Information' : userType === 'user' ? 'Housing Preferences' : 'Professional Information'}
+                      </p>
+
+                      {userType === 'user' && (
+                        <>
+                          <div className='rp-field'>
+                            <label className='rp-label'>What are you looking for?</label>
+                            <div className='rp-radio-group'>
+                              {[['rent','Looking to Rent'],['buy','Looking to Buy'],['both','Both']].map(([val, label]) => (
+                                <label key={val} className={`rp-radio${userData.lookingFor === val ? ' active' : ''}`}>
+                                  <input type='radio' name='lookingFor' value={val} checked={userData.lookingFor === val} onChange={handleUser} />
+                                  {label}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className='rp-field'>
+                            <label className='rp-label'>Property interests <span className='rp-optional'>(optional)</span></label>
+                            <div className='rp-chips'>
+                              {PROPERTY_INTERESTS.map(s => (
+                                <button key={s} type='button' className={`rp-chip${userData.interests.includes(s) ? ' active' : ''}`} onClick={() => toggleInterest(s)}>{s}</button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className='rp-field-row'>
+                            <div className='rp-field'>
+                              <label className='rp-label'>Preferred city <span className='rp-optional'>(optional)</span></label>
+                              <select className='rp-input' name='preferredCity' value={userData.preferredCity} onChange={handleUser}>
+                                <option value=''>Any city</option>
+                                {NIGERIAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                              </select>
+                            </div>
+                            <div className='rp-field'>
+                              <label className='rp-label'>Max budget (₦) <span className='rp-optional'>(optional)</span></label>
+                              <input className='rp-input' type='number' name='maxBudget' value={userData.maxBudget} onChange={handleUser} placeholder='e.g. 500000' min='0' />
+                            </div>
+                          </div>
+                          <p className='rp-hint-text'>These preferences help us personalise your property search. You can update them later.</p>
+                        </>
+                      )}
 
                       {userType === 'PROPERTY_OWNER' ? (
                         <>
@@ -356,29 +426,47 @@ export default function Register () {
                         </div>
                       </div>
 
-                      <div className='rp-review-section'>
-                        <h3>{userType === 'PROPERTY_OWNER' ? 'Business Details' : 'Professional Details'}</h3>
-                        <div className='rp-review-grid'>
-                          {userType === 'PROPERTY_OWNER' ? (
-                            <>
-                              <div className='rp-review-item'><span className='rp-review-label'>Company</span><span className='rp-review-value'>{propertyOwnerData.companyName}</span></div>
-                              <div className='rp-review-item'><span className='rp-review-label'>Years</span><span className='rp-review-value'>{propertyOwnerData.yearsInBusiness}</span></div>
-                              <div className='rp-review-item'><span className='rp-review-label'>Style</span><span className='rp-review-value'>{propertyOwnerData.managementStyle}</span></div>
-                            </>
-                          ) : (
-                            <>
-                              <div className='rp-review-item'><span className='rp-review-label'>Business</span><span className='rp-review-value'>{artisanData.businessName}</span></div>
-                              <div className='rp-review-item'><span className='rp-review-label'>Experience</span><span className='rp-review-value'>{artisanData.yearsOfExperience} yrs</span></div>
-                              <div className='rp-review-item span-full'>
-                                <span className='rp-review-label'>Specializations</span>
-                                <div className='rp-spec-tags'>
-                                  {artisanData.specialization.map(s => <span key={s} className='rp-spec-tag'>{s}</span>)}
+                      {userType !== 'user' && (
+                        <div className='rp-review-section'>
+                          <h3>{userType === 'PROPERTY_OWNER' ? 'Business Details' : 'Professional Details'}</h3>
+                          <div className='rp-review-grid'>
+                            {userType === 'PROPERTY_OWNER' ? (
+                              <>
+                                <div className='rp-review-item'><span className='rp-review-label'>Company</span><span className='rp-review-value'>{propertyOwnerData.companyName}</span></div>
+                                <div className='rp-review-item'><span className='rp-review-label'>Years</span><span className='rp-review-value'>{propertyOwnerData.yearsInBusiness}</span></div>
+                                <div className='rp-review-item'><span className='rp-review-label'>Style</span><span className='rp-review-value'>{propertyOwnerData.managementStyle}</span></div>
+                              </>
+                            ) : (
+                              <>
+                                <div className='rp-review-item'><span className='rp-review-label'>Business</span><span className='rp-review-value'>{artisanData.businessName}</span></div>
+                                <div className='rp-review-item'><span className='rp-review-label'>Experience</span><span className='rp-review-value'>{artisanData.yearsOfExperience} yrs</span></div>
+                                <div className='rp-review-item span-full'>
+                                  <span className='rp-review-label'>Specializations</span>
+                                  <div className='rp-spec-tags'>
+                                    {artisanData.specialization.map(s => <span key={s} className='rp-spec-tag'>{s}</span>)}
+                                  </div>
                                 </div>
-                              </div>
-                            </>
-                          )}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      )}
+                      {userType === 'user' && (userData.lookingFor || userData.interests.length > 0 || userData.preferredCity) && (
+                        <div className='rp-review-section'>
+                          <h3>Housing Preferences</h3>
+                          <div className='rp-review-grid'>
+                            <div className='rp-review-item'><span className='rp-review-label'>Looking to</span><span className='rp-review-value'>{userData.lookingFor === 'both' ? 'Rent & Buy' : userData.lookingFor === 'buy' ? 'Buy' : 'Rent'}</span></div>
+                            {userData.preferredCity && <div className='rp-review-item'><span className='rp-review-label'>City</span><span className='rp-review-value'>{userData.preferredCity}</span></div>}
+                            {userData.maxBudget && <div className='rp-review-item'><span className='rp-review-label'>Max Budget</span><span className='rp-review-value'>₦{Number(userData.maxBudget).toLocaleString()}</span></div>}
+                            {userData.interests.length > 0 && (
+                              <div className='rp-review-item span-full'>
+                                <span className='rp-review-label'>Interests</span>
+                                <div className='rp-spec-tags'>{userData.interests.map(s => <span key={s} className='rp-spec-tag'>{s}</span>)}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
