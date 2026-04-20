@@ -292,6 +292,15 @@ export default function LandingPage () {
 
   const closeMobile = () => setMobileMenuOpen(false)
 
+  // Detect mobile (for feed CTA)
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   const filteredListings =
     listingTab === 'all'
       ? properties
@@ -330,13 +339,13 @@ export default function LandingPage () {
           {/* Desktop links */}
           <div className='home-nav__links'>
             <a onClick={() => scrollTo('listings')}>Buy &amp; Rent</a>
-            <a href='/search?intent=shortlet'>Book </a>
-            <a
-              onClick={() => {
-                scrollTo('artisans')
-              }}
-            >
-              Artisans
+            <a href='/search?intent=shortlet'>Book</a>
+            <a onClick={() => scrollTo('artisans')}>Artisans</a>
+            <a href='/feed' className='home-nav__link--feed'>
+              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.2' style={{marginRight:4}}>
+                <rect x='2' y='3' width='20' height='14' rx='2'/><path d='M8 21h8M12 17v4'/>
+              </svg>
+              Feed
             </a>
             <a onClick={() => scrollTo('how-it-works')}>How It Works</a>
             <a href='/about'>About</a>
@@ -413,6 +422,9 @@ export default function LandingPage () {
           </div>
 
           <nav className='home-nav__drawer-links'>
+            <a href='/feed' onClick={closeMobile} className='home-nav__drawer-link--feed'>
+              <span className='home-nav__drawer-icon'>📱</span> Browse Feed
+            </a>
             <a href='/buy' onClick={closeMobile}>
               <span className='home-nav__drawer-icon'>🏠</span> Buy
             </a>
@@ -592,67 +604,26 @@ export default function LandingPage () {
                 <span>Search</span>
               </button>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ── Trust Strip ── */}
-      <div className='home-trust'>
-        <div className='home-trust__inner'>
-          <div className='home-trust__item'>
-            <span>✅</span>
-            <span>
-              <strong>Verified</strong> listings only
-            </span>
-          </div>
-          <div className='home-trust__item'>
-            <span>🔐</span>
-            <span>
-              <strong>Escrow</strong> on all payments
-            </span>
-          </div>
-          <div className='home-trust__item'>
-            <span>⭐</span>
-            <span>
-              <strong>{stats.avgRating || '4.9/5'}</strong> avg rating
-            </span>
-          </div>
-          <div className='home-trust__item'>
-            <span>🏘️</span>
-            <span>
-              <strong>{stats.activeListings || '10,000+'}</strong> active
-              listings
-            </span>
-          </div>
-          <div className='home-trust__item'>
-            <span>⚡</span>
-            <span>
-              <strong>Real-time</strong> chat &amp; booking
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Categories ── */}
-      <section className='home-cats'>
-        <div className='home-cats__inner'>
-          <h2 className='home-cats__title'>What are you looking for?</h2>
-          <div className='home-cats__grid'>
-            {CATEGORIES.map(cat => (
+            {/* Mobile feed CTA */}
+            <div className='home-search__feed-hint'>
+              <span>or</span>
               <button
-                key={cat.query}
-                className='home-cat'
-                onClick={() => router.push(`/search?type=${cat.query}`)}
+                className='home-search__feed-btn'
+                onClick={() => router.push('/feed')}
               >
-                <span className='home-cat__icon'>{cat.icon}</span>
-                <span className='home-cat__label'>{cat.label}</span>
+                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.2'>
+                  <rect x='2' y='3' width='20' height='14' rx='2'/>
+                  <path d='M8 21h8M12 17v4'/>
+                </svg>
+                Browse Feed
               </button>
-            ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Featured Listings ── */}
+      {/* ── Featured Listings (immediately after hero for browse-first UX) ── */}
       <section id='listings' className='home-listings'>
         <div className='home-listings__inner'>
           <div className='home-listings__header'>
@@ -766,6 +737,32 @@ export default function LandingPage () {
             >
               Explore All Properties →
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Trust Strip ── */}
+      <div className='home-trust'>
+        <div className='home-trust__inner'>
+          <div className='home-trust__item'><span>✅</span><span><strong>Verified</strong> listings only</span></div>
+          <div className='home-trust__item'><span>🔐</span><span><strong>Escrow</strong> on all payments</span></div>
+          <div className='home-trust__item'><span>⭐</span><span><strong>{stats.avgRating || '4.9/5'}</strong> avg rating</span></div>
+          <div className='home-trust__item'><span>🏘️</span><span><strong>{stats.activeListings || '10,000+'}</strong> active listings</span></div>
+          <div className='home-trust__item'><span>⚡</span><span><strong>Real-time</strong> chat &amp; booking</span></div>
+        </div>
+      </div>
+
+      {/* ── Categories ── */}
+      <section className='home-cats'>
+        <div className='home-cats__inner'>
+          <h2 className='home-cats__title'>What are you looking for?</h2>
+          <div className='home-cats__grid'>
+            {CATEGORIES.map(cat => (
+              <button key={cat.query} className='home-cat' onClick={() => router.push(`/search?type=${cat.query}`)}>
+                <span className='home-cat__icon'>{cat.icon}</span>
+                <span className='home-cat__label'>{cat.label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </section>

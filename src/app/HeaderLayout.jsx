@@ -10,7 +10,8 @@ export default function HeaderLayout ({ children }) {
     pathname?.startsWith('/user') ||
     pathname?.startsWith('/docs') ||
     pathname?.startsWith('/admin') ||
-    pathname?.startsWith('/auth')
+    pathname?.startsWith('/auth') ||
+    pathname?.startsWith('/feed')
 
   return (
     <>

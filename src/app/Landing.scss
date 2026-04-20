@@ -300,6 +300,31 @@ $font: var(--font);
     }
   }
 
+  &__link--feed {
+    display: inline-flex !important;
+    align-items: center;
+    padding: 4px 12px !important;
+    border-radius: 20px;
+    border: 1.5px solid rgba(196,229,60,0.3);
+    color: $accent !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    transition: all 0.15s !important;
+
+    &:hover {
+      background: rgba(196,229,60,0.1) !important;
+      border-color: $accent !important;
+    }
+  }
+
+  &__drawer-link--feed {
+    background: rgba(196,229,60,0.08);
+    border: 1.5px solid rgba(196,229,60,0.25);
+    border-radius: 10px;
+    color: $accent !important;
+    font-weight: 700 !important;
+  }
+
   &__actions {
     display: flex;
     gap: 0.6rem;
@@ -800,6 +825,42 @@ $font: var(--font);
       width: 100%;
       font-size: 1.05rem;
     }
+  }
+}
+
+// ── Feed hint inside hero search ─────────────────────────────
+.home-search__feed-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+
+  span {
+    font-size: 12px;
+    color: rgba(223,240,228,0.35);
+  }
+}
+
+.home-search__feed-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(196,229,60,0.35);
+  background: rgba(196,229,60,0.07);
+  color: $accent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: $font;
+
+  &:hover {
+    background: rgba(196,229,60,0.15);
+    border-color: $accent;
   }
 }
 

@@ -1,0 +1,505 @@
+// ── Property Feed — TikTok-style vertical snap scroll ──────────────────────
+// Tokens from global index.scss, local dark vars for media-first UI
+
+$bg: #000;
+$overlay-bottom: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 45%, transparent 100%);
+$overlay-top: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 60%);
+$accent: #C4E53C;
+$text: #fff;
+$text-2: rgba(255,255,255,0.75);
+$text-3: rgba(255,255,255,0.5);
+$surface: rgba(255,255,255,0.12);
+$surface-2: rgba(255,255,255,0.08);
+$radius: 14px;
+$header-h: 56px;
+
+@keyframes pf-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pf-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pf-hint-fade {
+  0%, 80% { opacity: 1; }
+  100%     { opacity: 0; pointer-events: none; }
+}
+
+// ── Shell ──────────────────────────────────────────────────────────────────
+.pf {
+  position: fixed;
+  inset: 0;
+  background: $bg;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--font, 'Inter', sans-serif);
+  color: $text;
+  z-index: 0;
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────
+.pf-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  height: $header-h;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+
+  &__back {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: $surface;
+    border: none;
+    color: $text;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: background 0.15s;
+
+    &:hover { background: rgba(255,255,255,0.2); }
+  }
+
+  &__filters {
+    flex: 1;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  &__search {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: $surface;
+    border: none;
+    color: $text;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: background 0.15s;
+
+    &:hover { background: rgba(255,255,255,0.2); }
+  }
+}
+
+.pf-filter {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  background: $surface;
+  color: $text-2;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &.active {
+    background: $accent;
+    border-color: $accent;
+    color: #0B3D28;
+    font-weight: 700;
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255,255,255,0.18);
+    color: $text;
+  }
+}
+
+// ── Feed container ─────────────────────────────────────────────────────────
+.pf-feed {
+  flex: 1;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+// ── Card ───────────────────────────────────────────────────────────────────
+.pf-card {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  background: #0a0a0a;
+
+  &.expanded .pf-info { transform: translateY(0); }
+}
+
+// ── Media ──────────────────────────────────────────────────────────────────
+.pf-card__media {
+  position: absolute;
+  inset: 0;
+}
+
+.pf-card__img,
+.pf-card__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pf-card__gradient {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 25%, transparent 40%, rgba(0,0,0,0.9) 100%),
+    linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 18%);
+  pointer-events: none;
+}
+
+// Image dots (multi-photo indicator)
+.pf-img-dots {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  z-index: 2;
+}
+.pf-img-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transition: background 0.2s;
+
+  &.active {
+    background: $accent;
+    width: 14px;
+    border-radius: 3px;
+  }
+}
+
+// ── Right action rail (TikTok-style) ───────────────────────────────────────
+.pf-rail {
+  position: absolute;
+  right: 14px;
+  bottom: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  z-index: 10;
+
+  &__btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: $text;
+    cursor: pointer;
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.6));
+    transition: transform 0.15s;
+
+    span {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    }
+
+    &:hover { transform: scale(1.1); }
+    &:active { transform: scale(0.95); }
+
+    &.saved { color: $accent; }
+
+    &--view {
+      background: $accent;
+      color: #0B3D28;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      padding: 0;
+      filter: none;
+      box-shadow: 0 2px 12px rgba(196,229,60,0.35);
+
+      span { display: none; }
+
+      svg { color: #0B3D28; }
+
+      &:hover { transform: scale(1.08); }
+    }
+  }
+}
+
+// ── Bottom info panel ──────────────────────────────────────────────────────
+.pf-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 0 16px 28px;
+  transform: translateY(0);
+  transition: padding 0.3s ease;
+  animation: pf-fade-up 0.35s ease both;
+  cursor: pointer;
+
+  &__drag {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 4px;
+    color: $text-3;
+
+    svg {
+      transition: transform 0.25s;
+      &.rotated { transform: rotate(180deg); }
+    }
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $accent;
+    background: rgba(0,0,0,0.35);
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: $text;
+    margin: 0 0 6px;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  }
+
+  &__loc {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: $text-2;
+    margin: 0 0 8px;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      color: $text-2;
+      background: $surface;
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+  }
+
+  &__price {
+    font-size: 22px;
+    font-weight: 800;
+    color: $accent;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    letter-spacing: -0.5px;
+  }
+
+  &--expanded {
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 100%);
+    backdrop-filter: blur(12px);
+    border-radius: $radius $radius 0 0;
+    padding-bottom: 40px;
+  }
+
+  &__extra {
+    margin-top: 14px;
+    animation: pf-fade-up 0.2s ease both;
+  }
+
+  &__desc {
+    font-size: 13px;
+    color: $text-2;
+    line-height: 1.55;
+    margin: 0 0 16px;
+  }
+
+  &__cta {
+    width: 100%;
+    padding: 14px;
+    background: $accent;
+    color: #0B3D28;
+    border: none;
+    border-radius: $radius;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+
+    &:hover { opacity: 0.9; }
+    &:active { transform: scale(0.98); }
+  }
+}
+
+// ── Purpose badge ──────────────────────────────────────────────────────────
+.pf-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  &--rent     { background: #1a3a5c; color: #74c0fc; }
+  &--sale     { background: #1a3a28; color: #69db7c; }
+  &--shortlet { background: #3a2a10; color: #fcc419; }
+}
+
+// ── Scroll progress bar ────────────────────────────────────────────────────
+.pf-progress {
+  position: absolute;
+  top: $header-h;
+  right: 4px;
+  width: 3px;
+  height: calc(100% - #{$header-h} - 20px);
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  z-index: 5;
+
+  &__bar {
+    width: 100%;
+    background: $accent;
+    border-radius: 2px;
+    transition: height 0.3s ease;
+    min-height: 6%;
+  }
+}
+
+// ── Loading / Empty ────────────────────────────────────────────────────────
+.pf-loading {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+  &__ring {
+    width: 44px;
+    height: 44px;
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: $accent;
+    border-radius: 50%;
+    animation: pf-spin 0.8s linear infinite;
+  }
+
+  p {
+    font-size: 14px;
+    color: $text-3;
+  }
+}
+
+.pf-empty {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: $text-3;
+
+  p { font-size: 16px; }
+
+  button {
+    padding: 10px 24px;
+    background: $accent;
+    color: #0B3D28;
+    border: none;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+// ── Swipe hint ─────────────────────────────────────────────────────────────
+.pf-hint {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  pointer-events: none;
+  animation: pf-hint-fade 3s ease 1.5s both;
+
+  span {
+    display: block;
+    padding: 6px 18px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    font-size: 12px;
+    color: $text-2;
+    white-space: nowrap;
+  }
+}
+
+// ── Desktop / tablet fallback ──────────────────────────────────────────────
+@media (min-width: 768px) {
+  .pf {
+    // On desktop show feed in a centered column
+    align-items: center;
+    background: #111;
+  }
+
+  .pf-header {
+    max-width: 430px;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    width: 430px;
+  }
+
+  .pf-feed {
+    width: 100%;
+    max-width: 430px;
+  }
+
+  .pf-hint { bottom: 40px; }
+}
