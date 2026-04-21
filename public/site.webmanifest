@@ -1,6 +1,6 @@
 {
-  "name": "PropNect",
-  "short_name": "PropNect",
+  "name": "propnekt",
+  "short_name": "propnekt",
   "description": "Find your dream home.",
   "start_url": "/",
   "display": "standalone",
