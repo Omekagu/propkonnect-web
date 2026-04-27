@@ -1,0 +1,74 @@
+// ── Shared Hub tab shell ──────────────────────────────────────────────────────
+.hub {
+  min-height: 100%;
+  background: #0d1117;
+  color: #e6edf3;
+  font-family: var(--font, 'Inter', sans-serif);
+
+  *, *::before, *::after { box-sizing: border-box; }
+}
+
+// ── Tab bar ───────────────────────────────────────────────────────────────────
+.hub-tabs {
+  display: flex;
+  gap: 0;
+  background: #161b22;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+
+  @media (max-width: 600px) { padding: 0 12px; }
+}
+
+.hub-tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #7d8590;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  user-select: none;
+
+  &:hover { color: #e6edf3; }
+
+  &.active {
+    color: #C4E53C;
+    border-bottom-color: #C4E53C;
+  }
+
+  &__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.07);
+    color: #7d8590;
+
+    .hub-tab.active & {
+      background: rgba(196,229,60,0.15);
+      color: #C4E53C;
+    }
+  }
+}
+
+// ── Tab panel ─────────────────────────────────────────────────────────────────
+.hub-panel {
+  // Inner components handle their own padding
+  min-height: calc(100vh - 100px);
+}

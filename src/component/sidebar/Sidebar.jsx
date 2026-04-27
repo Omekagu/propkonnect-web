@@ -424,81 +424,64 @@ export default function Sidebar ({
         ]
       },
 
-      // Tenant
+      // Tenant / User
       user: {
-        brand: `${process.env.NEXT_PUBLIC_APP_NAME} TENANT`,
+        brand: `${process.env.NEXT_PUBLIC_APP_NAME}`,
         nav: [
+          // ── Overview ──────────────────────────────────────────────
           {
             key: 'Dashboard',
             label: 'Dashboard',
-            icon: <LayoutDashboard strokeWidth={0.75} />
+            icon: <LayoutDashboard strokeWidth={0.75} />,
+            sectionTitle: 'Overview'
+          },
+          // ── My Activity ───────────────────────────────────────────
+          {
+            key: 'PropertyHub',
+            label: 'Property & Lease',
+            icon: <Home strokeWidth={0.75} />,
+            sectionTitle: 'My Activity'
           },
           {
-            key: 'KYCVerification',
-            label: 'Identity Verification',
-            icon: <ScanFace strokeWidth={0.75} />
-          },
-          {
-            key: 'MyLease',
-            label: 'My Lease',
-            icon: <ClipboardMinus strokeWidth={0.75} />
-          },
-          {
-            key: 'MyBookings',
-            label: 'My Bookings',
+            key: 'BookingsHub',
+            label: 'Bookings',
             icon: <Calendar strokeWidth={0.75} />
           },
           {
-            key: 'FindArtisan',
-            label: 'Find Artisans',
-            icon: <Search strokeWidth={0.75} />
+            key: 'Payments',
+            label: 'Payments',
+            icon: <Receipt strokeWidth={0.75} />
           },
           {
-            key: 'History',
-            label: 'History',
-            icon: <Star strokeWidth={0.75} />
+            key: 'Documents',
+            label: 'Documents',
+            icon: <FileText strokeWidth={0.75} />
           },
+          // ── Services ──────────────────────────────────────────────
           {
-            key: 'BookingCart',
-            label: 'Saved Bookings',
-            icon: <ShoppingCart strokeWidth={0.75} />
+            key: 'ServicesHub',
+            label: 'Services',
+            icon: <Wrench strokeWidth={0.75} />,
+            sectionTitle: 'Services'
           },
           {
             key: 'Messages',
             label: 'Messages',
             icon: <MessageSquare strokeWidth={0.75} />
           },
+          // ── Verification ──────────────────────────────────────────
           {
-            key: 'Maintenance',
-            label: 'Maintenance Requests',
-            icon: <Wrench strokeWidth={0.75} />
-          },
-          {
-            key: 'MyHome',
-            label: 'My Home',
-            icon: <Home strokeWidth={0.75} />
-          },
-          {
-            key: 'MyApplications',
-            label: 'My Applications',
-            icon: <ClipboardList strokeWidth={0.75} />
-          },
-          {
-            key: 'Payments',
-            label: 'Payments',
-            icon: <Receipt strokeWidth={0.75} />
+            key: 'KYCVerification',
+            label: 'Identity Verification',
+            icon: <ScanFace strokeWidth={0.75} />,
+            sectionTitle: 'Verification'
           }
         ],
         account: [
           {
-            key: 'Profile',
-            label: 'Profile',
-            icon: <UserCircle strokeWidth={0.75} />
-          },
-          {
             key: 'Settings',
-            label: 'Settings',
-            icon: <Cog strokeWidth={0.75} />
+            label: 'Profile & Settings',
+            icon: <UserCircle strokeWidth={0.75} />
           },
           {
             key: 'Help',
@@ -589,24 +572,28 @@ export default function Sidebar ({
 
         {/* === Menu Section === */}
         <div className='sidebar-section'>
-          <div className='section-title'>{!collapsed && 'MENU'}</div>
+          {!collapsed && <div className='section-title'>MENU</div>}
           <ul className='nav-list'>
             {roleBasedNavigation.nav.map(item => (
-              <li
-                key={item.key}
-                className={[
-                  'nav-item',
-                  activeKey === item.key ? 'active' : ''
-                ].join(' ')}
-              >
-                <p
-                  className='nav-link'
-                  onClick={() => handleClick(item.key)}
-                  title={collapsed ? item.label : undefined}
+              <li key={item.key}>
+                {item.sectionTitle && !collapsed && (
+                  <div className='nav-section-divider'>{item.sectionTitle}</div>
+                )}
+                <div
+                  className={[
+                    'nav-item',
+                    activeKey === item.key ? 'active' : ''
+                  ].join(' ')}
                 >
-                  <span className='icon'>{item.icon}</span>
-                  {!collapsed && <span className='label'>{item.label}</span>}
-                </p>
+                  <p
+                    className='nav-link'
+                    onClick={() => handleClick(item.key)}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <span className='icon'>{item.icon}</span>
+                    {!collapsed && <span className='label'>{item.label}</span>}
+                  </p>
+                </div>
               </li>
             ))}
           </ul>

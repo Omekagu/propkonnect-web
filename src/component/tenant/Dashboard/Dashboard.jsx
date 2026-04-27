@@ -3,260 +3,125 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { api } from '@/libs/api-client'
+import './Dashboard.scss'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fmt (n, cur = 'NGN') {
   if (n == null || n === 0) return '—'
   if (n >= 1_000_000) return `${cur} ${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000) return `${cur} ${(n / 1_000).toFixed(0)}K`
+  if (n >= 1_000)     return `${cur} ${(n / 1_000).toFixed(0)}K`
   return `${cur} ${Number(n).toLocaleString()}`
 }
 function fmtDate (d) {
   if (!d) return '—'
-  return new Date(d).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
-function countdown (targetDate) {
-  if (!targetDate) return null
-  const days = Math.ceil((new Date(targetDate) - Date.now()) / 86400000)
-  return days
+function fmtDateShort (d) {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
-
-const STATUS_COLORS = {
-  confirmed: '#16a34a',
-  active: '#2563eb',
-  pending_payment: '#d97706',
-  cancelled: '#dc2626',
-  checked_out: '#6b7280',
-  disputed: '#7c3aed',
-  pending: '#d97706',
-  approved: '#16a34a',
-  rejected: '#dc2626',
-  paid: '#0ea5e9',
-  scheduled: '#16a34a',
-  completed: '#6b7280',
-  funded: '#2563eb',
-  released: '#16a34a',
-  refunded: '#6b7280',
-  no_show: '#dc2626'
+function daysLeft (target) {
+  if (!target) return null
+  return Math.ceil((new Date(target) - Date.now()) / 86400000)
 }
-const STATUS_BG = {
-  confirmed: '#f0fdf4',
-  active: '#dbeafe',
-  pending_payment: '#fef3c7',
-  cancelled: '#fef2f2',
-  checked_out: '#f9fafb',
-  disputed: '#faf5ff',
-  pending: '#fef3c7',
-  approved: '#f0fdf4',
-  rejected: '#fef2f2',
-  paid: '#e0f2fe',
-  scheduled: '#f0fdf4',
-  completed: '#f9fafb',
-  funded: '#dbeafe',
-  released: '#f0fdf4',
-  refunded: '#f9fafb',
-  no_show: '#fef2f2'
+function initials (name = '') {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 }
 
+// ── Sub-components ────────────────────────────────────────────────────────────
 function Badge ({ status }) {
-  const label = status?.replace(/_/g, ' ') || '—'
+  const s = (status || '').toLowerCase().replace(/ /g, '_')
   return (
-    <span
-      style={{
-        display: 'inline-block',
-        padding: '2px 8px',
-        borderRadius: 99,
-        fontSize: 11,
-        fontWeight: 600,
-        textTransform: 'capitalize',
-        color: STATUS_COLORS[status] || '#374151',
-        background: STATUS_BG[status] || '#f3f4f6'
-      }}
-    >
-      {label}
+    <span className={`td-badge td-badge--${s}`}>
+      {(status || '—').replace(/_/g, ' ')}
     </span>
   )
 }
 
-function CountdownBadge ({ days, label }) {
+function Countdown ({ days, label }) {
   if (days == null) return null
-  const urgent = days <= 3
-  const warn = days <= 7
-  const color = urgent ? '#dc2626' : warn ? '#d97706' : '#2563eb'
-  const bg = urgent ? '#fef2f2' : warn ? '#fef3c7' : '#dbeafe'
-  const text = days < 0 ? 'Overdue' : days === 0 ? 'Today' : `${days}d`
+  const cls = days < 0 ? 'past' : days <= 2 ? 'urgent' : days <= 7 ? 'warn' : 'ok'
+  const txt = days < 0 ? 'Overdue' : days === 0 ? 'Today' : `${days}d`
   return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-        padding: '2px 8px',
-        borderRadius: 99,
-        fontSize: 11,
-        fontWeight: 700,
-        color,
-        background: bg
-      }}
-    >
-      ⏱ {text}
-      {label ? ` ${label}` : ''}
+    <span className={`td-cd td-cd--${cls}`}>
+      ⏱ {txt}{label ? ` ${label}` : ''}
     </span>
   )
 }
 
-// ── Section card ──────────────────────────────────────────────────────────────
-function Section ({ title, count, children, emptyMsg = 'No records found.' }) {
-  const [open, setOpen] = useState(true)
+function StatCard ({ icon, label, value, sub, variant = 'blue' }) {
   return (
-    <div
-      style={{
-        background: '#fff',
-        borderRadius: 12,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        marginBottom: '1rem',
-        overflow: 'hidden'
-      }}
-    >
-      <div
-        onClick={() => setOpen(o => !o)}
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '1rem 1.25rem',
-          cursor: 'pointer',
-          borderBottom: open ? '1px solid #f3f4f6' : 'none'
-        }}
-      >
-        <span style={{ fontWeight: 700, fontSize: 15, color: '#111' }}>
-          {title}
-          {count != null && (
-            <span
-              style={{
-                marginLeft: 8,
-                background: '#f3f4f6',
-                color: '#6b7280',
-                borderRadius: 99,
-                padding: '1px 8px',
-                fontSize: 12,
-                fontWeight: 600
-              }}
-            >
-              {count}
-            </span>
-          )}
-        </span>
-        <span style={{ color: '#9ca3af', fontSize: 18 }}>
-          {open ? '▲' : '▼'}
-        </span>
+    <div className={`td-stat td-stat--${variant}`}>
+      <div className='td-stat__icon'>{icon}</div>
+      <div className='td-stat__val'>{value ?? '0'}</div>
+      <div className='td-stat__label'>{label}</div>
+      {sub && <div className='td-stat__sub'>{sub}</div>}
+    </div>
+  )
+}
+
+function Section ({ icon, iconBg, title, count, cols, children, empty }) {
+  const [open, setOpen] = useState(true)
+  const hasItems = count > 0
+  return (
+    <div className='td-section'>
+      <div className='td-section__hd' onClick={() => setOpen(o => !o)}>
+        <div className='td-section__hd-left'>
+          <div className='td-section__icon' style={{ background: iconBg }}>{icon}</div>
+          <span className='td-section__title'>{title}</span>
+          <span className='td-section__count'>{count}</span>
+        </div>
+        <span className={`td-section__chevron${open ? ' open' : ''}`}>▼</span>
       </div>
       {open && (
-        <div style={{ padding: '0.75rem 1.25rem 1rem' }}>
-          {children || (
-            <p style={{ color: '#9ca3af', fontSize: 13, margin: 0 }}>
-              {emptyMsg}
-            </p>
-          )}
-        </div>
+        hasItems ? (
+          <div className='td-section__body'>{children}</div>
+        ) : (
+          <div className='td-section__empty'>{empty || 'No records yet.'}</div>
+        )
       )}
     </div>
   )
 }
 
-// ── Stat card ──────────────────────────────────────────────────────────────────
-function StatCard ({
-  icon,
-  label,
-  value,
-  sub,
-  bg = '#f3f4f6',
-  color = '#2563eb'
-}) {
+// Generic grid table row
+function TRow ({ style, values }) {
   return (
-    <div
-      style={{
-        background: '#fff',
-        borderRadius: 12,
-        padding: '1.1rem 1.25rem',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14
-      }}
-    >
-      <div
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 10,
-          background: bg,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 22,
-          flexShrink: 0
-        }}
-      >
-        {icon}
-      </div>
-      <div>
-        <div
-          style={{
-            fontSize: '1.3rem',
-            fontWeight: 700,
-            color: '#111',
-            lineHeight: 1.2
-          }}
-        >
-          {value}
-        </div>
-        <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
-          {label}
-        </div>
-        {sub && (
-          <div style={{ fontSize: 11, color: color, marginTop: 2 }}>{sub}</div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ── Table row ─────────────────────────────────────────────────────────────────
-function Row ({ cols }) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        gap: '0.5rem',
-        padding: '7px 0',
-        borderBottom: '1px solid #f3f4f6',
-        fontSize: 13,
-        alignItems: 'center',
-        flexWrap: 'wrap'
-      }}
-    >
-      {cols.map((c, i) => (
-        <div
-          key={i}
-          style={{
-            flex: c.flex || 1,
-            color: c.muted ? '#6b7280' : '#111',
-            minWidth: c.min || 60
-          }}
-        >
-          {c.value}
-        </div>
+    <div className='td-row' style={{ gridTemplateColumns: style }}>
+      {values.map((v, i) => (
+        <div key={i} className={`td-cell${v.muted ? ' td-cell--muted' : ''}`}>{v.v}</div>
       ))}
     </div>
   )
 }
+function THead ({ style, labels }) {
+  return (
+    <div className='td-table-head' style={{ gridTemplateColumns: style }}>
+      {labels.map((l, i) => <div key={i} className='td-th'>{l}</div>)}
+    </div>
+  )
+}
 
-// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+function Skeleton () {
+  return (
+    <div className='td td-skel'>
+      <div className='td-skel-hero' />
+      <div className='td-skel-grid'>
+        {[90, 90, 90, 90, 90, 90].map((h, i) => (
+          <div key={i} className='td-skel-block' style={{ height: h }} />
+        ))}
+      </div>
+      <div className='td-skel-rows'>
+        <div className='td-skel-row' />
+        <div className='td-skel-row' />
+        <div className='td-skel-row' />
+      </div>
+    </div>
+  )
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
 export default function TenantDashboard () {
   const { user } = useAuth()
   const [data, setData] = useState(null)
@@ -271,567 +136,305 @@ export default function TenantDashboard () {
       if (res.data.success) setData(res.data)
       else setError(res.data.message || 'Failed to load')
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not load dashboard data')
+      setError(err.response?.data?.message || 'Could not load dashboard')
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
+  useEffect(() => { fetchData() }, [fetchData])
 
-  if (loading)
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-        <div style={{ fontSize: 32, marginBottom: 8 }}>⏳</div>
-        Loading your dashboard…
+  if (loading) return <Skeleton />
+
+  if (error) return (
+    <div className='td'>
+      <div className='td-err'>
+        <div className='td-err__ico'>⚠️</div>
+        <div className='td-err__msg'>{error}</div>
+        <button className='td-err__btn' onClick={fetchData}>Retry</button>
       </div>
-    )
+    </div>
+  )
 
-  if (error)
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <div style={{ color: '#dc2626', marginBottom: 12 }}>⚠️ {error}</div>
-        <button
-          onClick={fetchData}
-          style={{
-            padding: '8px 20px',
-            background: '#0B3D28',
-            color: '#fff',
-            borderRadius: 8,
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          Retry
-        </button>
-      </div>
-    )
-
-  const s = data?.stats || {}
-  const bookings = data?.bookings || []
-  const escrows = data?.escrows || []
-  const inspections = data?.inspections || []
-  const leases = data?.leases || []
+  const s            = data?.stats || {}
+  const bookings     = data?.bookings || []
+  const escrows      = data?.escrows || []
+  const inspections  = data?.inspections || []
+  const leases       = data?.leases || []
   const applications = data?.applications || []
   const transactions = data?.transactions || []
-  const bkCounts = data?.bookingCountdowns || []
-  const lsCounts = data?.leaseCountdowns || []
-  const insCounts = data?.inspectionCountdowns || []
-  const payout = data?.payout || {}
+  const bkCounts     = data?.bookingCountdowns || []
+  const lsCounts     = data?.leaseCountdowns || []
+  const insCounts    = data?.inspectionCountdowns || []
+  const payout       = data?.payout || {}
 
-  const firstName = user?.firstName || 'User'
+  const firstName    = user?.firstName || 'User'
+  const fullName     = `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
+  const totalPaid    = transactions.filter(t => t.status === 'completed').reduce((a, t) => a + (t.amount || 0), 0)
+  const upcomingCount = bkCounts.length + lsCounts.length + insCounts.length
+
+  // Cols configs
+  const bookingCols = '2fr 1fr 1fr 1fr 1fr'
+  const appCols     = '2fr 1fr 1fr 1fr'
+  const leaseCols   = '2fr 1fr 1fr 1fr 1fr'
+  const inspCols    = '2fr 1fr 1fr 1fr 1fr'
+  const escrowCols  = '1fr 1fr 1fr 1fr 1fr'
+  const txCols      = '1fr 1fr 1fr 1fr'
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: 900, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h2
-          style={{
-            fontSize: '1.4rem',
-            fontWeight: 700,
-            color: '#111',
-            margin: '0 0 4px'
-          }}
-        >
-          Welcome back, {firstName}!
-        </h2>
-        <p style={{ color: '#6b7280', fontSize: 14, margin: 0 }}>
-          Your activity overview
-        </p>
-      </div>
+    <div className='td'>
 
-      {/* Stats grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: '0.75rem',
-          marginBottom: '1.5rem'
-        }}
-      >
-        <StatCard
-          icon='🏠'
-          label='Bookings'
-          value={s.bookings ?? 0}
-          bg='#dbeafe'
-          color='#2563eb'
-        />
-        <StatCard
-          icon='📋'
-          label='Applications'
-          value={s.applications ?? 0}
-          bg='#fef3c7'
-          color='#d97706'
-          sub={
-            s.applications
-              ? `${data?.applicationSummary?.approved ?? 0} approved`
-              : null
-          }
-        />
-        <StatCard
-          icon='📜'
-          label='Active Leases'
-          value={s.activeLeases ?? 0}
-          bg='#f0fdf4'
-          color='#16a34a'
-        />
-        <StatCard
-          icon='🔍'
-          label='Inspections'
-          value={s.inspections ?? 0}
-          bg='#ede9fe'
-          color='#7c3aed'
-        />
-        <StatCard
-          icon='🔒'
-          label='Escrows'
-          value={s.escrows ?? 0}
-          bg='#fff7ed'
-          color='#ea580c'
-        />
-        <StatCard
-          icon='💰'
-          label='Wallet'
-          value={fmt(payout.walletBalance)}
-          bg='#f0fdf4'
-          color='#16a34a'
-          sub={payout.walletBalance > 0 ? 'Available for payout' : null}
-        />
-      </div>
-
-      {/* ── Upcoming Countdowns ─────────────────────────────────────────────── */}
-      {(bkCounts.length > 0 || lsCounts.length > 0 || insCounts.length > 0) && (
-        <Section
-          title='⏱ Upcoming & Active'
-          count={bkCounts.length + lsCounts.length + insCounts.length}
-        >
-          {bkCounts.map(b => (
-            <div
-              key={b.bookingId}
-              style={{
-                padding: '8px 0',
-                borderBottom: '1px solid #f3f4f6',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 8,
-                flexWrap: 'wrap'
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 13 }}>
-                  🏨 {b.propertyTitle}
-                </div>
-                <div style={{ fontSize: 12, color: '#6b7280' }}>
-                  Check-in: {fmtDate(b.checkIn)} · Check-out:{' '}
-                  {fmtDate(b.checkOut)} · {b.nights} night
-                  {b.nights !== 1 ? 's' : ''}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                <Badge status={b.status} />
-                {b.isActive ? (
-                  <CountdownBadge days={b.daysToCheckOut} label='to checkout' />
-                ) : (
-                  !b.isPast && (
-                    <CountdownBadge
-                      days={b.daysToCheckIn}
-                      label='to check-in'
-                    />
-                  )
-                )}
-              </div>
-            </div>
-          ))}
-          {lsCounts.map(l => (
-            <div
-              key={l.leaseId}
-              style={{
-                padding: '8px 0',
-                borderBottom: '1px solid #f3f4f6',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 8,
-                flexWrap: 'wrap'
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 13 }}>
-                  📜 {l.propertyTitle}
-                </div>
-                <div style={{ fontSize: 12, color: '#6b7280' }}>
-                  Rent due: {fmtDate(l.nextDueDate)} · {fmt(l.nextDueAmount)}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <Badge status={l.isOverdue ? 'cancelled' : 'active'} />
-                <CountdownBadge
-                  days={l.daysUntilDue}
-                  label={l.isOverdue ? 'overdue' : 'until due'}
-                />
-              </div>
-            </div>
-          ))}
-          {insCounts.map(i => (
-            <div
-              key={i.inspectionId}
-              style={{
-                padding: '8px 0',
-                borderBottom: '1px solid #f3f4f6',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 8,
-                flexWrap: 'wrap'
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 13 }}>
-                  🔍 {i.propertyTitle}
-                </div>
-                <div style={{ fontSize: 12, color: '#6b7280' }}>
-                  Inspection: {fmtDate(i.confirmedDate)}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <Badge status='scheduled' />
-                <CountdownBadge days={i.daysUntil} label='away' />
-              </div>
-            </div>
-          ))}
-        </Section>
-      )}
-
-      {/* ── Bookings ─────────────────────────────────────────────────────────── */}
-      <Section
-        title='🏨 My Bookings'
-        count={bookings.length}
-        emptyMsg='No bookings yet. Book a shortlet or hotel to get started.'
-      >
-        {bookings.length > 0 && (
-          <>
-            <Row
-              cols={[
-                { value: 'Property', flex: 2, muted: true },
-                { value: 'Check-in', flex: 1, muted: true },
-                { value: 'Check-out', flex: 1, muted: true },
-                { value: 'Amount', flex: 1, muted: true },
-                { value: 'Status', flex: 1, muted: true }
-              ]}
-            />
-            {bookings.map(b => (
-              <Row
-                key={b._id}
-                cols={[
-                  { value: b.property?.title || '—', flex: 2 },
-                  { value: fmtDate(b.checkIn), flex: 1, muted: true },
-                  { value: fmtDate(b.checkOut), flex: 1, muted: true },
-                  {
-                    value: fmt(b.payment?.total, b.payment?.currency),
-                    flex: 1
-                  },
-                  { value: <Badge status={b.status} />, flex: 1 }
-                ]}
-              />
-            ))}
-          </>
-        )}
-      </Section>
-
-      {/* ── Property Applications ─────────────────────────────────────────────── */}
-      <Section
-        title='📋 My Applications'
-        count={applications.length}
-        emptyMsg='No property applications yet.'
-      >
-        {applications.length > 0 && (
-          <>
-            <Row
-              cols={[
-                { value: 'Property', flex: 2, muted: true },
-                { value: 'Type', flex: 1, muted: true },
-                { value: 'Applied', flex: 1, muted: true },
-                { value: 'Status', flex: 1, muted: true }
-              ]}
-            />
-            {applications.map(a => (
-              <Row
-                key={a._id}
-                cols={[
-                  { value: a.propertyId?.title || '—', flex: 2 },
-                  { value: a.applicationType || '—', flex: 1, muted: true },
-                  { value: fmtDate(a.createdAt), flex: 1, muted: true },
-                  { value: <Badge status={a.status} />, flex: 1 }
-                ]}
-              />
-            ))}
-          </>
-        )}
-      </Section>
-
-      {/* ── Leases ────────────────────────────────────────────────────────────── */}
-      <Section
-        title='📜 My Leases'
-        count={leases.length}
-        emptyMsg='No active leases.'
-      >
-        {leases.length > 0 && (
-          <>
-            <Row
-              cols={[
-                { value: 'Property', flex: 2, muted: true },
-                { value: 'Start', flex: 1, muted: true },
-                { value: 'End', flex: 1, muted: true },
-                { value: 'Rent', flex: 1, muted: true },
-                { value: 'Status', flex: 1, muted: true }
-              ]}
-            />
-            {leases.map(l => {
-              const nextDue = (l.installments || []).find(
-                i => i.status === 'pending' || i.status === 'overdue'
-              )
-              const daysLeft = countdown(l.endDate)
-              return (
-                <Row
-                  key={l._id}
-                  cols={[
-                    { value: l.property?.title || '—', flex: 2 },
-                    { value: fmtDate(l.startDate), flex: 1, muted: true },
-                    {
-                      value: (
-                        <span>
-                          {fmtDate(l.endDate)}{' '}
-                          {daysLeft != null && daysLeft <= 30 ? (
-                            <CountdownBadge days={daysLeft} label='left' />
-                          ) : null}
-                        </span>
-                      ),
-                      flex: 1
-                    },
-                    {
-                      value: (
-                        <span>
-                          {fmt(l.rentAmount)}
-                          {nextDue ? (
-                            <span style={{ marginLeft: 6 }}>
-                              <CountdownBadge
-                                days={countdown(nextDue.dueDate)}
-                                label='due'
-                              />
-                            </span>
-                          ) : null}
-                        </span>
-                      ),
-                      flex: 1
-                    },
-                    { value: <Badge status={l.status} />, flex: 1 }
-                  ]}
-                />
-              )
-            })}
-          </>
-        )}
-      </Section>
-
-      {/* ── Inspection Requests ───────────────────────────────────────────────── */}
-      <Section
-        title='🔍 Inspection Requests'
-        count={inspections.length}
-        emptyMsg='No inspection requests yet.'
-      >
-        {inspections.length > 0 && (
-          <>
-            <Row
-              cols={[
-                { value: 'Property', flex: 2, muted: true },
-                { value: 'Preferred Date', flex: 1, muted: true },
-                { value: 'Confirmed Date', flex: 1, muted: true },
-                { value: 'Fee', flex: 1, muted: true },
-                { value: 'Status', flex: 1, muted: true }
-              ]}
-            />
-            {inspections.map(i => {
-              const daysToInspection = i.confirmedDate
-                ? countdown(i.confirmedDate)
-                : null
-              return (
-                <Row
-                  key={i._id}
-                  cols={[
-                    { value: i.property?.title || '—', flex: 2 },
-                    { value: fmtDate(i.preferredDate), flex: 1, muted: true },
-                    {
-                      value: (
-                        <span>
-                          {fmtDate(i.confirmedDate)}{' '}
-                          {daysToInspection != null && daysToInspection >= 0 ? (
-                            <CountdownBadge
-                              days={daysToInspection}
-                              label='away'
-                            />
-                          ) : null}
-                        </span>
-                      ),
-                      flex: 1
-                    },
-                    { value: fmt(i.fee?.amount), flex: 1, muted: true },
-                    { value: <Badge status={i.status} />, flex: 1 }
-                  ]}
-                />
-              )
-            })}
-          </>
-        )}
-      </Section>
-
-      {/* ── Escrows ──────────────────────────────────────────────────────────── */}
-      <Section
-        title='🔒 My Escrows'
-        count={escrows.length}
-        emptyMsg='No escrow transactions.'
-      >
-        {escrows.length > 0 && (
-          <>
-            <Row
-              cols={[
-                { value: 'Type', flex: 1, muted: true },
-                { value: 'Amount', flex: 1, muted: true },
-                { value: 'Payee', flex: 1, muted: true },
-                { value: 'Date', flex: 1, muted: true },
-                { value: 'Status', flex: 1, muted: true }
-              ]}
-            />
-            {escrows.map(e => (
-              <Row
-                key={e._id}
-                cols={[
-                  { value: e.type || '—', flex: 1 },
-                  { value: fmt(e.amount, e.currency), flex: 1 },
-                  {
-                    value: e.payee
-                      ? `${e.payee.firstName} ${e.payee.lastName}`
-                      : '—',
-                    flex: 1,
-                    muted: true
-                  },
-                  { value: fmtDate(e.createdAt), flex: 1, muted: true },
-                  { value: <Badge status={e.status} />, flex: 1 }
-                ]}
-              />
-            ))}
-          </>
-        )}
-      </Section>
-
-      {/* ── Payments / Transactions ──────────────────────────────────────────── */}
-      <Section
-        title='💳 Payments'
-        count={transactions.length}
-        emptyMsg='No payment history.'
-      >
-        {transactions.length > 0 && (
-          <>
-            <Row
-              cols={[
-                { value: 'Type', flex: 1, muted: true },
-                { value: 'Amount', flex: 1, muted: true },
-                { value: 'Date', flex: 1, muted: true },
-                { value: 'Status', flex: 1, muted: true }
-              ]}
-            />
-            {transactions.map(t => (
-              <Row
-                key={t._id}
-                cols={[
-                  { value: t.type || '—', flex: 1 },
-                  { value: fmt(t.amount, t.currency), flex: 1 },
-                  { value: fmtDate(t.createdAt), flex: 1, muted: true },
-                  { value: <Badge status={t.status} />, flex: 1 }
-                ]}
-              />
-            ))}
-          </>
-        )}
-      </Section>
-
-      {/* ── Wallet / Payout ──────────────────────────────────────────────────── */}
-      {payout.walletBalance > 0 && (
-        <div
-          style={{
-            background: '#f0fdf4',
-            border: '1px solid #bbf7d0',
-            borderRadius: 12,
-            padding: '1rem 1.25rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: 12
-          }}
-        >
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 15, color: '#166534' }}>
-              💰 Wallet Balance
-            </div>
-            <div
-              style={{
-                fontSize: '1.4rem',
-                fontWeight: 700,
-                color: '#16a34a',
-                marginTop: 4
-              }}
-            >
-              {fmt(payout.walletBalance, payout.currency)}
-            </div>
-            <div style={{ fontSize: 12, color: '#4ade80', marginTop: 2 }}>
-              Available in your propnekt wallet (caution fee refunds, credits)
-            </div>
+      {/* ── Hero ── */}
+      <div className='td-hero'>
+        <div className='td-hero-top'>
+          <div className='td-avatar'>{initials(fullName) || '👤'}</div>
+          <div className='td-hero-text'>
+            <h2 className='td-hero-name'>Hey, {firstName}! 👋</h2>
+            <p className='td-hero-sub'>Here's what's happening with your properties</p>
           </div>
-          <div style={{ fontSize: 12, color: '#166534' }}>
-            Contact support to request a bank transfer →
+          <div className='td-hero-live'>LIVE</div>
+        </div>
+
+        {/* Mini stat strip */}
+        <div className='td-hero-stats'>
+          <div className='td-hero-stat'>
+            <div className='td-hero-stat__val'>{s.bookings ?? 0}</div>
+            <div className='td-hero-stat__label'>Bookings</div>
+          </div>
+          <div className='td-hero-stat'>
+            <div className='td-hero-stat__val'>{s.activeLeases ?? 0}</div>
+            <div className='td-hero-stat__label'>Leases</div>
+          </div>
+          <div className='td-hero-stat'>
+            <div className='td-hero-stat__val'>{s.inspections ?? 0}</div>
+            <div className='td-hero-stat__label'>Inspections</div>
+          </div>
+          <div className='td-hero-stat'>
+            <div className='td-hero-stat__val'>{upcomingCount}</div>
+            <div className='td-hero-stat__label'>Upcoming</div>
+          </div>
+          <div className='td-hero-stat'>
+            <div className='td-hero-stat__val'>
+              {payout.walletBalance > 0 ? fmt(payout.walletBalance) : '—'}
+            </div>
+            <div className='td-hero-stat__label'>Wallet</div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* ── Total spent (from transaction history) ───────────────────────────── */}
-      {(() => {
-        const paid = transactions.filter(t => t.status === 'completed')
-        const total = paid.reduce((s, t) => s + (t.amount || 0), 0)
-        if (!total) return null
-        return (
-          <div
-            style={{
-              background: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: 12,
-              padding: '1rem 1.25rem',
-              marginTop: '0.75rem'
-            }}
-          >
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: 14,
-                color: '#374151',
-                marginBottom: 4
-              }}
-            >
-              📊 Total Payments Made
+      <div className='td-body'>
+
+        {/* ── Stats bento grid ── */}
+        <div className='td-section-label'>Overview</div>
+        <div className='td-stats'>
+          <StatCard icon='🏨' label='Total Bookings' value={s.bookings ?? 0} variant='blue' />
+          <StatCard icon='📋' label='Applications' value={s.applications ?? 0}
+            sub={s.applications ? `${data?.applicationSummary?.approved ?? 0} approved` : null}
+            variant='amber' />
+          <StatCard icon='📜' label='Active Leases' value={s.activeLeases ?? 0} variant='green' />
+          <StatCard icon='🔍' label='Inspections' value={s.inspections ?? 0} variant='purple' />
+          <StatCard icon='🔒' label='Escrows' value={s.escrows ?? 0} variant='orange' />
+          <StatCard icon='💰' label='Wallet'
+            value={payout.walletBalance > 0 ? fmt(payout.walletBalance) : '—'}
+            sub={payout.walletBalance > 0 ? 'Available balance' : 'No balance'}
+            variant='lime' />
+        </div>
+
+        {/* ── Wallet card ── */}
+        {payout.walletBalance > 0 && (
+          <>
+            <div className='td-section-label'>Wallet</div>
+            <div className='td-wallet'>
+              <div>
+                <div className='td-wallet__label'>Propnect Wallet Balance</div>
+                <div className='td-wallet__amount'>{fmt(payout.walletBalance, payout.currency || 'NGN')}</div>
+                <div className='td-wallet__note'>Caution fee refunds & credits</div>
+              </div>
+              <span className='td-wallet__cta'>Contact Support →</span>
             </div>
-            <div
-              style={{ fontSize: '1.3rem', fontWeight: 700, color: '#374151' }}
-            >
-              {fmt(total, 'NGN')}
+          </>
+        )}
+
+        {/* ── Upcoming timeline ── */}
+        {upcomingCount > 0 && (
+          <>
+            <div className='td-section-label'>Upcoming & Active</div>
+            <div className='td-events'>
+              {bkCounts.map(b => {
+                const days = b.isActive ? daysLeft(b.checkOut) : daysLeft(b.checkIn)
+                const urgent = days != null && days <= 2
+                const warn   = days != null && days <= 7
+                return (
+                  <div key={b.bookingId} className={`td-event td-event--booking${urgent ? ' td-event--urgent' : warn ? ' td-event--warn' : ''}`}>
+                    <div className='td-event__dot'>🏨</div>
+                    <div className='td-event__body'>
+                      <div className='td-event__title'>{b.propertyTitle}</div>
+                      <div className='td-event__meta'>
+                        {fmtDateShort(b.checkIn)} → {fmtDateShort(b.checkOut)} · {b.nights} night{b.nights !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    <div className='td-event__right'>
+                      <Badge status={b.status} />
+                      <Countdown days={days} label={b.isActive ? 'to checkout' : 'to check-in'} />
+                    </div>
+                  </div>
+                )
+              })}
+              {lsCounts.map(l => {
+                const days = l.daysUntilDue
+                return (
+                  <div key={l.leaseId} className={`td-event td-event--lease${l.isOverdue ? ' td-event--urgent' : days <= 7 ? ' td-event--warn' : ''}`}>
+                    <div className='td-event__dot'>📜</div>
+                    <div className='td-event__body'>
+                      <div className='td-event__title'>{l.propertyTitle}</div>
+                      <div className='td-event__meta'>Rent due {fmtDate(l.nextDueDate)} · {fmt(l.nextDueAmount)}</div>
+                    </div>
+                    <div className='td-event__right'>
+                      <Badge status={l.isOverdue ? 'cancelled' : 'active'} />
+                      <Countdown days={days} label={l.isOverdue ? 'overdue' : 'until due'} />
+                    </div>
+                  </div>
+                )
+              })}
+              {insCounts.map(i => (
+                <div key={i.inspectionId} className='td-event td-event--insp'>
+                  <div className='td-event__dot'>🔍</div>
+                  <div className='td-event__body'>
+                    <div className='td-event__title'>{i.propertyTitle}</div>
+                    <div className='td-event__meta'>Inspection: {fmtDate(i.confirmedDate)}</div>
+                  </div>
+                  <div className='td-event__right'>
+                    <Badge status='scheduled' />
+                    <Countdown days={i.daysUntil} label='away' />
+                  </div>
+                </div>
+              ))}
             </div>
-            <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>
-              {paid.length} completed transaction{paid.length !== 1 ? 's' : ''}
+          </>
+        )}
+
+        {/* ── Sections ── */}
+        <div className='td-section-label'>Activity</div>
+
+        {/* Bookings */}
+        <Section icon='🏨' iconBg='rgba(59,130,246,0.12)' title='My Bookings'
+          count={bookings.length} empty='No bookings yet. Book a shortlet or hotel to get started.'>
+          <THead style={bookingCols} labels={['Property', 'Check-in', 'Check-out', 'Amount', 'Status']} />
+          {bookings.map(b => (
+            <TRow key={b._id} style={bookingCols} values={[
+              { v: b.property?.title || '—' },
+              { v: fmtDate(b.checkIn),  muted: true },
+              { v: fmtDate(b.checkOut), muted: true },
+              { v: fmt(b.payment?.total, b.payment?.currency) },
+              { v: <Badge status={b.status} /> }
+            ]} />
+          ))}
+        </Section>
+
+        {/* Applications */}
+        <Section icon='📋' iconBg='rgba(245,158,11,0.12)' title='My Applications'
+          count={applications.length} empty='No property applications yet.'>
+          <THead style={appCols} labels={['Property', 'Type', 'Applied', 'Status']} />
+          {applications.map(a => (
+            <TRow key={a._id} style={appCols} values={[
+              { v: a.propertyId?.title || '—' },
+              { v: a.applicationType || '—', muted: true },
+              { v: fmtDate(a.createdAt),      muted: true },
+              { v: <Badge status={a.status} /> }
+            ]} />
+          ))}
+        </Section>
+
+        {/* Leases */}
+        <Section icon='📜' iconBg='rgba(34,197,94,0.12)' title='My Leases'
+          count={leases.length} empty='No active leases.'>
+          <THead style={leaseCols} labels={['Property', 'Start', 'End', 'Rent', 'Status']} />
+          {leases.map(l => {
+            const nextDue  = (l.installments || []).find(i => i.status === 'pending' || i.status === 'overdue')
+            const endDays  = daysLeft(l.endDate)
+            return (
+              <TRow key={l._id} style={leaseCols} values={[
+                { v: l.property?.title || '—' },
+                { v: fmtDate(l.startDate), muted: true },
+                { v: <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {fmtDate(l.endDate)}
+                  {endDays != null && endDays <= 30 && <Countdown days={endDays} label='left' />}
+                </span> },
+                { v: <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {fmt(l.rentAmount)}
+                  {nextDue && <Countdown days={daysLeft(nextDue.dueDate)} label='due' />}
+                </span> },
+                { v: <Badge status={l.status} /> }
+              ]} />
+            )
+          })}
+        </Section>
+
+        {/* Inspections */}
+        <Section icon='🔍' iconBg='rgba(168,85,247,0.12)' title='Inspection Requests'
+          count={inspections.length} empty='No inspection requests yet.'>
+          <THead style={inspCols} labels={['Property', 'Preferred', 'Confirmed', 'Fee', 'Status']} />
+          {inspections.map(i => {
+            const days = i.confirmedDate ? daysLeft(i.confirmedDate) : null
+            return (
+              <TRow key={i._id} style={inspCols} values={[
+                { v: i.property?.title || '—' },
+                { v: fmtDate(i.preferredDate), muted: true },
+                { v: <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {fmtDate(i.confirmedDate)}
+                  {days != null && days >= 0 && <Countdown days={days} label='away' />}
+                </span> },
+                { v: fmt(i.fee?.amount), muted: true },
+                { v: <Badge status={i.status} /> }
+              ]} />
+            )
+          })}
+        </Section>
+
+        {/* Escrows */}
+        <Section icon='🔒' iconBg='rgba(249,115,22,0.12)' title='My Escrows'
+          count={escrows.length} empty='No escrow transactions.'>
+          <THead style={escrowCols} labels={['Type', 'Amount', 'Payee', 'Date', 'Status']} />
+          {escrows.map(e => (
+            <TRow key={e._id} style={escrowCols} values={[
+              { v: e.type || '—' },
+              { v: fmt(e.amount, e.currency) },
+              { v: e.payee ? `${e.payee.firstName} ${e.payee.lastName}` : '—', muted: true },
+              { v: fmtDate(e.createdAt), muted: true },
+              { v: <Badge status={e.status} /> }
+            ]} />
+          ))}
+        </Section>
+
+        {/* Transactions */}
+        <Section icon='💳' iconBg='rgba(96,165,250,0.1)' title='Payments'
+          count={transactions.length} empty='No payment history.'>
+          <THead style={txCols} labels={['Type', 'Amount', 'Date', 'Status']} />
+          {transactions.map(t => (
+            <TRow key={t._id} style={txCols} values={[
+              { v: t.type || '—' },
+              { v: fmt(t.amount, t.currency) },
+              { v: fmtDate(t.createdAt), muted: true },
+              { v: <Badge status={t.status} /> }
+            ]} />
+          ))}
+        </Section>
+
+        {/* Total spent */}
+        {totalPaid > 0 && (
+          <div className='td-total'>
+            <div>
+              <div className='td-total__label'>Total Payments Made</div>
+              <div className='td-total__val'>{fmt(totalPaid, 'NGN')}</div>
+              <div className='td-total__sub'>
+                {transactions.filter(t => t.status === 'completed').length} completed transaction
+                {transactions.filter(t => t.status === 'completed').length !== 1 ? 's' : ''}
+              </div>
             </div>
+            <span style={{ fontSize: 28, opacity: 0.15 }}>📊</span>
           </div>
-        )
-      })()}
+        )}
+      </div>
     </div>
   )
 }

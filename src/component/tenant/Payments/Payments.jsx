@@ -9,17 +9,19 @@ const fmt = amount => `₦${Number(amount).toLocaleString('en-NG')}`
 const fmtDate = date => new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
 const INST_META = {
-  pending:  { color: '#d97706', bg: '#fef3c7', label: 'Pending', Icon: Clock },
-  overdue:  { color: '#dc2626', bg: '#fef2f2', label: 'Overdue', Icon: AlertCircle },
-  paid:     { color: '#16a34a', bg: '#f0fdf4', label: 'Paid',    Icon: CheckCircle },
+  pending:  { color: '#fbbf24', bg: 'rgba(245,158,11,0.1)',  label: 'Pending', Icon: Clock },
+  overdue:  { color: '#f87171', bg: 'rgba(239,68,68,0.1)',   label: 'Overdue', Icon: AlertCircle },
+  paid:     { color: '#4ade80', bg: 'rgba(34,197,94,0.1)',   label: 'Paid',    Icon: CheckCircle },
 }
 
 const TX_STATUS = {
-  completed: ['#16a34a', '#f0fdf4'],
-  pending:   ['#d97706', '#fef3c7'],
-  failed:    ['#dc2626', '#fef2f2'],
-  refunded:  ['#6b7280', '#f3f4f6'],
+  completed: ['#4ade80', 'rgba(34,197,94,0.1)'],
+  pending:   ['#fbbf24', 'rgba(245,158,11,0.1)'],
+  failed:    ['#f87171', 'rgba(239,68,68,0.1)'],
+  refunded:  ['#7d8590', 'rgba(255,255,255,0.06)'],
 }
+
+const D = { bg: '#0d1117', surface: '#161b22', border: 'rgba(255,255,255,0.06)', text: '#e6edf3', muted: '#7d8590', accent: '#C4E53C', primary: '#0B3D28' }
 
 const PAYMENT_TYPE_LABELS = {
   full:           'Full Payment',
@@ -33,46 +35,45 @@ const PAYMENT_TYPE_LABELS = {
 }
 
 const s = {
-  page: { padding: '1.5rem', fontFamily: 'sans-serif' },
-  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#111', margin: '0 0 1.25rem' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.5rem' },
-  statCard: { background: '#fff', borderRadius: 12, padding: '1.1rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 12 },
-  iconBox: (bg) => ({ width: 40, height: 40, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }),
-  statVal: { fontWeight: 700, fontSize: '1.2rem', color: '#111' },
-  statLbl: { fontSize: 11, color: '#6b7280', marginTop: 2 },
+  page:    { padding: '24px 28px', background: D.bg, minHeight: '100%', color: D.text },
+  h2:      { fontSize: '1.2rem', fontWeight: 800, color: D.text, margin: '0 0 20px', letterSpacing: '-0.3px' },
+  grid:    { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10, marginBottom: 20 },
+  statCard:{ background: D.surface, borderRadius: 12, padding: '14px 16px', border: `1px solid ${D.border}`, display: 'flex', alignItems: 'center', gap: 12 },
+  iconBox: (bg) => ({ width: 38, height: 38, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }),
+  statVal: { fontWeight: 800, fontSize: '1.15rem', color: D.text },
+  statLbl: { fontSize: 11, color: D.muted, marginTop: 2 },
 
-  card: { background: '#fff', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '1rem' },
-  cardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem', cursor: 'pointer' },
-  cardTitle: { fontWeight: 700, fontSize: 15, color: '#111' },
-  cardSub: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  card:     { background: D.surface, borderRadius: 12, padding: '18px', border: `1px solid ${D.border}`, marginBottom: 12 },
+  cardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, cursor: 'pointer' },
+  cardTitle:{ fontWeight: 700, fontSize: 14, color: D.text },
+  cardSub:  { fontSize: 12, color: D.muted, marginTop: 2 },
 
-  // Installment schedule
-  progressBar: { height: 6, borderRadius: 4, background: '#e5e7eb', marginBottom: '1rem', overflow: 'hidden' },
-  progressFill: (pct) => ({ height: '100%', width: `${pct}%`, background: '#16a34a', borderRadius: 4, transition: 'width .3s' }),
+  progressBar:  { height: 5, borderRadius: 4, background: 'rgba(255,255,255,0.07)', marginBottom: 14, overflow: 'hidden' },
+  progressFill: (pct) => ({ height: '100%', width: `${pct}%`, background: D.accent, borderRadius: 4, transition: 'width .3s' }),
   instRow: (bg) => ({
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '0.7rem 0.85rem', borderRadius: 8, marginBottom: 6, background: bg,
-    flexWrap: 'wrap', gap: 8
+    padding: '10px 12px', borderRadius: 8, marginBottom: 5, background: bg,
+    border: `1px solid rgba(255,255,255,0.04)`, flexWrap: 'wrap', gap: 8
   }),
-  instLeft: { display: 'flex', alignItems: 'center', gap: 10 },
-  instLabel: { fontWeight: 600, fontSize: 14, color: '#111' },
-  instDate: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  instLeft:  { display: 'flex', alignItems: 'center', gap: 10 },
+  instLabel: { fontWeight: 600, fontSize: 14, color: D.text },
+  instDate:  { fontSize: 12, color: D.muted, marginTop: 2 },
   instRight: { display: 'flex', alignItems: 'center', gap: 8 },
-  instAmt: { fontWeight: 700, fontSize: 15, color: '#111' },
-  badge: (color, bg) => ({ padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, color, background: bg }),
-  payBtn: { padding: '6px 16px', background: '#0B3D28', color: '#C4E53C', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 },
-  payBtnDisabled: { padding: '6px 16px', background: '#e5e7eb', color: '#9ca3af', border: 'none', borderRadius: 6, cursor: 'not-allowed', fontWeight: 600, fontSize: 13 },
+  instAmt:   { fontWeight: 800, fontSize: 14, color: D.accent },
+  badge:     (color, bg) => ({ padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700, color, background: bg }),
+  payBtn:        { padding: '6px 14px', background: D.accent, color: D.primary, border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 700, fontSize: 12 },
+  payBtnDisabled:{ padding: '6px 14px', background: 'rgba(255,255,255,0.06)', color: D.muted, border: 'none', borderRadius: 6, cursor: 'not-allowed', fontWeight: 700, fontSize: 12 },
 
-  section: { background: '#fff', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-  sTitle: { fontSize: 15, fontWeight: 700, color: '#111', marginBottom: '1rem' },
-  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.7rem 0', borderBottom: '1px solid #f3f4f6', flexWrap: 'wrap', gap: 6 },
-  txLeft: { display: 'flex', alignItems: 'center', gap: 10 },
-  txIcon: (bg) => ({ width: 36, height: 36, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }),
-  txTitle: { fontWeight: 600, fontSize: 14, color: '#111' },
-  txMeta: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  txAmount: (positive) => ({ fontWeight: 700, fontSize: 15, color: positive ? '#16a34a' : '#111' }),
-  empty: { textAlign: 'center', padding: '2rem', color: '#9ca3af', fontSize: 14 },
-  alert: (t) => ({ padding: '10px 14px', borderRadius: 8, fontSize: 13, marginBottom: '0.75rem', background: t === 'success' ? '#f0fdf4' : '#fef2f2', color: t === 'success' ? '#16a34a' : '#dc2626' }),
+  section: { background: D.surface, borderRadius: 12, padding: '18px', border: `1px solid ${D.border}` },
+  sTitle:  { fontSize: 13, fontWeight: 700, color: D.muted, marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' },
+  row:     { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: `1px solid rgba(255,255,255,0.04)`, flexWrap: 'wrap', gap: 6 },
+  txLeft:  { display: 'flex', alignItems: 'center', gap: 10 },
+  txIcon:  (bg) => ({ width: 34, height: 34, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }),
+  txTitle: { fontWeight: 600, fontSize: 13, color: D.text },
+  txMeta:  { fontSize: 12, color: D.muted, marginTop: 2 },
+  txAmount:(positive) => ({ fontWeight: 800, fontSize: 14, color: positive ? D.accent : D.text }),
+  empty:   { textAlign: 'center', padding: '2rem', color: D.muted, fontSize: 14 },
+  alert:   (t) => ({ padding: '10px 14px', borderRadius: 8, fontSize: 13, marginBottom: 12, background: t === 'success' ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)', color: t === 'success' ? '#4ade80' : '#f87171', border: `1px solid ${t === 'success' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}` }),
 }
 
 export default function TenantPayments () {
@@ -132,7 +133,7 @@ export default function TenantPayments () {
   const progressPct = installments.length ? Math.round((paidCount / installments.length) * 100) : 0
   const nextDue = installments.find(i => i.status === 'pending' || i.status === 'overdue')
 
-  if (loading) return <div style={{ padding: '1.5rem', color: '#6b7280' }}>Loading payments…</div>
+  if (loading) return <div style={{ padding: '1.5rem', color: '#7d8590', background: '#0d1117', minHeight: '100%' }}>Loading payments…</div>
 
   return (
     <div style={s.page}>

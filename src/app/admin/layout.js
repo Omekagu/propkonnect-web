@@ -35,15 +35,18 @@ import Certifications from '@/component/artisan/Certifications/Certifications'
 import BidNegotiations from '@/component/artisan/Negotiations/BidNegotiations'
 
 // Tenant Components
-import MyApplications  from '@/component/tenant/MyApplications/MyApplications'
-import TenantDashboard from '@/component/tenant/Dashboard/Dashboard'
-import MyLease         from '@/component/tenant/MyLease/MyLease'
-import MyHome from '@/component/tenant/Home/Home'
-import TenantPayments  from '@/component/tenant/Payments/Payments'
-import MyBookings      from '@/component/admin/Tenant/MyBookings'
-import BookingCart     from '@/component/admin/Tenant/BookingCart'
+import MyApplications    from '@/component/tenant/MyApplications/MyApplications'
+import TenantDashboard   from '@/component/tenant/Dashboard/Dashboard'
+import MyLease           from '@/component/tenant/MyLease/MyLease'
+import MyHome            from '@/component/tenant/Home/Home'
+import TenantPayments    from '@/component/tenant/Payments/Payments'
+import MyBookings        from '@/component/admin/Tenant/MyBookings'
+import BookingCart       from '@/component/admin/Tenant/BookingCart'
 import TenantMaintenance from '@/component/tenant/Maintenance/Maintenance'
-import Messages from '@/component/tenant/Messages/Messages'
+import Messages          from '@/component/tenant/Messages/Messages'
+import PropertyHub       from '@/component/tenant/Hub/PropertyHub'
+import BookingsHub       from '@/component/tenant/Hub/BookingsHub'
+import ServicesHub       from '@/component/tenant/Hub/ServicesHub'
 
 // Support Ticket Components
 import SupportTicketForm from '@/component/user/SupportTicketForm/SupportTicketForm'
@@ -734,62 +737,77 @@ export default function AdminLayout ({ children }) {
         setActivePage(page)
         localStorage.setItem('ep_activePage', page)
       }
+
+      const kycForm = (
+        <KYCForm
+          userRole={user?.role}
+          existingKyc={user?.kyc}
+          status={kycStatus}
+          onSuccess={() => {
+            setKycStatus('pending')
+            sessionStorage.removeItem('ep_kyc_skipped')
+            setActivePage('Dashboard')
+            localStorage.setItem('ep_activePage', 'Dashboard')
+          }}
+          onSkip={() => {
+            sessionStorage.setItem('ep_kyc_skipped', '1')
+            setActivePage('Dashboard')
+            localStorage.setItem('ep_activePage', 'Dashboard')
+          }}
+          onCancel={() => {
+            sessionStorage.setItem('ep_kyc_skipped', '1')
+            setActivePage('Dashboard')
+            localStorage.setItem('ep_activePage', 'Dashboard')
+          }}
+        />
+      )
+
       switch (activePage) {
         case 'Dashboard':
           return <TenantDashboard />
+
+        // ── Consolidated hubs ──────────────────────────────────────────
+        case 'PropertyHub':
+          return gated(<PropertyHub onRouteChange={navigate} />)
+        case 'BookingsHub':
+          return <BookingsHub />
+        case 'ServicesHub':
+          return gated(<ServicesHub />)
+
+        // ── Finance & Payments ─────────────────────────────────────────
         case 'Finance':
           return gated(<FinanceDashboard />)
-        case 'FindArtisan':
-        case 'findArtisan':
-          return gated(<FindArtisan />)
-        case 'History':
-          return <MyBookings />
-        case 'MyHome':
-          return gated(<MyHome />)
-        case 'MyApplications':
-          return gated(<MyApplications onRouteChange={navigate} />)
         case 'Payments':
           return gated(<TenantPayments />)
-        case 'Maintenance':
-          return gated(<TenantMaintenance />)
+
+        // ── Documents ─────────────────────────────────────────────────
         case 'Documents':
           return gated(<Document />)
-        case 'MyLease':
-          return <MyLease />
-        case 'MyBookings':
-          return <MyBookings />
-        case 'BookingCart':
-          return <BookingCart />
+
+        // ── Communication ─────────────────────────────────────────────
         case 'Messages':
           return gated(<Messages />)
+
+        // ── Identity ──────────────────────────────────────────────────
+        case 'KYCVerification':
+          return kycForm
+
+        // ── Account ───────────────────────────────────────────────────
         case 'Profile':
-          return <Settings />
         case 'Settings':
           return <Settings />
-        case 'KYCVerification':
-          return (
-            <KYCForm
-              userRole={user?.role}
-              existingKyc={user?.kyc}
-              status={kycStatus}
-              onSuccess={() => {
-                setKycStatus('pending')
-                sessionStorage.removeItem('ep_kyc_skipped')
-                setActivePage('Dashboard')
-                localStorage.setItem('ep_activePage', 'Dashboard')
-              }}
-              onSkip={() => {
-                sessionStorage.setItem('ep_kyc_skipped', '1')
-                setActivePage('Dashboard')
-                localStorage.setItem('ep_activePage', 'Dashboard')
-              }}
-              onCancel={() => {
-                sessionStorage.setItem('ep_kyc_skipped', '1')
-                setActivePage('Dashboard')
-                localStorage.setItem('ep_activePage', 'Dashboard')
-              }}
-            />
-          )
+
+        // ── Legacy direct links (bookmarks / old nav state) ───────────
+        case 'MyHome':         return gated(<PropertyHub onRouteChange={navigate} />)
+        case 'MyLease':        return gated(<PropertyHub onRouteChange={navigate} />)
+        case 'MyApplications': return gated(<PropertyHub onRouteChange={navigate} />)
+        case 'MyBookings':     return <BookingsHub />
+        case 'BookingCart':    return <BookingsHub />
+        case 'History':        return <BookingsHub />
+        case 'FindArtisan':
+        case 'findArtisan':    return gated(<ServicesHub />)
+        case 'Maintenance':    return gated(<ServicesHub />)
+
         default:
           return <TenantDashboard />
       }

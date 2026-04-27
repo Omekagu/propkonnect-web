@@ -1,474 +1,342 @@
+'use client'
+
 import React, { useState } from 'react'
-
 import './FindArtisan.scss'
-import useArtisanManagement from '@/hooks/useArtisanManagement'
+import { useArtisanManagement } from '@/hooks/useArtisanManagement'
+import {
+  Search, MapPin, Star, Shield, X, ChevronDown,
+  Briefcase, Clock, MessageSquare, Zap
+} from 'lucide-react'
 
-/**
- * Main Artisan Management Page Component
- * Displays, filters, searches, and manages artisans
- */
-const FindArtisan = () => {
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function initials (name = '') {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'A'
+}
+
+function locationStr (loc) {
+  if (!loc) return ''
+  if (typeof loc === 'string') return loc
+  return loc.city || loc.address || ''
+}
+
+function Stars ({ rating = 0, count }) {
+  const r = Math.round(rating)
+  return (
+    <div className='rating-stars'>
+      {[1, 2, 3, 4, 5].map(s => (
+        <span key={s} style={{ color: s <= r ? '#fbbf24' : 'rgba(255,255,255,0.12)', fontSize: 14 }}>★</span>
+      ))}
+      {rating > 0 && <span style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700, marginLeft: 3 }}>{rating.toFixed(1)}</span>}
+      {count > 0  && <span style={{ fontSize: 11, color: '#7d8590', marginLeft: 2 }}>({count})</span>}
+    </div>
+  )
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+export default function FindArtisan () {
   const {
-    // State
-    artisans,
-    loading,
-    error,
-    notice,
-    showModal,
-    modalType,
-    selectedArtisan,
-
-    // Filters
-    searchQuery,
-    setSearchQuery,
-    categoryFilter,
-    setCategoryFilter,
-    ratingFilter,
-    setRatingFilter,
-    sortBy,
-    setSortBy,
-
-    // Data
-    sortedArtisans,
-    categories,
-    stats,
-
-    // Actions
-    deleteArtisan,
-    rateArtisan,
-    viewArtisanDetails,
-    closeModal
+    loading, error, notice,
+    showModal, selectedArtisan,
+    searchQuery, setSearchQuery,
+    categoryFilter, setCategoryFilter,
+    ratingFilter, setRatingFilter,
+    sortBy, setSortBy,
+    sortedArtisans, categories, stats,
+    rateArtisan, viewArtisanDetails, closeModal
   } = useArtisanManagement()
 
-  const [showRatingForm, setShowRatingForm] = useState(false)
-  const [formData, setFormData] = useState({ rating: 5, review: '' })
+  const [showReviewForm, setShowReviewForm]   = useState(false)
+  const [formData, setFormData]               = useState({ rating: 5, review: '' })
+  const [submitting, setSubmitting]           = useState(false)
 
-  /**
-   * Handle rating submission
-   */
   const handleRateSubmit = async e => {
     e.preventDefault()
-    const success = await rateArtisan(
-      selectedArtisan._id,
-      formData.rating,
-      formData.review
-    )
-    if (success) {
-      setShowRatingForm(false)
-      setFormData({ rating: 5, review: '' })
-    }
-  }
-
-  /**
-   * Render star rating
-   */
-  const renderStars = (rating, size = 'sm') => {
-    return (
-      <div className={`stars stars-${size}`}>
-        {[1, 2, 3, 4, 5].map(star => (
-          <span
-            key={star}
-            className={`star ${star <= Math.round(rating) ? 'filled' : ''}`}
-          >
-            ★
-          </span>
-        ))}
-      </div>
-    )
+    setSubmitting(true)
+    const ok = await rateArtisan(selectedArtisan._id, formData.rating, formData.review)
+    setSubmitting(false)
+    if (ok) { setShowReviewForm(false); setFormData({ rating: 5, review: '' }) }
   }
 
   return (
     <div className='artisan-container'>
-      {/* Error Banner */}
-      {error && (
-        <div className='alert alert-danger'>
-          <strong>Error:</strong> {error}
-        </div>
-      )}
 
-      {/* Notification */}
-      {notice && (
-        <div
-          className={`alert alert-${
-            notice.type === 'error' ? 'danger' : 'success'
-          }`}
-        >
-          {notice.msg}
-        </div>
-      )}
+      {/* ── Alerts ── */}
+      {error  && <div className='alert alert-danger'>{error}</div>}
+      {notice && <div className={`alert alert-${notice.type === 'error' ? 'danger' : 'success'}`}>{notice.msg}</div>}
 
-      {/* Header */}
+      {/* ── Header ── */}
       <div className='artisan-header'>
         <div className='header-content'>
-          <h1>Artisan Directory</h1>
-          <p>Find skilled professionals for your projects</p>
+          <h1>Find an Artisan</h1>
+          <p>Browse verified professionals ready for your next project</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* ── Stats strip ── */}
       <div className='stats-container'>
         <div className='stat-card'>
           <div className='stat-number'>{stats.totalArtisans}</div>
-          <div className='stat-label'>Total Artisans</div>
+          <div className='stat-label'>Artisans</div>
         </div>
         <div className='stat-card'>
-          <div className='stat-number'>{stats.averageRating}★</div>
-          <div className='stat-label'>Average Rating</div>
+          <div className='stat-number'>{stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '—'}</div>
+          <div className='stat-label'>Avg Rating</div>
         </div>
         <div className='stat-card'>
           <div className='stat-number'>{stats.topRated}</div>
-          <div className='stat-label'>Top Rated (4.5+)</div>
+          <div className='stat-label'>Top Rated</div>
         </div>
         <div className='stat-card'>
           <div className='stat-number'>{stats.totalReviews}</div>
-          <div className='stat-label'>Total Reviews</div>
+          <div className='stat-label'>Reviews</div>
         </div>
       </div>
 
-      {/* Filters Section */}
-      <div className='filters-section'>
-        <div className='search-box'>
+      {/* ── Search + Filters ── */}
+      <div className='search-filter-section'>
+        <div className='search-wrapper'>
+          <Search size={15} className='search-icon' />
           <input
             type='text'
-            placeholder='Search artisans by name, skill, location...'
+            className='search-input'
+            placeholder='Search by name, skill or location…'
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className='search-input'
           />
-          <span className='search-icon'>🔍</span>
         </div>
 
-        <div className='filter-controls'>
-          <select
-            value={categoryFilter}
-            onChange={e => setCategoryFilter(e.target.value)}
-            className='filter-select'
-          >
-            {categories.map(cat => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
+        <select className='filter-select' value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
 
-          <select
-            value={ratingFilter}
-            onChange={e => setRatingFilter(Number(e.target.value))}
-            className='filter-select'
-          >
-            <option value={0}>All Ratings</option>
-            <option value={3}>3+ Stars</option>
-            <option value={3.5}>3.5+ Stars</option>
-            <option value={4}>4+ Stars</option>
-            <option value={4.5}>4.5+ Stars</option>
-            <option value={5}>5 Stars Only</option>
-          </select>
+        <select className='filter-select' value={ratingFilter} onChange={e => setRatingFilter(Number(e.target.value))}>
+          <option value={0}>All ratings</option>
+          <option value={3}>3+ stars</option>
+          <option value={4}>4+ stars</option>
+          <option value={4.5}>4.5+ stars</option>
+          <option value={5}>5 stars</option>
+        </select>
 
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
-            className='filter-select'
-          >
-            <option value='recent'>Most Recent</option>
-            <option value='rating_high'>Highest Rated</option>
-            <option value='rating_low'>Lowest Rated</option>
-            <option value='name_asc'>Name: A-Z</option>
-            <option value='name_desc'>Name: Z-A</option>
-          </select>
-        </div>
-
-        <div className='results-count'>
-          Showing <strong>{sortedArtisans.length}</strong> artisans
-        </div>
+        <select className='filter-select' value={sortBy} onChange={e => setSortBy(e.target.value)}>
+          <option value='recent'>Newest</option>
+          <option value='rating_high'>Highest rated</option>
+          <option value='name_asc'>Name A–Z</option>
+        </select>
       </div>
 
-      {/* Loading State */}
-      {loading && (
-        <div className='loading-container'>
-          <div className='spinner'></div>
-          <p>Loading artisans...</p>
+      {/* ── Grid ── */}
+      {loading ? (
+        <div className='loading-state'>
+          <div className='spinner' />
+          <span>Finding artisans…</span>
         </div>
-      )}
+      ) : sortedArtisans.length === 0 ? (
+        <div className='empty-state'>
+          <Search size={44} />
+          <h3>No artisans found</h3>
+          <p>Try adjusting your filters or search terms</p>
+        </div>
+      ) : (
+        <>
+          <div style={{ fontSize: 12, color: '#7d8590', marginBottom: 14 }}>
+            {sortedArtisans.length} artisan{sortedArtisans.length !== 1 ? 's' : ''} found
+          </div>
+          <div className='artisans-grid'>
+            {sortedArtisans.map(a => {
+              const loc = locationStr(a.location)
+              return (
+                <div key={a._id} className='artisan-card'>
 
-      {/* Artisans Grid */}
-      {!loading && (
-        <div className='artisans-grid'>
-          {sortedArtisans.length === 0 ? (
-            <div className='empty-state'>
-              <div className='empty-icon'>🔍</div>
-              <h3>No Artisans Found</h3>
-              <p>Try adjusting your filters or search terms</p>
-            </div>
-          ) : (
-            sortedArtisans.map(artisan => (
-              <div key={artisan._id} className='artisan-card'>
-                {/* Card Image */}
-                <div className='card-image'>
-                  {artisan.avatar ? (
-                    <img src={artisan.avatar} alt={artisan.name} />
-                  ) : (
-                    <div className='avatar-placeholder'>
-                      {artisan.name?.charAt(0) || 'A'}
+                  {/* Card header */}
+                  <div className='card-header'>
+                    <div className='avatar'>
+                      {a.avatar
+                        ? <img src={a.avatar} alt={a.name} />
+                        : initials(a.name)
+                      }
                     </div>
-                  )}
-                  {artisan.verified && (
-                    <div className='verified-badge'>✓ Verified</div>
-                  )}
-                </div>
-
-                {/* Card Content */}
-                <div className='card-content'>
-                  <h3 className='artisan-name'>{artisan.name}</h3>
-
-                  <p className='category-badge'>{artisan.category}</p>
-
-                  {artisan.specialization && (
-                    <p className='specialization'>{artisan.specialization}</p>
-                  )}
-
-                  {artisan.location && (
-                    <p className='location'>📍 {typeof artisan.location === 'string' ? artisan.location : artisan.location?.city || artisan.location?.address || ''}</p>
-                  )}
-
-                  {/* Rating */}
-                  <div className='rating-section'>
-                    {renderStars(artisan.rating || 0)}
-                    <span className='rating-text'>
-                      {artisan.rating ? artisan.rating.toFixed(1) : 'N/A'}
-                    </span>
-                    {artisan.reviewCount > 0 && (
-                      <span className='review-count'>
-                        ({artisan.reviewCount} reviews)
-                      </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className='artisan-name'>{a.name || 'Artisan'}</div>
+                      <div className='artisan-specialty'>{a.category || a.specialization || '—'}</div>
+                    </div>
+                    {a.verified && (
+                      <div className='verified-badge'>
+                        <Shield size={10} /> Verified
+                      </div>
                     )}
                   </div>
 
-                  {/* Price Info */}
-                  {artisan.hourlyRate && (
-                    <div className='price-info'>
-                      <span className='price'>${artisan.hourlyRate}/hr</span>
-                    </div>
-                  )}
+                  {/* Card body */}
+                  <div className='card-body'>
+                    {a.bio && (
+                      <p className='artisan-bio'>{a.bio}</p>
+                    )}
 
-                  {/* Description */}
-                  {artisan.bio && <p className='bio'>{artisan.bio}</p>}
-
-                  {/* Skills */}
-                  {artisan.skills && artisan.skills.length > 0 && (
-                    <div className='skills-container'>
-                      {artisan.skills.slice(0, 3).map((skill, idx) => (
-                        <span key={idx} className='skill-tag'>
-                          {skill}
+                    <div className='artisan-stats'>
+                      <Stars rating={a.rating} count={a.reviewCount} />
+                      {a.experience && (
+                        <span className='artisan-stat'>
+                          <Briefcase size={11} /> {a.experience}yr exp
                         </span>
-                      ))}
-                      {artisan.skills.length > 3 && (
-                        <span className='skill-tag'>
-                          +{artisan.skills.length - 3}
+                      )}
+                      {loc && (
+                        <span className='artisan-stat'>
+                          <MapPin size={11} /> {loc}
+                        </span>
+                      )}
+                      {a.hourlyRate && (
+                        <span className='artisan-stat'>
+                          <Zap size={11} /> ₦{Number(a.hourlyRate).toLocaleString()}/hr
                         </span>
                       )}
                     </div>
-                  )}
 
-                  {/* Actions */}
-                  <div className='card-actions'>
-                    <button
-                      className='btn btn-primary'
-                      onClick={() => viewArtisanDetails(artisan)}
-                    >
-                      View Profile
-                    </button>
-                    <button
-                      className='btn btn-secondary'
-                      onClick={() => viewArtisanDetails(artisan)}
-                    >
-                      Contact
-                    </button>
+                    {a.skills?.length > 0 && (
+                      <div className='skill-tags'>
+                        {a.skills.slice(0, 4).map((sk, i) => (
+                          <span key={i} className='skill-tag'>{sk}</span>
+                        ))}
+                        {a.skills.length > 4 && (
+                          <span className='skill-tag'>+{a.skills.length - 4}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card footer */}
+                  <div className='card-footer'>
+                    <button className='btn-view'  onClick={() => viewArtisanDetails(a)}>View Profile</button>
+                    <button className='btn-hire'  onClick={() => viewArtisanDetails(a)}>Hire</button>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              )
+            })}
+          </div>
+        </>
       )}
 
-      {/* Modal */}
-      {showModal && modalType === 'details' && selectedArtisan && (
+      {/* ── Detail / Hire modal ── */}
+      {showModal && selectedArtisan && (
         <div className='modal-overlay' onClick={closeModal}>
           <div className='modal-content' onClick={e => e.stopPropagation()}>
-            <button className='modal-close' onClick={closeModal}>
-              ✕
-            </button>
 
+            {/* Modal header */}
             <div className='modal-header'>
-              {selectedArtisan.avatar ? (
-                <img
-                  src={selectedArtisan.avatar}
-                  alt={selectedArtisan.name}
-                  className='modal-avatar'
-                />
-              ) : (
-                <div className='modal-avatar-placeholder'>
-                  {selectedArtisan.name?.charAt(0) || 'A'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div className='avatar' style={{ width: 56, height: 56, fontSize: 22, flexShrink: 0, borderRadius: '50%', background: 'linear-gradient(135deg,#0B3D28,#0F6040)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#C4E53C', fontWeight: 800 }}>
+                  {selectedArtisan.avatar
+                    ? <img src={selectedArtisan.avatar} alt={selectedArtisan.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    : initials(selectedArtisan.name)
+                  }
                 </div>
-              )}
-              <div className='modal-title'>
-                <h2>{selectedArtisan.name}</h2>
-                {selectedArtisan.verified && (
-                  <span className='verified-badge'>
-                    ✓ Verified Professional
-                  </span>
-                )}
+                <div>
+                  <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#e6edf3' }}>{selectedArtisan.name}</h2>
+                  <div style={{ fontSize: 13, color: '#C4E53C', fontWeight: 600, marginTop: 2 }}>{selectedArtisan.category}</div>
+                  {selectedArtisan.verified && (
+                    <div className='verified-badge' style={{ marginTop: 4, display: 'inline-flex' }}>
+                      <Shield size={10} /> Verified
+                    </div>
+                  )}
+                </div>
               </div>
+              <button className='modal-close' onClick={closeModal}><X size={16} /></button>
             </div>
 
+            {/* Modal body */}
             <div className='modal-body'>
-              {/* Info Section */}
-              <section className='info-section'>
-                <h3>Professional Information</h3>
-                <div className='info-grid'>
-                  <div className='info-item'>
-                    <span className='label'>Category</span>
-                    <span className='value'>{selectedArtisan.category}</span>
+
+              {/* Quick stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 20 }}>
+                {[
+                  { icon: <Star size={14} />, val: selectedArtisan.rating?.toFixed(1) || '—', label: 'Rating' },
+                  { icon: <Briefcase size={14} />, val: selectedArtisan.experience ? `${selectedArtisan.experience}yr` : '—', label: 'Experience' },
+                  { icon: <MessageSquare size={14} />, val: selectedArtisan.reviewCount || 0, label: 'Reviews' },
+                ].map((item, i) => (
+                  <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '10px', textAlign: 'center' }}>
+                    <div style={{ color: '#C4E53C', marginBottom: 4 }}>{item.icon}</div>
+                    <div style={{ fontWeight: 800, fontSize: 16, color: '#e6edf3' }}>{item.val}</div>
+                    <div style={{ fontSize: 10, color: '#7d8590', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 }}>{item.label}</div>
                   </div>
-                  {selectedArtisan.specialization && (
-                    <div className='info-item'>
-                      <span className='label'>Specialization</span>
-                      <span className='value'>
-                        {selectedArtisan.specialization}
-                      </span>
-                    </div>
-                  )}
-                  {selectedArtisan.experience && (
-                    <div className='info-item'>
-                      <span className='label'>Experience</span>
-                      <span className='value'>
-                        {selectedArtisan.experience} years
-                      </span>
-                    </div>
-                  )}
-                  {selectedArtisan.hourlyRate && (
-                    <div className='info-item'>
-                      <span className='label'>Hourly Rate</span>
-                      <span className='value'>
-                        ${selectedArtisan.hourlyRate}/hr
-                      </span>
-                    </div>
-                  )}
-                  {selectedArtisan.location && (
-                    <div className='info-item'>
-                      <span className='label'>Location</span>
-                      <span className='value'>{typeof selectedArtisan.location === 'string' ? selectedArtisan.location : selectedArtisan.location?.city || selectedArtisan.location?.address || ''}</span>
-                    </div>
-                  )}
-                  <div className='info-item'>
-                    <span className='label'>Rating</span>
-                    <div className='value'>
-                      {renderStars(selectedArtisan.rating || 0)}
-                      <span>{selectedArtisan.rating?.toFixed(1) || 'N/A'}</span>
-                    </div>
+                ))}
+              </div>
+
+              {/* Details */}
+              {[
+                ['Specialization', selectedArtisan.specialization],
+                ['Location', locationStr(selectedArtisan.location)],
+                ['Rate', selectedArtisan.hourlyRate ? `₦${Number(selectedArtisan.hourlyRate).toLocaleString()}/hr` : null],
+              ].filter(([, v]) => v).map(([k, v]) => (
+                <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: 13 }}>
+                  <span style={{ color: '#7d8590' }}>{k}</span>
+                  <span style={{ color: '#e6edf3', fontWeight: 600 }}>{v}</span>
+                </div>
+              ))}
+
+              {/* Bio */}
+              {selectedArtisan.bio && (
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#7d8590', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>About</div>
+                  <p style={{ fontSize: 13, color: 'rgba(230,237,243,0.65)', lineHeight: 1.6, margin: 0 }}>{selectedArtisan.bio}</p>
+                </div>
+              )}
+
+              {/* Skills */}
+              {selectedArtisan.skills?.length > 0 && (
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#7d8590', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Skills</div>
+                  <div className='skill-tags'>
+                    {selectedArtisan.skills.map((sk, i) => <span key={i} className='skill-tag'>{sk}</span>)}
                   </div>
                 </div>
-              </section>
-
-              {/* Bio Section */}
-              {selectedArtisan.bio && (
-                <section className='bio-section'>
-                  <h3>About</h3>
-                  <p>{selectedArtisan.bio}</p>
-                </section>
               )}
 
-              {/* Skills Section */}
-              {selectedArtisan.skills && selectedArtisan.skills.length > 0 && (
-                <section className='skills-section'>
-                  <h3>Skills</h3>
-                  <div className='skills-list'>
-                    {selectedArtisan.skills.map((skill, idx) => (
-                      <span key={idx} className='skill-badge'>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Rating Form */}
-              <section className='rating-section'>
-                <h3>Rate This Artisan</h3>
-                {!showRatingForm ? (
-                  <button
-                    className='btn btn-outline'
-                    onClick={() => setShowRatingForm(true)}
-                  >
-                    Write a Review
+              {/* Stars rating */}
+              <div style={{ marginTop: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#7d8590', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>Rate this artisan</div>
+                {!showReviewForm ? (
+                  <button className='btn-rate' onClick={() => setShowReviewForm(true)}>
+                    <Star size={13} /> Write a Review
                   </button>
                 ) : (
-                  <form onSubmit={handleRateSubmit} className='rating-form'>
+                  <form onSubmit={handleRateSubmit} className='hire-form'>
                     <div className='form-group'>
-                      <label htmlFor='rating'>Rating</label>
-                      <select
-                        id='rating'
-                        value={formData.rating}
-                        onChange={e =>
-                          setFormData({
-                            ...formData,
-                            rating: Number(e.target.value)
-                          })
-                        }
-                        className='form-control'
-                      >
-                        <option value={1}>1 - Poor</option>
-                        <option value={2}>2 - Fair</option>
-                        <option value={3}>3 - Good</option>
-                        <option value={4}>4 - Very Good</option>
-                        <option value={5}>5 - Excellent</option>
-                      </select>
+                      <label>Star Rating</label>
+                      <div className='star-rating'>
+                        {[1, 2, 3, 4, 5].map(s => (
+                          <button
+                            type='button'
+                            key={s}
+                            onClick={() => setFormData(f => ({ ...f, rating: s }))}
+                            style={{ color: s <= formData.rating ? '#fbbf24' : 'rgba(255,255,255,0.15)' }}
+                          >★</button>
+                        ))}
+                      </div>
                     </div>
-
                     <div className='form-group'>
-                      <label htmlFor='review'>Review (Optional)</label>
+                      <label>Review (optional)</label>
                       <textarea
-                        id='review'
+                        placeholder='Share your experience…'
                         value={formData.review}
-                        onChange={e =>
-                          setFormData({ ...formData, review: e.target.value })
-                        }
-                        placeholder='Share your experience with this artisan...'
-                        className='form-control'
-                        rows={4}
+                        onChange={e => setFormData(f => ({ ...f, review: e.target.value }))}
+                        rows={3}
                       />
                     </div>
-
                     <div className='form-actions'>
-                      <button
-                        type='button'
-                        className='btn btn-secondary'
-                        onClick={() => setShowRatingForm(false)}
-                      >
-                        Cancel
-                      </button>
-                      <button type='submit' className='btn btn-primary'>
-                        Submit Review
-                      </button>
+                      <button type='button' onClick={() => setShowReviewForm(false)}>Cancel</button>
+                      <button type='submit' disabled={submitting}>{submitting ? 'Submitting…' : 'Submit Review'}</button>
                     </div>
                   </form>
                 )}
-              </section>
+              </div>
             </div>
 
-            <div className='modal-footer'>
-              <button
-                className='btn btn-success'
-                onClick={() => {
-                  // Handle contact/hire
-                  console.log('Hiring artisan:', selectedArtisan._id)
-                  closeModal()
-                }}
-              >
+            {/* Modal footer */}
+            <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 10 }}>
+              <button className='btn-hire' style={{ flex: 1, padding: '11px' }} onClick={closeModal}>
                 Hire Now
               </button>
-              <button className='btn btn-secondary' onClick={closeModal}>
-                Close
+              <button className='btn-chat' onClick={closeModal}>
+                <MessageSquare size={14} /> Message
               </button>
             </div>
           </div>
@@ -477,5 +345,3 @@ const FindArtisan = () => {
     </div>
   )
 }
-
-export default FindArtisan

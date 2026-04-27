@@ -338,6 +338,29 @@
   }
 }
 
+// ── Inline section divider (used inside nav-list for grouped roles) ───────────
+.nav-section-divider {
+  padding: 14px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  // First divider in the list needs no top padding
+  &:first-child { padding-top: 6px; }
+}
+
 // ── Nav list ──────────────────────────────────────────────────
 .nav-list {
   list-style: none;
