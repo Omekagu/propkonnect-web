@@ -19,6 +19,7 @@ import UploadProperty from '@/component/UploadProperty/UploadProperty'
 // Property Owner Components
 import PropertyOwnerDashboard from '@/component/property-owner/Dashboard/Dashboard'
 import MyProperties from '@/component/property-owner/Properties/MyProperties'
+import SiteKeys from '@/component/property-owner/SiteKeys/SiteKeys'
 import FindArtisan from '@/component/property-owner/Artisan/FindArtisan'
 import PropertyOwnerPayments from '@/component/property-owner/Payments/PropertyOwnerPayments'
 import Applicants from '@/component/property-owner/Applicants/Applicants'
@@ -59,6 +60,7 @@ import FinanceDashboard from '@/component/tenant/Finance/Finance'
 import PlatformSettings from '../../component/admin/PlatformSettings/PlatformSettings.jsx'
 import EmailTemplates from '../../component/admin/EmailTemplates/EmailTemplates.jsx'
 import AdminPermissions from '../../component/admin/AdminPermissions/AdminPermissions.jsx'
+import LicenseKeys from '../../component/admin/LicenseKeys/LicenseKeys.jsx'
 import KYCQueue from '../../component/admin/KYCQueue/KYCQueue.jsx'
 import Comments from '../../component/admin/Comments/Comments.jsx'
 import AdminBookings from '../../component/admin/Bookings/AdminBookings.jsx'
@@ -569,6 +571,8 @@ export default function AdminLayout ({ children }) {
           return <EmailTemplates />
         case 'AdminPermissions':
           return <AdminPermissions currentUser={user} />
+        case 'LicenseKeys':
+          return <LicenseKeys />
         case 'KYCQueue':
           return <KYCQueue />
         case 'Comments':
@@ -646,6 +650,8 @@ export default function AdminLayout ({ children }) {
           return <Settings />
         case 'Settings':
           return <Settings />
+        case 'SiteKeys':
+          return <SiteKeys />
         case 'KYCVerification':
           return (
             <KYCForm

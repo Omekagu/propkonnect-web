@@ -30,7 +30,8 @@ import {
   Award,
   Search,
   ScanFace,
-  ShoppingCart
+  ShoppingCart,
+  KeyRound
 } from 'lucide-react'
 
 export default function Sidebar ({
@@ -122,6 +123,11 @@ export default function Sidebar ({
             key: 'AdminPermissions',
             label: 'Permissions & RBAC',
             icon: <Shield strokeWidth={0.75} />
+          },
+          {
+            key: 'LicenseKeys',
+            label: 'License Keys',
+            icon: <KeyRound strokeWidth={0.75} />
           },
           {
             key: 'KYCQueue',
@@ -223,6 +229,11 @@ export default function Sidebar ({
             key: 'Settings',
             label: 'Settings',
             icon: <Cog strokeWidth={0.75} />
+          },
+          {
+            key: 'SiteKeys',
+            label: 'WordPress Site Keys',
+            icon: <KeyRound strokeWidth={0.75} />
           },
           {
             key: 'Help',
