@@ -6,7 +6,6 @@ import './MyProperties.scss'
 import UploadPropertyWizard from '@/component/UploadProperty/UploadProperty'
 import BatchUpload from '@/component/UploadProperty/BatchUpload'
 import PortfolioUpload from '@/component/UploadProperty/PortfolioUpload'
-import Beds24Import from '@/component/UploadProperty/Beds24Import'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const Icon = {
@@ -895,16 +894,6 @@ export default function MyProperties ({ initialView = 'list' }) {
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────
 
-  // ── Beds24 import view ────────────────────────────────────────────────────
-  if (pageView === 'beds24') {
-    return (
-      <Beds24Import
-        onBack={() => setPageView('list')}
-        onComplete={() => { setPageView('list'); fetchProperties() }}
-      />
-    )
-  }
-
   // ── Batch upload view ─────────────────────────────────────────────────────
   if (pageView === 'batch') {
     return (
@@ -984,9 +973,6 @@ export default function MyProperties ({ initialView = 'list' }) {
             </p>
           </div>
           <div className='mp-header__actions'>
-            <button className='mp-btn mp-btn--ghost' onClick={() => setPageView('beds24')}>
-              <Icon.Upload /> Import from Beds24
-            </button>
             <button className='mp-btn mp-btn--ghost' onClick={() => setPageView('batch')}>
               <Icon.Upload /> Import CSV
             </button>
