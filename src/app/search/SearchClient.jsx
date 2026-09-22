@@ -74,8 +74,8 @@ function formatPrice (property) {
   const fmt = n => `₦${Number(n).toLocaleString()}`
   if (property.purpose === 'For Sale' && property.price)
     return fmt(property.price)
-  if (property.rentPrice) return `${fmt(property.rentPrice)}/mo`
-  if (property.pricePerNight) return `${fmt(property.pricePerNight)}/night`
+  if (property.rentPrice) return `${fmt(property.rentPrice)} · monthly`
+  if (property.pricePerNight) return `${fmt(property.pricePerNight)} · nightly`
   if (property.price) return fmt(property.price)
   return 'Price on request'
 }

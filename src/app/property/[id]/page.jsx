@@ -2071,7 +2071,7 @@ export default function PropertyDetails () {
                             {unitPrice > 0 && (
                               <div className='pd-room-card__price-overlay'>
                                 {fmt(unitPrice, currency)}
-                                {isPerNight ? '/night' : ''}
+                                {isPerNight ? ' · nightly' : ''}
                               </div>
                             )}
                             {roomImages.length > 1 && (
@@ -2091,9 +2091,9 @@ export default function PropertyDetails () {
                                 <div className='pd-room-card__price'>
                                   {fmt(unitPrice, currency)}
                                   {isPerNight
-                                    ? '/night'
+                                    ? ' · nightly'
                                     : rt.pricePerMonth
-                                    ? '/month'
+                                    ? ' · monthly'
                                     : ''}
                                 </div>
                               )}
@@ -2691,7 +2691,7 @@ export default function PropertyDetails () {
                   ? `${fmt(
                       bookingTotal?.perNight || activePrice,
                       currency
-                    )}/night${roomQty > 1 ? ` × ${roomQty} rooms` : ''}`
+                    )} · nightly${roomQty > 1 ? ` × ${roomQty} rooms` : ''}`
                   : planSubtitle ||
                     (selectedRoomType ? selectedRoomType.name : null)}
               </div>
@@ -2770,7 +2770,7 @@ export default function PropertyDetails () {
                       <option key={i} value={i} disabled={isFullyBooked}>
                         {rt.name}
                         {unitPrice ? ` — ${fmt(unitPrice, currency)}` : ''}
-                        {isPerNight ? '/night' : ''}
+                        {isPerNight ? ' · nightly' : ''}
                         {suffix}
                       </option>
                     )

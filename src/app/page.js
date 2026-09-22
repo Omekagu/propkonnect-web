@@ -4,6 +4,32 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './Landing.scss'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import {
+  Building2,
+  Home as HomeIcon,
+  Hotel,
+  BedDouble,
+  Bath,
+  Layers,
+  Store,
+  Wrench,
+  MapPin,
+  Tag,
+  Star as StarIcon,
+  Zap,
+  FileEdit,
+  MessageSquare,
+  Shield,
+  Play,
+  Key as KeyIcon,
+  Calendar,
+  Info as InfoIcon,
+  Lightbulb,
+  CheckCircle2,
+  Lock,
+  Hammer,
+  Search as SearchIcon
+} from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || ''
 const APP_NAME_FALLBACK = process.env.NEXT_PUBLIC_APP_NAME || 'propnekt'
@@ -41,13 +67,13 @@ const FALLBACK_ARTISANS = [
 ]
 
 const CATEGORIES = [
-  { icon: '🏢', label: 'Apartments', query: 'apartment' },
-  { icon: '🏠', label: 'Houses', query: 'house' },
-  { icon: '🏨', label: 'Hotels', query: 'hotel' },
-  { icon: '🛏️', label: 'Shortlets', query: 'shortlet' },
-  { icon: '🏗️', label: 'Land', query: 'land' },
-  { icon: '🏬', label: 'Commercial', query: 'commercial' },
-  { icon: '🔧', label: 'Artisans', query: 'artisan' }
+  { Icon: Building2, label: 'Apartments', query: 'apartment' },
+  { Icon: HomeIcon, label: 'Houses', query: 'house' },
+  { Icon: Hotel, label: 'Hotels', query: 'hotel' },
+  { Icon: BedDouble, label: 'Shortlets', query: 'shortlet' },
+  { Icon: Layers, label: 'Land', query: 'land' },
+  { Icon: Store, label: 'Commercial', query: 'commercial' },
+  { Icon: Wrench, label: 'Artisans', query: 'artisan' }
 ]
 
 const LOCATIONS = [
@@ -81,21 +107,24 @@ const TESTIMONIALS = [
   {
     name: 'Adaeze Okafor',
     role: 'Property Buyer',
-    avatar: '👩🏾',
+    initials: 'AO',
+    avatarColor: '#a78bfa',
     stars: 5,
     text: 'Found my dream duplex in Lekki within a week. The platform is incredibly smooth and the team was super responsive throughout.'
   },
   {
     name: 'Emeka Eze',
     role: 'Verified Artisan – Electrician',
-    avatar: '👨🏿‍🔧',
+    initials: 'EE',
+    avatarColor: '#4ade80',
     stars: 5,
     text: 'My bookings tripled after joining. The escrow payment system gives both me and my clients peace of mind on every job.'
   },
   {
     name: 'Fatima Abdullahi',
     role: 'Property Owner',
-    avatar: '👩🏾‍💼',
+    initials: 'FA',
+    avatarColor: '#60a5fa',
     stars: 5,
     text: 'Listed my apartments and had tenants within days. The dashboard makes managing multiple properties effortless.'
   }
@@ -104,25 +133,25 @@ const TESTIMONIALS = [
 const HOW_IT_WORKS = [
   {
     step: '01',
-    icon: '📝',
+    Icon: FileEdit,
     title: 'Create Your Profile',
     desc: 'Sign up in seconds as a buyer, renter, owner, or artisan — no paperwork upfront.'
   },
   {
     step: '02',
-    icon: '🔍',
+    Icon: SearchIcon,
     title: 'Search & Filter',
     desc: 'Use smart filters: location, price, property type, beds/baths, and more.'
   },
   {
     step: '03',
-    icon: '💬',
+    Icon: MessageSquare,
     title: 'Connect & Book',
     desc: 'Chat in real time, schedule viewings, and book directly with verified owners.'
   },
   {
     step: '04',
-    icon: '🔐',
+    Icon: Shield,
     title: 'Pay Safely',
     desc: 'Escrow-secured payments protect every transaction — money only releases on satisfaction.'
   }
@@ -138,8 +167,8 @@ function formatPrice (price, purpose) {
     maximumFractionDigits: 0
   }).format(price)
   const p = (purpose || '').toLowerCase()
-  if (p.includes('rent')) return `${fmt}/mo`
-  if (p.includes('shortlet')) return `${fmt}/night`
+  if (p.includes('rent')) return `${fmt} · monthly`
+  if (p.includes('shortlet')) return `${fmt} · nightly`
   return fmt
 }
 
@@ -153,13 +182,11 @@ function purposeLabel (purpose) {
 
 function artisanTradeIcon (spec) {
   const s = (spec || '').toLowerCase()
-  if (s.includes('electric')) return '⚡'
-  if (s.includes('plumb')) return '🔧'
-  if (s.includes('paint')) return '🎨'
-  if (s.includes('clean')) return '🧹'
-  if (s.includes('carpen')) return '🪚'
-  if (s.includes('til')) return '🏗️'
-  return '🔨'
+  if (s.includes('electric')) return <Zap size={20} />
+  if (s.includes('plumb')) return <Wrench size={20} />
+  if (s.includes('carpen') || s.includes('wood')) return <Hammer size={20} />
+  if (s.includes('til') || s.includes('mason')) return <Layers size={20} />
+  return <Wrench size={20} />
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -184,7 +211,6 @@ export default function LandingPage () {
   const heroRef = useRef(null)
   const mobileMenuRef = useRef(null)
 
-  // ── Fetch properties (called on mount + periodic refresh) ────────────────
   const fetchProperties = useCallback(() => {
     axios
       .get(`${API}/api/properties/all?limit=6&sort=-createdAt`)
@@ -196,20 +222,16 @@ export default function LandingPage () {
       .finally(() => setLoadingProps(false))
   }, [])
 
-  // ── Fetch platform config + data ─────────────────────────────────────────
   useEffect(() => {
-    // Platform branding
     axios
       .get(`${API}/api/platform-config`)
       .then(r => {
         if (r.data?.config?.branding) setBranding(r.data.config.branding)
       })
-      .catch(() => {}) // silently fall back to defaults
+      .catch(() => {})
 
-    // Featured properties
     fetchProperties()
 
-    // Premium / top-rated artisans
     axios
       .get(`${API}/api/artisan?topRated=true&limit=4`)
       .then(r => {
@@ -220,7 +242,6 @@ export default function LandingPage () {
       .finally(() => setLoadingArtisans(false))
   }, [fetchProperties])
 
-  // ── Real-time: poll every 60s + refresh on tab focus ─────────────────────
   useEffect(() => {
     const interval = setInterval(fetchProperties, 60_000)
     const onVisible = () => {
@@ -233,7 +254,6 @@ export default function LandingPage () {
     }
   }, [fetchProperties])
 
-  // Derived branding values
   const appName = branding?.appName || APP_NAME_FALLBACK
   const heroTitle =
     branding?.heroTitle || 'Find Your Perfect Property in Nigeria'
@@ -245,14 +265,12 @@ export default function LandingPage () {
     'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1800&q=80'
   const stats = branding?.statsBar || {}
 
-  // ── Scroll handler ───────────────────────────────────────────────────────
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Close mobile menu on outside click
   useEffect(() => {
     if (!mobileMenuOpen) return
     const handle = e => {
@@ -264,7 +282,6 @@ export default function LandingPage () {
     return () => document.removeEventListener('mousedown', handle)
   }, [mobileMenuOpen])
 
-  // Lock body scroll when mobile menu open
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? 'hidden' : ''
     return () => {
@@ -292,7 +309,6 @@ export default function LandingPage () {
 
   const closeMobile = () => setMobileMenuOpen(false)
 
-  // Detect mobile (for feed CTA)
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -423,16 +439,16 @@ export default function LandingPage () {
 
           <nav className='home-nav__drawer-links'>
             <a href='/feed' onClick={closeMobile} className='home-nav__drawer-link--feed'>
-              <span className='home-nav__drawer-icon'>📱</span> Browse Feed
+              <Play size={16} className='home-nav__drawer-icon' /> Browse Feed
             </a>
             <a href='/buy' onClick={closeMobile}>
-              <span className='home-nav__drawer-icon'>🏠</span> Buy
+              <HomeIcon size={16} className='home-nav__drawer-icon' /> Buy
             </a>
             <a href='/rent' onClick={closeMobile}>
-              <span className='home-nav__drawer-icon'>🔑</span> Rent
+              <KeyIcon size={16} className='home-nav__drawer-icon' /> Rent
             </a>
             <a href='/search?intent=shortlet' onClick={closeMobile}>
-              <span className='home-nav__drawer-icon'>🛏️</span> Book
+              <Calendar size={16} className='home-nav__drawer-icon' /> Book
             </a>
             <a
               onClick={() => {
@@ -440,7 +456,7 @@ export default function LandingPage () {
                 closeMobile()
               }}
             >
-              <span className='home-nav__drawer-icon'>🔧</span> Artisans
+              <Wrench size={16} className='home-nav__drawer-icon' /> Artisans
             </a>
             <a
               onClick={() => {
@@ -448,10 +464,10 @@ export default function LandingPage () {
                 closeMobile()
               }}
             >
-              <span className='home-nav__drawer-icon'>💡</span> How It Works
+              <Lightbulb size={16} className='home-nav__drawer-icon' /> How It Works
             </a>
             <a href='/about' onClick={closeMobile}>
-              <span className='home-nav__drawer-icon'>ℹ️</span> About
+              <InfoIcon size={16} className='home-nav__drawer-icon' /> About
             </a>
           </nav>
 
@@ -515,7 +531,7 @@ export default function LandingPage () {
                 { key: 'buy', label: 'Buy' },
                 { key: 'rent', label: 'Rent' },
                 { key: 'booking', label: 'Booking' },
-                { key: 'artisan', label: '🔧 Artisans' }
+                { key: 'artisan', label: 'Artisans' }
               ].map(t => (
                 <button
                   key={t.key}
@@ -531,11 +547,11 @@ export default function LandingPage () {
 
             <div className='home-search__body'>
               <div className='home-search__field home-search__field--location'>
-                <span className='home-search__icon'>📍</span>
+                <span className='home-search__icon'><MapPin size={18} /></span>
                 <div className='home-search__field-inner'>
                   <label>
                     {searchTab === 'artisan'
-                      ? 'Where do you need hehome?'
+                      ? 'Where do you need help?'
                       : 'Where do you want to stay?'}
                   </label>
                   <input
@@ -554,7 +570,7 @@ export default function LandingPage () {
 
               <div className='home-search__field home-search__field--type'>
                 <span className='home-search__icon'>
-                  {searchTab === 'artisan' ? '🔧' : '🏠'}
+                  {searchTab === 'artisan' ? <Wrench size={18} /> : <HomeIcon size={18} />}
                 </span>
                 <div className='home-search__field-inner'>
                   <label>
@@ -623,7 +639,7 @@ export default function LandingPage () {
         </div>
       </section>
 
-      {/* ── Featured Listings (immediately after hero for browse-first UX) ── */}
+      {/* ── Featured Listings ── */}
       <section id='listings' className='home-listings'>
         <div className='home-listings__inner'>
           <div className='home-listings__header'>
@@ -692,22 +708,30 @@ export default function LandingPage () {
                       </div>
                       <div className='home-card__body'>
                         <h3 className='home-card__title'>{listing.title}</h3>
-                        {loc && <p className='home-card__loc'>📍 {loc}</p>}
+                        {loc && (
+                          <p className='home-card__loc'>
+                            <MapPin size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                            {loc}
+                          </p>
+                        )}
                         <div className='home-card__stats'>
                           {listing.bedrooms != null && (
                             <span>
-                              🛏 {listing.bedrooms} bed
-                              {listing.bedrooms !== 1 ? 's' : ''}
+                              <BedDouble size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                              {listing.bedrooms} bed{listing.bedrooms !== 1 ? 's' : ''}
                             </span>
                           )}
                           {listing.bathrooms != null && (
                             <span>
-                              🚿 {listing.bathrooms} bath
-                              {listing.bathrooms !== 1 ? 's' : ''}
+                              <Bath size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                              {listing.bathrooms} bath{listing.bathrooms !== 1 ? 's' : ''}
                             </span>
                           )}
                           {listing.category && (
-                            <span>🏷 {listing.category}</span>
+                            <span>
+                              <Tag size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                              {listing.category}
+                            </span>
                           )}
                         </div>
                         <div className='home-card__footer'>
@@ -716,7 +740,7 @@ export default function LandingPage () {
                           </div>
                           {listing.stats?.averageRating > 0 && (
                             <div className='home-card__rating'>
-                              ⭐{' '}
+                              <StarIcon size={12} fill='#fbbf24' stroke='none' style={{ display: 'inline', verticalAlign: 'middle' }} />{' '}
                               <strong>
                                 {listing.stats.averageRating.toFixed(1)}
                               </strong>
@@ -744,11 +768,11 @@ export default function LandingPage () {
       {/* ── Trust Strip ── */}
       <div className='home-trust'>
         <div className='home-trust__inner'>
-          <div className='home-trust__item'><span>✅</span><span><strong>Verified</strong> listings only</span></div>
-          <div className='home-trust__item'><span>🔐</span><span><strong>Escrow</strong> on all payments</span></div>
-          <div className='home-trust__item'><span>⭐</span><span><strong>{stats.avgRating || '4.9/5'}</strong> avg rating</span></div>
-          <div className='home-trust__item'><span>🏘️</span><span><strong>{stats.activeListings || '10,000+'}</strong> active listings</span></div>
-          <div className='home-trust__item'><span>⚡</span><span><strong>Real-time</strong> chat &amp; booking</span></div>
+          <div className='home-trust__item'><CheckCircle2 size={18} /><span><strong>Verified</strong> listings only</span></div>
+          <div className='home-trust__item'><Lock size={18} /><span><strong>Escrow</strong> on all payments</span></div>
+          <div className='home-trust__item'><StarIcon size={18} fill='#C4E53C' stroke='none' /><span><strong>{stats.avgRating || '4.9/5'}</strong> avg rating</span></div>
+          <div className='home-trust__item'><Building2 size={18} /><span><strong>{stats.activeListings || '10,000+'}</strong> active listings</span></div>
+          <div className='home-trust__item'><Zap size={18} /><span><strong>Real-time</strong> chat &amp; booking</span></div>
         </div>
       </div>
 
@@ -759,7 +783,7 @@ export default function LandingPage () {
           <div className='home-cats__grid'>
             {CATEGORIES.map(cat => (
               <button key={cat.query} className='home-cat' onClick={() => router.push(`/search?type=${cat.query}`)}>
-                <span className='home-cat__icon'>{cat.icon}</span>
+                <span className='home-cat__icon'><cat.Icon size={28} /></span>
                 <span className='home-cat__label'>{cat.label}</span>
               </button>
             ))}
@@ -809,10 +833,10 @@ export default function LandingPage () {
               escrow-protected payments.
             </p>
             <ul className='home-artisan__perks'>
-              <li> Background-checked &amp; certified</li>
-              <li> Read reviews before you book</li>
-              <li> Escrow payment — pay on completion</li>
-              <li> Real-time messaging &amp; scheduling</li>
+              <li>Background-checked &amp; certified</li>
+              <li>Read reviews before you book</li>
+              <li>Escrow payment — pay on completion</li>
+              <li>Real-time messaging &amp; scheduling</li>
             </ul>
             <button
               className='home-btn-lime'
@@ -824,7 +848,6 @@ export default function LandingPage () {
 
           <div className='home-artisan__cards'>
             {(loadingArtisans ? [] : artisans).map(a => {
-              // Handle both API shape (flat) and fallback shape (nested)
               const name =
                 a.name ||
                 `${a.firstName || ''} ${(a.lastName || '').charAt(0)}.`.trim()
@@ -858,7 +881,12 @@ export default function LandingPage () {
                     </span>
                   </div>
                   <div className='home-artisan-card__foot'>
-                    {rating > 0 && <span>⭐ {rating.toFixed(1)}</span>}
+                    {rating > 0 && (
+                      <span>
+                        <StarIcon size={12} fill='#fbbf24' stroke='none' style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                        {rating.toFixed(1)}
+                      </span>
+                    )}
                     {jobs > 0 && <span>{jobs} jobs</span>}
                     {isVerified && (
                       <span className='home-artisan-card__verified'>
@@ -882,7 +910,7 @@ export default function LandingPage () {
             {HOW_IT_WORKS.map((s, i) => (
               <div key={s.step} className='home-step'>
                 <div className='home-step__num'>{s.step}</div>
-                <div className='home-step__icon'>{s.icon}</div>
+                <div className='home-step__icon'><s.Icon size={32} /></div>
                 <h3>{s.title}</h3>
                 <p>{s.desc}</p>
                 {i < HOW_IT_WORKS.length - 1 && (
@@ -902,10 +930,28 @@ export default function LandingPage () {
           <div className='home-reviews__grid'>
             {TESTIMONIALS.map(t => (
               <div key={t.name} className='home-review'>
-                <div className='home-review__stars'>{'⭐'.repeat(t.stars)}</div>
+                <div className='home-review__stars'>
+                  {Array.from({ length: t.stars }, (_, i) => (
+                    <StarIcon key={i} size={14} fill='#fbbf24' stroke='none' />
+                  ))}
+                </div>
                 <p className='home-review__text'>"{t.text}"</p>
                 <div className='home-review__author'>
-                  <span className='home-review__avatar'>{t.avatar}</span>
+                  <span
+                    className='home-review__avatar'
+                    style={{
+                      background: t.avatarColor + '22',
+                      color: t.avatarColor,
+                      border: `2px solid ${t.avatarColor}55`,
+                      fontWeight: 700,
+                      fontSize: 14,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {t.initials}
+                  </span>
                   <div>
                     <div className='home-review__name'>{t.name}</div>
                     <div className='home-review__role'>{t.role}</div>

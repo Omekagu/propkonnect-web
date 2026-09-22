@@ -1,20 +1,16 @@
-// ── Property Feed — TikTok-style vertical snap scroll ──────────────────────
-// Tokens from global index.scss, local dark vars for media-first UI
+// ── Property Feed — Instagram Reels-style vertical snap scroll ──────────────
 
 $bg: #000;
-$overlay-bottom: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 45%, transparent 100%);
-$overlay-top: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 60%);
 $accent: #C4E53C;
 $text: #fff;
 $text-2: rgba(255,255,255,0.75);
 $text-3: rgba(255,255,255,0.5);
 $surface: rgba(255,255,255,0.12);
-$surface-2: rgba(255,255,255,0.08);
 $radius: 14px;
 $header-h: 56px;
 
 @keyframes pf-fade-up {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes pf-spin {
@@ -48,26 +44,27 @@ $header-h: 56px;
   height: $header-h;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 16px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+  gap: 8px;
+  padding: 0 14px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, transparent 100%);
 
-  &__back {
+  &__back, &__search {
     flex-shrink: 0;
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: $surface;
-    border: none;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
     color: $text;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     transition: background 0.15s;
 
-    &:hover { background: rgba(255,255,255,0.2); }
+    &:hover { background: rgba(255,255,255,0.22); }
   }
 
   &__filters {
@@ -79,22 +76,37 @@ $header-h: 56px;
     &::-webkit-scrollbar { display: none; }
   }
 
-  &__search {
+  &__counter {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: $surface;
-    border: none;
-    color: $text;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.06em;
     backdrop-filter: blur(8px);
-    transition: background 0.15s;
+    -webkit-backdrop-filter: blur(8px);
+    padding: 3px 9px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    white-space: nowrap;
+  }
 
-    &:hover { background: rgba(255,255,255,0.2); }
+  &__track {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    pointer-events: none;
+
+    &-fill {
+      height: 100%;
+      background: $accent;
+      transition: width 0.4s ease;
+      border-radius: 0 1px 1px 0;
+      box-shadow: 0 0 8px rgba(196,229,60,0.55);
+    }
   }
 }
 
@@ -102,14 +114,15 @@ $header-h: 56px;
   flex-shrink: 0;
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1.5px solid rgba(255,255,255,0.3);
-  background: $surface;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.1);
   color: $text-2;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: all 0.15s;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.2s;
   white-space: nowrap;
 
   &.active {
@@ -117,6 +130,7 @@ $header-h: 56px;
     border-color: $accent;
     color: #0B3D28;
     font-weight: 700;
+    box-shadow: 0 2px 12px rgba(196,229,60,0.35);
   }
 
   &:hover:not(.active) {
@@ -145,8 +159,6 @@ $header-h: 56px;
   scroll-snap-stop: always;
   overflow: hidden;
   background: #0a0a0a;
-
-  &.expanded .pf-info { transform: translateY(0); }
 }
 
 // ── Media ──────────────────────────────────────────────────────────────────
@@ -167,8 +179,8 @@ $header-h: 56px;
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 25%, transparent 40%, rgba(0,0,0,0.9) 100%),
-    linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 18%);
+    linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 28%, transparent 38%, rgba(0,0,0,0.95) 100%),
+    linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 20%);
   pointer-events: none;
 }
 
@@ -187,16 +199,17 @@ $header-h: 56px;
   height: 5px;
   border-radius: 50%;
   background: rgba(255,255,255,0.4);
-  transition: background 0.2s;
+  transition: all 0.2s;
 
   &.active {
     background: $accent;
     width: 14px;
     border-radius: 3px;
+    box-shadow: 0 0 6px rgba(196,229,60,0.5);
   }
 }
 
-// ── Right action rail (TikTok-style) ───────────────────────────────────────
+// ── Right action rail — circular frosted-glass ────────────────────────────
 .pf-rail {
   position: absolute;
   right: 14px;
@@ -211,42 +224,99 @@ $header-h: 56px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     background: none;
     border: none;
-    color: $text;
+    padding: 0;
     cursor: pointer;
-    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.6));
     transition: transform 0.15s;
 
-    span {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.01em;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-    }
+    &:active { transform: scale(0.92); }
+  }
 
-    &:hover { transform: scale(1.1); }
-    &:active { transform: scale(0.95); }
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.14);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text;
+    transition: background 0.18s, transform 0.18s;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
 
-    &.saved { color: $accent; }
+  &__label {
+    font-size: 11px;
+    font-weight: 500;
+    color: $text-2;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    letter-spacing: 0.01em;
+  }
 
-    &--view {
-      background: $accent;
-      color: #0B3D28;
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      padding: 0;
-      filter: none;
-      box-shadow: 0 2px 12px rgba(196,229,60,0.35);
+  &__btn:hover &__icon {
+    background: rgba(255,255,255,0.24);
+    transform: scale(1.06);
+  }
 
-      span { display: none; }
+  &__btn.saved &__icon {
+    background: rgba(196,229,60,0.2);
+    border-color: rgba(196,229,60,0.45);
+    box-shadow: 0 2px 16px rgba(196,229,60,0.2), inset 0 1px 0 rgba(196,229,60,0.1);
+  }
 
-      svg { color: #0B3D28; }
+  &__btn.saved &__label { color: $accent; }
 
-      &:hover { transform: scale(1.08); }
-    }
+  &__btn--view &__icon {
+    background: $accent;
+    border-color: transparent;
+    box-shadow: 0 4px 20px rgba(196,229,60,0.45);
+    svg { color: #0B3D28; }
+  }
+
+  &__btn--view &__label {
+    color: $accent;
+    font-weight: 600;
+  }
+
+  &__btn--view:hover &__icon {
+    background: rgba(196,229,60,0.85);
+    transform: scale(1.06);
+  }
+}
+
+// ── Owner attribution ──────────────────────────────────────────────────────
+.pf-attr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  animation: pf-fade-up 0.3s ease both;
+
+  &__av {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(196,229,60,0.18);
+    border: 1.5px solid rgba(196,229,60,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: $accent;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: 12px;
+    color: $text-2;
+    font-weight: 500;
+    letter-spacing: 0.02em;
   }
 }
 
@@ -257,22 +327,26 @@ $header-h: 56px;
   left: 0;
   right: 0;
   z-index: 10;
-  padding: 0 16px 28px;
-  transform: translateY(0);
-  transition: padding 0.3s ease;
+  padding: 0 16px 36px;
+  transition: padding 0.3s ease, background 0.3s ease;
   animation: pf-fade-up 0.35s ease both;
   cursor: pointer;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.35) 60%, transparent 100%);
 
   &__drag {
     display: flex;
     justify-content: center;
-    padding: 8px 0 4px;
-    color: $text-3;
+    padding: 10px 0 8px;
+  }
 
-    svg {
-      transition: transform 0.25s;
-      &.rotated { transform: rotate(180deg); }
-    }
+  &__drag-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.3);
+    transition: background 0.2s;
+
+    &:hover { background: rgba(255,255,255,0.55); }
   }
 
   &__top {
@@ -290,17 +364,19 @@ $header-h: 56px;
     font-weight: 600;
     color: $accent;
     background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(196,229,60,0.3);
     padding: 2px 8px;
     border-radius: 20px;
   }
 
   &__title {
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.25;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.2;
     color: $text;
     margin: 0 0 6px;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    letter-spacing: -0.3px;
   }
 
   &__loc {
@@ -309,14 +385,14 @@ $header-h: 56px;
     gap: 4px;
     font-size: 13px;
     color: $text-2;
-    margin: 0 0 8px;
+    margin: 0 0 10px;
   }
 
   &__meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 12px;
 
     span {
       display: flex;
@@ -325,38 +401,44 @@ $header-h: 56px;
       font-size: 12px;
       font-weight: 500;
       color: $text-2;
-      background: $surface;
-      backdrop-filter: blur(8px);
-      padding: 4px 10px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 5px 10px;
       border-radius: 20px;
     }
   }
 
   &__price {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 800;
     color: $accent;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    text-shadow: 0 1px 6px rgba(0,0,0,0.5);
     letter-spacing: -0.5px;
+    line-height: 1;
+    margin-bottom: 4px;
   }
 
   &--expanded {
-    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 100%);
-    backdrop-filter: blur(12px);
+    background: rgba(0,0,0,0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.08);
     border-radius: $radius $radius 0 0;
-    padding-bottom: 40px;
+    padding-bottom: 48px;
   }
 
   &__extra {
-    margin-top: 14px;
+    margin-top: 16px;
     animation: pf-fade-up 0.2s ease both;
   }
 
   &__desc {
     font-size: 13px;
     color: $text-2;
-    line-height: 1.55;
-    margin: 0 0 16px;
+    line-height: 1.6;
+    margin: 0 0 18px;
   }
 
   &__cta {
@@ -370,8 +452,9 @@ $header-h: 56px;
     font-weight: 700;
     cursor: pointer;
     transition: opacity 0.15s, transform 0.15s;
+    box-shadow: 0 4px 16px rgba(196,229,60,0.35);
 
-    &:hover { opacity: 0.9; }
+    &:hover { opacity: 0.92; }
     &:active { transform: scale(0.98); }
   }
 }
@@ -385,31 +468,12 @@ $header-h: 56px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
-  &--rent     { background: #1a3a5c; color: #74c0fc; }
-  &--sale     { background: #1a3a28; color: #69db7c; }
-  &--shortlet { background: #3a2a10; color: #fcc419; }
-}
-
-// ── Scroll progress bar ────────────────────────────────────────────────────
-.pf-progress {
-  position: absolute;
-  top: $header-h;
-  right: 4px;
-  width: 3px;
-  height: calc(100% - #{$header-h} - 20px);
-  background: rgba(255,255,255,0.1);
-  border-radius: 2px;
-  overflow: hidden;
-  z-index: 5;
-
-  &__bar {
-    width: 100%;
-    background: $accent;
-    border-radius: 2px;
-    transition: height 0.3s ease;
-    min-height: 6%;
-  }
+  &--rent     { background: rgba(26,58,92,0.7); color: #74c0fc; border: 1px solid rgba(116,192,252,0.3); }
+  &--sale     { background: rgba(26,58,40,0.7); color: #69db7c; border: 1px solid rgba(105,219,124,0.3); }
+  &--shortlet { background: rgba(58,42,16,0.7); color: #fcc419; border: 1px solid rgba(252,196,25,0.3); }
 }
 
 // ── Loading / Empty ────────────────────────────────────────────────────────
@@ -424,16 +488,13 @@ $header-h: 56px;
   &__ring {
     width: 44px;
     height: 44px;
-    border: 3px solid rgba(255,255,255,0.15);
+    border: 3px solid rgba(255,255,255,0.12);
     border-top-color: $accent;
     border-radius: 50%;
     animation: pf-spin 0.8s linear infinite;
   }
 
-  p {
-    font-size: 14px;
-    color: $text-3;
-  }
+  p { font-size: 14px; color: $text-3; }
 }
 
 .pf-empty {
@@ -470,9 +531,11 @@ $header-h: 56px;
 
   span {
     display: block;
-    padding: 6px 18px;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(8px);
+    padding: 8px 20px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 20px;
     font-size: 12px;
     color: $text-2;
@@ -483,7 +546,6 @@ $header-h: 56px;
 // ── Desktop / tablet fallback ──────────────────────────────────────────────
 @media (min-width: 768px) {
   .pf {
-    // On desktop show feed in a centered column
     align-items: center;
     background: #111;
   }

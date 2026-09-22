@@ -14,7 +14,8 @@ import {
   Search,
   Star,
   Home,
-  ChevronUp
+  Eye,
+  Maximize2
 } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || ''
@@ -34,8 +35,8 @@ function formatPrice (price, purpose) {
     maximumFractionDigits: 0
   }).format(price)
   const p = (purpose || '').toLowerCase()
-  if (p.includes('rent')) return `${fmt}/mo`
-  if (p.includes('shortlet')) return `${fmt}/night`
+  if (p.includes('rent')) return `${fmt} · monthly`
+  if (p.includes('shortlet')) return `${fmt} · nightly`
   return fmt
 }
 
@@ -72,7 +73,6 @@ export default function FeedPage () {
     fetchProperties()
   }, [fetchProperties])
 
-  // Track which card is in view
   useEffect(() => {
     const els = cardRefs.current.filter(Boolean)
     if (!els.length) return
@@ -148,12 +148,28 @@ export default function FeedPage () {
           ))}
         </div>
 
+        {filtered.length > 1 && (
+          <span className='pf-header__counter'>
+            {currentIndex + 1} / {filtered.length}
+          </span>
+        )}
+
         <button
           className='pf-header__search'
           onClick={() => router.push('/search')}
         >
           <Search size={20} />
         </button>
+
+        {/* Horizontal progress track */}
+        {filtered.length > 1 && (
+          <div className='pf-header__track'>
+            <div
+              className='pf-header__track-fill'
+              style={{ width: `${((currentIndex + 1) / filtered.length) * 100}%` }}
+            />
+          </div>
+        )}
       </header>
 
       {/* ── Feed ── */}
@@ -177,6 +193,7 @@ export default function FeedPage () {
             const { label: purposeLabel, cls: purposeCls } = getPurposeMeta(prop.purpose)
             const price = formatPrice(prop.rentPrice || prop.price, prop.purpose)
             const loc = [prop.city, prop.state].filter(Boolean).join(', ') || prop.location || ''
+            const ownerName = prop.ownerName || prop.owner?.name || null
 
             const mediaItem = prop.media?.[0]
             const isVideo = mediaItem?.type === 'video'
@@ -211,7 +228,6 @@ export default function FeedPage () {
                       loading={i < 3 ? 'eager' : 'lazy'}
                     />
                   )}
-                  {/* Multi-image dots */}
                   {prop.images?.length > 1 && (
                     <div className='pf-img-dots'>
                       {prop.images.slice(0, 5).map((_, di) => (
@@ -222,15 +238,17 @@ export default function FeedPage () {
                   <div className='pf-card__gradient' />
                 </div>
 
-                {/* ── Right action rail ── */}
+                {/* ── Right action rail (Reels-style circular glass) ── */}
                 <div className='pf-rail'>
                   <button
                     className={`pf-rail__btn${isSaved ? ' saved' : ''}`}
                     onClick={e => toggleSave(id, e)}
                     title={isSaved ? 'Unsave' : 'Save'}
                   >
-                    <Heart size={24} fill={isSaved ? '#C4E53C' : 'none'} stroke={isSaved ? '#C4E53C' : '#fff'} />
-                    <span>{isSaved ? 'Saved' : 'Save'}</span>
+                    <div className='pf-rail__icon'>
+                      <Heart size={22} fill={isSaved ? '#C4E53C' : 'none'} stroke={isSaved ? '#C4E53C' : 'currentColor'} />
+                    </div>
+                    <span className='pf-rail__label'>{isSaved ? 'Saved' : 'Save'}</span>
                   </button>
 
                   <button
@@ -238,8 +256,10 @@ export default function FeedPage () {
                     onClick={e => handleShare(prop, e)}
                     title='Share'
                   >
-                    <Share2 size={24} />
-                    <span>Share</span>
+                    <div className='pf-rail__icon'>
+                      <Share2 size={22} />
+                    </div>
+                    <span className='pf-rail__label'>Share</span>
                   </button>
 
                   <button
@@ -247,8 +267,10 @@ export default function FeedPage () {
                     onClick={() => router.push(`/property/${id}`)}
                     title='View property'
                   >
-                    <Home size={24} />
-                    <span>View</span>
+                    <div className='pf-rail__icon'>
+                      <Eye size={22} />
+                    </div>
+                    <span className='pf-rail__label'>View</span>
                   </button>
                 </div>
 
@@ -258,8 +280,15 @@ export default function FeedPage () {
                   onClick={() => setExpandedCard(isExpanded ? null : id)}
                 >
                   <div className='pf-info__drag'>
-                    <ChevronUp size={16} className={isExpanded ? 'rotated' : ''} />
+                    <div className='pf-info__drag-handle' />
                   </div>
+
+                  {ownerName && (
+                    <div className='pf-attr'>
+                      <span className='pf-attr__av'>{ownerName.charAt(0).toUpperCase()}</span>
+                      <span className='pf-attr__name'>{ownerName}</span>
+                    </div>
+                  )}
 
                   <div className='pf-info__top'>
                     <span className={`pf-badge pf-badge--${purposeCls}`}>{purposeLabel}</span>
@@ -287,12 +316,13 @@ export default function FeedPage () {
                     {prop.bathrooms != null && (
                       <span><Bath size={13} /> {prop.bathrooms} bath{prop.bathrooms !== 1 ? 's' : ''}</span>
                     )}
-                    {prop.sqft && <span>📐 {prop.sqft} sqft</span>}
+                    {prop.sqft && (
+                      <span><Maximize2 size={13} /> {prop.sqft} sqft</span>
+                    )}
                   </div>
 
                   {price && <div className='pf-info__price'>{price}</div>}
 
-                  {/* Expanded: description + CTA */}
                   {isExpanded && (
                     <div className='pf-info__extra'>
                       {prop.description && (
@@ -309,23 +339,12 @@ export default function FeedPage () {
                     </div>
                   )}
                 </div>
-
-                {/* Scroll position indicator */}
-                {i === currentIndex && filtered.length > 1 && (
-                  <div className='pf-progress'>
-                    <div
-                      className='pf-progress__bar'
-                      style={{ height: `${((i + 1) / filtered.length) * 100}%` }}
-                    />
-                  </div>
-                )}
               </div>
             )
           })
         )}
       </div>
 
-      {/* Swipe hint — only on first visit */}
       <div className='pf-hint' aria-hidden='true'>
         <span>Swipe up to explore</span>
       </div>
