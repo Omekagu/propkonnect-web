@@ -1,11 +1,13 @@
-/* PlatformSettings.scss — Dark admin theme */
+/* PlatformSettings.scss — Redesigned with sidebar navigation */
 
 $bg:      #0d1117;
 $surface: #161b22;
+$surface2:#1c2128;
 $border:  rgba(255,255,255,0.07);
-$border2: rgba(255,255,255,0.12);
+$border2: rgba(255,255,255,0.13);
 $text:    #e6edf3;
 $muted:   rgba(230,237,243,0.45);
+$dim:     rgba(230,237,243,0.28);
 $accent:  #C4E53C;
 $green:   #0B3D28;
 $mid:     #0F6040;
@@ -16,226 +18,786 @@ $blue:    #58a6ff;
 $purple:  #a78bfa;
 $orange:  #f0883e;
 
+// ── Root wrapper ──────────────────────────────────────────────────────────────
 .platform-settings {
-  padding: 28px 28px 60px;
   min-height: 100%;
   background: $bg;
   color: $text;
   font-family: var(--font, Inter, sans-serif);
+  padding: 24px 28px 60px;
 
-  @media (max-width: 768px) { padding: 16px; }
+  @media (max-width: 768px) { padding: 12px 16px 80px; }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
-.ps-header {
-  margin-bottom: 22px;
-  h2, .ps-title {
-    font-size: 1.6rem; font-weight: 800; margin: 0 0 4px;
-    background: linear-gradient(120deg, #e6edf3 0%, $accent 120%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; letter-spacing: -0.02em;
+// ── Two-column layout ─────────────────────────────────────────────────────────
+.ps-layout {
+  display: grid;
+  grid-template-columns: 224px 1fr;
+  gap: 24px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
   }
 }
-.ps-subtitle { color: $muted; font-size: 0.875rem; margin: 0; }
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
-.ps-tabs {
-  display: flex; gap: 4px; flex-wrap: wrap;
-  background: $surface; border: 1px solid $border2;
-  border-radius: 10px; padding: 4px;
-  width: fit-content; margin-bottom: 24px;
+// ── Sidebar navigation ────────────────────────────────────────────────────────
+.ps-sidenav {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 18px;
+  overflow: hidden;
+  position: sticky;
+  top: 20px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+
+  @media (max-width: 900px) {
+    position: static;
+    border-radius: 14px;
+  }
 }
 
-.ps-tab {
-  padding: 7px 16px; border-radius: 7px; border: none;
-  background: transparent; color: $muted;
-  font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
-  &:hover:not(.ps-tab--active) { background: rgba(255,255,255,0.05); color: $text; }
-  &--active { background: $accent; color: $green; }
+.ps-sidenav-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  border-bottom: 1px solid $border;
+  background: rgba(255,255,255,0.02);
 }
 
-// ── Section ───────────────────────────────────────────────────────────────────
+.ps-sidenav-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba($accent,0.12);
+  color: $accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ps-sidenav-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: $text;
+  line-height: 1.2;
+}
+
+.ps-sidenav-sub {
+  font-size: 0.7rem;
+  color: $muted;
+  margin-top: 2px;
+}
+
+.ps-sidenav-nav {
+  padding: 10px 8px 12px;
+}
+
+.ps-sidenav-group {
+  margin-bottom: 4px;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+.ps-sidenav-group-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $dim;
+  padding: 8px 10px 4px;
+}
+
+.ps-sidenav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: $muted;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  position: relative;
+
+  &:hover:not(.ps-sidenav-item--active) {
+    background: rgba(255,255,255,0.05);
+    color: $text;
+  }
+
+  &--active {
+    background: rgba($accent,0.1);
+    color: $accent;
+    font-weight: 700;
+
+    .ps-sidenav-item-icon {
+      color: $accent;
+    }
+  }
+}
+
+.ps-sidenav-item-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $muted;
+  transition: color 0.15s;
+}
+
+.ps-sidenav-item-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ps-sidenav-item-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $accent;
+  flex-shrink: 0;
+}
+
+// ── Main content area ─────────────────────────────────────────────────────────
+.ps-main {
+  min-width: 0;
+}
+
+.ps-page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid $border;
+}
+
+.ps-page-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba($accent,0.1);
+  border: 1px solid rgba($accent,0.2);
+  color: $accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ps-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin: 0 0 3px;
+  background: linear-gradient(120deg, #e6edf3 0%, $accent 130%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+.ps-subtitle {
+  font-size: 0.8rem;
+  color: $muted;
+  margin: 0;
+}
+
+// ── Section cards ─────────────────────────────────────────────────────────────
 .ps-section {
-  background: $surface; border: 1px solid $border;
-  border-radius: 12px; padding: 22px; margin-bottom: 16px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  transition: border-color 0.2s;
+
+  &:hover { border-color: $border2; }
+  &:last-child { margin-bottom: 0; }
+}
+
+.ps-section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid $border;
+}
+
+.ps-section-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
 }
 
 .ps-section-title {
-  font-size: 0.88rem; font-weight: 700; color: $text; margin: 0 0 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: $text;
+  margin: 0 0 3px;
+  line-height: 1.3;
 }
-.ps-section-desc { font-size: 0.78rem; color: $muted; margin: 0 0 18px; }
 
-// ── Form Fields ───────────────────────────────────────────────────────────────
-.ps-field { margin-bottom: 16px; &:last-child { margin-bottom: 0; } }
+.ps-section-desc {
+  font-size: 0.75rem;
+  color: $muted;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// ── Group labels ──────────────────────────────────────────────────────────────
+.ps-group-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $dim;
+  margin: 20px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $border;
+  }
+
+  &:first-child { margin-top: 0; }
+}
+
+// ── Form fields ───────────────────────────────────────────────────────────────
+.ps-field {
+  margin-bottom: 14px;
+  &:last-child { margin-bottom: 0; }
+}
 
 .ps-label {
-  display: block; font-size: 0.78rem; font-weight: 600;
-  color: $muted; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em;
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: $muted;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.ps-input, .ps-textarea, .ps-select {
-  width: 100%; padding: 9px 12px;
-  background: $bg; border: 1px solid $border2;
-  border-radius: 8px; color: $text; font-size: 0.85rem;
-  outline: none; transition: border-color 0.2s; box-sizing: border-box;
-  &::placeholder { color: $muted; }
-  &:focus { border-color: $accent; box-shadow: 0 0 0 3px rgba($accent,0.1); }
-  option { background: $surface; }
+.ps-hint {
+  display: block;
+  font-size: 0.73rem;
+  color: $dim;
+  margin-bottom: 6px;
+  line-height: 1.4;
 }
 
-.ps-textarea { resize: vertical; font-family: inherit; line-height: 1.5; min-height: 80px; }
+.ps-hint--block {
+  display: block;
+  margin-top: 3px;
+  margin-bottom: 0;
+}
 
-// ── Toggle ────────────────────────────────────────────────────────────────────
+.ps-input,
+.ps-textarea,
+.ps-select {
+  width: 100%;
+  padding: 10px 13px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid $border2;
+  border-radius: 10px;
+  color: $text;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+
+  &::placeholder { color: $dim; }
+  &:focus {
+    border-color: $accent;
+    background: rgba(255,255,255,0.05);
+    box-shadow: 0 0 0 3px rgba($accent,0.1);
+  }
+  option { background: $surface2; }
+}
+
+.ps-textarea {
+  resize: vertical;
+  line-height: 1.55;
+  min-height: 80px;
+}
+
+// ── Two-column form grid ──────────────────────────────────────────────────────
+.ps-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+// ── Toggle rows ───────────────────────────────────────────────────────────────
 .ps-toggle-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 0; border-bottom: 1px solid $border;
-  &:last-child { border-bottom: none; }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 0;
+  border-bottom: 1px solid $border;
+
+  &:last-child { border-bottom: none; padding-bottom: 0; }
   &:first-child { padding-top: 0; }
 }
 
 .ps-toggle-label {
   span { display: block; }
-  .ps-toggle-title { font-size: 0.85rem; font-weight: 600; color: $text; }
-  .ps-toggle-desc  { font-size: 0.75rem; color: $muted; margin-top: 2px; }
+}
+
+.ps-toggle-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.ps-toggle-desc {
+  font-size: 0.73rem;
+  color: $muted;
+  margin-top: 2px;
+  line-height: 1.4;
 }
 
 .ps-toggle {
-  width: 40px; height: 22px; border-radius: 11px;
-  background: $border2; position: relative; cursor: pointer;
-  transition: background 0.2s; flex-shrink: 0; border: none; padding: 0;
+  width: 42px;
+  height: 24px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.12);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.22s;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
 
   &--on { background: $accent; }
 }
 
 .ps-toggle-knob {
-  position: absolute; top: 3px; left: 3px;
-  width: 16px; height: 16px; border-radius: 50%; background: #fff;
-  transition: left 0.2s;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  transition: left 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+
   .ps-toggle--on & { left: 21px; }
 }
 
-// ── Trial Row ─────────────────────────────────────────────────────────────────
+// ── Trial row ─────────────────────────────────────────────────────────────────
 .ps-trial-row {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px;
-}
-.ps-trial-days {
-  width: 80px; padding: 7px 10px;
-  background: $bg; border: 1px solid $border2; border-radius: 8px;
-  color: $text; font-size: 0.85rem; outline: none; text-align: center;
-  &:focus { border-color: $accent; }
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
-// ── Tiers Grid ────────────────────────────────────────────────────────────────
+.ps-trial-days {
+  width: 90px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid $border2;
+  border-radius: 10px;
+  color: $text;
+  font-size: 0.875rem;
+  outline: none;
+  text-align: center;
+  font-family: inherit;
+  transition: border-color 0.2s;
+
+  &:focus { border-color: $accent; box-shadow: 0 0 0 3px rgba($accent,0.1); }
+}
+
+// ── Tiers grid ────────────────────────────────────────────────────────────────
 .ps-tiers-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 12px; margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+
   @media (max-width: 800px) { grid-template-columns: 1fr 1fr; }
   @media (max-width: 500px) { grid-template-columns: 1fr; }
 }
 
 .ps-tier-card {
-  background: $bg; border: 1px solid $border2;
-  border-radius: 10px; padding: 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid $border2;
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color 0.2s;
+  &:hover { border-color: rgba($accent,0.3); }
 }
 
-.ps-tier-name {
-  font-size: 0.88rem; font-weight: 700; color: $text; margin-bottom: 6px;
-}
-.ps-tier-price { font-size: 0.78rem; color: $muted; margin-bottom: 10px; }
+.ps-tier-name     { font-size: 0.88rem; font-weight: 700; color: $text; margin-bottom: 6px; }
+.ps-tier-price    { font-size: 0.78rem; color: $muted; margin-bottom: 10px; }
 .ps-tier-features { font-size: 0.78rem; color: $muted; line-height: 1.7; }
 
-// ── Plans Grid ────────────────────────────────────────────────────────────────
+// ── Plans grid ────────────────────────────────────────────────────────────────
 .ps-plans-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 4px;
   @media (max-width: 700px) { grid-template-columns: 1fr; }
 }
 
 .ps-plan-card {
-  background: $bg; border: 1px solid $border2;
-  border-radius: 10px; padding: 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid $border2;
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color 0.2s;
+  min-width: 0;
+  &:hover { border-color: rgba($accent,0.3); }
 }
 
 .ps-plan-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
-.ps-plan-name { font-size: 0.88rem; font-weight: 700; color: $text; }
-.ps-plan-id   { font-size: 0.72rem; color: $muted; font-family: monospace; }
-
+.ps-plan-name { font-size: 0.88rem; font-weight: 700; color: $text; min-width: 0; flex: 1; }
+.ps-plan-id   { font-size: 0.72rem; color: $muted; font-family: monospace; white-space: nowrap; flex-shrink: 0; }
 .ps-plan-fields { display: flex; flex-direction: column; gap: 10px; }
 
-// ── Feature Chips ─────────────────────────────────────────────────────────────
+.ps-plan-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+// ── Feature chips ─────────────────────────────────────────────────────────────
 .ps-feat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 
 .ps-feat-chip {
-  padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
-  border: 1px solid $border2; background: transparent; color: $muted;
-  cursor: pointer; transition: all 0.18s;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid $border2;
+  background: transparent;
+  color: $muted;
+  cursor: pointer;
+  transition: all 0.18s;
+
   &:hover { border-color: $accent; color: $accent; }
   &.on { background: $accent; border-color: $accent; color: $green; }
 }
 
 .ps-add-chip-btn {
-  padding: 4px 10px; border-radius: 20px; font-size: 0.72rem;
-  border: 1px dashed $border2; background: transparent; color: $muted;
-  cursor: pointer; transition: all 0.18s;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  border: 1.5px dashed $border2;
+  background: transparent;
+  color: $muted;
+  cursor: pointer;
+  transition: all 0.18s;
+
   &:hover { border-color: $accent; color: $accent; }
+}
+
+// ── Category checkbox group (InspectionFeeTab) ────────────────────────────────
+.ps-check-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.ps-check-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1.5px solid $border2;
+  background: rgba(255,255,255,0.02);
+  font-size: 0.8rem;
+  color: $muted;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  input[type='checkbox'] { accent-color: $accent; cursor: pointer; }
+
+  &:hover { border-color: rgba($accent,0.4); color: $text; }
+
+  &--on {
+    border-color: rgba($accent,0.5);
+    background: rgba($accent,0.08);
+    color: $accent;
+  }
+}
+
+// ── Plan Enforcement section (TrialTab) ───────────────────────────────────────
+.ps-enforcement-section {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid $border;
+}
+
+.ps-enforcement-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: $text;
+  margin: 0 0 6px;
+}
+
+.ps-enforcement-desc {
+  font-size: 0.78rem;
+  color: $muted;
+  margin: 0 0 16px;
+  line-height: 1.55;
+}
+
+.ps-action-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+// ── Warning button variant ────────────────────────────────────────────────────
+.ps-btn--warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: rgba($warning,0.08);
+  border: 1px solid rgba($warning,0.3);
+  border-radius: 10px;
+  color: $warning;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { background: rgba($warning,0.15); border-color: rgba($warning,0.5); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 // ── Badge ─────────────────────────────────────────────────────────────────────
 .ps-badge {
-  display: inline-block; padding: 3px 9px; border-radius: 20px;
-  font-size: 0.68rem; font-weight: 700;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+
   &.active   { background: rgba($success,0.12); color: $success; }
   &.inactive { background: rgba(255,255,255,0.07); color: $muted; }
 }
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
 .ps-btn--primary {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 9px 18px; background: $accent; color: $green;
-  border: none; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: $accent;
+  color: $green;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
   transition: all 0.2s;
-  &:hover { filter: brightness(1.1); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  box-shadow: 0 2px 10px rgba($accent,0.25);
+
+  &:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 4px 16px rgba($accent,0.35); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 }
 
 .ps-btn--secondary {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 9px 18px; background: transparent;
-  border: 1px solid $border2; border-radius: 8px;
-  color: $muted; font-weight: 600; font-size: 0.82rem; cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid $border2;
+  border-radius: 10px;
+  color: $muted;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
   transition: all 0.2s;
-  &:hover { border-color: $accent; color: $accent; }
+
+  &:hover { border-color: $accent; color: $accent; background: rgba($accent,0.05); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .ps-btn--danger {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 9px 18px; background: rgba($danger,0.1);
-  border: 1px solid rgba($danger,0.3); border-radius: 8px;
-  color: $danger; font-weight: 600; font-size: 0.82rem; cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: rgba($danger,0.08);
+  border: 1px solid rgba($danger,0.25);
+  border-radius: 10px;
+  color: $danger;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
   transition: all 0.2s;
-  &:hover { background: rgba($danger,0.18); }
+
+  &:hover { background: rgba($danger,0.15); border-color: rgba($danger,0.4); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
-.ps-btn--sm { padding: 6px 12px; font-size: 0.75rem; }
+.ps-btn--sm { padding: 6px 14px; font-size: 0.75rem; border-radius: 8px; }
 
-// ── Messages ─────────────────────────────────────────────────────────────────
+// ── Save footer bar ───────────────────────────────────────────────────────────
+.ps-save-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid $border;
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+.ps-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: psSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(8px);
+
+  &--success {
+    background: rgba($success,0.15);
+    border: 1px solid rgba($success,0.3);
+    color: $success;
+  }
+  &--error {
+    background: rgba($danger,0.15);
+    border: 1px solid rgba($danger,0.3);
+    color: $danger;
+  }
+}
+
+@keyframes psSlideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+// ── Message inline ────────────────────────────────────────────────────────────
 .ps-msg {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 14px; border-radius: 10px;
-  font-size: 0.875rem; font-weight: 500; margin-bottom: 16px; border: 1px solid;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+  border: 1px solid;
+
   &--success { background: rgba($success,0.1); color: $success; border-color: rgba($success,0.25); }
   &--error   { background: rgba($danger,0.1);  color: $danger;  border-color: rgba($danger,0.25); }
 }
 
+// ── Loading ───────────────────────────────────────────────────────────────────
+.ps-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 12px;
+  color: $muted;
+  font-size: 0.875rem;
+}
+
 .ps-spinner {
-  width: 28px; height: 28px; margin: 40px auto; display: block;
-  border: 2.5px solid $border2; border-top-color: $accent;
-  border-radius: 50%; animation: psSpin 0.7s linear infinite;
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid $border2;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: psSpin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 
 @keyframes psSpin { to { transform: rotate(360deg); } }
+
+// ── Mobile tab bar (collapses sidebar to horizontal scroll) ───────────────────
+@media (max-width: 900px) {
+  .ps-sidenav {
+    overflow-x: auto;
+
+    .ps-sidenav-nav {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 4px;
+      padding: 8px;
+      overflow-x: auto;
+
+      &::-webkit-scrollbar { height: 3px; }
+    }
+
+    .ps-sidenav-group {
+      display: contents;
+    }
+
+    .ps-sidenav-group-label { display: none; }
+
+    .ps-sidenav-item {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .ps-sidenav-item-dot { display: none; }
+  }
+}

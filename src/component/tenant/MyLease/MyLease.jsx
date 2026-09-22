@@ -64,7 +64,7 @@ function LeaseCard ({ lease }) {
         <div className='ml-card__thumb'>
           {img
             ? <img src={img} alt={prop.title} />
-            : <span className='ml-card__thumb-icon'>🏠</span>
+            : <span className='ml-card__thumb-icon'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg></span>
           }
         </div>
         <div className='ml-card__prop-info'>
@@ -82,7 +82,10 @@ function LeaseCard ({ lease }) {
         ) : (
           <>
             <p className='ml-countdown__label'>
-              {cd.isExpiringSoon ? '⚠️ Expiring Soon' : 'Time Remaining'}
+              {cd.isExpiringSoon ? <>
+                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 4, verticalAlign: 'middle' }}><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12' y2='17.01'/></svg>
+                Expiring Soon
+              </> : 'Time Remaining'}
             </p>
             <div className='ml-countdown__units'>
               <CountUnit v={fmt2(cd.days)} l='days' />
@@ -242,7 +245,11 @@ export default function MyLease () {
 
       {leases.length === 0 ? (
         <div className='ml-empty'>
-          <span className='ml-empty__icon'>🏘️</span>
+          <span className='ml-empty__icon'>
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+              <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/>
+            </svg>
+          </span>
           <p className='ml-empty__title'>No leases yet</p>
           <p className='ml-empty__desc'>
             When you make a payment for a property, your lease will appear here with a live countdown.

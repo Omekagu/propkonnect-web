@@ -213,49 +213,53 @@ export default function PropertyManagementDashboard ({ backend, authToken, userR
                     <div className='pm-prop-img'>
                       {img
                         ? <img src={img} alt={p.title} />
-                        : <div className='pm-prop-no-img'><Home size={28} /></div>}
+                        : <div className='pm-prop-no-img'><Home size={32} /></div>}
+
+                      <div className='pm-pin-hover-veil' />
                       <span className={`pm-status-badge ${sm.cls}`}>{sm.label}</span>
+
+                      <div className='pm-pin-price'>
+                        {fmtCurrency(p.price || p.rentPrice)}
+                        {p.rentFrequency && <span className='pm-freq'>/{p.rentFrequency}</span>}
+                      </div>
+
+                      <div className='pm-pin-actions'>
+                        <a className='pm-pin-view' href={`/property/${p.uid || p._id}`}
+                          target='_blank' rel='noreferrer' title='Preview'>
+                          <SquareArrowOutUpRight size={13} />
+                        </a>
+                        <button className='pm-pin-apps' onClick={() => viewPropertyApplications(p._id)} title='Applications'>
+                          <FileText size={13} />
+                        </button>
+                        {isAdmin && p.status === 'pending_review' && (
+                          <>
+                            <button className='pm-pin-approve' onClick={() => handleApprove(p._id)} title='Approve'>
+                              <CheckCircle size={13} />
+                            </button>
+                            <button className='pm-pin-reject' onClick={() => openRejectModal(p._id)} title='Reject'>
+                              <XCircle size={13} />
+                            </button>
+                          </>
+                        )}
+                        <button className='pm-pin-del' onClick={() => handleDeleteProperty(p._id)} title='Delete'>
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </div>
+
                     <div className='pm-prop-body'>
                       <h3 className='pm-prop-title'>{p.title}</h3>
                       <p className='pm-prop-loc'>
-                        <MapPin size={12} />
+                        <MapPin size={11} />
                         {locStr(p.location) || p.city || p.address || 'No location'}
                       </p>
                       <div className='pm-prop-meta'>
                         {(p.beds || p.bedrooms) &&
-                          <span><Bed size={12} /> {p.beds || p.bedrooms} BD</span>}
+                          <span><Bed size={11} /> {p.beds || p.bedrooms} BD</span>}
                         {(p.baths || p.bathrooms) &&
-                          <span><Bath size={12} /> {p.baths || p.bathrooms} BA</span>}
+                          <span><Bath size={11} /> {p.baths || p.bathrooms} BA</span>}
                         {p.area && <span>{p.area} m²</span>}
                         <span className='pm-cat-pill'>{p.category}</span>
-                      </div>
-                      <div className='pm-prop-price'>
-                        {fmtCurrency(p.price || p.rentPrice)}
-                        {p.rentFrequency && <span className='pm-freq'>/{p.rentFrequency}</span>}
-                      </div>
-                      <div className='pm-prop-actions'>
-                        <a className='pm-act-btn view'
-                          href={`/property/${p.uid || p._id}`} target='_blank' rel='noreferrer'>
-                          <SquareArrowOutUpRight size={12} /> Preview
-                        </a>
-                        <button className='pm-act-btn apps'
-                          onClick={() => viewPropertyApplications(p._id)}>
-                          <FileText size={12} /> Apps
-                        </button>
-                        {isAdmin && p.status === 'pending_review' && (
-                          <>
-                            <button className='pm-act-btn approve' onClick={() => handleApprove(p._id)}>
-                              <CheckCircle size={12} /> Approve
-                            </button>
-                            <button className='pm-act-btn reject' onClick={() => openRejectModal(p._id)}>
-                              <XCircle size={12} /> Reject
-                            </button>
-                          </>
-                        )}
-                        <button className='pm-act-btn del' onClick={() => handleDeleteProperty(p._id)}>
-                          <Trash2 size={12} />
-                        </button>
                       </div>
                     </div>
                   </div>

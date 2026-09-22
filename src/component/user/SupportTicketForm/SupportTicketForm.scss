@@ -77,7 +77,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: $spacing-md;
     background: $bg-secondary;
     border: 1px solid $border-color;
-    //r(--radius-sm);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 600;
     color: $text-secondary;
@@ -129,7 +129,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: $spacing-2xl;
   background: var(--color-success-bg);
   border: 1px solid #86efac;
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   text-align: center;
   animation: fadeIn 0.3s ease-out;
 
@@ -180,7 +180,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: $spacing-lg;
   background: var(--color-error-bg);
   border: 1px solid var(--color-error-bg);
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   color: var(--color-error);
 
   .error-icon {
@@ -234,7 +234,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
   padding: $spacing-md;
   border: 1px solid $border-color;
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   font-size: 0.95rem;
   color: $text-primary;
   background: $bg-secondary;
@@ -295,7 +295,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: linear-gradient(135deg, $primary 0%, #a87842 100%);
   color: white;
   border: none;
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -445,7 +445,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: $spacing-md;
     background: $bg-primary;
     border: 1px solid $border-color;
-    //r(--radius-sm);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     transition: $transition;
 
@@ -558,7 +558,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     gap: $spacing-lg;
     padding: $spacing-lg;
     background: $bg-primary;
-    //r(--radius-sm);
+    border-radius: var(--radius-sm);
 
     @media (max-width: 768px) {
       grid-template-columns: 1fr;

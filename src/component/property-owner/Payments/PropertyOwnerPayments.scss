@@ -194,7 +194,7 @@
   background: var(--color-warning-bg);
   color: #92400e;
   border: 1px solid #fcd34d;
-  //r(--radius-xl);
+  border-radius: var(--radius-xl);
   padding: 2px 8px;
 }
 .pop-trial-info {
@@ -243,7 +243,7 @@
 }
 .pop-feat-chip {
   padding: 4px 12px;
-  //r(--radius-xl);
+  border-radius: var(--radius-xl);
   font-size: 12px;
   font-weight: 500;
 
@@ -324,7 +324,7 @@
   width: 100%;
   padding: 9px;
   border: none;
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -426,11 +426,11 @@
   line-height: 1.5;
   padding: 10px;
   background: var(--color-surface-hover, var(--color-background));
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
 }
 .pop-status-chip {
   padding: 3px 10px;
-  //r(--radius-xl);
+  border-radius: var(--radius-xl);
   font-size: 12px;
   font-weight: 600;
   &--green {
@@ -525,7 +525,7 @@
 }
 .pop-badge {
   padding: 3px 8px;
-  //r(--radius-xl);
+  border-radius: var(--radius-xl);
   font-size: 11px;
   font-weight: 700;
   text-transform: capitalize;
@@ -543,7 +543,7 @@
 .pop-page-btn {
   padding: 7px 16px;
   border: 1px solid var(--color-border, var(--color-border));
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   background: var(--color-surface, var(--color-surface));
   font-size: 13px;
   font-weight: 500;

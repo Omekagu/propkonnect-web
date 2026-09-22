@@ -72,7 +72,7 @@
       padding: 8px 14px;
       background: white;
       border: 1px solid var(--wz-border);
-      //r(--wz-radius-sm);
+      border-radius: var(--wz-radius-sm);
       color: var(--wz-muted);
       font-size: 13px;
       font-weight: 500;
@@ -103,7 +103,7 @@
   .wz-progress {
     background: var(--wz-card);
     border: 1px solid var(--wz-border);
-    //r(--wz-radius);
+    border-radius: var(--wz-radius);
     padding: 20px 24px;
     box-shadow: var(--wz-shadow);
     margin-bottom: 24px;
@@ -194,7 +194,7 @@
     gap: 14px;
     background: var(--wz-card);
     border: 1px solid var(--wz-border);
-    //r(--wz-radius);
+    border-radius: var(--wz-radius);
     padding: 12px 18px;
     margin-bottom: 16px;
     font-size: 13px;
@@ -227,7 +227,7 @@
       font-size: 11px;
       font-weight: 700;
       padding: 3px 10px;
-      //r(--radius-xl);
+      border-radius: var(--radius-xl);
       white-space: nowrap;
     }
     .wz-upgrade-btn {
@@ -249,7 +249,7 @@
   .wz-card {
     background: var(--wz-card);
     border: 1px solid var(--wz-border);
-    //r(--wz-radius);
+    border-radius: var(--wz-radius);
     padding: 28px;
     box-shadow: var(--wz-shadow);
     margin-bottom: 14px;
@@ -283,7 +283,7 @@
   .wz-type-card {
     padding: 18px 14px;
     border: 2px solid var(--wz-border);
-    //r(--wz-radius);
+    border-radius: var(--wz-radius);
     cursor: pointer;
     text-align: center;
     transition: all 0.2s;
@@ -344,7 +344,7 @@
     display: flex;
     background: var(--wz-bg);
     border: 1px solid var(--wz-border);
-    //r(--wz-radius-sm);
+    border-radius: var(--wz-radius-sm);
     padding: 3px;
     gap: 2px;
     button {
@@ -384,7 +384,7 @@
       width: 100%;
       padding: 10px 14px;
       border: 1.5px solid var(--wz-border);
-      //r(--wz-radius-sm);
+      border-radius: var(--wz-radius-sm);
       font-size: 14px;
       font-family: var(--font);
       color: var(--wz-text);
@@ -450,7 +450,7 @@
       );
       color: white;
       border: none;
-      //r(--wz-radius-sm);
+      border-radius: var(--wz-radius-sm);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
@@ -476,7 +476,7 @@
       gap: 7px;
       padding: 8px 11px;
       border: 1.5px solid var(--wz-border);
-      //r(--radius-sm);
+      border-radius: var(--radius-sm);
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
@@ -500,7 +500,7 @@
   }
   .wz-room-card {
     border: 1.5px solid var(--wz-border);
-    //r(--wz-radius);
+    border-radius: var(--wz-radius);
     overflow: hidden;
     background: white;
     .wz-room-hd {
@@ -563,7 +563,7 @@
         position: relative;
         width: 68px;
         height: 68px;
-        //r(--radius-sm);
+        border-radius: var(--radius-sm);
         overflow: hidden;
         background: var(--wz-bg);
         img {
@@ -591,7 +591,7 @@
         width: 68px;
         height: 68px;
         border: 2px dashed var(--wz-border);
-        //r(--radius-sm);
+        border-radius: var(--radius-sm);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -614,7 +614,7 @@
     .wz-amenity {
       padding: var(--radius-xs) var(--radius-md);
       border: 1.5px solid var(--wz-border);
-      //r(--radius-xl);
+      border-radius: var(--radius-xl);
       font-size: var(--radius-md);
       cursor: pointer;
       color: var(--wz-muted);
@@ -634,7 +634,7 @@
     padding: var(--radius-md) 18px;
     background: white;
     border: 2px dashed var(--wz-border);
-    //r(--wz-radius);
+    border-radius: var(--wz-radius);
     color: var(--wz-primary-mid);
     font-size: var(--radius-lg);
     font-weight: 600;
@@ -655,7 +655,7 @@
   }
   .wz-plan-item {
     border: 1.5px solid var(--wz-border);
-    //r(--wz-radius-sm);
+    border-radius: var(--wz-radius-sm);
     padding: var(--radius-lg) var(--radius-lg);
     background: white;
     .wz-pi-top {
@@ -720,7 +720,7 @@
     padding: 9px var(--radius-lg);
     background: white;
     border: 1.5px dashed var(--wz-border);
-    //r(--wz-radius-sm);
+    border-radius: var(--wz-radius-sm);
     color: var(--wz-primary-mid);
     font-size: 13px;
     font-weight: 600;
@@ -734,7 +734,7 @@
   // Media
   .wz-drop {
     border: 2px dashed var(--wz-border);
-    //r(--wz-radius);
+    border-radius: var(--wz-radius);
     padding: 40px var(--radius-xl);
     text-align: center;
     cursor: pointer;
@@ -743,7 +743,7 @@
     .wz-drop-icon {
       width: 56px;
       height: 56px;
-      //r(--radius-lg);
+      border-radius: var(--radius-lg);
       background: var(--wz-bg);
       display: flex;
       align-items: center;
@@ -778,7 +778,7 @@
   .wz-media-thumb {
     position: relative;
     aspect-ratio: 4/3;
-    //r(--radius-md);
+    border-radius: var(--radius-md);
     overflow: hidden;
     background: var(--wz-bg);
     img,
@@ -828,11 +828,11 @@
     padding: var(--radius-md) var(--radius-lg);
     background: var(--wz-bg);
     border: 1.5px solid var(--wz-border);
-    //r(--wz-radius-sm);
+    border-radius: var(--wz-radius-sm);
     .wz-di {
       width: 36px;
       height: 36px;
-      //r(--radius-sm);
+      border-radius: var(--radius-sm);
       background: white;
       border: 1px solid var(--wz-border);
       display: flex;
@@ -886,7 +886,7 @@
     gap: var(--radius-lg);
     padding: var(--radius-lg);
     border: 1.5px solid var(--wz-border);
-    //r(--wz-radius);
+    border-radius: var(--wz-radius);
     background: white;
     margin-top: var(--radius-sm);
     &.on {
@@ -896,7 +896,7 @@
     .wz-esc-icon {
       width: 42px;
       height: 42px;
-      //r(--radius-md);
+      border-radius: var(--radius-md);
       background: var(--wz-bg);
       display: flex;
       align-items: center;
@@ -968,7 +968,7 @@
   .wz-rv-box {
     padding: var(--radius-lg);
     background: var(--wz-bg);
-    //r(--wz-radius-sm);
+    border-radius: var(--wz-radius-sm);
     border: 1px solid var(--wz-border);
     h4 {
       font-size: 11px;
@@ -1005,7 +1005,7 @@
     img {
       width: 58px;
       height: 58px;
-      //r(--radius-sm);
+      border-radius: var(--radius-sm);
       object-fit: cover;
     }
   }
@@ -1020,7 +1020,7 @@
     flex: 1;
     padding: var(--radius-lg);
     border: 2px solid var(--wz-border);
-    //r(--wz-radius-sm);
+    border-radius: var(--wz-radius-sm);
     cursor: pointer;
     text-align: center;
     background: white;
@@ -1062,7 +1062,7 @@
       flex: 1;
     }
     button {
-      //r(--wz-radius-sm);
+      border-radius: var(--wz-radius-sm);
       font-size: var(--radius-lg);
       font-weight: 600;
       cursor: pointer;

@@ -57,7 +57,7 @@
     .as-header-icon {
       width: 56px;
       height: 56px;
-      //r(--radius-lg);
+      border-radius: var(--radius-lg);
       background: linear-gradient(135deg, var(--as-primary), var(--as-mid));
       color: white;
       display: flex;
@@ -139,7 +139,7 @@
   .as-card {
     background: var(--as-card);
     border: 1px solid var(--as-border);
-    //r(--as-radius);
+    border-radius: var(--as-radius);
     padding: 28px;
     box-shadow: var(--as-shadow);
 
@@ -195,7 +195,7 @@
       width: 100%;
       padding: 10px 14px;
       border: 1.5px solid var(--as-border);
-      //r(--radius-sm);
+      border-radius: var(--radius-sm);
       font-size: 14px;
       font-family: var(--font);
       color: var(--as-text);
@@ -221,7 +221,7 @@
   .as-dt {
     padding: 9px 13px;
     border: 1.5px solid var(--as-border);
-    //r(--radius-sm);
+    border-radius: var(--radius-sm);
     font-size: 13px;
     cursor: pointer;
     background: white;
@@ -279,7 +279,7 @@
     padding: 12px 14px;
     background: var(--color-surface-hover);
     border: 1px solid var(--color-primary-light);
-    //r(--radius-sm);
+    border-radius: var(--radius-sm);
     font-size: 12px;
     color: var(--color-primary-dark);
     line-height: 1.5;
@@ -299,7 +299,7 @@
   .as-account-name {
     padding: 10px 14px;
     border: 1.5px solid var(--as-border);
-    //r(--radius-sm);
+    border-radius: var(--radius-sm);
     font-size: 14px;
     background: var(--as-bg);
     color: var(--as-muted);

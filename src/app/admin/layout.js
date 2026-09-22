@@ -893,7 +893,7 @@ export default function AdminLayout ({ children }) {
         supportTicketCount={supportTicketCount}
       />
 
-      <div className='main-column'>
+      <div className={`main-column${sidebarCollapsed ? ' collapsed' : ''}`}>
         <AppHeader
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
           onToggleTheme={toggleTheme}

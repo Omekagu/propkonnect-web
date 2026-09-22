@@ -220,7 +220,7 @@ html[data-theme='dark'] .mp-page {
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  //r(--mp-radius-sm);
+  border-radius: var(--mp-radius-sm);
   border: 1.5px solid transparent;
   font-family: 'DM Sans', sans-serif;
   font-size: 13.5px;
@@ -279,7 +279,7 @@ html[data-theme='dark'] .mp-page {
 
 .mp-btn--icon {
   padding: 9px;
-  //r(--mp-radius-sm);
+  border-radius: var(--mp-radius-sm);
   border: 1.5px solid var(--mp-border);
   background: var(--mp-white);
   color: var(--mp-slate-3);
@@ -324,7 +324,7 @@ html[data-theme='dark'] .mp-page {
 .mp-stat {
   background: var(--mp-white);
   border: 1px solid var(--mp-border-soft);
-  //r(--mp-radius-sm);
+  border-radius: var(--mp-radius-sm);
   padding: 16px 18px;
   transition: all 0.25s var(--mp-ease);
   cursor: default;
@@ -415,7 +415,7 @@ html[data-theme='dark'] .mp-page {
   gap: 8px;
   padding: 9px 14px;
   border: 1.5px solid var(--mp-border);
-  //r(--mp-radius-sm);
+  border-radius: var(--mp-radius-sm);
   background: var(--mp-white);
   flex: 1;
   min-width: 220px;
@@ -450,7 +450,7 @@ html[data-theme='dark'] .mp-page {
 .mp-select {
   padding: 9px 14px;
   border: 1.5px solid var(--mp-border);
-  //r(--mp-radius-sm);
+  border-radius: var(--mp-radius-sm);
   background: var(--mp-white);
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
@@ -542,40 +542,42 @@ html[data-theme='dark'] .mp-page {
   }
 }
 
-/* ── PROPERTY GRID ─────────────────────────────────────────────────────── */
+/* ── PROPERTY GRID — Pinterest masonry ─────────────────────────────────── */
 .mp-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  column-count: 3;
+  column-gap: 16px;
   animation: mp-fade-up 0.45s var(--mp-ease) 0.2s both;
 
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 1200px) { column-count: 2; }
+  @media (max-width: 640px)  { column-count: 1; }
 
   &.mp-grid--list {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    column-count: 1;
+    column-gap: 0;
   }
 }
 
 /* ── PROPERTY CARD ─────────────────────────────────────────────────────── */
 .mp-card {
+  break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 16px;
   background: var(--mp-white);
   border: 1px solid var(--mp-border-soft);
-  //r(--mp-radius);
+  border-radius: 18px;
   overflow: hidden;
   position: relative;
-  transition: all 0.3s var(--mp-ease);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.22);
+  transition:
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.22s;
   animation: mp-card-in 0.4s var(--mp-ease) both;
 
   &:hover {
-    box-shadow: var(--mp-shadow-lg);
-    transform: translateY(-4px);
-    border-color: rgba(30, 28, 22, 0.1);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+    transform: scale(1.015);
+    border-color: rgba(255,255,255,0.1);
 
     .mp-card__actions {
       opacity: 1;
@@ -590,16 +592,17 @@ html[data-theme='dark'] .mp-page {
   &.mp-card--list {
     display: flex;
     flex-direction: row;
+    border-radius: 14px;
 
     &:hover {
-      transform: translateY(-2px);
+      transform: translateY(-2px) scale(1);
     }
 
     .mp-card__image-wrap {
       width: 200px;
       height: 160px;
       flex-shrink: 0;
-      //r(--mp-radius) 0 0 var(--mp-radius);
+      border-radius: 14px 0 0 14px;
     }
 
     .mp-card__body {
@@ -611,35 +614,33 @@ html[data-theme='dark'] .mp-page {
   }
 }
 
-/* Card image */
+/* Card image — auto height for masonry effect */
 .mp-card__image-wrap {
   position: relative;
-  height: 196px;
+  width: 100%;
   overflow: hidden;
   background: var(--mp-surface-2);
 
   img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    display: block;
+    min-height: 100px;
     transition: transform 0.5s var(--mp-ease);
   }
 }
 
+/* Fallback placeholder keeps an aspect ratio */
 .mp-card__image-placeholder {
-  width: 100%;
-  height: 100%;
+  aspect-ratio: 4 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--mp-surface) 0%,
-    var(--mp-surface-2) 100%
-  );
+  background: linear-gradient(135deg, var(--mp-surface) 0%, var(--mp-surface-2) 100%);
   color: var(--mp-muted-2);
   font-size: 32px;
 }
+
 
 /* Badges on image */
 .mp-card__badges {
@@ -1150,7 +1151,7 @@ html[data-theme='dark'] .mp-page {
 
 .mp-tier-card {
   border: 2px solid var(--mp-border);
-  //r(--mp-radius);
+  border-radius: var(--mp-radius);
   padding: 22px 22px 18px;
   cursor: pointer;
   transition: all 0.25s var(--mp-ease);

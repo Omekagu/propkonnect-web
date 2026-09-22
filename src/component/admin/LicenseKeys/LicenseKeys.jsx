@@ -103,7 +103,10 @@ export default function LicenseKeys () {
     <div className='lk-page'>
       <div className='lk-header'>
         <div>
-          <h1 className='lk-title'>🔑 License Keys</h1>
+          <h1 className='lk-title'>
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 6, verticalAlign: 'middle' }}><path d='M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4'/></svg>
+            License Keys
+          </h1>
           <p className='lk-subtitle'>
             Generate and manage PropNect Pro license keys for WordPress
             customers.
@@ -251,7 +254,8 @@ export default function LicenseKeys () {
               {genResult && !genResult.error && (
                 <div className='lk-gen-result'>
                   <div className='lk-gen-result-title'>
-                    ✅ {genResult.length} key{genResult.length > 1 ? 's' : ''}{' '}
+                    <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 4, verticalAlign: 'middle' }}><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg>
+                    {genResult.length} key{genResult.length > 1 ? 's' : ''}{' '}
                     generated
                   </div>
                   {genResult.map(k => (
@@ -262,7 +266,17 @@ export default function LicenseKeys () {
                         className='lk-btn lk-btn-xs'
                         onClick={() => copyKey(k.key)}
                       >
-                        {copying === k.key ? '✅ Copied' : '📋 Copy'}
+                        {copying === k.key ? (
+                        <>
+                          <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 3, verticalAlign: 'middle' }}><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg>
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 3, verticalAlign: 'middle' }}><rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/></svg>
+                          Copy
+                        </>
+                      )}
                       </button>
                     </div>
                   ))}
@@ -276,7 +290,8 @@ export default function LicenseKeys () {
                       )
                     }
                   >
-                    📋 Copy All Keys
+                    <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 4, verticalAlign: 'middle' }}><rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/></svg>
+                    Copy All Keys
                   </button>
                 </div>
               )}
@@ -374,7 +389,11 @@ export default function LicenseKeys () {
                         className='lk-btn lk-btn-xs'
                         onClick={() => copyKey(k.key)}
                       >
-                        {copying === k.key ? '✅' : '📋'}
+                        {copying === k.key ? (
+                          <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg>
+                        ) : (
+                          <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/></svg>
+                        )}
                       </button>
                     </div>
                   </td>
@@ -386,7 +405,17 @@ export default function LicenseKeys () {
                           k.tier === 'enterprise' ? '#7c3aed' : '#0B3D28'
                       }}
                     >
-                      {k.tier === 'enterprise' ? '💎 Enterprise' : '🚀 Pro'}
+                      {k.tier === 'enterprise' ? (
+                        <>
+                          <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 3, verticalAlign: 'middle' }}><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>
+                          Enterprise
+                        </>
+                      ) : (
+                        <>
+                          <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 3, verticalAlign: 'middle' }}><circle cx='12' cy='8' r='6'/><path d='M15.477 12.89L17 22l-5-3-5 3 1.523-9.11'/></svg>
+                          Pro
+                        </>
+                      )}
                     </span>
                   </td>
                   <td>
@@ -449,7 +478,10 @@ export default function LicenseKeys () {
 
       {/* WordPress integration guide */}
       <div className='lk-guide'>
-        <h3>📋 How to activate Pro on WordPress</h3>
+        <h3>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 6, verticalAlign: 'middle' }}><rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><path d='M12 11h4M12 16h4M8 11h.01M8 16h.01'/></svg>
+          How to activate Pro on WordPress
+        </h3>
         <ol>
           <li>
             Generate a key above (format: <code>PNPRO-XXXX-XXXX-XXXX-XXXX</code>

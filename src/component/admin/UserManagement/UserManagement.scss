@@ -330,13 +330,14 @@ $blue: #58a6ff;
   font-weight: 600;
 }
 
-// ── Table ────────────────────────────────────────────────────────────────────
+// ── Table — Pinterest style ──────────────────────────────────────────────────
 .um-table-wrap {
   background: $surface;
   border: 1px solid $border;
-  border-radius: 12px;
+  border-radius: 18px;
   overflow: hidden;
   margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
 }
 
 .um-table {
@@ -349,44 +350,40 @@ $blue: #58a6ff;
     border-bottom: 1px solid $border;
 
     th {
-      padding: 12px 16px;
+      padding: 14px 16px;
       text-align: left;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
       color: $muted;
       white-space: nowrap;
 
-      &:first-child {
-        padding-left: 20px;
-      }
+      &:first-child { padding-left: 20px; }
     }
   }
 
   tbody tr {
-    border-bottom: 1px solid $border;
-    transition: background 0.15s;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s, transform 0.15s;
     cursor: pointer;
 
-    &:last-child {
-      border-bottom: none;
-    }
+    &:last-child { border-bottom: none; }
+
     &:hover {
-      background: rgba(255, 255, 255, 0.025);
+      background: rgba(255, 255, 255, 0.04);
     }
+
     &.um-row-selected {
-      background: rgba($accent, 0.05);
+      background: rgba($accent, 0.06);
     }
 
     td {
-      padding: 14px 16px;
+      padding: 16px 16px;
       vertical-align: middle;
       color: $text;
 
-      &:first-child {
-        padding-left: 20px;
-      }
+      &:first-child { padding-left: 20px; }
     }
   }
 }
@@ -400,8 +397,8 @@ $blue: #58a6ff;
 }
 
 .um-avatar {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: linear-gradient(135deg, $green, $mid);
   display: flex;
@@ -409,10 +406,11 @@ $blue: #58a6ff;
   justify-content: center;
   color: $accent;
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   flex-shrink: 0;
   text-transform: uppercase;
   position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 
   img {
     width: 100%;
@@ -423,16 +421,14 @@ $blue: #58a6ff;
 
   .um-online-dot {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 10px;
-    height: 10px;
+    bottom: 1px;
+    right: 1px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     background: $success;
     border: 2px solid $surface;
-    &.offline {
-      background: $muted;
-    }
+    &.offline { background: $muted; }
   }
 }
 

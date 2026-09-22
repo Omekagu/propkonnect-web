@@ -110,7 +110,7 @@
   .property-card {
     flex: 0 0 300px;
     background: var(--color-surface);
-    //r(--radius-lg);
+    border-radius: var(--radius-lg);
     overflow: hidden;
     border: 1px solid var(--color-surface-hover);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -266,7 +266,7 @@
         .details-btn {
           background: var(--color-primary);
           border: none;
-          //r(--radius-sm);
+          border-radius: var(--radius-sm);
           padding: 0.5rem 1.1rem;
           color: var(--color-surface);
           font-weight: 600;

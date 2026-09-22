@@ -51,9 +51,12 @@ $orange:  #f0883e;
 .ap-stats {
   display: flex; gap: 10px; flex-wrap: wrap;
   .ap-stat {
-    background: $surface; border: 1px solid $border; border-radius: 10px;
-    padding: 10px 16px; display: flex; flex-direction: column;
-    .ap-stat-val { font-size: 1.2rem; font-weight: 800; color: $text; }
+    background: $surface; border: 1px solid $border; border-radius: 14px;
+    padding: 12px 18px; display: flex; flex-direction: column;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.22);
+    transition: transform 0.2s, box-shadow 0.2s;
+    &:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+    .ap-stat-val { font-size: 1.4rem; font-weight: 800; color: $text; }
     .ap-stat-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: $muted; }
   }
 }
@@ -84,27 +87,34 @@ $orange:  #f0883e;
   option { background: $surface; }
 }
 
-// ── Admin List ────────────────────────────────────────────────────────────────
-.admin-list { display: flex; flex-direction: column; gap: 8px; }
+// ── Admin List — Pinterest card style ────────────────────────────────────────
+.admin-list { display: flex; flex-direction: column; gap: 10px; }
 
 .admin-row {
   background: $surface; border: 1px solid $border;
-  border-radius: 12px; overflow: hidden; transition: border-color 0.2s;
-  &:hover { border-color: $border2; }
-  &.open { border-color: rgba($accent,0.3); }
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transition: border-color 0.2s, box-shadow 0.22s, transform 0.22s;
+  &:hover {
+    border-color: $border2;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.38);
+    transform: translateY(-1px);
+  }
+  &.open { border-color: rgba($accent,0.35); box-shadow: 0 0 0 1px rgba($accent,0.15), 0 8px 24px rgba(0,0,0,0.35); }
 }
 
 .admin-row-summary {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px; cursor: pointer; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px; cursor: pointer; flex-wrap: wrap;
 }
 
 .admin-row-avatar {
-  width: 38px; height: 38px; border-radius: 50%;
+  width: 44px; height: 44px; border-radius: 50%;
   background: linear-gradient(135deg, $green, $mid);
-  color: $accent; font-size: 0.82rem; font-weight: 700;
+  color: $accent; font-size: 0.9rem; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; text-transform: uppercase; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   img { width: 100%; height: 100%; object-fit: cover; }
 }
 

@@ -122,11 +122,12 @@ $purple:  #a78bfa;
 .tn-stat {
   background: $surface;
   border: 1px solid $border;
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 18px;
   display: flex; align-items: center; gap: 12px;
-  transition: border-color 0.2s;
-  &:hover { border-color: $border2; }
+  box-shadow: 0 2px 10px rgba(0,0,0,0.22);
+  transition: border-color 0.2s, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s;
+  &:hover { border-color: $border2; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.38); }
 
   .tn-stat-icon {
     width: 40px; height: 40px;

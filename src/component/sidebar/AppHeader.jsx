@@ -107,6 +107,9 @@ export default function AppHeader ({
     return `${Math.floor(diff / 86400)}d ago`
   }
 
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Propnekt'
+  const initials = appName.slice(0, 1).toUpperCase()
+
   return (
     <header className='app-header'>
       {/* Mobile Sidebar Toggle */}
@@ -116,13 +119,7 @@ export default function AppHeader ({
           onClick={onOpenMobileSidebar}
           aria-label='Open sidebar'
         >
-          <svg
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-          >
+          <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
             <line x1='3' y1='6' x2='21' y2='6' strokeWidth='2' />
             <line x1='3' y1='12' x2='21' y2='12' strokeWidth='2' />
             <line x1='3' y1='18' x2='21' y2='18' strokeWidth='2' />
@@ -130,11 +127,13 @@ export default function AppHeader ({
         </button>
       </div>
 
-      {/* Page Title */}
-      <div className='header-page-title'>
-        <span className='page-title-text'>
-          {PAGE_TITLES[currentPage] || currentPage || 'Dashboard'}
-        </span>
+      {/* Workspace Switcher */}
+      <div className='workspace-switcher'>
+        <div className='workspace-dot'>{initials}</div>
+        <span className='workspace-name'>{appName}</span>
+        <svg className='workspace-chevron' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+          <polyline points='6 9 12 15 18 9' />
+        </svg>
       </div>
 
       {/* Search Bar */}
@@ -338,10 +337,10 @@ export default function AppHeader ({
               {user?.avatar ? (
                 <img src={user.avatar} alt={user.email} />
               ) : (
-                <span>{user?.email?.charAt(0)?.toUpperCase() || 'U'}</span>
+                <span>{user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}</span>
               )}
             </div>
-            <span className='user-name'>{user?.email || 'User'}</span>
+            <span className='user-name'>{user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user?.email || 'User'}</span>
             <svg
               width='16'
               height='16'
@@ -434,7 +433,11 @@ export default function AppHeader ({
       {showLogoutConfirm && (
         <div className='logout-confirm-overlay'>
           <div className='logout-confirm-modal'>
-            <div className='confirm-icon'>⚠️</div>
+            <div className='confirm-icon'>
+              <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12' y2='17.01'/>
+              </svg>
+            </div>
             <h3>Confirm Logout</h3>
             <p>Are you sure you want to logout?</p>
             <div className='confirm-actions'>

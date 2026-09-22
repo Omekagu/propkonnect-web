@@ -74,7 +74,10 @@ export default function SiteKeys () {
   return (
     <div className='sk-page'>
       <div className='sk-header'>
-        <h1 className='sk-title'>🔑 PropNect Site Keys</h1>
+        <h1 className='sk-title'>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 6, verticalAlign: 'middle' }}><path d='M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4'/></svg>
+          PropNect Site Keys
+        </h1>
         <p className='sk-subtitle'>
           Connect your WordPress plugin to this PropNect account. Each key links
           one WordPress site.
@@ -99,7 +102,7 @@ export default function SiteKeys () {
             {
               n: 3,
               t: 'Paste in WordPress',
-              d: 'In your WP admin: PropNect Booking → Settings → ☁️ Cloud Sync → Site Key.'
+              d: 'In your WP admin: PropNect Booking → Settings → Cloud Sync → Site Key.'
             },
             {
               n: 4,
@@ -144,18 +147,29 @@ export default function SiteKeys () {
         {freshKey && (
           <div className='sk-fresh-key'>
             <div className='sk-fresh-title'>
-              ✅ Key generated! Copy it now — it won&apos;t be shown again.
+              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 4, verticalAlign: 'middle' }}><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg>
+              Key generated! Copy it now — it won&apos;t be shown again.
             </div>
             <div className='sk-fresh-key-display'>
               <code className='sk-key-code'>{freshKey.key}</code>
               <button className='sk-btn sk-btn-copy' onClick={copyKey}>
-                {copied ? '✅ Copied!' : '📋 Copy Key'}
+                {copied ? (
+                  <>
+                    <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 4, verticalAlign: 'middle' }}><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 4, verticalAlign: 'middle' }}><rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/></svg>
+                    Copy Key
+                  </>
+                )}
               </button>
             </div>
             <div className='sk-fresh-note'>
               Paste this in your WordPress admin under{' '}
               <strong>
-                PropNect Booking → Settings → ☁️ Cloud Sync → Your PropNect Site
+                PropNect Booking → Settings → Cloud Sync → Your PropNect Site
                 Key
               </strong>
             </div>

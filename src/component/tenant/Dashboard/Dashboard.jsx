@@ -44,7 +44,7 @@ function Countdown ({ days, label }) {
   const txt = days < 0 ? 'Overdue' : days === 0 ? 'Today' : `${days}d`
   return (
     <span className={`td-cd td-cd--${cls}`}>
-      ⏱ {txt}{label ? ` ${label}` : ''}
+      {txt}{label ? ` ${label}` : ''}
     </span>
   )
 }
@@ -149,7 +149,11 @@ export default function TenantDashboard () {
   if (error) return (
     <div className='td'>
       <div className='td-err'>
-        <div className='td-err__ico'>⚠️</div>
+        <div className='td-err__ico'>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12' y2='17.01'/>
+          </svg>
+        </div>
         <div className='td-err__msg'>{error}</div>
         <button className='td-err__btn' onClick={fetchData}>Retry</button>
       </div>
@@ -187,9 +191,9 @@ export default function TenantDashboard () {
       {/* ── Hero ── */}
       <div className='td-hero'>
         <div className='td-hero-top'>
-          <div className='td-avatar'>{initials(fullName) || '👤'}</div>
+          <div className='td-avatar'>{initials(fullName) || <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>}</div>
           <div className='td-hero-text'>
-            <h2 className='td-hero-name'>Hey, {firstName}! 👋</h2>
+            <h2 className='td-hero-name'>Hey, {firstName}!</h2>
             <p className='td-hero-sub'>Here's what's happening with your properties</p>
           </div>
           <div className='td-hero-live'>LIVE</div>
@@ -227,14 +231,14 @@ export default function TenantDashboard () {
         {/* ── Stats bento grid ── */}
         <div className='td-section-label'>Overview</div>
         <div className='td-stats'>
-          <StatCard icon='🏨' label='Total Bookings' value={s.bookings ?? 0} variant='blue' />
-          <StatCard icon='📋' label='Applications' value={s.applications ?? 0}
+          <StatCard icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>} label='Total Bookings' value={s.bookings ?? 0} variant='blue' />
+          <StatCard icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/></svg>} label='Applications' value={s.applications ?? 0}
             sub={s.applications ? `${data?.applicationSummary?.approved ?? 0} approved` : null}
             variant='amber' />
-          <StatCard icon='📜' label='Active Leases' value={s.activeLeases ?? 0} variant='green' />
-          <StatCard icon='🔍' label='Inspections' value={s.inspections ?? 0} variant='purple' />
-          <StatCard icon='🔒' label='Escrows' value={s.escrows ?? 0} variant='orange' />
-          <StatCard icon='💰' label='Wallet'
+          <StatCard icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/><line x1='16' y1='13' x2='8' y2='13'/><line x1='16' y1='17' x2='8' y2='17'/><polyline points='10 9 9 9 8 9'/></svg>} label='Active Leases' value={s.activeLeases ?? 0} variant='green' />
+          <StatCard icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>} label='Inspections' value={s.inspections ?? 0} variant='purple' />
+          <StatCard icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='3' y='11' width='18' height='11' rx='2' ry='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>} label='Escrows' value={s.escrows ?? 0} variant='orange' />
+          <StatCard icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><line x1='12' y1='1' x2='12' y2='23'/><path d='M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'/></svg>} label='Wallet'
             value={payout.walletBalance > 0 ? fmt(payout.walletBalance) : '—'}
             sub={payout.walletBalance > 0 ? 'Available balance' : 'No balance'}
             variant='lime' />
@@ -266,7 +270,7 @@ export default function TenantDashboard () {
                 const warn   = days != null && days <= 7
                 return (
                   <div key={b.bookingId} className={`td-event td-event--booking${urgent ? ' td-event--urgent' : warn ? ' td-event--warn' : ''}`}>
-                    <div className='td-event__dot'>🏨</div>
+                    <div className='td-event__dot'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg></div>
                     <div className='td-event__body'>
                       <div className='td-event__title'>{b.propertyTitle}</div>
                       <div className='td-event__meta'>
@@ -284,7 +288,7 @@ export default function TenantDashboard () {
                 const days = l.daysUntilDue
                 return (
                   <div key={l.leaseId} className={`td-event td-event--lease${l.isOverdue ? ' td-event--urgent' : days <= 7 ? ' td-event--warn' : ''}`}>
-                    <div className='td-event__dot'>📜</div>
+                    <div className='td-event__dot'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/><line x1='16' y1='13' x2='8' y2='13'/><line x1='16' y1='17' x2='8' y2='17'/><polyline points='10 9 9 9 8 9'/></svg></div>
                     <div className='td-event__body'>
                       <div className='td-event__title'>{l.propertyTitle}</div>
                       <div className='td-event__meta'>Rent due {fmtDate(l.nextDueDate)} · {fmt(l.nextDueAmount)}</div>
@@ -298,7 +302,7 @@ export default function TenantDashboard () {
               })}
               {insCounts.map(i => (
                 <div key={i.inspectionId} className='td-event td-event--insp'>
-                  <div className='td-event__dot'>🔍</div>
+                  <div className='td-event__dot'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg></div>
                   <div className='td-event__body'>
                     <div className='td-event__title'>{i.propertyTitle}</div>
                     <div className='td-event__meta'>Inspection: {fmtDate(i.confirmedDate)}</div>
@@ -317,7 +321,7 @@ export default function TenantDashboard () {
         <div className='td-section-label'>Activity</div>
 
         {/* Bookings */}
-        <Section icon='🏨' iconBg='rgba(59,130,246,0.12)' title='My Bookings'
+        <Section icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>} iconBg='rgba(59,130,246,0.12)' title='My Bookings'
           count={bookings.length} empty='No bookings yet. Book a shortlet or hotel to get started.'>
           <THead style={bookingCols} labels={['Property', 'Check-in', 'Check-out', 'Amount', 'Status']} />
           {bookings.map(b => (
@@ -332,7 +336,7 @@ export default function TenantDashboard () {
         </Section>
 
         {/* Applications */}
-        <Section icon='📋' iconBg='rgba(245,158,11,0.12)' title='My Applications'
+        <Section icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/></svg>} iconBg='rgba(245,158,11,0.12)' title='My Applications'
           count={applications.length} empty='No property applications yet.'>
           <THead style={appCols} labels={['Property', 'Type', 'Applied', 'Status']} />
           {applications.map(a => (
@@ -346,7 +350,7 @@ export default function TenantDashboard () {
         </Section>
 
         {/* Leases */}
-        <Section icon='📜' iconBg='rgba(34,197,94,0.12)' title='My Leases'
+        <Section icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/><line x1='16' y1='13' x2='8' y2='13'/><line x1='16' y1='17' x2='8' y2='17'/><polyline points='10 9 9 9 8 9'/></svg>} iconBg='rgba(34,197,94,0.12)' title='My Leases'
           count={leases.length} empty='No active leases.'>
           <THead style={leaseCols} labels={['Property', 'Start', 'End', 'Rent', 'Status']} />
           {leases.map(l => {
@@ -371,7 +375,7 @@ export default function TenantDashboard () {
         </Section>
 
         {/* Inspections */}
-        <Section icon='🔍' iconBg='rgba(168,85,247,0.12)' title='Inspection Requests'
+        <Section icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>} iconBg='rgba(168,85,247,0.12)' title='Inspection Requests'
           count={inspections.length} empty='No inspection requests yet.'>
           <THead style={inspCols} labels={['Property', 'Preferred', 'Confirmed', 'Fee', 'Status']} />
           {inspections.map(i => {
@@ -392,7 +396,7 @@ export default function TenantDashboard () {
         </Section>
 
         {/* Escrows */}
-        <Section icon='🔒' iconBg='rgba(249,115,22,0.12)' title='My Escrows'
+        <Section icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='3' y='11' width='18' height='11' rx='2' ry='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>} iconBg='rgba(249,115,22,0.12)' title='My Escrows'
           count={escrows.length} empty='No escrow transactions.'>
           <THead style={escrowCols} labels={['Type', 'Amount', 'Payee', 'Date', 'Status']} />
           {escrows.map(e => (
@@ -407,7 +411,7 @@ export default function TenantDashboard () {
         </Section>
 
         {/* Transactions */}
-        <Section icon='💳' iconBg='rgba(96,165,250,0.1)' title='Payments'
+        <Section icon={<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='1' y='4' width='22' height='16' rx='2' ry='2'/><line x1='1' y1='10' x2='23' y2='10'/></svg>} iconBg='rgba(96,165,250,0.1)' title='Payments'
           count={transactions.length} empty='No payment history.'>
           <THead style={txCols} labels={['Type', 'Amount', 'Date', 'Status']} />
           {transactions.map(t => (
@@ -431,7 +435,9 @@ export default function TenantDashboard () {
                 {transactions.filter(t => t.status === 'completed').length !== 1 ? 's' : ''}
               </div>
             </div>
-            <span style={{ fontSize: 28, opacity: 0.15 }}>📊</span>
+            <span style={{ fontSize: 28, opacity: 0.15 }}>
+              <svg width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><line x1='18' y1='20' x2='18' y2='10'/><line x1='12' y1='20' x2='12' y2='4'/><line x1='6' y1='20' x2='6' y2='14'/></svg>
+            </span>
           </div>
         )}
       </div>

@@ -55,7 +55,12 @@ const STATUS_COLOR = {
   rejected:   { bg: '#fee2e2', color: '#991b1b' }
 }
 
-const PLAN_ICONS = { free: '🌱', basic: '⚡', pro: '🚀', enterprise: '🏢' }
+const PLAN_ICONS = {
+  free: <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z'/><path d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12'/></svg>,
+  basic: <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>,
+  pro: <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><circle cx='12' cy='8' r='6'/><path d='M15.477 12.89L17 22l-5-3-5 3 1.523-9.11'/></svg>,
+  enterprise: <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M9 22V12h6v10M9 7h1M14 7h1M9 12h1M14 12h1'/></svg>
+}
 const PLAN_COLORS = { free: '#64748b', basic: '#0071c2', pro: '#7c3aed', enterprise: '#059669' }
 const FEATURE_LABELS = {
   analytics:        'Analytics & Reports',
@@ -107,7 +112,7 @@ function PlanTab ({ setupStatus, plans, onUpgrade, subscribing }) {
       {/* Current Plan Card */}
       <div className='pop-card pop-current-plan'>
         <div className='pop-cp-left'>
-          <div className='pop-cp-icon'>{PLAN_ICONS[tier] || '📦'}</div>
+          <div className='pop-cp-icon'>{PLAN_ICONS[tier] || <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg>}</div>
           <div>
             <div className='pop-cp-label'>Current Plan</div>
             <div className='pop-cp-name' style={{ color: PLAN_COLORS[tier] || '#1d4ed8' }}>
@@ -175,7 +180,7 @@ function PlanTab ({ setupStatus, plans, onUpgrade, subscribing }) {
           return (
             <div key={plan.id} className={`pop-plan-card${isCurrent ? ' pop-plan-card--current' : ''}`} style={{ borderTopColor: color }}>
               <div className='pop-plan-top'>
-                <span className='pop-plan-icon'>{PLAN_ICONS[plan.id] || '📦'}</span>
+                <span className='pop-plan-icon'>{PLAN_ICONS[plan.id] || <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg>}</span>
                 <div>
                   <div className='pop-plan-name'>{plan.name}</div>
                   <div className='pop-plan-price'>
@@ -219,7 +224,9 @@ function PlanTab ({ setupStatus, plans, onUpgrade, subscribing }) {
       <div className='pop-card pop-payout-card'>
         {payout.completed ? (
           <>
-            <div className='pop-payout-icon'>🏦</div>
+            <div className='pop-payout-icon'>
+              <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M9 22V12h6v10M9 7h1M14 7h1M9 12h1M14 12h1'/></svg>
+            </div>
             <div className='pop-payout-info'>
               <div className='pop-payout-bank'>{payout.bankName || 'Bank Account'}</div>
               <div className='pop-payout-name'>{payout.accountName}</div>
@@ -228,7 +235,11 @@ function PlanTab ({ setupStatus, plans, onUpgrade, subscribing }) {
           </>
         ) : (
           <div className='pop-payout-empty'>
-            <span>⚠️</span>
+            <span>
+              <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12' y2='17.01'/>
+              </svg>
+            </span>
             <div>
               <strong>No payout account set up</strong>
               <p>Complete account setup to receive payments from tenants.</p>
@@ -272,7 +283,9 @@ function TransactionsTab () {
         <div className='pop-loading'><Spinner /> Loading transactions…</div>
       ) : txs.length === 0 ? (
         <div className='pop-empty'>
-          <div className='pop-empty-icon'>💳</div>
+          <div className='pop-empty-icon'>
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='1' y='4' width='22' height='16' rx='2' ry='2'/><line x1='1' y1='10' x2='23' y2='10'/></svg>
+          </div>
           <p>No transactions yet</p>
         </div>
       ) : (
@@ -356,7 +369,11 @@ function PayoutsTab ({ setupStatus }) {
           </div>
         ) : (
           <div className='pop-payout-empty'>
-            <span className='pop-payout-empty-icon'>⚠️</span>
+            <span className='pop-payout-empty-icon'>
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+              <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12' y2='17.01'/>
+            </svg>
+          </span>
             <div>
               <strong>Payout account not configured</strong>
               <p>Go to <em>Account Setup</em> to link your bank account and start receiving payments.</p>

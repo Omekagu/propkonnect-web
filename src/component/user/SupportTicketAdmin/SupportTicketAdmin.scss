@@ -45,7 +45,7 @@ $desktop: 1024px;
 // Header
 .admin-header {
   background: var(--color-surface);
-  //r(--radius-md) var(--radius-md) 0 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
   border-bottom: 1px solid $border-color;
   padding: $spacing-2xl;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -175,7 +175,7 @@ $desktop: 1024px;
       width: 100%;
       padding: $spacing-md;
       border: 1px solid $border-color;
-      //r(--radius-sm);
+      border-radius: var(--radius-sm);
       font-size: 0.95rem;
       background: $bg-primary;
       color: $text-primary;
@@ -246,7 +246,7 @@ $desktop: 1024px;
       background: var(--color-surface);
 
       border: 1px solid $border-color;
-      //r(--radius-sm);
+      border-radius: var(--radius-sm);
       cursor: pointer;
       transition: $transition;
 
@@ -402,7 +402,7 @@ $desktop: 1024px;
 
       .message {
         padding: $spacing-md;
-        //r(--radius-sm);
+        border-radius: var(--radius-sm);
         max-width: 80%;
 
         &.user-message {
@@ -454,7 +454,7 @@ $desktop: 1024px;
       min-height: 100px;
       padding: $spacing-md;
       border: 1px solid $border-color;
-      //r(--radius-sm);
+      border-radius: var(--radius-sm);
       font-size: 0.95rem;
       color: $text-primary;
       resize: vertical;
@@ -522,7 +522,7 @@ $desktop: 1024px;
 .btn {
   padding: $spacing-md $spacing-lg;
   border: 1px solid transparent;
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;

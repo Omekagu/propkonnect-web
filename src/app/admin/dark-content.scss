@@ -1,96 +1,135 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// dark-content.scss — Always-on dark theme for admin content area
-// Scoped to .admin-content so sidebar + header are unaffected.
+// dark-content.scss — Always-on dark theme for the ENTIRE admin shell
 // Strategy:
-//   1. Override CSS design-token variables so any component using var(--*)
-//      automatically gets dark values.
-//   2. Catch-all overrides for hardcoded light colors in section SCSS files.
+//   1. Override CSS tokens at .admin-shell level → cascades to sidebar, header,
+//      AND all content components automatically via var(--*).
+//   2. Catch-all structural overrides for hardcoded light colours.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Dark palette ──────────────────────────────────────────────────────────────
-$dk-bg:           #0d1117;   // page background
-$dk-card:         #161b22;   // card / panel background
-$dk-card-2:       #1c2128;   // hover / secondary card
-$dk-card-3:       #21262d;   // tertiary / deepest card
-$dk-border:       #30363d;   // standard border
-$dk-border-soft:  #21262d;   // subtle border
-$dk-text:         #e6edf3;   // primary text
-$dk-text-2:       #c9d1d9;   // secondary text
-$dk-text-muted:   #8b949e;   // muted / placeholder
-$dk-text-dim:     #6e7681;   // very dim labels
+$dk-bg:           #0d1117;
+$dk-card:         #161b22;
+$dk-card-2:       #1c2128;
+$dk-card-3:       #21262d;
+$dk-border:       #30363d;
+$dk-border-soft:  #21262d;
+$dk-text:         #e6edf3;
+$dk-text-2:       #c9d1d9;
+$dk-text-muted:   #8b949e;
+$dk-text-dim:     #6e7681;
+$dk-sidebar:      #09090b;
+$dk-header:       #09090b;
 
-// Status tints — lower saturation for dark
+// Status tints
 $dk-success-bg:   rgba(46,160,67,.15);
 $dk-error-bg:     rgba(248,81,73,.15);
 $dk-warning-bg:   rgba(210,153,34,.15);
 $dk-info-bg:      rgba(56,139,253,.15);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 1. CSS variable overrides — propagates to every child that uses var(--)
+// 1. CSS token overrides at .admin-shell — cascades to EVERY descendant
+//    (sidebar, header, all page components) that references var(--)
 // ─────────────────────────────────────────────────────────────────────────────
-.admin-content {
-  background:              $dk-bg;
-  color:                   $dk-text;
-
-  // Core tokens
-  --color-background:      #{$dk-bg};
-  --color-surface:         #{$dk-card};
-  --color-surface-hover:   #{$dk-card-2};
-  --color-border:          #{$dk-border};
-  --color-border-light:    #{$dk-border-soft};
+.admin-shell {
+  // Core surface tokens
+  --color-background:       #{$dk-bg};
+  --color-surface:          #{$dk-card};
+  --color-surface-hover:    #{$dk-card-2};
+  --color-surface-elevated: #{$dk-card-3};
+  --color-border:           #{$dk-border};
+  --color-border-light:     #{$dk-border-soft};
+  --color-header-bg:        #{$dk-header};
+  --color-overlay:          rgba(0,0,0,0.6);
 
   // Text tokens
-  --color-text-primary:    #{$dk-text};
-  --color-text-secondary:  #{$dk-text-2};
-  --color-text-muted:      #{$dk-text-muted};
-  --text-dark:             #{$dk-text};
-  --text-gray:             #{$dk-text-muted};
-  --color-heading:         #{$dk-text};
+  --color-text-primary:     #{$dk-text};
+  --color-text-secondary:   #{$dk-text-2};
+  --color-text-muted:       #{$dk-text-muted};
+  --color-section-label:    rgba(255,255,255,0.28);
+  --color-heading:          #{$dk-text};
+
+  // Legacy aliases used by older component files
+  --text-dark:              #{$dk-text};
+  --text-gray:              #{$dk-text-muted};
+  --bg-light:               #{$dk-bg};
+  --bg-white:               #{$dk-card};
+  --bg-dark:                #{$dk-bg};
+  --bg-darker:              #{$dk-sidebar};
+  --surface-light:          #{$dk-card-2};
+  --bg-surface:             #{$dk-card};
+  --bg-raised:              #{$dk-card-2};
+  --bg-hover:               #{$dk-card-2};
+  --text-1:                 #{$dk-text};
+  --text-2:                 #{$dk-text-2};
+  --text-3:                 #{$dk-text-muted};
+  --border-mid:             #{$dk-border};
+
+  // Short legacy aliases (used by older/Settings components)
+  --bg:                     #{$dk-bg};
+  --surface:                #{$dk-card};
+  --surface-2:              #{$dk-card-2};
+  --border:                 #{$dk-border};
+  --border-light:           #{$dk-border-soft};
+  --accent-muted:           rgba(196,229,60,0.12);
 
   // Status surface tokens
-  --color-success-bg:      #{$dk-success-bg};
-  --color-error-bg:        #{$dk-error-bg};
-  --color-warning-bg:      #{$dk-warning-bg};
-  --color-info-bg:         #{$dk-info-bg};
+  --color-success-bg:       #{$dk-success-bg};
+  --color-error-bg:         #{$dk-error-bg};
+  --color-warning-bg:       #{$dk-warning-bg};
+  --color-info-bg:          #{$dk-info-bg};
+
+  // Nav active tokens
+  --color-nav-active-bg:     rgba(196,229,60,0.12);
+  --color-nav-active-bg-end: rgba(196,229,60,0.05);
+  --color-primary-emphasis:  #C4E53C;
+  --color-accent-subtle:     rgba(196,229,60,0.15);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2. Catch-all overrides for hardcoded light values
+// 2. Content-area base — background + text colour
+// ─────────────────────────────────────────────────────────────────────────────
+.admin-content {
+  background: $dk-bg;
+  color:      $dk-text;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. Catch-all structural overrides for hardcoded light values
 // ─────────────────────────────────────────────────────────────────────────────
 .admin-content {
 
-  // ── Generic text ────────────────────────────────────────────────────────────
-  h1, h2, h3, h4, h5, h6 {
+  // ── Generic text ──────────────────────────────────────────────────────────
+  h1, h2, h3, h4, h5, h6 { color: $dk-text; }
+  p, span, li, td, th, label, legend { color: inherit; }
+  a { color: #C4E53C; &:hover { color: lighten(#C4E53C, 10%); } }
+
+  // ── Hardcoded white / near-white backgrounds → dark card ─────────────────
+  [class*="card"]:not([class*="card-body"]):not([class*="card-header"]):not([class*="card-footer"]):not([class*="property-card"]):not([class*="mp-card"]),
+  [class*="-panel"],
+  [class*="-box"]:not([class*="-inbox"]):not([class*="-checkbox"]):not([class*="-shadow"]),
+  [class*="-section"]:not([class*="sidebar-section"]):not([class*="section-title"]),
+  [class*="-container"]:not([class*="btn"]):not([class*="notif"]):not([class*="user-menu"]),
+  [class*="-wrapper"]:not([class*="checkbox"]):not([class*="recharts"]),
+  [class*="-item"]:not([class*="nav-item"]):not([class*="menu-item"]):not([class*="list-item"]):not([class*="notif-item"]),
+  [class*="-row"]:not([class*="meta-row"]):not([class*="bid-row"]):not([class*="info-row"]):not([class*="notif"]),
+  [class*="-tile"],
+  [class*="-block"]:not([class*="recharts"]),
+  [class*="-stat"],
+  [class*="-widget"],
+  [class*="-grid-item"],
+  [class*="-header"]:not(.app-header):not(.notif-header),
+  [class*="-body"],
+  [class*="-content"]:not(.admin-content),
+  [class*="-pane"] {
+    background-color: $dk-card;
+    border-color: $dk-border;
     color: $dk-text;
   }
 
-  p, span, li, td, th, label, legend {
-    color: inherit;
-  }
-
-  // ── Hardcoded white / near-white backgrounds → dark card ─────────────────
-  // Section cards, panels, rows that use #fff / white / near-white
-  %dark-card {
-    background: $dk-card !important;
-    border-color: $dk-border !important;
-    color: $dk-text !important;
-  }
-
-  // Target the most common class naming patterns across all sections
-  [class*="card"]:not([class*="card-body"]):not([class*="card-header"]):not([class*="card-footer"]),
-  [class*="-panel"],
-  [class*="-box"]:not([class*="-inbox"]):not([class*="-checkbox"]),
-  [class*="-section"],
-  [class*="-container"]:not([class*="btn"]),
-  [class*="-wrapper"]:not([class*="checkbox"]),
-  [class*="-item"]:not([class*="nav-item"]):not([class*="menu-item"]):not([class*="list-item"]),
-  [class*="-row"]:not([class*="meta-row"]):not([class*="bid-row"]):not([class*="info-row"]),
-  [class*="-tile"],
-  [class*="-block"],
-  [class*="-stat"],
-  [class*="-widget"] {
-    background-color: $dk-card;
-    border-color: $dk-border;
+  // ── Page/view level wrappers that use white ───────────────────────────────
+  [class*="page-"]:not([class*="page-title"]):not([class*="page-sub"]),
+  [class*="view-"]:not([class*="view-title"]):not([class*="view-sub"]) {
+    background: $dk-bg;
     color: $dk-text;
   }
 
@@ -128,10 +167,51 @@ $dk-info-bg:      rgba(56,139,253,.15);
     border-color: $dk-border !important;
     &::placeholder { color: $dk-text-dim !important; }
     &:focus {
-      border-color: var(--color-primary-mid, #0f6040) !important;
+      border-color: #C4E53C !important;
       outline: none;
-      box-shadow: 0 0 0 3px rgba(11, 61, 40, 0.25) !important;
+      box-shadow: 0 0 0 3px rgba(196,229,60,0.15) !important;
     }
+  }
+
+  // ── Dropdowns / selects ───────────────────────────────────────────────────
+  option { background: $dk-card-3; color: $dk-text; }
+
+  // ── Inline-style white/light backgrounds (components using style={{}} ) ──
+  [style*="background: #fff"],
+  [style*="background:#fff"],
+  [style*="background: white"],
+  [style*="background: rgb(255, 255, 255)"],
+  [style*="background-color: #fff"],
+  [style*="background-color: white"] {
+    background: $dk-card !important;
+    color: $dk-text !important;
+  }
+
+  [style*="background: #f"],
+  [style*="background:#f"],
+  [style*="background: rgb(24"],
+  [style*="background: rgb(23"],
+  [style*="background: rgb(25"],
+  [style*="background: rgb(24"] {
+    // catch light grays like #f5f8f2, #f9fafb, #f0f5ec
+    // Only override if they look like light page backgrounds:
+  }
+
+  // Inline color: #333, #1a1a2e, #4a5568 → coerce to light text
+  [style*="color: #333"],
+  [style*="color:#333"],
+  [style*="color: #1a1a2e"],
+  [style*="color: #4a5568"],
+  [style*="color: rgb(26"],
+  [style*="color: rgb(74"] {
+    color: $dk-text !important;
+  }
+
+  // Inline border-color light values
+  [style*="border-color: #d"],
+  [style*="border: 1px solid #d"],
+  [style*="border: 1px solid rgba(0,0,0"] {
+    border-color: $dk-border !important;
   }
 
   // ── Specific light backgrounds ────────────────────────────────────────────
@@ -191,17 +271,8 @@ $dk-info-bg:      rgba(56,139,253,.15);
     border-color: $dk-border !important;
   }
 
-  // ── Scrollbars ────────────────────────────────────────────────────────────
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: $dk-border transparent;
-    &::-webkit-scrollbar { width: 6px; height: 6px; }
-    &::-webkit-scrollbar-track { background: transparent; }
-    &::-webkit-scrollbar-thumb { background: $dk-border; border-radius: 3px; }
-  }
-
   // ─────────────────────────────────────────────────────────────────────────
-  // 3. Section-specific overrides (hardcoded colours that don't use var(--))
+  // 4. Section-specific overrides (hardcoded colours that don't use var(--))
   // ─────────────────────────────────────────────────────────────────────────
 
   // AdminDashboard
@@ -287,12 +358,20 @@ $dk-info-bg:      rgba(56,139,253,.15);
     color: $dk-text !important;
   }
 
-  // KYC Queue
+  // KYC Queue & KYC Form
   [class*="kyc-card"],
   [class*="kyc-queue"] {
     background: $dk-card !important;
     border-color: $dk-border !important;
     color: $dk-text !important;
+  }
+
+  .kyc-cancelled-alert {
+    background: rgba(210,153,34,0.12) !important;
+    border-color: rgba(210,153,34,0.3) !important;
+    color: #d29922 !important;
+    svg { color: #d29922 !important; }
+    strong { color: #e6b833 !important; }
   }
 
   // Comments
@@ -342,6 +421,25 @@ $dk-info-bg:      rgba(56,139,253,.15);
   // The artisan job components use inline `style` objects — we can't target
   // those with CSS selectors reliably, so those remain as-is for now.
   // Their cards already use #fff background in the style object.
+
+  // ── Fix hardcoded dark text used on light warning/amber backgrounds ───────
+  // These colours assume a light-warning bg (#fff7ed, #fef3c7) and are invisible
+  // in dark mode where the warning bg is a semi-transparent dark tint.
+  .pop-trial-badge,
+  .pop-status-chip--amber,
+  [class*="trial-badge"],
+  [class*="amber-badge"] {
+    color: #d29922 !important;
+    background: rgba(210,153,34,0.12) !important;
+    border-color: rgba(210,153,34,0.3) !important;
+  }
+
+  // --color-primary-mid (#0f6040) is illegible as text on dark bg; remap for dark
+  .pop-tab--active,
+  .pop-tab:hover,
+  .pop-limit-val,
+  .pop-feat-chip--on { color: #C4E53C !important; }
+  .pop-feat-chip--on { background: rgba(196,229,60,0.08) !important; border-color: rgba(196,229,60,0.2) !important; }
 
   // ── Light info/success/error boxes ────────────────────────────────────────
   [style*="background: #f0fdf4"],
@@ -430,5 +528,156 @@ $dk-info-bg:      rgba(56,139,253,.15);
     background: $dk-card-3 !important;
     border-color: $dk-border !important;
     color: $dk-text-muted !important;
+  }
+
+  // ── Property/listing cards ────────────────────────────────────────────────
+  [class*="property-card"],
+  [class*="listing-card"],
+  [class*="mp-card"],
+  [class*="prop-card"] {
+    background: $dk-card !important;
+    border-color: $dk-border !important;
+    color: $dk-text !important;
+
+    [class*="-title"], [class*="-name"], h3, h4 { color: $dk-text !important; }
+    [class*="-sub"], [class*="-meta"], [class*="-address"] { color: $dk-text-muted !important; }
+    [class*="-price"] { color: #C4E53C !important; }
+  }
+
+  // ── User / tenant / artisan cards ─────────────────────────────────────────
+  [class*="user-card"],
+  [class*="tenant-card"],
+  [class*="artisan-card"],
+  [class*="lead-card"],
+  [class*="contact-card"] {
+    background: $dk-card !important;
+    border-color: $dk-border !important;
+  }
+
+  // ── KPI / stat boxes ──────────────────────────────────────────────────────
+  [class*="kpi-"], [class*="re-kpi"],
+  [class*="stat-box"], [class*="stat-card"],
+  [class*="metric-"] {
+    background: $dk-card !important;
+    border-color: $dk-border !important;
+    color: $dk-text !important;
+  }
+
+  // ── Search bars / filter bars ─────────────────────────────────────────────
+  [class*="search-bar"],
+  [class*="filter-bar"],
+  [class*="filter-row"],
+  [class*="toolbar"] {
+    background: $dk-card-2 !important;
+    border-color: $dk-border !important;
+  }
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────
+  [class*="tabs-"],
+  [class*="tab-list"],
+  [class*="-tabs"] {
+    background: $dk-card-2;
+    border-color: $dk-border;
+  }
+
+  [class*="tab-"]:not([class*="mobile"]):not([class*="-tab-bar"]).active,
+  [class*="-tab"].active {
+    background: $dk-card !important;
+    color: $dk-text !important;
+    border-color: #C4E53C !important;
+  }
+
+  // ── Pagination ────────────────────────────────────────────────────────────
+  [class*="pagination"] button,
+  [class*="page-btn"] {
+    background: $dk-card-3;
+    border-color: $dk-border;
+    color: $dk-text-muted;
+    &.active, &:hover { background: $dk-card-2; color: $dk-text; }
+  }
+
+  // ── Tooltips ──────────────────────────────────────────────────────────────
+  [class*="tooltip"]:not([class*="nav-tooltip"]) {
+    background: $dk-card-3 !important;
+    color: $dk-text !important;
+    border-color: $dk-border !important;
+  }
+
+  // ── Action bars / toolbars ────────────────────────────────────────────────
+  [class*="action-bar"],
+  [class*="action-row"],
+  [class*="top-bar"] {
+    background: $dk-card;
+    border-color: $dk-border;
+  }
+
+  // ── Image placeholder / skeleton ──────────────────────────────────────────
+  [class*="placeholder"],
+  [class*="skeleton"] {
+    background: $dk-card-3 !important;
+    &::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent) !important; }
+  }
+
+  // ── Alerts within content ─────────────────────────────────────────────────
+  [class*="alert-"]:not(.alert-banner) {
+    border-color: $dk-border;
+    &[class*="success"] { background: $dk-success-bg !important; }
+    &[class*="error"], &[class*="danger"] { background: $dk-error-bg !important; }
+    &[class*="warning"] { background: $dk-warning-bg !important; }
+    &[class*="info"] { background: $dk-info-bg !important; }
+  }
+
+  // ── Global scrollbar inside content ──────────────────────────────────────
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: $dk-border transparent;
+    &::-webkit-scrollbar { width: 6px; height: 6px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb {
+      background: $dk-border;
+      border-radius: 3px;
+      &:hover { background: #484f58; }
+    }
+  }
+
+  // ── Pinterest global polish ───────────────────────────────────────────────
+  // Elevate surface cards with shadows + rounder corners for pin-board feel
+  .re-kpi-card,
+  .re-perf-card,
+  .re-property-card,
+  .re-reminder-card {
+    border-radius: 18px !important;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.28);
+  }
+
+  .pm-stat,
+  .pm-toolbar {
+    border-radius: 16px !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.22);
+  }
+
+  .pm-table-wrap {
+    border-radius: 16px !important;
+  }
+
+  // Stat cards glow accent in corner
+  .pm-stat {
+    position: relative;
+    overflow: hidden;
+    &::after {
+      content: '';
+      position: absolute;
+      top: -18px; right: -18px;
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(196,229,60,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+  }
+
+  // Page header subtitle dimmer for cleaner editorial feel
+  .pm-head > div > p {
+    opacity: 0.6;
+    letter-spacing: 0.01em;
   }
 }

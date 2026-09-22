@@ -40,7 +40,7 @@
   margin: 10px 12px;
   padding: 8px 12px;
   background: var(--color-surface-hover);
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   color: var(--color-text-muted);
 
   input {
@@ -81,7 +81,7 @@
   padding: 12px 14px;
   cursor: pointer;
   transition: background 0.15s;
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   margin: 2px 6px;
 
   &:hover {
@@ -279,7 +279,7 @@
 .msg-bubble {
   max-width: 68%;
   padding: 10px 14px;
-  //r(--radius-lg);
+  border-radius: var(--radius-lg);
   font-size: 14px;
   line-height: 1.5;
   position: relative;
@@ -362,7 +362,7 @@
   flex: 1;
   padding: 10px 14px;
   border: 1px solid var(--color-border);
-  //r(--radius-xl);
+  border-radius: var(--radius-xl);
   font-size: 14px;
   resize: none;
   outline: none;
@@ -446,7 +446,7 @@
     width: 56px;
     height: 56px;
     object-fit: cover;
-    //r(--radius-sm);
+    border-radius: var(--radius-sm);
   }
 }
 
@@ -458,7 +458,7 @@
   color: #334155;
   background: var(--color-surface);
   padding: 8px 12px;
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
 }
 
@@ -659,7 +659,7 @@
 
 .picker-modal {
   background: var(--color-surface);
-  //r(--radius-lg);
+  border-radius: var(--radius-lg);
   width: 360px;
   max-height: 480px;
   display: flex;
@@ -690,7 +690,7 @@
     display: flex;
     align-items: center;
     padding: 4px;
-    //r(--radius-sm);
+    border-radius: var(--radius-sm);
     &:hover {
       background: var(--color-surface-hover);
       color: var(--color-text-primary);
@@ -705,7 +705,7 @@
   margin: 10px 14px;
   padding: 8px 12px;
   background: var(--color-surface-hover);
-  //r(--radius-sm);
+  border-radius: var(--radius-sm);
   color: var(--color-text-muted);
 
   input {
@@ -751,7 +751,7 @@
     width: 48px;
     height: 48px;
     object-fit: cover;
-    //r(--radius-sm);
+    border-radius: var(--radius-sm);
     flex-shrink: 0;
   }
 }

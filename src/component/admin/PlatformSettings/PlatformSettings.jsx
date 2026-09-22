@@ -22,17 +22,96 @@ async function api (method, path, body) {
 }
 
 const TABS = [
-  { id: 'branding', label: '🎨 Branding' },
-  { id: 'fees', label: 'Platform Fees' },
-  { id: 'tiers', label: 'Listing Tiers' },
-  { id: 'plans', label: 'Subscription Plans' },
-  { id: 'trial', label: 'Trial & Onboarding' },
-  { id: 'inspection', label: 'Inspection Fee' },
-  { id: 'kyc', label: 'KYC / Verification' },
-  { id: 'features', label: 'Feature Flags' },
-  { id: 'limits', label: 'Limits' },
-  { id: 'email', label: 'Email Settings' },
-  { id: 'acctverify', label: 'Account Verification' }
+  {
+    id: 'branding', label: 'Branding', group: 'Identity',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <circle cx='13.5' cy='6.5' r='.5' fill='currentColor' /><circle cx='17.5' cy='10.5' r='.5' fill='currentColor' />
+        <circle cx='8.5' cy='7.5' r='.5' fill='currentColor' /><circle cx='6.5' cy='12.5' r='.5' fill='currentColor' />
+        <path d='M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z' />
+      </svg>
+    )
+  },
+  {
+    id: 'fees', label: 'Platform Fees', group: 'Monetization',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <line x1='12' y1='1' x2='12' y2='23' /><path d='M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' />
+      </svg>
+    )
+  },
+  {
+    id: 'tiers', label: 'Listing Tiers', group: 'Monetization',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <rect x='3' y='3' width='7' height='7' /><rect x='14' y='3' width='7' height='7' /><rect x='14' y='14' width='7' height='7' /><rect x='3' y='14' width='7' height='7' />
+      </svg>
+    )
+  },
+  {
+    id: 'plans', label: 'Subscription Plans', group: 'Monetization',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <rect x='1' y='4' width='22' height='16' rx='2' ry='2' /><line x1='1' y1='10' x2='23' y2='10' />
+      </svg>
+    )
+  },
+  {
+    id: 'trial', label: 'Trial & Onboarding', group: 'Monetization',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2' />
+      </svg>
+    )
+  },
+  {
+    id: 'inspection', label: 'Inspection Fee', group: 'Monetization',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z' /><polyline points='14 2 14 8 20 8' /><line x1='16' y1='13' x2='8' y2='13' /><line x1='16' y1='17' x2='8' y2='17' /><polyline points='10 9 9 9 8 9' />
+      </svg>
+    )
+  },
+  {
+    id: 'kyc', label: 'KYC / Verification', group: 'Compliance',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' />
+      </svg>
+    )
+  },
+  {
+    id: 'acctverify', label: 'Account Verification', group: 'Compliance',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2' /><circle cx='12' cy='7' r='4' /><polyline points='16 11 18 13 22 9' />
+      </svg>
+    )
+  },
+  {
+    id: 'features', label: 'Feature Flags', group: 'System',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <path d='M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z' /><line x1='4' y1='22' x2='4' y2='15' />
+      </svg>
+    )
+  },
+  {
+    id: 'limits', label: 'Limits', group: 'System',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <line x1='4' y1='21' x2='4' y2='14' /><line x1='4' y1='10' x2='4' y2='3' /><line x1='12' y1='21' x2='12' y2='12' /><line x1='12' y1='8' x2='12' y2='3' /><line x1='20' y1='21' x2='20' y2='16' /><line x1='20' y1='12' x2='20' y2='3' /><line x1='1' y1='14' x2='7' y2='14' /><line x1='9' y1='8' x2='15' y2='8' /><line x1='17' y1='16' x2='23' y2='16' />
+      </svg>
+    )
+  },
+  {
+    id: 'email', label: 'Email Settings', group: 'System',
+    icon: (
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <path d='M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z' /><polyline points='22,6 12,13 2,6' />
+      </svg>
+    )
+  },
 ]
 
 // ── Reusable input ────────────────────────────────────────────────────────────
@@ -175,21 +254,30 @@ function BrandingTab ({ settings, onSave, saving }) {
 
   return (
     <form className='ps-section' onSubmit={handleSubmit}>
-      <h3 className='ps-section-title'>Branding &amp; Company Identity</h3>
-      <p className='ps-hint' style={{ marginBottom: '1.5rem' }}>
-        Control the public-facing name, logo, hero content, and contact details across the entire platform.
-      </p>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <circle cx='13.5' cy='6.5' r='.5' fill='currentColor'/><circle cx='17.5' cy='10.5' r='.5' fill='currentColor'/><circle cx='8.5' cy='7.5' r='.5' fill='currentColor'/><circle cx='6.5' cy='12.5' r='.5' fill='currentColor'/><path d='M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Branding &amp; Company Identity</h3>
+          <p className='ps-section-desc'>Control the public-facing name, logo, hero content, and contact details across the entire platform.</p>
+        </div>
+      </div>
 
       <div className='ps-group-label'>App Identity</div>
       <Field label='App Name' name='appName' value={form.appName} onChange={ch} hint='Displayed in nav, footer, emails and SEO' />
       <Field label='Tagline' name='tagline' value={form.tagline} onChange={ch} hint='Short one-line brand tagline' />
-      <Field label='Logo URL' name='logoUrl' value={form.logoUrl} onChange={ch} hint='Full URL to your logo image (PNG/SVG, min 200px wide)' />
-      <Field label='Favicon URL' name='faviconUrl' value={form.faviconUrl} onChange={ch} hint='Full URL to favicon (.ico or 32×32 PNG)' />
+      <div className='ps-grid-2'>
+        <Field label='Logo URL' name='logoUrl' value={form.logoUrl} onChange={ch} hint='PNG/SVG, min 200px wide' />
+        <Field label='Favicon URL' name='faviconUrl' value={form.faviconUrl} onChange={ch} hint='.ico or 32×32 PNG' />
+      </div>
 
       <div className='ps-group-label'>Hero Section</div>
       <Field label='Hero Title' name='heroTitle' value={form.heroTitle} onChange={ch} hint='Main heading on the landing page hero' />
       <Field label='Hero Subtitle' name='heroSubtitle' value={form.heroSubtitle} onChange={ch} hint='Subheading below the hero title' />
-      <Field label='Hero Background Image URL' name='heroImageUrl' value={form.heroImageUrl} onChange={ch} hint='Full URL to the hero background photo (1800px+ wide recommended)' />
+      <Field label='Hero Background Image URL' name='heroImageUrl' value={form.heroImageUrl} onChange={ch} hint='1800px+ wide recommended' />
 
       <div className='ps-group-label'>Stats Bar</div>
       <div className='ps-grid-2'>
@@ -217,9 +305,11 @@ function BrandingTab ({ settings, onSave, saving }) {
         <Field label='WhatsApp Link' name='whatsapp' value={form.whatsapp} onChange={ch} hint='e.g. https://wa.me/2348012345678' />
       </div>
 
-      <button type='submit' className='ps-btn ps-btn--primary' disabled={saving}>
-        {saving ? 'Saving…' : 'Save Branding'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save Branding'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -255,7 +345,17 @@ function FeesTab ({ settings, onSave, saving }) {
         onSave('/api/admin/platform-settings/fees', form)
       }}
     >
-      <h3 className='ps-section-title'>Platform Fees</h3>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <line x1='12' y1='1' x2='12' y2='23'/><path d='M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Platform Fees</h3>
+          <p className='ps-section-desc'>Set percentage and flat fees applied to transactions across the platform.</p>
+        </div>
+      </div>
       <Field
         label='Property Transaction Fee (%)'
         name='propertyTransactionPct'
@@ -299,13 +399,11 @@ function FeesTab ({ settings, onSave, saving }) {
         onChange={change}
         hint='Fixed fee per withdrawal from wallet'
       />
-      <button
-        type='submit'
-        className='ps-btn ps-btn--primary'
-        disabled={saving}
-      >
-        {saving ? 'Saving…' : 'Save Fees'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save Fees'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -334,10 +432,17 @@ function TiersTab ({ settings, onSave, saving }) {
 
   return (
     <div className='ps-section'>
-      <h3 className='ps-section-title'>Listing Tiers</h3>
-      <p className='ps-hint'>
-        Configure pricing and features for each listing tier.
-      </p>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <path d='M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z'/><line x1='7' y1='7' x2='7.01' y2='7'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Listing Tiers</h3>
+          <p className='ps-section-desc'>Configure pricing and per-tier features for each listing quality level.</p>
+        </div>
+      </div>
       <div className='ps-tiers-grid'>
         {tiers.map((tier, idx) => (
           <div key={tier.name || idx} className='ps-tier-card'>
@@ -381,15 +486,15 @@ function TiersTab ({ settings, onSave, saving }) {
           </div>
         ))}
       </div>
-      <button
-        className='ps-btn ps-btn--primary'
-        disabled={saving}
-        onClick={() =>
-          onSave('/api/admin/platform-settings/listing-tiers', { tiers })
-        }
-      >
-        {saving ? 'Saving…' : 'Save Tiers'}
-      </button>
+      <div className='ps-save-bar'>
+        <button
+          className='ps-btn--primary'
+          disabled={saving}
+          onClick={() => onSave('/api/admin/platform-settings/listing-tiers', { tiers })}
+        >
+          {saving ? 'Saving…' : 'Save Tiers'}
+        </button>
+      </div>
     </div>
   )
 }
@@ -424,7 +529,17 @@ function KycTab ({ settings, onSave, saving }) {
         onSave('/api/admin/platform-settings/kyc', form)
       }}
     >
-      <h3 className='ps-section-title'>KYC Requirements</h3>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>KYC Requirements</h3>
+          <p className='ps-section-desc'>Control which platform actions require verified identity.</p>
+        </div>
+      </div>
       <Toggle
         label='Require KYC to Place Bids'
         name='requireForBidding'
@@ -453,13 +568,11 @@ function KycTab ({ settings, onSave, saving }) {
         onChange={change}
         hint='Artisans must pass admin review before going live'
       />
-      <button
-        type='submit'
-        className='ps-btn ps-btn--primary'
-        disabled={saving}
-      >
-        {saving ? 'Saving…' : 'Save KYC Settings'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save KYC Settings'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -496,7 +609,17 @@ function FeaturesTab ({ settings, onSave, saving }) {
         onSave('/api/admin/platform-settings/features', form)
       }}
     >
-      <h3 className='ps-section-title'>Feature Flags</h3>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <path d='M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z'/><line x1='4' y1='22' x2='4' y2='15'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Feature Flags</h3>
+          <p className='ps-section-desc'>Enable or disable major platform features globally — changes take effect immediately.</p>
+        </div>
+      </div>
       <Toggle
         label='BNPL (Buy Now Pay Later)'
         name='bnplEnabled'
@@ -523,7 +646,7 @@ function FeaturesTab ({ settings, onSave, saving }) {
         name='maintenanceMode'
         checked={form.maintenanceMode}
         onChange={change}
-        hint='⚠️ Takes the platform offline for all non-admin users'
+        hint='⚠ Takes the platform offline for all non-admin users'
       />
       <Toggle
         label='New Registrations Open'
@@ -532,13 +655,11 @@ function FeaturesTab ({ settings, onSave, saving }) {
         onChange={change}
         hint='Allow new users to sign up'
       />
-      <button
-        type='submit'
-        className='ps-btn ps-btn--primary'
-        disabled={saving}
-      >
-        {saving ? 'Saving…' : 'Save Feature Flags'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save Feature Flags'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -572,7 +693,17 @@ function LimitsTab ({ settings, onSave, saving }) {
         onSave('/api/admin/platform-settings/limits', form)
       }}
     >
-      <h3 className='ps-section-title'>Platform Limits</h3>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Platform Limits</h3>
+          <p className='ps-section-desc'>Set hard caps for user actions — these apply across all accounts regardless of subscription plan.</p>
+        </div>
+      </div>
       <Field
         label='Max Properties per Owner'
         name='maxPropertiesPerOwner'
@@ -601,13 +732,11 @@ function LimitsTab ({ settings, onSave, saving }) {
         value={form.maxImagesPerProperty}
         onChange={change}
       />
-      <button
-        type='submit'
-        className='ps-btn ps-btn--primary'
-        disabled={saving}
-      >
-        {saving ? 'Saving…' : 'Save Limits'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save Limits'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -666,12 +795,21 @@ function TrialTab ({ settings, onSave, saving }) {
   }
 
   return (
-    <form className='ps-form' onSubmit={submit}>
-      <p className='ps-form-desc'>
-        When new property owners or artisans register, they start on the free
-        tier. A trial period lets them access premium features before committing
-        to a plan.
-      </p>
+    <form className='ps-section' onSubmit={submit}>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Trial &amp; Onboarding</h3>
+          <p className='ps-section-desc'>
+            When new property owners or artisans register, they start on the free tier.
+            A trial period lets them access premium features before committing to a plan.
+          </p>
+        </div>
+      </div>
       <Toggle
         label='Enable Trial Period'
         name='enabled'
@@ -694,58 +832,44 @@ function TrialTab ({ settings, onSave, saving }) {
         label='Grant Full Premium Access During Trial'
         name='grantsPremiumAccess'
         checked={form.grantsPremiumAccess}
-        onChange={e =>
-          setForm(p => ({ ...p, grantsPremiumAccess: e.target.value }))
-        }
+        onChange={e => setForm(p => ({ ...p, grantsPremiumAccess: e.target.value }))}
         hint='Give trial users pro-level features (unlimited listings, all premium features)'
       />
-      <button
-        type='submit'
-        className='ps-btn ps-btn--primary'
-        disabled={saving}
-      >
-        {saving ? 'Saving…' : 'Save Trial Settings'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save Trial Settings'}
+        </button>
+      </div>
 
-      {/* ── Plan Enforcement Actions ─────────────────────────────────── */}
-      <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--color-border, #e5e7eb)' }}>
-        <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Plan Enforcement</h4>
-        <p style={{ fontSize: 13, color: '#666', marginBottom: 16, lineHeight: 1.5 }}>
+      <div className='ps-enforcement-section'>
+        <h4 className='ps-enforcement-title'>Plan Enforcement</h4>
+        <p className='ps-enforcement-desc'>
           Use these actions to immediately apply plan limit changes to existing users.
           Properties exceeding the free plan listing limit will be set to inactive.
         </p>
-
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div className='ps-action-btns'>
           <button
             type='button'
-            className='ps-btn ps-btn--secondary'
-            style={{ flex: 1, minWidth: 200 }}
+            className='ps-btn--secondary'
             disabled={expiring}
             onClick={() => runAction('/api/admin/platform-settings/expire-trials', setExpiring)}
           >
-            {expiring ? 'Running…' : '⏰ Expire Overdue Trials'}
+            {expiring ? 'Running…' : 'Expire Overdue Trials'}
           </button>
           <button
             type='button'
-            className='ps-btn ps-btn--secondary'
-            style={{ flex: 1, minWidth: 200, borderColor: '#f59e0b', color: '#b45309' }}
+            className='ps-btn--warning'
             disabled={enforcing}
             onClick={() => {
               if (!window.confirm('This will reset ALL free-plan users to current free tier limits and deactivate excess listings. Continue?')) return
               runAction('/api/admin/platform-settings/enforce-plan-limits', setEnforcing)
             }}
           >
-            {enforcing ? 'Running…' : '⚡ Enforce Free Plan Limits Now'}
+            {enforcing ? 'Running…' : 'Enforce Free Plan Limits Now'}
           </button>
         </div>
-
         {actionResult && (
-          <div style={{
-            marginTop: 12, padding: '10px 14px', borderRadius: 8,
-            background: actionResult.success ? '#e8f5e9' : '#fff5f5',
-            border: `1px solid ${actionResult.success ? '#6ee7b7' : '#fca5a5'}`,
-            fontSize: 13, color: actionResult.success ? '#065f46' : '#c53030'
-          }}>
+          <div className={`ps-msg ps-msg--${actionResult.success ? 'success' : 'error'}`}>
             {actionResult.success ? '✓' : '✗'}{' '}
             {actionResult.success
               ? `Done — ${actionResult.processed ?? actionResult.usersUpdated ?? 0} users processed, ${actionResult.propertiesDeactivated ?? 0} properties deactivated.`
@@ -797,12 +921,22 @@ function InspectionFeeTab ({ settings, onSave, saving }) {
   }
 
   return (
-    <form className='ps-form' onSubmit={e => { e.preventDefault(); onSave('/api/admin/platform-settings/inspection-fee', { inspectionFee: form }) }}>
-      <p className='ps-form-desc'>
-        Platform-wide inspection / viewing fee for non-hotel properties.
-        Users pay this to confirm a viewing slot with the property owner.
-        The fee is <strong>non-refundable</strong> by default; a partial refund can be issued if the owner cancels.
-      </p>
+    <form className='ps-section' onSubmit={e => { e.preventDefault(); onSave('/api/admin/platform-settings/inspection-fee', { inspectionFee: form }) }}>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><path d='M12 11h4M12 16h4M8 11h.01M8 16h.01'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Inspection Fee</h3>
+          <p className='ps-section-desc'>
+            Platform-wide viewing fee for non-hotel properties. Users pay this to confirm a viewing slot
+            with the property owner. The fee is <strong>non-refundable</strong> by default; a partial
+            refund can be issued if the owner cancels.
+          </p>
+        </div>
+      </div>
 
       <Toggle
         label='Enable Inspection Fee'
@@ -840,15 +974,15 @@ function InspectionFeeTab ({ settings, onSave, saving }) {
         step={5}
         value={form.partialRefundPct}
         onChange={e => setForm(p => ({ ...p, partialRefundPct: Number(e.target.value) }))}
-        hint='% of the fee refunded when the property owner cancels the inspection (0 = fully non-refundable)'
+        hint='% of the fee refunded when the property owner cancels (0 = fully non-refundable)'
       />
 
       <div className='ps-field'>
         <label className='ps-label'>Applies To (property categories)</label>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 6 }}>
+        <div className='ps-check-group'>
           {CATEGORIES.map(cat => (
-            <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 13, padding: '5px 10px', borderRadius: 6, border: `1.5px solid ${form.appliesTo.includes(cat) ? 'var(--color-primary)' : '#e5e7eb'}`, background: form.appliesTo.includes(cat) ? '#e8f5e9' : '#fafafa' }}>
-              <input type='checkbox' checked={form.appliesTo.includes(cat)} onChange={() => toggleCategory(cat)} style={{ accentColor: 'var(--color-primary)' }} />
+            <label key={cat} className={`ps-check-label${form.appliesTo.includes(cat) ? ' ps-check-label--on' : ''}`}>
+              <input type='checkbox' checked={form.appliesTo.includes(cat)} onChange={() => toggleCategory(cat)} />
               {cat}
             </label>
           ))}
@@ -860,16 +994,18 @@ function InspectionFeeTab ({ settings, onSave, saving }) {
         <label className='ps-label'>Description shown to users</label>
         <textarea
           rows={3}
+          className='ps-textarea'
           value={form.description}
           onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontFamily: 'inherit', fontSize: 13, boxSizing: 'border-box', resize: 'vertical' }}
           placeholder='Explain what the inspection fee covers…'
         />
       </div>
 
-      <button type='submit' className='ps-btn ps-btn--primary' disabled={saving}>
-        {saving ? 'Saving…' : 'Save Inspection Fee Settings'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save Inspection Fee Settings'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -917,11 +1053,20 @@ function PlansTab ({ settings, onSave, saving }) {
   }
 
   return (
-    <form className='ps-form' onSubmit={submit}>
-      <p className='ps-form-desc'>
-        Define subscription tiers available to property owners and artisans. Set
-        the Paystack plan code for automatic billing.
-      </p>
+    <form className='ps-section' onSubmit={submit}>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <rect x='1' y='4' width='22' height='16' rx='2' ry='2'/><line x1='1' y1='10' x2='23' y2='10'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Subscription Plans</h3>
+          <p className='ps-section-desc'>
+            Define subscription tiers for property owners and artisans. Set Paystack plan codes for automatic billing.
+          </p>
+        </div>
+      </div>
       <div className='ps-plans-grid'>
         {plans.map((plan, idx) => (
           <div key={idx} className='ps-plan-card'>
@@ -1023,13 +1168,11 @@ function PlansTab ({ settings, onSave, saving }) {
           </div>
         ))}
       </div>
-      <button
-        type='submit'
-        className='ps-btn ps-btn--primary'
-        disabled={saving}
-      >
-        {saving ? 'Saving…' : 'Save Subscription Plans'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save Subscription Plans'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -1062,7 +1205,17 @@ function EmailTab ({ settings, onSave, saving }) {
         onSave('/api/admin/platform-settings/email', form)
       }}
     >
-      <h3 className='ps-section-title'>Email Settings</h3>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <path d='M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z'/><polyline points='22,6 12,13 2,6'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Email Settings</h3>
+          <p className='ps-section-desc'>Configure the sender identity for all platform transactional emails.</p>
+        </div>
+      </div>
       <Field
         label='Sender Name'
         name='fromName'
@@ -1084,13 +1237,11 @@ function EmailTab ({ settings, onSave, saving }) {
         onChange={change}
         hint='Where users can reach support (shown in email footers)'
       />
-      <button
-        type='submit'
-        className='ps-btn ps-btn--primary'
-        disabled={saving}
-      >
-        {saving ? 'Saving…' : 'Save Email Settings'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save Email Settings'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -1125,7 +1276,17 @@ function AcctVerifyTab ({ settings, onSave, saving }) {
         onSave('/api/admin/platform-settings/account-verification', form)
       }}
     >
-      <h3 className='ps-section-title'>Account Verification Requirements</h3>
+      <div className='ps-section-header'>
+        <div className='ps-section-icon' style={{ background: 'rgba(196,229,60,0.1)', color: '#C4E53C' }}>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/>
+          </svg>
+        </div>
+        <div>
+          <h3 className='ps-section-title'>Account Verification Requirements</h3>
+          <p className='ps-section-desc'>Define which actions require verified accounts and what verification level is needed.</p>
+        </div>
+      </div>
       <Toggle
         label='Require KYC to List Properties'
         name='requireKycForListing'
@@ -1167,13 +1328,11 @@ function AcctVerifyTab ({ settings, onSave, saving }) {
           </option>
         </select>
       </div>
-      <button
-        type='submit'
-        className='ps-btn ps-btn--primary'
-        disabled={saving}
-      >
-        {saving ? 'Saving…' : 'Save Verification Settings'}
-      </button>
+      <div className='ps-save-bar'>
+        <button type='submit' className='ps-btn--primary' disabled={saving}>
+          {saving ? 'Saving…' : 'Save Verification Settings'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -1227,73 +1386,76 @@ export default function PlatformSettings () {
       </div>
     )
 
+  const groups = [...new Set(TABS.map(t => t.group))]
+
   return (
     <div className='platform-settings'>
-      <div className='ps-header'>
-        <h2 className='ps-title'>Platform Settings</h2>
-        <p className='ps-subtitle'>
-          Configure global platform behaviour, fees, and feature flags.
-        </p>
-      </div>
-
       {toast && (
         <div className={`ps-toast ps-toast--${toast.type}`}>{toast.msg}</div>
       )}
 
-      <div className='ps-tabs'>
-        {TABS.map(t => (
-          <button
-            key={t.id}
-            className={`ps-tab ${activeTab === t.id ? 'ps-tab--active' : ''}`}
-            onClick={() => setActiveTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <div className='ps-layout'>
+        {/* ── Sidebar nav ── */}
+        <aside className='ps-sidenav'>
+          <div className='ps-sidenav-head'>
+            <div className='ps-sidenav-icon'>
+              <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                <circle cx='12' cy='12' r='3'/><path d='M19.07 4.93a10 10 0 0 1 1.41 14.14M4.93 4.93A10 10 0 0 0 3.52 19.07'/>
+                <path d='M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42'/>
+              </svg>
+            </div>
+            <div>
+              <div className='ps-sidenav-title'>Settings</div>
+              <div className='ps-sidenav-sub'>Platform configuration</div>
+            </div>
+          </div>
 
-      <div className='ps-content'>
-        {activeTab === 'branding' && (
-          <BrandingTab settings={settings} onSave={handleSave} saving={saving} />
-        )}
-        {activeTab === 'fees' && (
-          <FeesTab settings={settings} onSave={handleSave} saving={saving} />
-        )}
-        {activeTab === 'tiers' && (
-          <TiersTab settings={settings} onSave={handleSave} saving={saving} />
-        )}
-        {activeTab === 'plans' && (
-          <PlansTab settings={settings} onSave={handleSave} saving={saving} />
-        )}
-        {activeTab === 'trial' && (
-          <TrialTab settings={settings} onSave={handleSave} saving={saving} />
-        )}
-        {activeTab === 'inspection' && (
-          <InspectionFeeTab settings={settings} onSave={handleSave} saving={saving} />
-        )}
-        {activeTab === 'kyc' && (
-          <KycTab settings={settings} onSave={handleSave} saving={saving} />
-        )}
-        {activeTab === 'features' && (
-          <FeaturesTab
-            settings={settings}
-            onSave={handleSave}
-            saving={saving}
-          />
-        )}
-        {activeTab === 'limits' && (
-          <LimitsTab settings={settings} onSave={handleSave} saving={saving} />
-        )}
-        {activeTab === 'email' && (
-          <EmailTab settings={settings} onSave={handleSave} saving={saving} />
-        )}
-        {activeTab === 'acctverify' && (
-          <AcctVerifyTab
-            settings={settings}
-            onSave={handleSave}
-            saving={saving}
-          />
-        )}
+          <nav className='ps-sidenav-nav'>
+            {groups.map(group => (
+              <div key={group} className='ps-sidenav-group'>
+                <div className='ps-sidenav-group-label'>{group}</div>
+                {TABS.filter(t => t.group === group).map(t => (
+                  <button
+                    key={t.id}
+                    className={`ps-sidenav-item ${activeTab === t.id ? 'ps-sidenav-item--active' : ''}`}
+                    onClick={() => setActiveTab(t.id)}
+                  >
+                    <span className='ps-sidenav-item-icon'>{t.icon}</span>
+                    <span className='ps-sidenav-item-label'>{t.label}</span>
+                    {activeTab === t.id && <span className='ps-sidenav-item-dot' />}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </nav>
+        </aside>
+
+        {/* ── Main content ── */}
+        <div className='ps-main'>
+          <div className='ps-page-header'>
+            <div className='ps-page-header-icon'>
+              {TABS.find(t => t.id === activeTab)?.icon}
+            </div>
+            <div>
+              <h2 className='ps-title'>{TABS.find(t => t.id === activeTab)?.label}</h2>
+              <p className='ps-subtitle'>Configure global platform behaviour, fees, and feature flags.</p>
+            </div>
+          </div>
+
+          <div className='ps-content'>
+            {activeTab === 'branding'    && <BrandingTab     settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'fees'        && <FeesTab         settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'tiers'       && <TiersTab        settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'plans'       && <PlansTab        settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'trial'       && <TrialTab        settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'inspection'  && <InspectionFeeTab settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'kyc'         && <KycTab          settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'features'    && <FeaturesTab     settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'limits'      && <LimitsTab       settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'email'       && <EmailTab        settings={settings} onSave={handleSave} saving={saving} />}
+            {activeTab === 'acctverify'  && <AcctVerifyTab   settings={settings} onSave={handleSave} saving={saving} />}
+          </div>
+        </div>
       </div>
     </div>
   )

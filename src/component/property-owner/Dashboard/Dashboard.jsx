@@ -347,18 +347,45 @@ const Icon = {
     </svg>
   ),
   RefreshCw: () => (
-    <svg
-      width='14'
-      height='14'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='2'
-      strokeLinecap='round'
-    >
+    <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
       <polyline points='23 4 23 10 17 10' />
       <polyline points='1 20 1 14 7 14' />
       <path d='M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15' />
+    </svg>
+  ),
+  Hotel: () => (
+    <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+      <path d='M3 22V3h18v19M2 22h20'/><rect x='6' y='8' width='4' height='4'/><rect x='14' y='8' width='4' height='4'/><rect x='10' y='15' width='4' height='7'/>
+    </svg>
+  ),
+  Search: () => (
+    <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+      <circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/>
+    </svg>
+  ),
+  Lock: () => (
+    <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+      <rect x='3' y='11' width='18' height='11' rx='2' ry='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/>
+    </svg>
+  ),
+  ClipboardList: () => (
+    <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+      <rect x='8' y='2' width='8' height='4' rx='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><path d='M12 11h4M12 16h4M8 11h.01M8 16h.01'/>
+    </svg>
+  ),
+  Scroll: () => (
+    <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+      <path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z'/><polyline points='14 2 14 8 20 8'/>
+    </svg>
+  ),
+  Hammer: () => (
+    <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+      <path d='M15 12l-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9'/><path d='M17.64 15L22 10.64'/><path d='m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91'/>
+    </svg>
+  ),
+  Coins: () => (
+    <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+      <circle cx='8' cy='8' r='6'/><path d='M18.09 10.37A6 6 0 1 1 10.34 18'/><path d='M7 6h1v4'/><path d='m16.71 13.88.7.71-2.82 2.82'/>
     </svg>
   )
 }
@@ -465,7 +492,7 @@ function PropertyRow ({ property, onEdit }) {
         {img ? (
           <img src={img} alt={property.title} loading='lazy' />
         ) : (
-          <span className='od-prop-row__thumb-placeholder'>🏠</span>
+          <span className='od-prop-row__thumb-placeholder'><Icon.Home /></span>
         )}
       </div>
       <div className='od-prop-row__info'>
@@ -560,20 +587,20 @@ function fmtD (d) {
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 const STA_COLORS = {
-  confirmed: '#16a34a', active: '#2563eb', pending_payment: '#d97706',
-  cancelled: '#dc2626', checked_out: '#6b7280', pending: '#d97706',
-  approved: '#16a34a', rejected: '#dc2626', paid: '#0ea5e9',
-  scheduled: '#16a34a', completed: '#6b7280', funded: '#2563eb', released: '#16a34a'
+  confirmed: '#4ade80', active: '#60a5fa', pending_payment: '#fbbf24',
+  cancelled: '#f87171', checked_out: 'rgba(230,237,243,0.45)', pending: '#fbbf24',
+  approved: '#4ade80', rejected: '#f87171', paid: '#38bdf8',
+  scheduled: '#4ade80', completed: 'rgba(230,237,243,0.45)', funded: '#60a5fa', released: '#4ade80'
 }
 const STA_BG = {
-  confirmed: '#f0fdf4', active: '#dbeafe', pending_payment: '#fef3c7',
-  cancelled: '#fef2f2', checked_out: '#f9fafb', pending: '#fef3c7',
-  approved: '#f0fdf4', rejected: '#fef2f2', paid: '#e0f2fe',
-  scheduled: '#f0fdf4', completed: '#f9fafb', funded: '#dbeafe', released: '#f0fdf4'
+  confirmed: 'rgba(74,222,128,0.12)', active: 'rgba(96,165,250,0.12)', pending_payment: 'rgba(251,191,36,0.12)',
+  cancelled: 'rgba(248,113,113,0.12)', checked_out: 'rgba(255,255,255,0.06)', pending: 'rgba(251,191,36,0.12)',
+  approved: 'rgba(74,222,128,0.12)', rejected: 'rgba(248,113,113,0.12)', paid: 'rgba(56,189,248,0.12)',
+  scheduled: 'rgba(74,222,128,0.12)', completed: 'rgba(255,255,255,0.06)', funded: 'rgba(96,165,250,0.12)', released: 'rgba(74,222,128,0.12)'
 }
 function MBadge ({ status }) {
   return (
-    <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 600, textTransform: 'capitalize', color: STA_COLORS[status] || '#374151', background: STA_BG[status] || '#f3f4f6' }}>
+    <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700, textTransform: 'capitalize', color: STA_COLORS[status] || 'rgba(230,237,243,0.6)', background: STA_BG[status] || 'rgba(255,255,255,0.06)', border: `1px solid ${STA_COLORS[status] ? STA_COLORS[status] + '44' : 'rgba(255,255,255,0.1)'}` }}>
       {(status || '—').replace(/_/g, ' ')}
     </span>
   )
@@ -582,33 +609,34 @@ function CDot ({ days, label }) {
   if (days == null) return null
   const urgent = days <= 3, warn = days <= 7
   const c = urgent ? '#dc2626' : warn ? '#d97706' : '#2563eb'
-  const bg = urgent ? '#fef2f2' : warn ? '#fef3c7' : '#dbeafe'
+  const bg = urgent ? 'rgba(220,38,38,0.12)' : warn ? 'rgba(217,119,6,0.12)' : 'rgba(37,99,235,0.12)'
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700, color: c, background: bg }}>
-      ⏱ {days < 0 ? 'Overdue' : days === 0 ? 'Today' : `${days}d`}{label ? ` ${label}` : ''}
+      <Icon.Clock /> {days < 0 ? 'Overdue' : days === 0 ? 'Today' : `${days}d`}{label ? ` ${label}` : ''}
     </span>
   )
 }
 function ORow ({ cols }) {
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', padding: '7px 0', borderBottom: '1px solid #f3f4f6', fontSize: 13, alignItems: 'center', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', gap: '0.5rem', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', fontSize: 13, alignItems: 'center', flexWrap: 'wrap' }}>
       {cols.map((c, i) => (
-        <div key={i} style={{ flex: c.flex || 1, color: c.muted ? '#6b7280' : '#111', minWidth: c.min || 60 }}>{c.value}</div>
+        <div key={i} style={{ flex: c.flex || 1, color: c.muted ? 'rgba(230,237,243,0.4)' : 'rgba(230,237,243,0.85)', minWidth: c.min || 60 }}>{c.value}</div>
       ))}
     </div>
   )
 }
-function OSection ({ title, count, children }) {
+function OSection ({ title, count, icon: IconComp, children }) {
   const [open, setOpen] = useState(true)
   return (
     <section className='od-panel' style={{ marginTop: '1rem' }}>
       <div className='od-panel__head' onClick={() => setOpen(o => !o)} style={{ cursor: 'pointer' }}>
-        <div>
-          <h2 className='od-panel__title'>{title}
-            {count != null && <span style={{ marginLeft: 8, background: '#f3f4f6', color: '#6b7280', borderRadius: 99, padding: '1px 8px', fontSize: 12, fontWeight: 600 }}>{count}</span>}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {IconComp && <span style={{ display: 'flex', alignItems: 'center', color: 'var(--od-accent, #C4E53C)', opacity: 0.8 }}><IconComp /></span>}
+          <h2 className='od-panel__title' style={{ margin: 0 }}>{title}
+            {count != null && <span style={{ marginLeft: 8, background: 'rgba(255,255,255,0.07)', color: 'rgba(230,237,243,0.55)', borderRadius: 99, padding: '1px 8px', fontSize: 12, fontWeight: 600 }}>{count}</span>}
           </h2>
         </div>
-        <span style={{ color: '#9ca3af' }}>{open ? '▲' : '▼'}</span>
+        <span style={{ color: 'rgba(230,237,243,0.35)', fontSize: 10 }}>{open ? '▲' : '▼'}</span>
       </div>
       {open && <div>{children}</div>}
     </section>
@@ -787,7 +815,7 @@ export default function Dashboard ({ onRouteChange }) {
           <div className='od-header__left'>
             <p className='od-header__date'>{today}</p>
             <h1 className='od-header__greeting'>
-              {getGreeting()}, <span>{userName}</span> 👋
+              {getGreeting()}, <span>{userName}</span>
             </h1>
             <p className='od-header__sub'>
               Here&apos;s what&apos;s happening with your portfolio today.
@@ -964,7 +992,7 @@ export default function Dashboard ({ onRouteChange }) {
 
                 {!loading && recent.length === 0 && (
                   <div className='od-empty'>
-                    <span className='od-empty__icon'>🏗️</span>
+                    <span className='od-empty__icon'><Icon.Hammer /></span>
                     <p className='od-empty__title'>No listings yet</p>
                     <p className='od-empty__desc'>
                       Add your first property to start managing your portfolio.
@@ -1207,12 +1235,12 @@ export default function Dashboard ({ onRouteChange }) {
 
         {/* ── UPCOMING COUNTDOWNS ─────────────────────────────────────── */}
         {(bkCountdowns.length > 0 || leaseCountdowns.length > 0 || insCountdowns.length > 0) && (
-          <OSection title='⏱ Upcoming & Active' count={bkCountdowns.length + leaseCountdowns.length + insCountdowns.length}>
+          <OSection title='Upcoming &amp; Active' icon={Icon.Clock} count={bkCountdowns.length + leaseCountdowns.length + insCountdowns.length}>
             {bkCountdowns.map(b => (
-              <div key={b.bookingId} style={{ padding: '8px 0', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <div key={b.bookingId} style={{ padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>🏨 {b.propertyTitle}</div>
-                  <div style={{ fontSize: 12, color: '#6b7280' }}>Check-in: {fmtD(b.checkIn)} · Check-out: {fmtD(b.checkOut)} · {b.nights}n</div>
+                  <div style={{ fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 5 }}><Icon.Hotel /> {b.propertyTitle}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(230,237,243,0.5)' }}>Check-in: {fmtD(b.checkIn)} · Check-out: {fmtD(b.checkOut)} · {b.nights}n</div>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   <MBadge status={b.status} />
@@ -1221,10 +1249,10 @@ export default function Dashboard ({ onRouteChange }) {
               </div>
             ))}
             {leaseCountdowns.map(l => (
-              <div key={l.leaseId} style={{ padding: '8px 0', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <div key={l.leaseId} style={{ padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>📜 {l.propertyTitle}</div>
-                  <div style={{ fontSize: 12, color: '#6b7280' }}>Rent due: {fmtD(l.nextDueDate)} · {fmtAmt(l.nextDueAmount)}</div>
+                  <div style={{ fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 5 }}><Icon.Scroll /> {l.propertyTitle}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(230,237,243,0.5)' }}>Rent due: {fmtD(l.nextDueDate)} · {fmtAmt(l.nextDueAmount)}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <MBadge status={l.isOverdue ? 'cancelled' : 'active'} />
@@ -1233,10 +1261,10 @@ export default function Dashboard ({ onRouteChange }) {
               </div>
             ))}
             {insCountdowns.map(i => (
-              <div key={i.inspectionId} style={{ padding: '8px 0', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <div key={i.inspectionId} style={{ padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>🔍 {i.propertyTitle}</div>
-                  <div style={{ fontSize: 12, color: '#6b7280' }}>Inspection: {fmtD(i.confirmedDate)} · By: {i.requesterName || '—'}</div>
+                  <div style={{ fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 5 }}><Icon.Search /> {i.propertyTitle}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(230,237,243,0.5)' }}>Inspection: {fmtD(i.confirmedDate)} · By: {i.requesterName || '—'}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <MBadge status='scheduled' />
@@ -1248,9 +1276,9 @@ export default function Dashboard ({ onRouteChange }) {
         )}
 
         {/* ── BOOKINGS ───────────────────────────────────────────────── */}
-        <OSection title='🏨 Property Bookings' count={bookings.length}>
+        <OSection title='Property Bookings' icon={Icon.Hotel} count={bookings.length}>
           {bookings.length === 0
-            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No bookings yet for your properties.</p>
+            ? <p style={{ color: 'rgba(230,237,243,0.4)', fontSize: 13, padding: '0.5rem 0' }}>No bookings yet for your properties.</p>
             : <>
               <ORow cols={[{ value: 'Property', flex: 2, muted: true }, { value: 'Guest', flex: 1, muted: true }, { value: 'Check-in', flex: 1, muted: true }, { value: 'Amount', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
               {bookings.map(b => (
@@ -1267,9 +1295,9 @@ export default function Dashboard ({ onRouteChange }) {
         </OSection>
 
         {/* ── APPLICATIONS ─────────────────────────────────────────── */}
-        <OSection title='📋 Property Applications' count={applications.length}>
+        <OSection title='Property Applications' icon={Icon.ClipboardList} count={applications.length}>
           {applications.length === 0
-            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No applications yet for your properties.</p>
+            ? <p style={{ color: 'rgba(230,237,243,0.4)', fontSize: 13, padding: '0.5rem 0' }}>No applications yet for your properties.</p>
             : <>
               <ORow cols={[{ value: 'Property', flex: 2, muted: true }, { value: 'Applicant', flex: 1, muted: true }, { value: 'Type', flex: 1, muted: true }, { value: 'Date', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
               {applications.map(a => (
@@ -1286,9 +1314,9 @@ export default function Dashboard ({ onRouteChange }) {
         </OSection>
 
         {/* ── LEASES ───────────────────────────────────────────────── */}
-        <OSection title='📜 Leases' count={leases.length}>
+        <OSection title='Leases' icon={Icon.Scroll} count={leases.length}>
           {leases.length === 0
-            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No leases yet.</p>
+            ? <p style={{ color: 'rgba(230,237,243,0.4)', fontSize: 13, padding: '0.5rem 0' }}>No leases yet.</p>
             : <>
               <ORow cols={[{ value: 'Property', flex: 2, muted: true }, { value: 'Tenant', flex: 1, muted: true }, { value: 'End Date', flex: 1, muted: true }, { value: 'Rent', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
               {leases.map(l => {
@@ -1309,9 +1337,9 @@ export default function Dashboard ({ onRouteChange }) {
         </OSection>
 
         {/* ── INSPECTION REQUESTS ──────────────────────────────────── */}
-        <OSection title='🔍 Inspection Requests' count={inspections.length}>
+        <OSection title='Inspection Requests' icon={Icon.Search} count={inspections.length}>
           {inspections.length === 0
-            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No inspection requests yet.</p>
+            ? <p style={{ color: 'rgba(230,237,243,0.4)', fontSize: 13, padding: '0.5rem 0' }}>No inspection requests yet.</p>
             : <>
               <ORow cols={[{ value: 'Property', flex: 2, muted: true }, { value: 'Requester', flex: 1, muted: true }, { value: 'Preferred', flex: 1, muted: true }, { value: 'Confirmed', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
               {inspections.map(i => {
@@ -1331,9 +1359,9 @@ export default function Dashboard ({ onRouteChange }) {
         </OSection>
 
         {/* ── ESCROWS ──────────────────────────────────────────────── */}
-        <OSection title='🔒 Escrows' count={escrows.length}>
+        <OSection title='Escrows' icon={Icon.Lock} count={escrows.length}>
           {escrows.length === 0
-            ? <p style={{ color: '#9ca3af', fontSize: 13, padding: '0.5rem 0' }}>No escrow transactions.</p>
+            ? <p style={{ color: 'rgba(230,237,243,0.4)', fontSize: 13, padding: '0.5rem 0' }}>No escrow transactions.</p>
             : <>
               <ORow cols={[{ value: 'Type', flex: 1, muted: true }, { value: 'Amount', flex: 1, muted: true }, { value: 'Payer', flex: 1, muted: true }, { value: 'Date', flex: 1, muted: true }, { value: 'Status', flex: 1, muted: true }]} />
               {escrows.map(e => (
@@ -1351,20 +1379,20 @@ export default function Dashboard ({ onRouteChange }) {
 
         {/* ── PAYOUT / INCOME ─────────────────────────────────────── */}
         {(payout.walletBalance > 0 || payout.totalBookingIncome > 0) && (
-          <OSection title='💰 Income & Payouts'>
+          <OSection title='Income &amp; Payouts' icon={Icon.Coins}>
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '0.5rem 0' }}>
               {payout.totalBookingIncome > 0 && (
                 <div style={{ flex: 1, minWidth: 200 }}>
-                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Booking income (paid to your bank)</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#16a34a' }}>{fmtAmt(payout.totalBookingIncome, payout.currency)}</div>
-                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>Paid directly to your bank via Paystack split</div>
+                  <div style={{ fontSize: 12, color: 'rgba(230,237,243,0.45)', marginBottom: 4 }}>Booking income (paid to your bank)</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#4ade80' }}>{fmtAmt(payout.totalBookingIncome, payout.currency)}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(230,237,243,0.35)', marginTop: 4 }}>Paid directly to your bank via Paystack split</div>
                 </div>
               )}
               {payout.walletBalance > 0 && (
                 <div style={{ flex: 1, minWidth: 200 }}>
-                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Platform wallet balance</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#2563eb' }}>{fmtAmt(payout.walletBalance, payout.currency)}</div>
-                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>Available for manual payout request</div>
+                  <div style={{ fontSize: 12, color: 'rgba(230,237,243,0.45)', marginBottom: 4 }}>Platform wallet balance</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#60a5fa' }}>{fmtAmt(payout.walletBalance, payout.currency)}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(230,237,243,0.35)', marginTop: 4 }}>Available for manual payout request</div>
                 </div>
               )}
               <div style={{ display: 'flex', alignItems: 'center' }}>
