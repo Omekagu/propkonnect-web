@@ -11,7 +11,8 @@ import {
   FiFile,
   FiDownload,
   FiHome,
-  FiImage
+  FiImage,
+  FiArrowLeft
 } from 'react-icons/fi'
 import './Messages.scss'
 
@@ -509,7 +510,7 @@ export default function Messages () {
   const canSend = (text.trim() || attachment) && !sending
 
   return (
-    <div className='messages-container'>
+    <div className={`messages-container${activeConvId ? ' has-active' : ''}`}>
       {/* ── Conversation List ── */}
       <aside className='conv-sidebar'>
         <div className='conv-sidebar-header'>
@@ -585,6 +586,13 @@ export default function Messages () {
           <>
             {/* Thread Header */}
             <div className='thread-header'>
+              <button
+                className='thread-back-btn'
+                onClick={() => { setActiveConvId(null); setActiveConv(null) }}
+                aria-label='Back to conversations'
+              >
+                <FiArrowLeft size={20} />
+              </button>
               <div className='thread-avatar'>
                 {activeConv?.otherUser?.avatar
                   ? <img src={activeConv.otherUser.avatar} alt='' />

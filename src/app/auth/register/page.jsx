@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle, Home as HomeIcon, Building2, Wrench, CheckCircle2 } from 'lucide-react'
 import './register.scss'
 import { auth as authApi } from '@/libs/api'
 
@@ -201,7 +201,7 @@ export default function Register () {
               <>
                 <div className='rp-types'>
                   <button className='rp-type' onClick={() => { setUserType('user'); setStep(1) }}>
-                    <div className='rp-type__icon'>🏠</div>
+                    <div className='rp-type__icon'><HomeIcon size={26} /></div>
                     <div className='rp-type__text'>
                       <h3>Tenant / Buyer</h3>
                       <p>Find your perfect property to rent or buy</p>
@@ -210,7 +210,7 @@ export default function Register () {
                   </button>
 
                   <button className='rp-type' onClick={() => { setUserType('PROPERTY_OWNER'); setStep(1) }}>
-                    <div className='rp-type__icon'>🏢</div>
+                    <div className='rp-type__icon'><Building2 size={26} /></div>
                     <div className='rp-type__text'>
                       <h3>Property Owner</h3>
                       <p>Manage properties and find trusted artisans</p>
@@ -219,7 +219,7 @@ export default function Register () {
                   </button>
 
                   <button className='rp-type' onClick={() => { setUserType('artisan'); setStep(1) }}>
-                    <div className='rp-type__icon'>🔧</div>
+                    <div className='rp-type__icon'><Wrench size={26} /></div>
                     <div className='rp-type__text'>
                       <h3>Professional / Artisan</h3>
                       <p>Find jobs and build your professional profile</p>
@@ -238,7 +238,7 @@ export default function Register () {
             {userType && (
               <>
                 <div className='rp-badge'>
-                  <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? '🏢' : userType === 'user' ? '🏠' : '🔧'}</span>
+                  <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? <Building2 size={15} /> : userType === 'user' ? <HomeIcon size={15} /> : <Wrench size={15} />}</span>
                   <span className='rp-badge__label'>{userType === 'PROPERTY_OWNER' ? 'Property Owner' : userType === 'user' ? 'Tenant / Buyer' : 'Artisan'}</span>
                   <button className='rp-badge__change' onClick={() => { setUserType(null); setStep(1); setError('') }}>Change</button>
                 </div>
@@ -473,7 +473,7 @@ export default function Register () {
                   {/* Success */}
                   {success && (
                     <div className='rp-success'>
-                      <span className='rp-success__icon'>✅</span>
+                      <span className='rp-success__icon'><CheckCircle2 size={40} /></span>
                       <h2 className='rp-success__title'>Account created!</h2>
                       <p className='rp-success__msg'>Redirecting you to email verification...</p>
                     </div>

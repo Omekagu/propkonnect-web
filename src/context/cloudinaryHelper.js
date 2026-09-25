@@ -1,56 +1,55 @@
-// cloudinaryHelper.js — Direct unsigned upload to Cloudinary from the browser.
-// Uses the same cloud account + upload preset as the mobile app (no API key/secret needed).
-// Replaces the previous backend-proxy approach which required signed API credentials.
+// cloudinaryHelper.js — All uploads go through the backend.
+// No Cloudinary keys, cloud name, or upload presets on the client.
+// The server holds all secrets and signs/uploads via Cloudinary SDK.
 
-const CLOUD_NAME    = 'da26wgev2'
-const UPLOAD_PRESET = 'Xtorm_doc'
-
-const FOLDER_MAP = {
-  avatar:    'propnekt/avatars',
-  property:  'propnekt/properties',
-  document:  'propnekt/documents',
-  portfolio: 'propnekt/portfolio',
-  receipt:   'propnekt/receipts'
-}
+import { apiClient } from '@/libs/api-client'
 
 /**
- * Upload a single File/Blob directly to Cloudinary (unsigned preset).
+ * Upload a single File/Blob via the backend.
  *
- * @param {File|Blob} file   — browser File object
+ * @param {File|Blob} file
  * @param {'avatar'|'property'|'document'|'portfolio'|'receipt'} [type='property']
  * @returns {Promise<string>} secure_url
  */
 export async function uploadToCloudinary (file, type = 'property') {
   if (!file) throw new Error('No file provided')
 
-  const folder       = FOLDER_MAP[type] || FOLDER_MAP.property
-  const isDoc        = file.type === 'application/pdf' || file.type.startsWith('application/')
-  const resourceType = isDoc ? 'raw' : 'image'
-
   const formData = new FormData()
-  formData.append('file',           file)
-  formData.append('upload_preset',  UPLOAD_PRESET)
-  formData.append('folder',         folder)
+  formData.append('file', file)
 
-  const endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`
+  const { data } = await apiClient.post(`/api/upload?type=${type}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
 
-  const res  = await fetch(endpoint, { method: 'POST', body: formData })
-  const data = await res.json()
-
-  if (!res.ok || !data.secure_url) {
-    throw new Error(data.error?.message || 'Cloudinary upload failed')
+  if (!data.success || !data.url) {
+    throw new Error(data.message || 'Upload failed')
   }
 
-  return data.secure_url
+  return data.url
 }
 
 /**
- * Upload multiple files directly to Cloudinary.
+ * Upload multiple files via the backend.
  *
  * @param {File[]} files
- * @param {'property'|'portfolio'|...} [type='property']
+ * @param {'property'|'portfolio'|string} [type='property']
  * @returns {Promise<string[]>} array of secure_urls
  */
 export async function uploadMultipleToCloudinary (files, type = 'property') {
-  return Promise.all(files.map(f => uploadToCloudinary(f, type)))
+  if (!files || files.length === 0) throw new Error('No files provided')
+
+  const formData = new FormData()
+  files.forEach(f => formData.append('files', f))
+
+  const { data } = await apiClient.post(
+    `/api/upload/multiple?type=${type}`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  )
+
+  if (!data.success || !data.files) {
+    throw new Error(data.message || 'Upload failed')
+  }
+
+  return data.files.map(f => f.url)
 }

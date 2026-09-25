@@ -2057,17 +2057,21 @@ $success: #22c55e;
   textarea {
     width: 100%;
     padding: 11px 13px;
-    border: 1px solid $border;
+    border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
     border-radius: 11px;
     font-size: 14px;
     font-family: inherit;
     resize: vertical;
     box-sizing: border-box;
-    background: $light;
-    color: $text;
+    background: rgba(255, 255, 255, 0.09) !important;
+    color: $text !important;
+    color-scheme: dark;
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
     &:focus {
       outline: none;
-      border-color: rgba(196, 229, 60, 0.4);
+      border-color: rgba(196, 229, 60, 0.4) !important;
       box-shadow: 0 0 0 3px rgba(196, 229, 60, 0.08);
     }
   }

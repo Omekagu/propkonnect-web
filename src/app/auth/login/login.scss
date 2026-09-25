@@ -655,7 +655,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 23px;
+  color: #C4E53C;
   flex-shrink: 0;
 }
 
@@ -694,7 +694,9 @@
   font-size: 12.5px;
 
   &__icon {
-    font-size: 13px;
+    display: flex;
+    align-items: center;
+    color: #C4E53C;
   }
   &__label {
     color: rgba(196, 229, 60, 0.9);

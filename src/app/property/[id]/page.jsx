@@ -3164,7 +3164,7 @@ export default function PropertyDetails () {
             />
             <label>Message to landlord (optional)</label>
             <textarea
-              rows={3}
+              rows={5}
               placeholder='Introduce yourself…'
               value={rentForm.message}
               onChange={e =>
@@ -3172,12 +3172,18 @@ export default function PropertyDetails () {
               }
               style={{
                 width: '100%',
-                padding: '8px 10px',
-                border: '1.5px solid #e5e7eb',
-                borderRadius: 8,
-                fontFamily: 'inherit',
+                minHeight: 110,
+                padding: '11px 13px',
+                border: '1.5px solid rgba(255,255,255,0.18)',
+                borderRadius: 11,
                 fontSize: 14,
-                boxSizing: 'border-box'
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                boxSizing: 'border-box',
+                background: 'rgba(255,255,255,0.09)',
+                color: '#dff0e4',
+                colorScheme: 'dark',
+                display: 'block'
               }}
             />
 

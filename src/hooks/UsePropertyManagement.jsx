@@ -383,7 +383,11 @@ export const usePropertyManagement = () => {
    * Filter properties based on search, category, and status
    */
   const filteredProperties = useMemo(() => {
+    const seen = new Set()
     return properties.filter(p => {
+      if (seen.has(p._id)) return false
+      seen.add(p._id)
+
       const matchesSearch =
         p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (typeof p.location === 'string'

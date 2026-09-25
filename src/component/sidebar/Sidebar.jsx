@@ -777,6 +777,19 @@ export default function Sidebar ({
 
             const showUpgrade = tier !== 'enterprise'
 
+            // Accent colors for badge/highlights that read well on dark bg
+            const accentColor = isUrgent
+              ? '#f87171'
+              : isWarning
+              ? '#fbbf24'
+              : tier === 'pro'
+              ? '#a78bfa'
+              : tier === 'enterprise'
+              ? '#fbbf24'
+              : tier === 'basic'
+              ? '#4ade80'
+              : '#94a3b8' // free
+
             // ── Trial progress bar ───────────────────────────────────
             let pct = 100
             if (trialLive) {
@@ -815,64 +828,45 @@ export default function Sidebar ({
             }
 
             // ── Expanded mode ────────────────────────────────────────
-            // Accent colors for badge/highlights that read well on dark bg
-            const accentColor = isUrgent
-              ? '#f87171'
-              : isWarning
-              ? '#fbbf24'
-              : tier === 'pro'
-              ? '#a78bfa'
-              : tier === 'enterprise'
-              ? '#fbbf24'
-              : tier === 'basic'
-              ? '#4ade80'
-              : '#94a3b8' // free
-
             return (
               <div
                 style={{
-                  margin: '4px 12px 8px',
-                  background: 'rgba(255,255,255,0.07)',
-                  borderRadius: 10,
-                  padding: '10px 12px',
-                  border: '1px solid rgba(255,255,255,0.1)'
+                  margin: '6px 10px 10px',
+                  background: `linear-gradient(135deg, ${accentColor}14 0%, rgba(255,255,255,0.04) 100%)`,
+                  borderRadius: 12,
+                  padding: '11px 13px',
+                  border: `1px solid ${accentColor}30`
                 }}
               >
-                {/* Header row */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: trialLive ? 6 : 8
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', color: accentColor }}>{meta.icon}</span>
-                    <span
+                {/* Plan badge + name */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <div
                       style={{
-                        fontSize: 11,
-                        fontWeight: 700,
+                        width: 26,
+                        height: 26,
+                        borderRadius: 7,
+                        background: `${accentColor}22`,
+                        border: `1px solid ${accentColor}44`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         color: accentColor,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.06em'
+                        flexShrink: 0
                       }}
                     >
-                      {meta.label}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 9,
-                        fontWeight: 600,
-                        color: accentColor,
-                        border: `1px solid ${accentColor}`,
-                        borderRadius: 3,
-                        padding: '1px 4px',
-                        opacity: 0.8
-                      }}
-                    >
-                      PLAN
-                    </span>
+                      {meta.icon}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.2 }}>
+                        {meta.label} Plan
+                      </div>
+                      {trialLive && (
+                        <div style={{ fontSize: 10, color: accentColor, fontWeight: 600, marginTop: 1 }}>
+                          {isUrgent ? '⚠ ' : ''}{daysLeft === 0 ? 'Expires today' : `${daysLeft}d trial left`}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   {trialLive && (
                     <span
@@ -880,158 +874,83 @@ export default function Sidebar ({
                         fontSize: 9,
                         fontWeight: 700,
                         color: accentColor,
-                        background: `${accentColor}22`,
-                        border: `1px solid ${accentColor}44`,
-                        borderRadius: 4,
-                        padding: '2px 5px',
-                        whiteSpace: 'nowrap'
+                        background: `${accentColor}1a`,
+                        border: `1px solid ${accentColor}33`,
+                        borderRadius: 99,
+                        padding: '2px 7px',
+                        whiteSpace: 'nowrap',
+                        letterSpacing: '0.05em'
                       }}
                     >
-                      {isUrgent ? <Clock size={9} /> : <Gift size={9} />} TRIAL
+                      TRIAL
                     </span>
                   )}
                 </div>
 
-                {/* Trial countdown + progress */}
+                {/* Trial progress bar */}
                 {trialLive && (
-                  <>
+                  <div
+                    style={{
+                      height: 3,
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: 99,
+                      overflow: 'hidden',
+                      marginBottom: 8
+                    }}
+                  >
                     <div
                       style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        fontSize: 10,
-                        color: accentColor,
-                        fontWeight: 600,
-                        marginBottom: 5,
-                        opacity: 0.9
-                      }}
-                    >
-                      <span>
-                        {daysLeft === 0
-                          ? 'Expires today!'
-                          : daysLeft === 1
-                          ? '1 day left'
-                          : `${daysLeft} days left`}
-                      </span>
-                      <span style={{ opacity: 0.6 }}>
-                        {new Date(plan.trialEndsAt).toLocaleDateString('en-GB', {
-                          day: 'numeric',
-                          month: 'short'
-                        })}
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        height: 3,
-                        background: 'rgba(255,255,255,0.12)',
+                        height: '100%',
+                        width: `${pct}%`,
+                        background: accentColor,
                         borderRadius: 99,
-                        overflow: 'hidden',
-                        marginBottom: 8
+                        transition: 'width .4s'
                       }}
-                    >
-                      <div
-                        style={{
-                          height: '100%',
-                          width: `${pct}%`,
-                          background: accentColor,
-                          borderRadius: 99,
-                          transition: 'width .4s'
-                        }}
-                      />
-                    </div>
-                  </>
+                    />
+                  </div>
                 )}
 
-                {/* Plan limits row */}
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: 6,
-                    marginBottom: showUpgrade ? 8 : 0
-                  }}
-                >
-                  {plan.listingLimit != null && (
-                    <div
-                      style={{
-                        flex: 1,
-                        background: 'rgba(255,255,255,0.06)',
-                        borderRadius: 6,
-                        padding: '5px 4px',
-                        textAlign: 'center'
-                      }}
-                    >
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>
-                        {plan.listingLimit}
+                {/* Plan limits */}
+                {(plan.listingLimit != null || plan.aiCredits != null || plan.mediaPerListing != null) && (
+                  <div style={{ display: 'flex', gap: 5, marginBottom: showUpgrade ? 9 : 0 }}>
+                    {plan.listingLimit != null && (
+                      <div style={{ flex: 1, textAlign: 'center' }}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#f1f5f9', lineHeight: 1 }}>
+                          {plan.listingLimit}
+                        </div>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>
+                          Listings
+                        </div>
                       </div>
-                      <div
-                        style={{
-                          fontSize: 8,
-                          color: 'rgba(255,255,255,0.45)',
-                          fontWeight: 600,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.04em',
-                          marginTop: 1
-                        }}
-                      >
-                        Listings
+                    )}
+                    {plan.listingLimit != null && (plan.aiCredits != null || plan.mediaPerListing != null) && (
+                      <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', alignSelf: 'stretch', margin: '2px 0' }} />
+                    )}
+                    {plan.aiCredits != null && (
+                      <div style={{ flex: 1, textAlign: 'center' }}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#f1f5f9', lineHeight: 1 }}>
+                          {plan.aiCredits}
+                        </div>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>
+                          AI Credits
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {plan.aiCredits != null && (
-                    <div
-                      style={{
-                        flex: 1,
-                        background: 'rgba(255,255,255,0.06)',
-                        borderRadius: 6,
-                        padding: '5px 4px',
-                        textAlign: 'center'
-                      }}
-                    >
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>
-                        {plan.aiCredits}
+                    )}
+                    {plan.aiCredits != null && plan.mediaPerListing != null && (
+                      <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', alignSelf: 'stretch', margin: '2px 0' }} />
+                    )}
+                    {plan.mediaPerListing != null && (
+                      <div style={{ flex: 1, textAlign: 'center' }}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#f1f5f9', lineHeight: 1 }}>
+                          {plan.mediaPerListing}
+                        </div>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>
+                          Photos
+                        </div>
                       </div>
-                      <div
-                        style={{
-                          fontSize: 8,
-                          color: 'rgba(255,255,255,0.45)',
-                          fontWeight: 600,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.04em',
-                          marginTop: 1
-                        }}
-                      >
-                        AI Credits
-                      </div>
-                    </div>
-                  )}
-                  {plan.mediaPerListing != null && (
-                    <div
-                      style={{
-                        flex: 1,
-                        background: 'rgba(255,255,255,0.06)',
-                        borderRadius: 6,
-                        padding: '5px 4px',
-                        textAlign: 'center'
-                      }}
-                    >
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>
-                        {plan.mediaPerListing}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 8,
-                          color: 'rgba(255,255,255,0.45)',
-                          fontWeight: 600,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.04em',
-                          marginTop: 1
-                        }}
-                      >
-                        Photos
-                      </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Upgrade CTA */}
                 {showUpgrade && (
@@ -1039,16 +958,19 @@ export default function Sidebar ({
                     onClick={() => handleClick('Settings')}
                     style={{
                       width: '100%',
-                      background: '#C4E53C',
-                      color: '#0B3D28',
+                      background: tier === 'free' ? '#C4E53C' : accentColor,
+                      color: tier === 'free' ? '#0B3D28' : '#09090b',
                       border: 'none',
-                      borderRadius: 6,
-                      padding: '6px 10px',
-                      fontSize: 11,
-                      fontWeight: 800,
+                      borderRadius: 8,
+                      padding: '7px 10px',
+                      fontSize: 11.5,
+                      fontWeight: 700,
                       cursor: 'pointer',
-                      letterSpacing: '0.02em'
+                      letterSpacing: '0.02em',
+                      transition: 'opacity 150ms'
                     }}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
                   >
                     {tier === 'free' ? 'Upgrade Plan →' : 'Manage Plan →'}
                   </button>

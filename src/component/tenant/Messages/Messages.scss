@@ -19,6 +19,7 @@
 
   @media (max-width: 640px) {
     width: 100%;
+    min-width: 0;
   }
 }
 
@@ -779,4 +780,53 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+// ── Mobile: single-panel view ─────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .messages-container {
+    overflow: hidden;
+  }
+
+  // Default: show sidebar, hide thread
+  .msg-thread {
+    display: none;
+  }
+
+  // Conversation selected: hide sidebar, show thread full width
+  .messages-container.has-active {
+    .conv-sidebar {
+      display: none;
+    }
+    .msg-thread {
+      display: flex;
+      width: 100%;
+    }
+  }
+
+  // Back button (shown only on mobile inside thread header)
+  .thread-back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: none;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: 50%;
+    margin-right: 4px;
+    &:hover {
+      background: var(--color-surface-hover);
+    }
+  }
+}
+
+// Hide back button on desktop
+@media (min-width: 641px) {
+  .thread-back-btn {
+    display: none;
+  }
 }

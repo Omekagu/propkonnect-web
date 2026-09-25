@@ -101,7 +101,7 @@ $dk-info-bg:      rgba(56,139,253,.15);
   // ── Generic text ──────────────────────────────────────────────────────────
   h1, h2, h3, h4, h5, h6 { color: $dk-text; }
   p, span, li, td, th, label, legend { color: inherit; }
-  a { color: #C4E53C; &:hover { color: lighten(#C4E53C, 10%); } }
+  a { color: #C4E53C; &:hover { color: #d4f055; } }
 
   // ── Hardcoded white / near-white backgrounds → dark card ─────────────────
   [class*="card"]:not([class*="card-body"]):not([class*="card-header"]):not([class*="card-footer"]):not([class*="property-card"]):not([class*="mp-card"]),

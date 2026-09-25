@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { auth as authApi } from '@/libs/api'
 import { useRouter } from 'next/navigation'
+import { Building2, Wrench, Home as HomeIcon, Star as StarIcon } from 'lucide-react'
 import './login.scss'
 
 const APP = process.env.NEXT_PUBLIC_APP_NAME
@@ -340,7 +341,7 @@ export default function AuthPage () {
               <div className='lp-stat__lbl'>Happy Users</div>
             </div>
             <div className='lp-stat'>
-              <div className='lp-stat__val'>4.9★</div>
+              <div className='lp-stat__val'>4.9 <StarIcon size={14} fill='#C4E53C' stroke='none' style={{verticalAlign:'middle'}} /></div>
               <div className='lp-stat__lbl'>Platform Rating</div>
             </div>
           </div>
@@ -377,7 +378,7 @@ export default function AuthPage () {
                     className='lp-role'
                     onClick={() => handleSelectRole('PROPERTY_OWNER')}
                   >
-                    <div className='lp-role__icon'>🏢</div>
+                    <div className='lp-role__icon'><Building2 size={26} /></div>
                     <div className='lp-role__text'>
                       <h3>Property Owner</h3>
                       <p>Manage properties and find trusted artisans</p>
@@ -401,7 +402,7 @@ export default function AuthPage () {
                     className='lp-role'
                     onClick={() => handleSelectRole('artisan')}
                   >
-                    <div className='lp-role__icon'>🔧</div>
+                    <div className='lp-role__icon'><Wrench size={26} /></div>
                     <div className='lp-role__text'>
                       <h3>Professional / Artisan</h3>
                       <p>Find jobs and build your professional profile</p>
@@ -425,7 +426,7 @@ export default function AuthPage () {
                     className='lp-role'
                     onClick={() => handleSelectRole('user')}
                   >
-                    <div className='lp-role__icon'>🏠</div>
+                    <div className='lp-role__icon'><HomeIcon size={26} /></div>
                     <div className='lp-role__text'>
                       <h3>Tenant / Buyer</h3>
                       <p>Find your perfect property to rent or buy</p>
@@ -461,10 +462,10 @@ export default function AuthPage () {
                 <div className='lp-badge'>
                   <span className='lp-badge__icon'>
                     {selectedRole === 'PROPERTY_OWNER'
-                      ? '🏢'
+                      ? <Building2 size={16} />
                       : selectedRole === 'artisan'
-                      ? '🔧'
-                      : '🏠'}
+                      ? <Wrench size={16} />
+                      : <HomeIcon size={16} />}
                   </span>
                   <span className='lp-badge__label'>
                     {selectedRole === 'PROPERTY_OWNER'
