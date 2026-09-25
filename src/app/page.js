@@ -224,7 +224,7 @@ export default function LandingPage () {
 
   useEffect(() => {
     axios
-      .get(`${API}/api/platform-config`)
+      .get(`${API}/api/platform-config`) 
       .then(r => {
         if (r.data?.config?.branding) setBranding(r.data.config.branding)
       })
