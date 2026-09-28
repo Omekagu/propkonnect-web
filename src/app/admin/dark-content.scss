@@ -83,6 +83,13 @@ $dk-info-bg:      rgba(56,139,253,.15);
   --color-nav-active-bg-end: rgba(196,229,60,0.05);
   --color-primary-emphasis:  #C4E53C;
   --color-accent-subtle:     rgba(196,229,60,0.15);
+
+  // Primary brand colours remapped for dark shell — prevents dark-green (#0b3d28)
+  // from rendering as invisible text/borders on the dark background
+  --color-primary:           #C4E53C;
+  --color-primary-mid:       #C4E53C;
+  --color-primary-light:     rgba(196,229,60,0.1);
+  --color-primary-subtle:    rgba(196,229,60,0.08);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
