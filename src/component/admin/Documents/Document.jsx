@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react'
 import {
   FileText,
   Search,
-  Download,
   Eye,
-  Home,
   User,
   Calendar,
   CheckCircle,
@@ -18,220 +16,57 @@ import axios from 'axios'
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL
 
-const STATUS_META = {
-  active: { color: '#16a34a', bg: '#f0fdf4', icon: <CheckCircle size={12} /> },
-  pending: { color: '#d97706', bg: '#fef3c7', icon: <Clock size={12} /> },
-  signed: { color: '#2563eb', bg: '#dbeafe', icon: <CheckCircle size={12} /> },
-  terminated: {
-    color: '#6b7280',
-    bg: '#f3f4f6',
-    icon: <AlertCircle size={12} />
-  }
+// ── Dark-theme tokens ──────────────────────────────────────────────────────────
+const C = {
+  bg:       '#0d1117',
+  surface:  '#161b22',
+  surface2: '#1c2128',
+  border:   'rgba(255,255,255,0.08)',
+  border2:  'rgba(255,255,255,0.13)',
+  text:     '#e6edf3',
+  muted:    '#8b949e',
+  dim:      '#6e7681',
+  accent:   '#C4E53C',
+  accentBg: 'rgba(196,229,60,0.1)',
+  accentBorder: 'rgba(196,229,60,0.25)',
 }
 
-const s = {
-  page: { padding: '1.5rem', fontFamily: 'sans-serif' },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '1.25rem',
-    flexWrap: 'wrap',
-    gap: 10
-  },
-  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#111', margin: 0 },
-  searchWrap: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    background: '#f9fafb',
-    border: '1px solid #e5e7eb',
-    borderRadius: 8,
-    padding: '7px 12px',
-    width: 240
-  },
-  searchInput: {
-    border: 'none',
-    background: 'transparent',
-    outline: 'none',
-    fontSize: 14,
-    color: '#111',
-    width: '100%'
-  },
-  statGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-    gap: '0.75rem',
-    marginBottom: '1.25rem'
-  },
-  statCard: {
-    background: '#fff',
-    borderRadius: 10,
-    padding: '1rem',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10
-  },
-  iconBox: bg => ({
-    width: 38,
-    height: 38,
-    borderRadius: 8,
-    background: bg,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0
-  }),
-  statVal: { fontWeight: 700, fontSize: '1.1rem', color: '#111' },
-  statLbl: { fontSize: 11, color: '#6b7280', marginTop: 1 },
-  tabRow: { display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: '1rem' },
-  tab: active => ({
-    padding: '6px 14px',
-    border: 'none',
-    borderRadius: 20,
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: 'pointer',
-    background: active ? '#2563eb' : '#f3f4f6',
-    color: active ? '#fff' : '#374151'
-  }),
-  list: { display: 'flex', flexDirection: 'column', gap: '0.5rem' },
-  card: {
-    background: '#fff',
-    borderRadius: 12,
-    padding: '1rem',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 12
-  },
-  cardLeft: { display: 'flex', alignItems: 'center', gap: 12 },
-  iconWrap: {
-    width: 42,
-    height: 42,
-    borderRadius: 10,
-    background: '#eff6ff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0
-  },
-  docTitle: { fontWeight: 600, fontSize: 14, color: '#111' },
-  docMeta: { fontSize: 12, color: '#6b7280', marginTop: 3 },
-  badge: (color, bg) => ({
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 4,
-    padding: '2px 8px',
-    borderRadius: 20,
-    fontSize: 11,
-    fontWeight: 600,
-    color,
-    background: bg
-  }),
-  actions: { display: 'flex', alignItems: 'center', gap: 8 },
-  btnView: {
-    padding: '6px 12px',
-    fontSize: 12,
-    fontWeight: 600,
-    border: 'none',
-    borderRadius: 6,
-    cursor: 'pointer',
-    background: '#eff6ff',
-    color: '#2563eb',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 4
-  },
-  empty: {
-    textAlign: 'center',
-    padding: '3rem',
-    color: '#9ca3af',
-    fontSize: 14
-  },
-  detail: {
-    background: '#f9fafb',
-    borderRadius: 10,
-    padding: '1rem',
-    marginTop: '0.75rem',
-    fontSize: 13
-  },
-  detailRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: '5px 0',
-    borderBottom: '1px solid #e5e7eb'
-  },
-  detailLabel: { color: '#6b7280', fontWeight: 600 },
-  modal: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-    padding: '1rem'
-  },
-  modalBox: {
-    background: '#fff',
-    borderRadius: 16,
-    padding: '1.5rem',
-    width: '100%',
-    maxWidth: 560,
-    maxHeight: '80vh',
-    overflowY: 'auto',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.2)'
-  },
-  modalTitle: {
-    fontSize: '1.1rem',
-    fontWeight: 700,
-    color: '#111',
-    marginBottom: '1rem',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  closeBtn: {
-    background: '#f3f4f6',
-    border: 'none',
-    borderRadius: 8,
-    padding: '4px 10px',
-    cursor: 'pointer',
-    fontWeight: 600,
-    fontSize: 13,
-    color: '#374151'
-  }
+const STATUS_META = {
+  active:     { color: '#4ade80', bg: 'rgba(34,197,94,0.12)',   icon: <CheckCircle size={12} /> },
+  pending:    { color: '#fbbf24', bg: 'rgba(245,158,11,0.12)',  icon: <Clock size={12} /> },
+  signed:     { color: '#60a5fa', bg: 'rgba(59,130,246,0.12)',  icon: <CheckCircle size={12} /> },
+  terminated: { color: '#9ca3af', bg: 'rgba(156,163,175,0.1)',  icon: <AlertCircle size={12} /> }
 }
+
+// Stat card config
+const STAT_CONF = [
+  { key: 'total',      label: 'Total',      color: '#60a5fa', bg: 'rgba(59,130,246,0.12)',  icon: size => <FileText size={size} color='#60a5fa' /> },
+  { key: 'active',     label: 'Active',     color: '#4ade80', bg: 'rgba(34,197,94,0.12)',   icon: size => <CheckCircle size={size} color='#4ade80' /> },
+  { key: 'pending',    label: 'Pending',    color: '#fbbf24', bg: 'rgba(245,158,11,0.12)',  icon: size => <Clock size={size} color='#fbbf24' /> },
+  { key: 'terminated', label: 'Terminated', color: '#9ca3af', bg: 'rgba(156,163,175,0.1)', icon: size => <AlertCircle size={size} color='#9ca3af' /> },
+]
 
 export default function Document () {
   const { user } = useAuth()
-  const [leases, setLeases] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [selected, setSelected] = useState(null)
+  const [leases, setLeases]         = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [search, setSearch]         = useState('')
+  const [statusFilter, setFilter]   = useState('all')
+  const [selected, setSelected]     = useState(null)
 
   const isTenant = user?.role === 'user' || user?.role === 'tenant'
-  const isOwner = user?.role === 'PROPERTY_OWNER'
+  const isOwner  = user?.role === 'PROPERTY_OWNER'
 
   useEffect(() => {
     if (!user) return
     const token = localStorage.getItem('authToken')
     if (!token) return
-    const endpoint = isTenant
-      ? `${API}/api/leases/my`
-      : `${API}/api/leases/landlord`
+    const endpoint = isTenant ? `${API}/api/leases/my` : `${API}/api/leases/landlord`
     axios
       .get(endpoint, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => {
         const data = isTenant
-          ? res.data?.leases ||
-            res.data?.data ||
-            (res.data?.lease ? [res.data.lease] : [])
+          ? res.data?.leases || res.data?.data || (res.data?.lease ? [res.data.lease] : [])
           : res.data?.leases || res.data?.data || []
         setLeases(data)
       })
@@ -240,179 +75,158 @@ export default function Document () {
   }, [user, isTenant])
 
   const filtered = leases.filter(l => {
-    const prop = l.property || {}
-    const tenant = l.tenant || {}
-    const propTitle = (prop.title || '').toLowerCase()
-    const tenantName = [tenant.firstName, tenant.lastName]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
-    const matchSearch =
-      !search ||
-      propTitle.includes(search.toLowerCase()) ||
-      tenantName.includes(search.toLowerCase())
-    const matchStatus = statusFilter === 'all' || l.status === statusFilter
-    return matchSearch && matchStatus
+    const prop   = l.property || {}
+    const tenant = l.tenant   || {}
+    const q = search.toLowerCase()
+    const matchSearch = !q ||
+      (prop.title || '').toLowerCase().includes(q) ||
+      [tenant.firstName, tenant.lastName].filter(Boolean).join(' ').toLowerCase().includes(q)
+    return matchSearch && (statusFilter === 'all' || l.status === statusFilter)
   })
 
   const counts = {
-    total: leases.length,
-    active: leases.filter(l => l.status === 'active').length,
-    pending: leases.filter(l => l.status === 'pending' || l.status === 'signed')
-      .length,
-    terminated: leases.filter(l => l.status === 'terminated').length
+    total:      leases.length,
+    active:     leases.filter(l => l.status === 'active').length,
+    pending:    leases.filter(l => l.status === 'pending' || l.status === 'signed').length,
+    terminated: leases.filter(l => l.status === 'terminated').length,
   }
 
-  const statuses = ['all', 'active', 'pending', 'signed', 'terminated']
+  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+  const fmtMoney = n => n ? `₦${Number(n).toLocaleString()}` : '—'
 
   return (
-    <div style={s.page}>
-      <div style={s.header}>
-        <h2 style={s.h2}>
-          {isTenant
-            ? 'My Lease Documents'
-            : isOwner
-            ? 'Lease Agreements'
-            : 'Documents'}
-        </h2>
-        <div style={s.searchWrap}>
-          <Search size={14} color='#9ca3af' />
+    <div style={{ padding: '24px 28px', background: C.bg, minHeight: '100%', color: C.text, boxSizing: 'border-box' }}>
+
+      {/* ── Header ── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: '0 0 4px', letterSpacing: '-0.3px' }}>
+            {isTenant ? 'My Lease Documents' : isOwner ? 'Lease Agreements' : 'Documents'}
+          </h2>
+          <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>
+            {isTenant ? 'View and manage your rental agreements.' : 'Manage lease agreements with your tenants.'}
+          </p>
+        </div>
+        {/* Search */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 9, padding: '8px 13px', width: 240 }}>
+          <Search size={14} color={C.dim} />
           <input
-            style={s.searchInput}
-            placeholder={
-              isTenant ? 'Search property…' : 'Search property, tenant…'
-            }
+            style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 13, color: C.text, width: '100%' }}
+            placeholder={isTenant ? 'Search property…' : 'Search property, tenant…'}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
       </div>
 
-      <div style={s.statGrid}>
-        {[
-          {
-            label: 'Total',
-            val: counts.total,
-            bg: '#eff6ff',
-            icon: <FileText size={18} color='#2563eb' />
-          },
-          {
-            label: 'Active',
-            val: counts.active,
-            bg: '#dcfce7',
-            icon: <CheckCircle size={18} color='#16a34a' />
-          },
-          {
-            label: 'Pending',
-            val: counts.pending,
-            bg: '#fef3c7',
-            icon: <Clock size={18} color='#d97706' />
-          },
-          {
-            label: 'Terminated',
-            val: counts.terminated,
-            bg: '#f3f4f6',
-            icon: <AlertCircle size={18} color='#6b7280' />
-          }
-        ].map(st => (
-          <div key={st.label} style={s.statCard}>
-            <div style={s.iconBox(st.bg)}>{st.icon}</div>
+      {/* ── Stat cards ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
+        {STAT_CONF.map(st => (
+          <div key={st.key} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: st.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {st.icon(18)}
+            </div>
             <div>
-              <div style={s.statVal}>{st.val}</div>
-              <div style={s.statLbl}>{st.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: C.text, lineHeight: 1 }}>{counts[st.key]}</div>
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 3, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{st.label}</div>
             </div>
           </div>
         ))}
       </div>
 
-      <div style={s.tabRow}>
-        {statuses.map(st => (
-          <button
-            key={st}
-            style={s.tab(statusFilter === st)}
-            onClick={() => setStatusFilter(st)}
-          >
-            {st.charAt(0).toUpperCase() + st.slice(1)}
-          </button>
-        ))}
+      {/* ── Filter tabs ── */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+        {['all', 'active', 'pending', 'signed', 'terminated'].map(st => {
+          const active = statusFilter === st
+          return (
+            <button
+              key={st}
+              onClick={() => setFilter(st)}
+              style={{
+                padding: '6px 16px',
+                border: active ? `1px solid ${C.accentBorder}` : `1px solid ${C.border}`,
+                borderRadius: 20,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                background: active ? C.accentBg : 'transparent',
+                color: active ? C.accent : C.muted,
+                transition: 'all 0.15s',
+              }}
+            >
+              {st.charAt(0).toUpperCase() + st.slice(1)}
+            </button>
+          )
+        })}
       </div>
 
+      {/* ── Content ── */}
       {loading ? (
-        <p style={{ color: '#6b7280', fontSize: 14 }}>Loading documents…</p>
+        <p style={{ color: C.muted, fontSize: 14 }}>Loading documents…</p>
       ) : filtered.length === 0 ? (
-        <div style={s.empty}>
-          <FileText
-            size={40}
-            opacity={0.3}
-            style={{ display: 'block', margin: '0 auto 10px' }}
-          />
-          <p>
+        <div style={{ textAlign: 'center', padding: '72px 24px', color: C.muted }}>
+          <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+            <FileText size={32} color={C.dim} />
+          </div>
+          <p style={{ fontSize: 17, fontWeight: 700, color: C.text, margin: '0 0 8px' }}>No documents found</p>
+          <p style={{ fontSize: 13, color: C.muted, maxWidth: 320, margin: '0 auto', lineHeight: 1.6 }}>
             {leases.length === 0
-              ? isTenant
-                ? 'No lease documents found. Your lease agreement will appear here once created.'
-                : 'No lease documents found.'
+              ? isTenant ? 'Your lease agreement will appear here once created.' : 'No lease agreements yet.'
               : 'No documents match your filters.'}
           </p>
         </div>
       ) : (
-        <div style={s.list}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {filtered.map(lease => {
-            const prop = lease.property || {}
-            const tenant = lease.tenant || {}
-            const landlord = lease.landlord || {}
-            const sm = STATUS_META[lease.status] || STATUS_META.pending
+            const prop     = lease.property || {}
+            const tenant   = lease.tenant   || {}
+            const sm       = STATUS_META[lease.status] || STATUS_META.pending
             return (
-              <div key={lease._id} style={s.card}>
-                <div style={s.cardLeft}>
-                  <div style={s.iconWrap}>
-                    <FileText size={20} color='#2563eb' />
+              <div
+                key={lease._id}
+                style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, transition: 'border-color 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = C.border2)}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <FileText size={20} color='#60a5fa' />
                   </div>
                   <div>
-                    <div style={s.docTitle}>
-                      Lease Agreement —{' '}
-                      {prop.title || lease.propertyId || 'Property'}
+                    <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>
+                      Lease Agreement — {prop.title || lease.propertyId || 'Property'}
                     </div>
-                    <div style={s.docMeta}>
+                    <div style={{ fontSize: 12, color: C.muted, marginTop: 3, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       {!isTenant && (
-                        <span style={{ marginRight: 8 }}>
-                          <User size={11} style={{ marginRight: 3 }} />
-                          {[tenant.firstName, tenant.lastName]
-                            .filter(Boolean)
-                            .join(' ') ||
-                            tenant.email ||
-                            'Tenant'}
-                          {' · '}
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                          <User size={11} />
+                          {[tenant.firstName, tenant.lastName].filter(Boolean).join(' ') || tenant.email || 'Tenant'}
+                          <span style={{ opacity: 0.4 }}>·</span>
                         </span>
                       )}
-                      <Calendar size={11} style={{ marginRight: 3 }} />
-                      {lease.startDate
-                        ? new Date(lease.startDate).toLocaleDateString()
-                        : '—'}
-                      {' → '}
-                      {lease.endDate
-                        ? new Date(lease.endDate).toLocaleDateString()
-                        : 'ongoing'}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <Calendar size={11} />
+                        {fmtDate(lease.startDate)} → {fmtDate(lease.endDate)}
+                      </span>
                     </div>
                     {lease.rentAmount && (
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: '#374151',
-                          marginTop: 2,
-                          fontWeight: 600
-                        }}
-                      >
-                        N{Number(lease.rentAmount).toLocaleString()} / month
+                      <div style={{ fontSize: 12, color: C.accent, marginTop: 3, fontWeight: 700 }}>
+                        {fmtMoney(lease.rentAmount)} / month
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div style={s.actions}>
-                  <span style={s.badge(sm.color, sm.bg)}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, color: sm.color, background: sm.bg }}>
                     {sm.icon} {lease.status || 'pending'}
                   </span>
-                  <button style={s.btnView} onClick={() => setSelected(lease)}>
+                  <button
+                    onClick={() => setSelected(lease)}
+                    style={{ padding: '6px 13px', fontSize: 12, fontWeight: 600, border: `1px solid ${C.border}`, borderRadius: 7, cursor: 'pointer', background: C.surface2, color: C.text, display: 'flex', alignItems: 'center', gap: 5, transition: 'border-color 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = C.border2)}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}
+                  >
                     <Eye size={13} /> View
                   </button>
                 </div>
@@ -422,100 +236,53 @@ export default function Document () {
         </div>
       )}
 
+      {/* ── Detail Modal ── */}
       {selected && (
-        <div style={s.modal} onClick={() => setSelected(null)}>
-          <div style={s.modalBox} onClick={e => e.stopPropagation()}>
-            <div style={s.modalTitle}>
-              <span>Lease Details</span>
-              <button style={s.closeBtn} onClick={() => setSelected(null)}>
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}
+          onClick={() => setSelected(null)}
+        >
+          <div
+            style={{ background: C.surface, border: `1px solid ${C.border2}`, borderRadius: 16, padding: 24, width: '100%', maxWidth: 560, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{selected.property?.title || 'Property'}</div>
+                <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>Lease Details</div>
+              </div>
+              <button
+                onClick={() => setSelected(null)}
+                style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontWeight: 600, fontSize: 12, color: C.muted }}
+              >
                 Close
               </button>
             </div>
 
-            <div
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: '#111',
-                marginBottom: '0.5rem'
-              }}
-            >
-              {selected.property?.title || 'Property'}
-            </div>
-
             {[
-              ['Lease ID', selected._id],
-              ['Status', selected.status || '—'],
-              [
-                'Start Date',
-                selected.startDate
-                  ? new Date(selected.startDate).toLocaleDateString()
-                  : '—'
-              ],
-              [
-                'End Date',
-                selected.endDate
-                  ? new Date(selected.endDate).toLocaleDateString()
-                  : 'Ongoing'
-              ],
-              [
-                'Monthly Rent',
-                selected.rentAmount
-                  ? `N${Number(selected.rentAmount).toLocaleString()}`
-                  : '—'
-              ],
-              [
-                'Deposit',
-                selected.depositAmount
-                  ? `N${Number(selected.depositAmount).toLocaleString()}`
-                  : '—'
-              ],
-              [
-                'Next Payment',
-                selected.nextPaymentDate
-                  ? new Date(selected.nextPaymentDate).toLocaleDateString()
-                  : '—'
-              ],
+              ['Lease ID',        selected._id],
+              ['Status',          selected.status || '—'],
+              ['Start Date',      fmtDate(selected.startDate)],
+              ['End Date',        fmtDate(selected.endDate)],
+              ['Monthly Rent',    fmtMoney(selected.rentAmount)],
+              ['Deposit',         fmtMoney(selected.depositAmount)],
+              ['Next Payment',    fmtDate(selected.nextPaymentDate)],
               ...(!isTenant
                 ? [
-                    [
-                      'Tenant',
-                      [selected.tenant?.firstName, selected.tenant?.lastName]
-                        .filter(Boolean)
-                        .join(' ') ||
-                        selected.tenant?.email ||
-                        '—'
-                    ],
+                    ['Tenant', [selected.tenant?.firstName, selected.tenant?.lastName].filter(Boolean).join(' ') || selected.tenant?.email || '—'],
                     ['Tenant Email', selected.tenant?.email || '—'],
                     ['Tenant Phone', selected.tenant?.phone || '—']
                   ]
                 : [
-                    [
-                      'Property Address',
-                      [
-                        selected.property?.address,
-                        selected.property?.city,
-                        selected.property?.state
-                      ]
-                        .filter(Boolean)
-                        .join(', ') || '—'
-                    ],
-                    [
-                      'Landlord',
-                      [
-                        selected.landlord?.firstName,
-                        selected.landlord?.lastName
-                      ]
-                        .filter(Boolean)
-                        .join(' ') || '—'
-                    ]
+                    ['Property Address', [selected.property?.address, selected.property?.city, selected.property?.state].filter(Boolean).join(', ') || '—'],
+                    ['Landlord', [selected.landlord?.firstName, selected.landlord?.lastName].filter(Boolean).join(' ') || '—']
                   ]),
-              ['Payment Status', selected.paymentStatus || '—'],
-              ['Notes', selected.notes || '—']
+              ['Payment Status',  selected.paymentStatus || '—'],
+              ['Notes',           selected.notes || '—'],
             ].map(([label, val]) => (
-              <div key={label} style={s.detailRow}>
-                <span style={s.detailLabel}>{label}</span>
-                <span style={{ color: '#111', fontSize: 13 }}>{val}</span>
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid ${C.border}`, gap: 12 }}>
+                <span style={{ fontSize: 12, color: C.muted, fontWeight: 600, flexShrink: 0 }}>{label}</span>
+                <span style={{ fontSize: 13, color: C.text, textAlign: 'right', wordBreak: 'break-all' }}>{val}</span>
               </div>
             ))}
           </div>

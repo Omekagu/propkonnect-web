@@ -56,10 +56,20 @@ export default function MyBookings () {
     <div style={{ padding: '24px 28px', background: D.bg, minHeight: '100%', color: D.text }}>
 
       {bookings.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px 24px', color: D.muted }}>
-          <Calendar size={40} style={{ marginBottom: 14, opacity: 0.25 }} color={D.muted} />
-          <p style={{ fontSize: 16, fontWeight: 700, color: D.text, marginBottom: 6 }}>No bookings yet</p>
-          <p style={{ fontSize: 13, margin: 0 }}>Book a hotel or shortlet to see it here.</p>
+        <div style={{ textAlign: 'center', padding: '64px 24px' }}>
+          <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(196,229,60,0.08)', border: '1px solid rgba(196,229,60,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+            <Calendar size={32} color='rgba(196,229,60,0.55)' />
+          </div>
+          <p style={{ fontSize: 17, fontWeight: 800, color: D.text, margin: '0 0 8px' }}>No bookings yet</p>
+          <p style={{ fontSize: 13, color: D.muted, margin: '0 0 24px', lineHeight: 1.65, maxWidth: 320, marginLeft: 'auto', marginRight: 'auto' }}>
+            Book a hotel or shortlet and your reservations will appear here.
+          </p>
+          <a
+            href='/explore'
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 24px', background: '#C4E53C', color: '#0B3D28', borderRadius: 10, fontWeight: 700, fontSize: 13, textDecoration: 'none', letterSpacing: '0.01em' }}
+          >
+            Browse Properties
+          </a>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

@@ -211,8 +211,8 @@ $radius:   14px;
   gap: 5px;
   padding: 5px 11px;
   border-radius: 20px;
-  border: 1px solid $border;
-  background: $surface;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.07);
   color: $text2;
   font-size: 12px;
   font-weight: 500;
@@ -220,7 +220,7 @@ $radius:   14px;
   white-space: nowrap;
   transition: all .15s;
 
-  &:hover { border-color: rgba($accent, 0.4); color: $text; }
+  &:hover { border-color: rgba($accent, 0.4); color: $text; background: rgba(255,255,255,0.1); }
   &--active {
     background: rgba($accent, 0.15);
     border-color: rgba($accent, 0.6);
@@ -238,16 +238,17 @@ $radius:   14px;
 
   input {
     flex: 1;
-    background: $surface;
-    border: 1px solid $border;
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
     border-radius: 8px;
     padding: 7px 10px;
-    color: $text;
+    color: $text !important;
     font-size: 13px;
     outline: none;
-    width: 0; // flex takes over
-    &::placeholder { color: $text3; }
-    &:focus { border-color: rgba($accent, 0.5); }
+    width: 0;
+    box-shadow: none !important;
+    &::placeholder { color: $text3 !important; }
+    &:focus { border-color: rgba($accent, 0.5) !important; box-shadow: none !important; }
   }
 }
 
@@ -705,4 +706,40 @@ $radius:   14px;
   z-index: 199;
   display: flex;
   align-items: flex-end;
+}
+
+// ── Defeat global input reset inside filter panel ────────────────────────────
+// Global index.scss sets input { background: white }. Scoping under
+// .filter-panel gives specificity 0,2,1 which beats the global 0,0,1.
+.filter-panel, .filter-panel--mobile {
+  input, select, textarea {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    color: $text !important;
+    border-radius: 8px;
+    box-shadow: none !important;
+
+    &::placeholder { color: $text3 !important; }
+    &:focus {
+      border-color: rgba($accent, 0.45) !important;
+      box-shadow: 0 0 0 2px rgba($accent, 0.08) !important;
+    }
+  }
+
+  .pill {
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    color: $text2 !important;
+
+    &:hover {
+      background: rgba(255,255,255,0.11) !important;
+      border-color: rgba($accent, 0.35) !important;
+      color: $text !important;
+    }
+    &.pill--active {
+      background: rgba($accent, 0.15) !important;
+      border-color: rgba($accent, 0.55) !important;
+      color: $accent !important;
+    }
+  }
 }

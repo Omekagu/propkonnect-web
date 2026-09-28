@@ -144,11 +144,11 @@ export default function TenantPayments () {
       {/* ── Stats ─────────────────────────────────────────────────────────── */}
       <div style={s.grid}>
         <div style={s.statCard}>
-          <div style={s.iconBox('#dcfce7')}><DollarSign size={18} color="#16a34a" /></div>
+          <div style={s.iconBox('rgba(34,197,94,0.12)')}><DollarSign size={18} color="#4ade80" /></div>
           <div><div style={s.statVal}>{fmt(totalPaid)}</div><div style={s.statLbl}>Total Paid</div></div>
         </div>
         <div style={s.statCard}>
-          <div style={s.iconBox('#dbeafe')}><CreditCard size={18} color="#2563eb" /></div>
+          <div style={s.iconBox('rgba(59,130,246,0.12)')}><CreditCard size={18} color="#60a5fa" /></div>
           <div>
             <div style={s.statVal}>{lease ? fmt(lease.rentAmount) : '—'}</div>
             <div style={s.statLbl}>{PAYMENT_TYPE_LABELS[lease?.paymentType] || 'Rent Amount'}</div>
@@ -156,7 +156,7 @@ export default function TenantPayments () {
         </div>
         {installments.length > 0 && (
           <div style={s.statCard}>
-            <div style={s.iconBox('#fef3c7')}><CalendarDays size={18} color="#d97706" /></div>
+            <div style={s.iconBox('rgba(245,158,11,0.12)')}><CalendarDays size={18} color="#fbbf24" /></div>
             <div>
               <div style={s.statVal}>{paidCount}/{installments.length}</div>
               <div style={s.statLbl}>Installments paid</div>
@@ -165,7 +165,7 @@ export default function TenantPayments () {
         )}
         {overdueCount > 0 && (
           <div style={s.statCard}>
-            <div style={s.iconBox('#fef2f2')}><AlertCircle size={18} color="#dc2626" /></div>
+            <div style={s.iconBox('rgba(239,68,68,0.12)')}><AlertCircle size={18} color="#f87171" /></div>
             <div><div style={s.statVal}>{overdueCount}</div><div style={s.statLbl}>Overdue</div></div>
           </div>
         )}
@@ -251,15 +251,31 @@ export default function TenantPayments () {
         </div>
       )}
 
+      {/* ── No lease notice ─────────────────────────────────────────────── */}
+      {!lease && (
+        <div style={{ ...s.section, textAlign: 'center', padding: '32px 24px', marginBottom: 12 }}>
+          <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(196,229,60,0.08)', border: '1px solid rgba(196,229,60,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+            <CreditCard size={24} color='rgba(196,229,60,0.6)' />
+          </div>
+          <p style={{ fontSize: 15, fontWeight: 800, color: D.text, margin: '0 0 6px' }}>No active lease</p>
+          <p style={{ fontSize: 13, color: D.muted, margin: 0, lineHeight: 1.6 }}>
+            Once you sign a rental agreement, your payment schedule will appear here.
+          </p>
+        </div>
+      )}
+
       {/* ── Transaction history ──────────────────────────────────────────── */}
       <div style={s.section}>
         <div style={s.sTitle}>Transaction History</div>
         {transactions.length === 0 ? (
-          <p style={s.empty}>No transactions yet.</p>
-        ) : transactions.map(tx => {
+          <div style={{ textAlign: 'center', padding: '28px 16px' }}>
+            <Clock size={28} color='rgba(255,255,255,0.1)' style={{ marginBottom: 10 }} />
+            <p style={{ ...s.empty, padding: 0 }}>No transactions yet.</p>
+          </div>
+        ) : transactions.map((tx, i) => {
           const [color, bg] = TX_STATUS[tx.status] || TX_STATUS.pending
           return (
-            <div key={tx._id} style={s.row}>
+            <div key={tx._id} style={{ ...s.row, borderBottom: i === transactions.length - 1 ? 'none' : s.row.borderBottom }}>
               <div style={s.txLeft}>
                 <div style={s.txIcon(bg)}>
                   {tx.status === 'completed'

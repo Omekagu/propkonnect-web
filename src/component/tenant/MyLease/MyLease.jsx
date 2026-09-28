@@ -237,23 +237,26 @@ export default function MyLease () {
           <h1 className='ml-page__title'>My Leases</h1>
           <p className='ml-page__sub'>Track your rental agreements and payment schedule.</p>
         </div>
-        <div className='ml-page__stats'>
-          <div className='ml-stat'><strong>{active.length}</strong><span>Active</span></div>
-          <div className='ml-stat'><strong>{past.length}</strong><span>Past</span></div>
-        </div>
+        {leases.length > 0 && (
+          <div className='ml-page__stats'>
+            <div className='ml-stat'><strong>{active.length}</strong><span>Active</span></div>
+            <div className='ml-stat'><strong>{past.length}</strong><span>Past</span></div>
+          </div>
+        )}
       </div>
 
       {leases.length === 0 ? (
         <div className='ml-empty'>
           <span className='ml-empty__icon'>
-            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+            <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'>
               <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/>
             </svg>
           </span>
           <p className='ml-empty__title'>No leases yet</p>
           <p className='ml-empty__desc'>
-            When you make a payment for a property, your lease will appear here with a live countdown.
+            When you sign a rental agreement, your lease will appear here with a live countdown and payment schedule.
           </p>
+          <a href='/explore' className='ml-empty__cta'>Browse Properties</a>
         </div>
       ) : (
         <>

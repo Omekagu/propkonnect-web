@@ -12,8 +12,8 @@
 .hub-tabs {
   display: flex;
   gap: 0;
-  background: #161b22;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: #09090b;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   padding: 0 24px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -26,25 +26,33 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 14px 18px;
+  padding: 14px 20px 13px;
   font-size: 13px;
   font-weight: 600;
-  color: #7d8590;
+  color: rgba(255,255,255,0.45);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
   white-space: nowrap;
   background: none;
   border-top: none;
   border-left: none;
   border-right: none;
   user-select: none;
+  position: relative;
 
-  &:hover { color: #e6edf3; }
+  svg { opacity: 0.5; transition: opacity 0.15s; }
+
+  &:hover {
+    color: rgba(255,255,255,0.82);
+    background: rgba(255,255,255,0.04);
+    svg { opacity: 0.75; }
+  }
 
   &.active {
     color: #C4E53C;
     border-bottom-color: #C4E53C;
+    svg { opacity: 1; }
   }
 
   &__count {
@@ -58,7 +66,7 @@
     font-size: 10px;
     font-weight: 700;
     background: rgba(255,255,255,0.07);
-    color: #7d8590;
+    color: rgba(255,255,255,0.4);
 
     .hub-tab.active & {
       background: rgba(196,229,60,0.15);
@@ -69,6 +77,5 @@
 
 // ── Tab panel ─────────────────────────────────────────────────────────────────
 .hub-panel {
-  // Inner components handle their own padding
   min-height: calc(100vh - 100px);
 }

@@ -2,37 +2,20 @@
 
 import { useState, useEffect } from 'react'
 import { platformConfig as platformConfigApi, finance as financeApi } from '@/libs/api'
-import { CreditCard, CheckCircle, AlertCircle, DollarSign, Percent, Globe, Shield, Zap } from 'lucide-react'
+import { CreditCard, CheckCircle, AlertCircle, DollarSign, Percent, Globe, Shield, Zap, Copy, Check } from 'lucide-react'
 
-const s = {
-  page: { padding: '1.5rem', fontFamily: 'sans-serif' },
-  header: { marginBottom: '1.5rem' },
-  h2: { fontSize: '1.4rem', fontWeight: 700, color: '#111', margin: '0 0 4px' },
-  sub: { color: '#6b7280', fontSize: 14, margin: 0 },
-  section: { background: '#fff', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '1rem' },
-  sTitle: { fontSize: 15, fontWeight: 700, color: '#111', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: 8 },
-  grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem', marginBottom: '1rem' },
-  gwCard: { borderRadius: 10, padding: '1.1rem', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'flex-start', gap: 14 },
-  gwLogo: (bg) => ({ width: 48, height: 48, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }),
-  gwName: { fontWeight: 700, fontSize: 15, color: '#111', marginBottom: 2 },
-  gwSub: { fontSize: 12, color: '#6b7280', marginBottom: 6 },
-  gwStatus: (ok) => ({ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: ok ? '#f0fdf4' : '#fef2f2', color: ok ? '#16a34a' : '#dc2626' }),
-  row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f3f4f6', fontSize: 14, flexWrap: 'wrap', gap: 8 },
-  rowLabel: { color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 },
-  feeGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem' },
-  feeBox: { background: '#f9fafb', borderRadius: 8, padding: '0.85rem', textAlign: 'center' },
-  feeVal: { fontSize: '1.25rem', fontWeight: 700, color: '#2563eb' },
-  feeLbl: { fontSize: 12, color: '#6b7280', marginTop: 4 },
-  input: { width: '100%', padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' },
-  btnPrimary: { padding: '8px 18px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 },
-  btnSm: { padding: '6px 14px', background: '#f3f4f6', color: '#374151', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 },
-  alert: (t) => ({ padding: '10px 14px', borderRadius: 8, fontSize: 13, marginBottom: '0.75rem', background: t === 'success' ? '#f0fdf4' : '#fef2f2', color: t === 'success' ? '#16a34a' : '#dc2626' }),
-  webhookCode: { background: '#f9fafb', borderRadius: 6, padding: '6px 10px', fontSize: 12, fontFamily: 'monospace', wordBreak: 'break-all', color: '#374151', border: '1px solid #e5e7eb', flex: 1 },
-  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem' },
-  statBox: { background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, padding: '0.9rem', textAlign: 'center' },
-  statVal: { fontSize: '1.3rem', fontWeight: 700, color: '#111' },
-  statLbl: { fontSize: 12, color: '#6b7280', marginTop: 3 },
-  chip: { padding: '5px 14px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 20, fontSize: 13, color: '#0369a1', fontWeight: 500 },
+const C = {
+  bg:       '#0d1117',
+  surface:  '#161b22',
+  surface2: '#1c2128',
+  border:   'rgba(255,255,255,0.08)',
+  border2:  'rgba(255,255,255,0.14)',
+  text:     '#e6edf3',
+  muted:    '#8b949e',
+  dim:      '#6e7681',
+  accent:   '#C4E53C',
+  accentBg: 'rgba(196,229,60,0.1)',
+  accentBorder: 'rgba(196,229,60,0.25)',
 }
 
 const WEBHOOK_PATHS = [
@@ -40,15 +23,22 @@ const WEBHOOK_PATHS = [
   { label: 'Stripe Webhook',  path: '/api/payments/stripe-webhook' },
 ]
 
+const FEE_FIELDS = [
+  { key: 'platformFee',   label: 'Platform Fee (%)',   hint: 'Charged on every transaction' },
+  { key: 'escrowFee',     label: 'Escrow Fee (%)',      hint: 'Applied to held escrow amounts' },
+  { key: 'bnplInterest',  label: 'BNPL Interest (%)',   hint: 'Annual rate on instalment plans' },
+  { key: 'withdrawalFee', label: 'Withdrawal Fee (₦)',  hint: 'Flat fee deducted per payout' },
+]
+
 export default function PaymentMethod () {
-  const [settings, setSettings]   = useState(null)
-  const [stats, setStats]         = useState(null)
-  const [fees, setFees]           = useState({})
-  const [loading, setLoading]     = useState(true)
-  const [saving, setSaving]       = useState(false)
-  const [editFees, setEditFees]   = useState(false)
-  const [msg, setMsg]             = useState(null)
-  const [copied, setCopied]       = useState(null)
+  const [settings, setSettings] = useState(null)
+  const [stats, setStats]       = useState(null)
+  const [fees, setFees]         = useState({})
+  const [loading, setLoading]   = useState(true)
+  const [saving, setSaving]     = useState(false)
+  const [editFees, setEditFees] = useState(false)
+  const [msg, setMsg]           = useState(null)
+  const [copied, setCopied]     = useState(null)
 
   useEffect(() => {
     Promise.all([
@@ -77,7 +67,7 @@ export default function PaymentMethod () {
         bnplInterestPercent: Number(fees.bnplInterest),
         withdrawalFeeFlat:   Number(fees.withdrawalFee),
       })
-      setMsg({ type: 'success', text: 'Fee configuration saved successfully.' })
+      setMsg({ type: 'success', text: 'Fee configuration saved.' })
       setEditFees(false)
     } catch (e) {
       setMsg({ type: 'error', text: e.response?.data?.message || 'Failed to save fees.' })
@@ -94,143 +84,157 @@ export default function PaymentMethod () {
   }
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.estateproperties.ng'
+  const fmtMoney = n => n != null ? `₦${Number(n).toLocaleString()}` : '—'
 
-  if (loading) return <div style={{ padding: '1.5rem', color: '#6b7280' }}>Loading payment configuration…</div>
+  // ── Shared style helpers ────────────────────────────────────────────────────
+  const section = { background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: '20px 22px', marginBottom: 16 }
+  const sTitle  = { fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }
+  const btnSm   = { padding: '7px 16px', background: C.surface2, color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }
+  const btnPrimary = { padding: '7px 18px', background: C.accent, color: '#0B3D28', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 13 }
+
+  if (loading) return <div style={{ padding: '24px 28px', color: C.muted }}>Loading payment configuration…</div>
 
   return (
-    <div style={s.page}>
-      <div style={s.header}>
-        <h2 style={s.h2}>Payment Methods</h2>
-        <p style={s.sub}>Gateway status, fee configuration, and webhook endpoints</p>
+    <div style={{ padding: '24px 28px', background: C.bg, minHeight: '100%', color: C.text, boxSizing: 'border-box' }}>
+
+      {/* ── Header ── */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: '0 0 4px', letterSpacing: '-0.3px' }}>Payment Methods</h2>
+        <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Gateway status, fee configuration, and webhook endpoints</p>
       </div>
 
-      {msg && <div style={s.alert(msg.type)}>{msg.text}</div>}
+      {msg && (
+        <div style={{ padding: '11px 14px', borderRadius: 9, fontSize: 13, marginBottom: 16, background: msg.type === 'success' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', color: msg.type === 'success' ? '#4ade80' : '#f87171', border: `1px solid ${msg.type === 'success' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
+          {msg.text}
+        </div>
+      )}
 
-      {/* Gateways */}
-      <div style={s.section}>
-        <div style={s.sTitle}><Zap size={16} /> Payment Gateways</div>
-        <div style={s.grid2}>
-          <div style={s.gwCard}>
-            <div style={s.gwLogo('#dbeafe')}><DollarSign size={22} color="#2563eb" /></div>
-            <div>
-              <div style={s.gwName}>Monnify</div>
-              <div style={s.gwSub}>Virtual accounts, USSD, bank transfer — primary gateway</div>
-              <span style={s.gwStatus(true)}><CheckCircle size={11} /> Active</span>
+      {/* ── Gateways ── */}
+      <div style={section}>
+        <div style={sTitle}><Zap size={15} color={C.accent} /> Payment Gateways</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+          {[
+            { name: 'Monnify',  sub: 'Virtual accounts, USSD, bank transfer — primary gateway', iconBg: 'rgba(59,130,246,0.12)', iconColor: '#60a5fa', icon: <DollarSign size={20} color='#60a5fa' />, ok: true },
+            { name: 'Stripe',   sub: 'Card payments, international transactions', iconBg: 'rgba(139,92,246,0.12)', iconColor: '#a78bfa', icon: <CreditCard size={20} color='#a78bfa' />, ok: false, note: 'Requires STRIPE_SECRET_KEY' },
+            { name: 'Paystack', sub: 'Local card payments, bank transfers (Nigeria)', iconBg: 'rgba(34,197,94,0.12)', iconColor: '#4ade80', icon: <CheckCircle size={20} color='#4ade80' />, ok: true },
+          ].map(gw => (
+            <div key={gw.name} style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 10, background: gw.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {gw.icon}
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 3 }}>{gw.name}</div>
+                <div style={{ fontSize: 12, color: C.muted, marginBottom: 7, lineHeight: 1.5 }}>{gw.sub}</div>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20, background: gw.ok ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.1)', color: gw.ok ? '#4ade80' : '#f87171' }}>
+                  {gw.ok ? <CheckCircle size={10} /> : <AlertCircle size={10} />}
+                  {gw.ok ? 'Active' : (gw.note || 'Not configured')}
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={s.gwCard}>
-            <div style={s.gwLogo('#f3e8ff')}><CreditCard size={22} color="#7c3aed" /></div>
-            <div>
-              <div style={s.gwName}>Stripe</div>
-              <div style={s.gwSub}>Card payments, international transactions</div>
-              <span style={s.gwStatus(false)}><AlertCircle size={11} /> Requires STRIPE_SECRET_KEY env var</span>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Fee Config */}
-      <div style={s.section}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <div style={{ ...s.sTitle, margin: 0 }}><Percent size={16} /> Fee Configuration</div>
+      {/* ── Fee Config ── */}
+      <div style={section}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ ...sTitle, margin: 0 }}><Percent size={15} color={C.accent} /> Fee Configuration</div>
           <div style={{ display: 'flex', gap: 8 }}>
             {editFees ? (
               <>
-                <button style={s.btnSm} onClick={() => setEditFees(false)}>Cancel</button>
-                <button style={s.btnPrimary} onClick={saveFees} disabled={saving}>{saving ? 'Saving…' : 'Save Fees'}</button>
+                <button style={btnSm} onClick={() => setEditFees(false)}>Cancel</button>
+                <button style={btnPrimary} onClick={saveFees} disabled={saving}>{saving ? 'Saving…' : 'Save Fees'}</button>
               </>
             ) : (
-              <button style={s.btnSm} onClick={() => setEditFees(true)}>Edit</button>
+              <button style={btnSm} onClick={() => setEditFees(true)}>Edit</button>
             )}
           </div>
         </div>
 
-        {editFees ? (
-          <div style={s.feeGrid}>
-            {[
-              ['platformFee',   'Platform Fee (%)',    'Charged on every transaction'],
-              ['escrowFee',     'Escrow Fee (%)',       'Applied to held escrow amounts'],
-              ['bnplInterest',  'BNPL Interest (%)',    'Annual rate on instalment plans'],
-              ['withdrawalFee', 'Withdrawal Fee (N)',   'Flat fee deducted per payout'],
-            ].map(([key, label, hint]) => (
-              <div key={key}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 4 }}>{label}</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={fees[key] ?? ''}
-                  onChange={e => setFees(f => ({ ...f, [key]: e.target.value }))}
-                  style={s.input}
-                />
-                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 3 }}>{hint}</div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={s.feeGrid}>
-            {[
-              [`${fees.platformFee ?? 2.5}%`,  'Platform Fee'],
-              [`${fees.escrowFee ?? 1}%`,       'Escrow Fee'],
-              [`${fees.bnplInterest ?? 5}%`,    'BNPL Interest'],
-              [`N${fees.withdrawalFee ?? 50}`,  'Withdrawal Fee'],
-            ].map(([val, lbl]) => (
-              <div key={lbl} style={s.feeBox}>
-                <div style={s.feeVal}>{val}</div>
-                <div style={s.feeLbl}>{lbl}</div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10 }}>
+          {editFees
+            ? FEE_FIELDS.map(({ key, label, hint }) => (
+                <div key={key}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
+                  <input
+                    type='number' step='0.1' value={fees[key] ?? ''}
+                    onChange={e => setFees(f => ({ ...f, [key]: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 11px', background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, color: C.text, boxSizing: 'border-box', outline: 'none' }}
+                  />
+                  <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>{hint}</div>
+                </div>
+              ))
+            : [
+                [`${fees.platformFee ?? 2.5}%`,  'Platform Fee'],
+                [`${fees.escrowFee ?? 1}%`,       'Escrow Fee'],
+                [`${fees.bnplInterest ?? 5}%`,    'BNPL Interest'],
+                [`₦${fees.withdrawalFee ?? 50}`,  'Withdrawal Fee'],
+              ].map(([val, lbl]) => (
+                <div key={lbl} style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 9, padding: '13px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: C.accent, lineHeight: 1 }}>{val}</div>
+                  <div style={{ fontSize: 11, color: C.muted, marginTop: 5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{lbl}</div>
+                </div>
+              ))
+          }
+        </div>
       </div>
 
-      {/* Finance snapshot */}
+      {/* ── Finance Snapshot ── */}
       {stats && (
-        <div style={s.section}>
-          <div style={s.sTitle}><DollarSign size={16} /> Platform Finance Snapshot</div>
-          <div style={s.statsGrid}>
+        <div style={section}>
+          <div style={sTitle}><DollarSign size={15} color={C.accent} /> Platform Finance Snapshot</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
             {[
-              ['Total Revenue',   stats.totalRevenue     != null ? `N${Number(stats.totalRevenue).toLocaleString()}`     : '—'],
-              ['Escrow Balance',  stats.escrowBalance    != null ? `N${Number(stats.escrowBalance).toLocaleString()}`    : '—'],
+              ['Total Revenue',   stats.totalRevenue     != null ? fmtMoney(stats.totalRevenue)     : '—'],
+              ['Escrow Balance',  stats.escrowBalance    != null ? fmtMoney(stats.escrowBalance)    : '—'],
               ['Transactions',    stats.totalTransactions ?? stats.count ?? '—'],
-              ['Pending Payouts', stats.pendingPayouts   != null ? `N${Number(stats.pendingPayouts).toLocaleString()}`   : '—'],
+              ['Pending Payouts', stats.pendingPayouts   != null ? fmtMoney(stats.pendingPayouts)   : '—'],
             ].map(([lbl, val]) => (
-              <div key={lbl} style={s.statBox}>
-                <div style={s.statVal}>{val}</div>
-                <div style={s.statLbl}>{lbl}</div>
+              <div key={lbl} style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 9, padding: '13px', textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: C.text, lineHeight: 1 }}>{val}</div>
+                <div style={{ fontSize: 11, color: C.muted, marginTop: 5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{lbl}</div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Webhook URLs */}
-      <div style={s.section}>
-        <div style={s.sTitle}><Globe size={16} /> Webhook Endpoints</div>
-        <p style={{ fontSize: 13, color: '#6b7280', marginBottom: '1rem' }}>
+      {/* ── Webhook URLs ── */}
+      <div style={section}>
+        <div style={sTitle}><Globe size={15} color={C.accent} /> Webhook Endpoints</div>
+        <p style={{ fontSize: 13, color: C.muted, marginBottom: 14, lineHeight: 1.6 }}>
           Register these URLs in your payment gateway dashboards to receive real-time events.
         </p>
-        {WEBHOOK_PATHS.map(({ label, path }) => {
-          const fullUrl = `${backendUrl}${path}`
-          return (
-            <div key={path} style={s.row}>
-              <span style={s.rowLabel}><Shield size={13} />{label}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, maxWidth: 560, marginLeft: 16 }}>
-                <span style={s.webhookCode}>{fullUrl}</span>
-                <button style={s.btnSm} onClick={() => copyWebhook(fullUrl, path)}>
-                  {copied === path ? 'Copied!' : 'Copy'}
-                </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {WEBHOOK_PATHS.map(({ label, path }) => {
+            const fullUrl = `${backendUrl}${path}`
+            return (
+              <div key={path} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 9, gap: 12, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 13, color: C.muted, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                  <Shield size={13} color={C.dim} /> {label}
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+                  <code style={{ flex: 1, fontSize: 12, fontFamily: 'monospace', color: C.dim, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 6, padding: '5px 10px', wordBreak: 'break-all', display: 'block' }}>
+                    {fullUrl}
+                  </code>
+                  <button style={{ ...btnSm, display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }} onClick={() => copyWebhook(fullUrl, path)}>
+                    {copied === path ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
+                  </button>
+                </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
 
-      {/* Supported Channels */}
-      <div style={s.section}>
-        <div style={s.sTitle}><CreditCard size={16} /> Supported Payment Channels</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-          {['Bank Transfer', 'USSD', 'Virtual Account (Monnify)', 'Card (Stripe)', 'BNPL / Instalments', 'Escrow (Hold & Release)'].map(ch => (
-            <span key={ch} style={s.chip}>{ch}</span>
+      {/* ── Supported Channels ── */}
+      <div style={section}>
+        <div style={sTitle}><CreditCard size={15} color={C.accent} /> Supported Payment Channels</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {['Bank Transfer', 'USSD', 'Virtual Account (Monnify)', 'Card (Stripe)', 'BNPL / Instalments', 'Escrow (Hold & Release)', 'Paystack'].map(ch => (
+            <span key={ch} style={{ padding: '5px 14px', background: C.accentBg, border: `1px solid ${C.accentBorder}`, borderRadius: 20, fontSize: 12, color: C.accent, fontWeight: 600 }}>
+              {ch}
+            </span>
           ))}
         </div>
       </div>

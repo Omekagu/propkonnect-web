@@ -249,17 +249,8 @@
   }
 
   &:hover {
-    background: var(--color-surface-hover);
-    color: var(--color-primary);
-
-    @media (prefers-color-scheme: dark) {
-      background: var(--color-surface-hover);
-      color: var(--color-primary-mid);
-    }
-  }
-
-  @media (prefers-color-scheme: dark) {
-    color: var(--color-text-muted);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fafafa;
   }
 }
 
@@ -282,16 +273,16 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.35);
   display: flex;
   align-items: center;
   gap: 6px;
 
   &::before {
     content: '';
-    width: 16px;
-    height: 1.5px;
-    background: rgba(255, 255, 255, 0.15);
+    width: 14px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.18);
     flex-shrink: 0;
   }
 }
@@ -339,13 +330,13 @@
   position: relative;
 
   &.active .nav-link {
-    background: rgba(196, 229, 60, 0.12);
-    color: #C4E53C;
+    background: rgba(196, 229, 60, 0.12) !important;
+    color: #C4E53C !important;
     font-weight: 600;
     border-radius: 8px;
 
     .icon {
-      color: #C4E53C;
+      color: #C4E53C !important;
     }
   }
 
@@ -389,26 +380,25 @@
   padding: 9px 12px;
   border-radius: 8px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.65) !important;
   font-size: 13.5px;
   font-weight: 500;
   line-height: 1.4;
   transition: background 150ms var(--ease), color 150ms var(--ease);
   user-select: none;
   margin: 0;
-  // Reset <p> defaults that can show white bg or outline
-  background: transparent;
+  background: transparent !important;
   outline: none;
   border: none;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fafafa;
+    background: rgba(255, 255, 255, 0.09) !important;
+    color: #ffffff !important;
 
     .icon {
-      color: rgba(255, 255, 255, 0.85);
+      color: rgba(255, 255, 255, 0.9) !important;
     }
   }
 
@@ -423,9 +413,10 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.5);
   width: 20px;
   height: 20px;
+  transition: color 150ms var(--ease);
 
   svg {
     width: 18px;
@@ -637,25 +628,11 @@
   }
 
   &:focus-within {
-    background: var(--color-surface);
-    border-color: var(--color-primary-mid);
-    box-shadow: 0 0 0 3px var(--color-primary-subtle);
+    background: #1c2128;
+    border-color: rgba(196, 229, 60, 0.4);
+    box-shadow: 0 0 0 3px rgba(196, 229, 60, 0.08);
     svg {
-      color: var(--color-primary-mid);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      background: var(--color-surface-hover);
-      border-color: var(--color-primary-mid);
-      box-shadow: 0 0 0 3px var(--color-primary-subtle);
-    }
-  }
-
-  @media (prefers-color-scheme: dark) {
-    background: var(--color-surface);
-    border-color: var(--color-border);
-    svg {
-      color: var(--color-text-muted);
+      color: #C4E53C;
     }
   }
 }
@@ -672,13 +649,6 @@
   &::placeholder {
     color: var(--color-text-muted);
   }
-
-  @media (prefers-color-scheme: dark) {
-    color: var(--color-surface-hover);
-    &::placeholder {
-      color: var(--color-text-secondary);
-    }
-  }
 }
 
 .header-right {
@@ -689,22 +659,19 @@
 }
 
 // ── Theme toggle button ────────────────────────────────────────
-// Inherits .header-icon-btn sizing but adds brand accent on active/dark
 .theme-toggle-btn {
-  // Light mode: neutral
   background: transparent;
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.5);
 
   &:hover {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
+    background: rgba(196, 229, 60, 0.1);
+    color: #C4E53C;
   }
 
-  // Brand accent ring when in dark mode (handled via html[data-theme] below)
   &[data-active='true'],
   &.active {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
+    background: rgba(196, 229, 60, 0.12);
+    color: #C4E53C;
   }
 }
 
