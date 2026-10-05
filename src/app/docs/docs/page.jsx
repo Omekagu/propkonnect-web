@@ -1,8 +1,26 @@
+// /docs/docs was a duplicate of the property search page.
+// The canonical search is at /search. This file is kept as a redirect.
+// The original implementation is preserved below the redirect export.
+
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+
+export default function DocsPage () {
+  const router = useRouter()
+  useEffect(() => { router.replace('/search') }, [router])
+  return null
+}
+
+/* ── Original implementation preserved below ─────────────────────────────────
+
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { properties as propertiesApi } from '@/libs/api'
 import { useRouter } from 'next/navigation'
+import { encodeId } from '@/libs/propId'
 import {
   Search, SlidersHorizontal, X, MapPin, BedDouble, Bath,
   Ruler, ChevronLeft, ChevronRight, Building2, Home, Hotel,
@@ -228,7 +246,7 @@ export default function PropertiesPage () {
         </div>
       ) : (
         <div style={s.grid}>
-          {properties.map(prop => <PropertyCard key={prop._id} prop={prop} fav={favs[prop._id]} onFav={toggleFav} onClick={() => router.push(`/property/${prop.uid || prop._id}`)} />)}
+          {properties.map(prop => <PropertyCard key={prop._id} prop={prop} fav={favs[prop._id]} onFav={toggleFav} onClick={() => router.push(`/property/${encodeId(prop.uid || prop._id)}`)} />)}
         </div>
       )}
 
@@ -373,6 +391,9 @@ function PropertyCard ({ prop, fav, onFav, onClick }) {
         )}
         {prop.listingTier && prop.listingTier !== 'Standard' && (
           <span style={s.tierPill}><Star size={10} fill='#f59e0b' color='#f59e0b' /> {prop.listingTier}</span>
+        )}
+        {prop.compliance?.verified && (
+          <span style={s.verifiedPill}>✓ PropNekt Verified</span>
         )}
       </div>
 
@@ -527,6 +548,13 @@ const s = {
     padding: '3px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600,
     display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(4px)'
   },
+  verifiedPill: {
+    position: 'absolute', bottom: 10, right: 10,
+    background: 'rgba(11,61,40,0.92)', color: '#C4E53C',
+    padding: '3px 9px', borderRadius: 20, fontSize: 10, fontWeight: 700,
+    backdropFilter: 'blur(4px)', border: '1px solid rgba(196,229,60,0.4)',
+    letterSpacing: '0.01em'
+  },
 
   cardBody: { padding: '14px 16px' },
   cardPrice: { fontWeight: 800, fontSize: 18, color: '#0B3D28', marginBottom: 4 },
@@ -619,3 +647,5 @@ const s = {
     background: '#f9fafb'
   }
 }
+
+*/

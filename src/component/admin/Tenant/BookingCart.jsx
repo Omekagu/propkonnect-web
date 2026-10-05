@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { bookings as bookingsApi } from '@/libs/api'
+import { encodeId } from '@/libs/propId'
 import { ShoppingCart, Calendar, MapPin, Trash2, ArrowRight, Loader2 } from 'lucide-react'
 
 const D = { bg: '#0d1117', surface: '#161b22', border: 'rgba(255,255,255,0.06)', border2: 'rgba(255,255,255,0.1)', text: '#e6edf3', muted: '#7d8590', accent: '#C4E53C', primary: '#0B3D28' }
@@ -47,7 +48,7 @@ export default function BookingCart () {
 
   const resume = (b) => {
     const propId = b.property?._id || b.property
-    if (propId) router.push(`/property/${propId}?checkIn=${b.checkIn?.slice(0, 10) || ''}&checkOut=${b.checkOut?.slice(0, 10) || ''}&guests=${b.guestCount || 1}`)
+    if (propId) router.push(`/property/${encodeId(propId)}?checkIn=${b.checkIn?.slice(0, 10) || ''}&checkOut=${b.checkOut?.slice(0, 10) || ''}&guests=${b.guestCount || 1}`)
   }
 
   if (loading) return (

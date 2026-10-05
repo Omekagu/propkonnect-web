@@ -50,24 +50,26 @@ const ROLE_TABS = {
     { key: 'Tenants', label: 'Tenants', Icon: Users },
     { key: 'Finance', label: 'Finance', Icon: WalletMinimal }
   ],
-  'artisan-admin': [
-    { key: 'Dashboard', label: 'Home', Icon: LayoutDashboard },
-    { key: 'ActiveJobs', label: 'Jobs', Icon: CheckSquare },
-    { key: 'Payments', label: 'Payments', Icon: WalletMinimal },
-    { key: 'Reports', label: 'Reports', Icon: BarChart3 }
-  ],
+  // PHASE 3+ — 'artisan-admin' mobile tabs. Restore when artisan marketplace launches.
+  // 'artisan-admin': [
+  //   { key: 'Dashboard',  label: 'Home',     Icon: LayoutDashboard },
+  //   { key: 'ActiveJobs', label: 'Jobs',     Icon: CheckSquare },
+  //   { key: 'Payments',   label: 'Payments', Icon: WalletMinimal },
+  //   { key: 'Reports',    label: 'Reports',  Icon: BarChart3 }
+  // ],
   PROPERTY_OWNER: [
     { key: 'Dashboard', label: 'Home', Icon: LayoutDashboard },
     { key: 'MyProperties', label: 'Properties', Icon: HousePlus },
     { key: 'Tenants', label: 'Tenants', Icon: Users },
     { key: 'Payments', label: 'Payments', Icon: WalletMinimal }
   ],
-  artisan: [
-    { key: 'Dashboard', label: 'Home', Icon: LayoutDashboard },
-    { key: 'AvailableJobs', label: 'Jobs', Icon: Briefcase },
-    { key: 'ActiveJobs', label: 'Active', Icon: CheckSquare },
-    { key: 'Negotiations', label: 'Bids', Icon: MessageSquare }
-  ],
+  // PHASE 3+ — artisan mobile tabs. Restore when artisan marketplace launches.
+  // artisan: [
+  //   { key: 'Dashboard',     label: 'Home',   Icon: LayoutDashboard },
+  //   { key: 'AvailableJobs', label: 'Jobs',   Icon: Briefcase },
+  //   { key: 'ActiveJobs',    label: 'Active', Icon: CheckSquare },
+  //   { key: 'Negotiations',  label: 'Bids',   Icon: MessageSquare }
+  // ],
   user: [
     { key: 'Dashboard', label: 'Home', Icon: LayoutDashboard },
     { key: 'MyHome', label: 'My Home', Icon: Home },
@@ -87,7 +89,7 @@ const ALL_ROLE_NAV = {
   SUPER_ADMIN: [
     { key: 'ArtisanManagement', label: 'Artisans', Icon: Wrench },
     { key: 'Tenants', label: 'Tenants', Icon: Home },
-    { key: 'Maintenance', label: 'Maintenance', Icon: Wrench },
+    // { key: 'Maintenance', label: 'Maintenance', Icon: Wrench },
     { key: 'Reports', label: 'Reports', Icon: BarChart3 },
     { key: 'Documents', label: 'Documents', Icon: ClipboardMinus },
     { key: 'SupportTickets', label: 'Support', Icon: MessageSquareWarning },
@@ -98,26 +100,27 @@ const ALL_ROLE_NAV = {
     { key: 'Help', label: 'Help & Support', Icon: HeartHandshake }
   ],
   PROPERTY_OWNER: [
-    { key: 'Maintenance', label: 'Maintenance', Icon: Wrench },
+    // // { key: 'Maintenance', label: 'Maintenance', Icon: Wrench },
     { key: 'Documents', label: 'Documents', Icon: ClipboardMinus },
     { key: 'Reports', label: 'Reports', Icon: BarChart3 },
-    { key: 'FindArtisan', label: 'Find Artisan', Icon: Search },
+    // PHASE 3+ — { key: 'FindArtisan', label: 'Find Artisan', Icon: Search },
     { key: 'Settings', label: 'Settings', Icon: Cog },
     { key: 'Help', label: 'Help', Icon: HeartHandshake }
   ],
-  artisan: [
-    { key: 'Earnings', label: 'Earnings', Icon: DollarSign },
-    { key: 'JobHistory', label: 'Job History', Icon: ClipboardMinus },
-    { key: 'Schedule', label: 'Schedule', Icon: Calendar },
-    { key: 'Portfolio', label: 'Portfolio', Icon: Star },
-    { key: 'Certifications', label: 'Certifications', Icon: Award },
-    { key: 'KYCVerification', label: 'Identity Verification', Icon: Shield },
-    { key: 'Profile', label: 'Profile', Icon: Users },
-    { key: 'Settings', label: 'Settings', Icon: Cog },
-    { key: 'Help', label: 'Help', Icon: HeartHandshake }
-  ],
+  // PHASE 3+ — artisan "More" sheet. Restore when artisan marketplace launches.
+  // artisan: [
+  //   { key: 'Earnings',         label: 'Earnings',             Icon: DollarSign },
+  //   { key: 'JobHistory',       label: 'Job History',          Icon: ClipboardMinus },
+  //   { key: 'Schedule',         label: 'Schedule',             Icon: Calendar },
+  //   { key: 'Portfolio',        label: 'Portfolio',            Icon: Star },
+  //   { key: 'Certifications',   label: 'Certifications',       Icon: Award },
+  //   { key: 'KYCVerification',  label: 'Identity Verification',Icon: Shield },
+  //   { key: 'Profile',          label: 'Profile',              Icon: Users },
+  //   { key: 'Settings',         label: 'Settings',             Icon: Cog },
+  //   { key: 'Help',             label: 'Help',                 Icon: HeartHandshake }
+  // ],
   user: [
-    { key: 'Maintenance', label: 'Maintenance', Icon: Wrench },
+    // // { key: 'Maintenance', label: 'Maintenance', Icon: Wrench },
     { key: 'Documents', label: 'Documents', Icon: ClipboardMinus },
     { key: 'History', label: 'History', Icon: Star },
     { key: 'Profile', label: 'Profile', Icon: Users },

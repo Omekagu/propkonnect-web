@@ -11,7 +11,7 @@ const PAGE_TITLES = {
   PropertyManagement: 'Properties',
   ArtisanManagement: 'Artisans',
   Finance: 'Finance',
-  Maintenance: 'Maintenance',
+  // Maintenance: 'Maintenance',
   Reports: 'Reports',
   Analytics: 'Analytics',
   Documents: 'Documents',
@@ -36,10 +36,10 @@ const PAGE_TITLES = {
   SupportTickets: 'Support Tickets',
   PlatformSettings: 'Platform Settings',
   EmailTemplates: 'Email Templates',
-  PropertyUpload:    'Upload Property',
-  PropertyOwners:    'Property Owners',
-  MyApplications:    'My Applications',
-  Applicants:        'Applicants'
+  PropertyUpload: 'Upload Property',
+  PropertyOwners: 'Property Owners',
+  MyApplications: 'My Applications',
+  Applicants: 'Applicants'
 }
 
 export default function AppHeader ({
@@ -119,7 +119,13 @@ export default function AppHeader ({
           onClick={onOpenMobileSidebar}
           aria-label='Open sidebar'
         >
-          <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
+          <svg
+            width='24'
+            height='24'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+          >
             <line x1='3' y1='6' x2='21' y2='6' strokeWidth='2' />
             <line x1='3' y1='12' x2='21' y2='12' strokeWidth='2' />
             <line x1='3' y1='18' x2='21' y2='18' strokeWidth='2' />
@@ -131,7 +137,13 @@ export default function AppHeader ({
       <div className='workspace-switcher'>
         <div className='workspace-dot'>{initials}</div>
         <span className='workspace-name'>{appName}</span>
-        <svg className='workspace-chevron' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+        <svg
+          className='workspace-chevron'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          strokeWidth='2'
+        >
           <polyline points='6 9 12 15 18 9' />
         </svg>
       </div>
@@ -156,7 +168,13 @@ export default function AppHeader ({
           onClick={onOpenMessages}
           aria-label='Messages'
         >
-          <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
+          <svg
+            width='20'
+            height='20'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+          >
             <path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' />
           </svg>
           {unreadMsgCount > 0 && (
@@ -337,10 +355,18 @@ export default function AppHeader ({
               {user?.avatar ? (
                 <img src={user.avatar} alt={user.email} />
               ) : (
-                <span>{user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}</span>
+                <span>
+                  {user?.firstName?.charAt(0)?.toUpperCase() ||
+                    user?.email?.charAt(0)?.toUpperCase() ||
+                    'U'}
+                </span>
               )}
             </div>
-            <span className='user-name'>{user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user?.email || 'User'}</span>
+            <span className='user-name'>
+              {user?.firstName
+                ? `${user.firstName} ${user.lastName || ''}`.trim()
+                : user?.email || 'User'}
+            </span>
             <svg
               width='16'
               height='16'
@@ -391,7 +417,10 @@ export default function AppHeader ({
                 <span>Profile</span>
               </button>
 
-              <button className='menu-item' onClick={() => navigateTo('Settings')}>
+              <button
+                className='menu-item'
+                onClick={() => navigateTo('Settings')}
+              >
                 <svg
                   width='18'
                   height='18'
@@ -434,8 +463,19 @@ export default function AppHeader ({
         <div className='logout-confirm-overlay'>
           <div className='logout-confirm-modal'>
             <div className='confirm-icon'>
-              <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
-                <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12' y2='17.01'/>
+              <svg
+                width='16'
+                height='16'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              >
+                <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z' />
+                <line x1='12' y1='9' x2='12' y2='13' />
+                <line x1='12' y1='17' x2='12' y2='17.01' />
               </svg>
             </div>
             <h3>Confirm Logout</h3>

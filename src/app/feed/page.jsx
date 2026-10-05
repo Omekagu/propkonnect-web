@@ -1,8 +1,22 @@
+// PHASE 3+ — TikTok-style property feed. Parked until Phase 3 per product strategy.
+// Code preserved below. Re-enable by removing the redirect and uncommenting the implementation.
+
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+
+export default function FeedPage () {
+  const router = useRouter()
+  useEffect(() => { router.replace('/search') }, [router])
+  return null
+}
+
+/*
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './feed.scss'
 import { useRouter } from 'next/navigation'
+import { encodeId } from '@/libs/propId'
 import axios from 'axios'
 import {
   Heart,
@@ -116,7 +130,7 @@ export default function FeedPage () {
 
   const handleShare = useCallback((prop, e) => {
     e?.stopPropagation()
-    const url = `${window.location.origin}/property/${prop._id || prop.id}`
+    const url = `${window.location.origin}/property/${encodeId(prop._id || prop.id)}`
     if (navigator.share) {
       navigator.share({ title: prop.title, url })
     } else {
@@ -126,7 +140,6 @@ export default function FeedPage () {
 
   return (
     <div className='pf'>
-      {/* ── Header ── */}
       <header className='pf-header'>
         <button className='pf-header__back' onClick={() => router.push('/')}>
           <ArrowLeft size={20} />
@@ -161,7 +174,6 @@ export default function FeedPage () {
           <Search size={20} />
         </button>
 
-        {/* Horizontal progress track */}
         {filtered.length > 1 && (
           <div className='pf-header__track'>
             <div
@@ -172,7 +184,6 @@ export default function FeedPage () {
         )}
       </header>
 
-      {/* ── Feed ── */}
       <div className='pf-feed' ref={feedRef}>
         {loading ? (
           <div className='pf-loading'>
@@ -187,7 +198,7 @@ export default function FeedPage () {
           </div>
         ) : (
           filtered.map((prop, i) => {
-            const id = prop._id || prop.id
+            const id = encodeId(prop._id || prop.id)
             const isSaved = saved.has(id)
             const isExpanded = expandedCard === id
             const { label: purposeLabel, cls: purposeCls } = getPurposeMeta(prop.purpose)
@@ -209,7 +220,6 @@ export default function FeedPage () {
                 className={`pf-card${isExpanded ? ' expanded' : ''}`}
                 ref={el => (cardRefs.current[i] = el)}
               >
-                {/* ── Media ── */}
                 <div className='pf-card__media'>
                   {isVideo ? (
                     <video
@@ -238,7 +248,6 @@ export default function FeedPage () {
                   <div className='pf-card__gradient' />
                 </div>
 
-                {/* ── Right action rail (Reels-style circular glass) ── */}
                 <div className='pf-rail'>
                   <button
                     className={`pf-rail__btn${isSaved ? ' saved' : ''}`}
@@ -274,7 +283,6 @@ export default function FeedPage () {
                   </button>
                 </div>
 
-                {/* ── Bottom info panel ── */}
                 <div
                   className={`pf-info${isExpanded ? ' pf-info--expanded' : ''}`}
                   onClick={() => setExpandedCard(isExpanded ? null : id)}
@@ -351,3 +359,4 @@ export default function FeedPage () {
     </div>
   )
 }
+*/

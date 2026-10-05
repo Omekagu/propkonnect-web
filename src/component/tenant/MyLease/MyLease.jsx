@@ -17,15 +17,24 @@ function computeCountdown (endDate, startDate) {
     hours: Math.floor((remainingMs % 86400000) / 3600000),
     minutes: Math.floor((remainingMs % 3600000) / 60000),
     seconds: Math.floor((remainingMs % 60000) / 1000),
-    progressPct: totalMs > 0 ? Math.min(100, Math.round(((now - start) / totalMs) * 100)) : 100,
+    progressPct:
+      totalMs > 0
+        ? Math.min(100, Math.round(((now - start) / totalMs) * 100))
+        : 100,
     isExpiringSoon: remainingMs > 0 && remainingMs <= 7 * 86400000,
     isExpired: remainingMs === 0
   }
 }
 
-function fmt2 (n) { return String(Math.max(0, n)).padStart(2, '0') }
+function fmt2 (n) {
+  return String(Math.max(0, n)).padStart(2, '0')
+}
 function fmtDate (d) {
-  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(d).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })
 }
 function fmtCurrency (n) {
   if (!n) return '—'
@@ -52,7 +61,11 @@ function LeaseCard ({ lease }) {
     [lease.endDate, lease.startDate, tick]
   )
 
-  const barColor = cd.isExpired ? '#DC2626' : cd.isExpiringSoon ? '#F59E0B' : '#0B3D28'
+  const barColor = cd.isExpired
+    ? '#DC2626'
+    : cd.isExpiringSoon
+    ? '#F59E0B'
+    : '#0B3D28'
   const prop = lease.property || {}
   const landlord = lease.landlord || {}
   const img = prop.images?.[0] || prop.media?.[0]?.url || null
@@ -62,30 +75,69 @@ function LeaseCard ({ lease }) {
       {/* Property header */}
       <div className='ml-card__prop-row'>
         <div className='ml-card__thumb'>
-          {img
-            ? <img src={img} alt={prop.title} />
-            : <span className='ml-card__thumb-icon'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg></span>
-          }
+          {img ? (
+            <img src={img} alt={prop.title} />
+          ) : (
+            <span className='ml-card__thumb-icon'>
+              <svg
+                width='16'
+                height='16'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              >
+                <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' />
+                <polyline points='9 22 9 12 15 12 15 22' />
+              </svg>
+            </span>
+          )}
         </div>
         <div className='ml-card__prop-info'>
           <p className='ml-card__prop-title'>{prop.title || 'Property'}</p>
           <p className='ml-card__prop-loc'>{locationStr(prop.location)}</p>
           <p className='ml-card__prop-cat'>{prop.category || ''}</p>
         </div>
-        <span className={`ml-badge ml-badge--${lease.status}`}>{lease.status}</span>
+        <span className={`ml-badge ml-badge--${lease.status}`}>
+          {lease.status}
+        </span>
       </div>
 
       {/* Countdown block */}
-      <div className={`ml-countdown ${cd.isExpiringSoon ? 'ml-countdown--warn' : ''} ${cd.isExpired ? 'ml-countdown--expired' : ''}`}>
+      <div
+        className={`ml-countdown ${
+          cd.isExpiringSoon ? 'ml-countdown--warn' : ''
+        } ${cd.isExpired ? 'ml-countdown--expired' : ''}`}
+      >
         {cd.isExpired ? (
           <p className='ml-countdown__expired'>Lease Expired</p>
         ) : (
           <>
             <p className='ml-countdown__label'>
-              {cd.isExpiringSoon ? <>
-                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' style={{ marginRight: 4, verticalAlign: 'middle' }}><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12' y2='17.01'/></svg>
-                Expiring Soon
-              </> : 'Time Remaining'}
+              {cd.isExpiringSoon ? (
+                <>
+                  <svg
+                    width='14'
+                    height='14'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    style={{ marginRight: 4, verticalAlign: 'middle' }}
+                  >
+                    <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z' />
+                    <line x1='12' y1='9' x2='12' y2='13' />
+                    <line x1='12' y1='17' x2='12' y2='17.01' />
+                  </svg>
+                  Expiring Soon
+                </>
+              ) : (
+                'Time Remaining'
+              )}
             </p>
             <div className='ml-countdown__units'>
               <CountUnit v={fmt2(cd.days)} l='days' />
@@ -103,11 +155,16 @@ function LeaseCard ({ lease }) {
       {/* Progress bar */}
       <div className='ml-progress-wrap'>
         <div className='ml-progress-track'>
-          <div className='ml-progress-fill' style={{ width: `${cd.progressPct}%`, background: barColor }} />
+          <div
+            className='ml-progress-fill'
+            style={{ width: `${cd.progressPct}%`, background: barColor }}
+          />
         </div>
         <div className='ml-progress-labels'>
           <span>{fmtDate(lease.startDate)}</span>
-          <span style={{ color: barColor, fontWeight: 700 }}>{cd.progressPct}% elapsed</span>
+          <span style={{ color: barColor, fontWeight: 700 }}>
+            {cd.progressPct}% elapsed
+          </span>
           <span>{fmtDate(lease.endDate)}</span>
         </div>
       </div>
@@ -116,15 +173,22 @@ function LeaseCard ({ lease }) {
       <div className='ml-details'>
         <div className='ml-detail-item'>
           <span className='ml-detail-label'>Monthly Rent</span>
-          <span className='ml-detail-value'>{fmtCurrency(lease.rentAmount)}</span>
+          <span className='ml-detail-value'>
+            {fmtCurrency(lease.rentAmount)}
+          </span>
         </div>
         <div className='ml-detail-item'>
           <span className='ml-detail-label'>Deposit</span>
-          <span className='ml-detail-value'>{fmtCurrency(lease.depositAmount)}</span>
+          <span className='ml-detail-value'>
+            {fmtCurrency(lease.depositAmount)}
+          </span>
         </div>
         <div className='ml-detail-item'>
           <span className='ml-detail-label'>Payment Type</span>
-          <span className='ml-detail-value' style={{ textTransform: 'capitalize' }}>
+          <span
+            className='ml-detail-value'
+            style={{ textTransform: 'capitalize' }}
+          >
             {(lease.paymentType || '').replace(/_/g, ' ')}
           </span>
         </div>
@@ -134,25 +198,34 @@ function LeaseCard ({ lease }) {
         </div>
         <div className='ml-detail-item'>
           <span className='ml-detail-label'>End Date</span>
-          <span className='ml-detail-value' style={{ color: barColor }}>{fmtDate(lease.endDate)}</span>
+          <span className='ml-detail-value' style={{ color: barColor }}>
+            {fmtDate(lease.endDate)}
+          </span>
         </div>
         <div className='ml-detail-item'>
           <span className='ml-detail-label'>Total Amount</span>
-          <span className='ml-detail-value'>{fmtCurrency(lease.totalLeaseAmount)}</span>
+          <span className='ml-detail-value'>
+            {fmtCurrency(lease.totalLeaseAmount)}
+          </span>
         </div>
       </div>
 
       {/* Landlord */}
       <div className='ml-landlord'>
         <div className='ml-landlord__avatar'>
-          {landlord.avatar
-            ? <img src={landlord.avatar} alt='' />
-            : <span>{(landlord.firstName || 'L')[0]}</span>
-          }
+          {landlord.avatar ? (
+            <img src={landlord.avatar} alt='' />
+          ) : (
+            <span>{(landlord.firstName || 'L')[0]}</span>
+          )}
         </div>
         <div className='ml-landlord__info'>
-          <p className='ml-landlord__name'>{landlord.firstName} {landlord.lastName}</p>
-          <p className='ml-landlord__contact'>{landlord.phone || landlord.email || ''}</p>
+          <p className='ml-landlord__name'>
+            {landlord.firstName} {landlord.lastName}
+          </p>
+          <p className='ml-landlord__contact'>
+            {landlord.phone || landlord.email || ''}
+          </p>
         </div>
         <a
           className='ml-landlord__msg-btn'
@@ -169,10 +242,18 @@ function LeaseCard ({ lease }) {
           <div className='ml-installments__list'>
             {lease.installments.map((inst, i) => (
               <div key={i} className={`ml-inst ml-inst--${inst.status}`}>
-                <span className='ml-inst__label'>{inst.label || `Payment ${i + 1}`}</span>
-                <span className='ml-inst__amount'>{fmtCurrency(inst.amount)}</span>
+                <span className='ml-inst__label'>
+                  {inst.label || `Payment ${i + 1}`}
+                </span>
+                <span className='ml-inst__amount'>
+                  {fmtCurrency(inst.amount)}
+                </span>
                 <span className='ml-inst__date'>{fmtDate(inst.dueDate)}</span>
-                <span className={`ml-inst__status ml-inst__status--${inst.status}`}>{inst.status}</span>
+                <span
+                  className={`ml-inst__status ml-inst__status--${inst.status}`}
+                >
+                  {inst.status}
+                </span>
               </div>
             ))}
           </div>
@@ -207,25 +288,28 @@ export default function MyLease () {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    api.get('/api/leases/my')
+    api
+      .get('/api/leases/my')
       .then(res => setLeases(res.data.leases || []))
       .catch(err => setError(err.response?.data?.message || err.message))
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return (
-    <div className='ml-page'>
-      <h1 className='ml-page__title'>My Leases</h1>
-      <Skeleton />
-    </div>
-  )
+  if (loading)
+    return (
+      <div className='ml-page'>
+        <h1 className='ml-page__title'>My Leases</h1>
+        <Skeleton />
+      </div>
+    )
 
-  if (error) return (
-    <div className='ml-page'>
-      <h1 className='ml-page__title'>My Leases</h1>
-      <div className='ml-error'>{error}</div>
-    </div>
-  )
+  if (error)
+    return (
+      <div className='ml-page'>
+        <h1 className='ml-page__title'>My Leases</h1>
+        <div className='ml-error'>{error}</div>
+      </div>
+    )
 
   const active = leases.filter(l => l.status === 'active')
   const past = leases.filter(l => l.status !== 'active')
@@ -235,12 +319,20 @@ export default function MyLease () {
       <div className='ml-page__header'>
         <div>
           <h1 className='ml-page__title'>My Leases</h1>
-          <p className='ml-page__sub'>Track your rental agreements and payment schedule.</p>
+          <p className='ml-page__sub'>
+            Track your rental agreements and payment schedule.
+          </p>
         </div>
         {leases.length > 0 && (
           <div className='ml-page__stats'>
-            <div className='ml-stat'><strong>{active.length}</strong><span>Active</span></div>
-            <div className='ml-stat'><strong>{past.length}</strong><span>Past</span></div>
+            <div className='ml-stat'>
+              <strong>{active.length}</strong>
+              <span>Active</span>
+            </div>
+            <div className='ml-stat'>
+              <strong>{past.length}</strong>
+              <span>Past</span>
+            </div>
           </div>
         )}
       </div>
@@ -248,15 +340,26 @@ export default function MyLease () {
       {leases.length === 0 ? (
         <div className='ml-empty'>
           <span className='ml-empty__icon'>
-            <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'>
-              <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/>
+            <svg
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='1.5'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            >
+              <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' />
+              <polyline points='9 22 9 12 15 12 15 22' />
             </svg>
           </span>
           <p className='ml-empty__title'>No leases yet</p>
           <p className='ml-empty__desc'>
-            When you sign a rental agreement, your lease will appear here with a live countdown and payment schedule.
+            When you sign a rental agreement, your lease will appear here with a
+            live countdown and payment schedule.
           </p>
-          <a href='/explore' className='ml-empty__cta'>Browse Properties</a>
+          <a href='/search' className='ml-empty__cta'>
+            Browse Properties
+          </a>
         </div>
       ) : (
         <>
@@ -264,7 +367,9 @@ export default function MyLease () {
             <section>
               <h2 className='ml-section-title'>Active Leases</h2>
               <div className='ml-list'>
-                {active.map(l => <LeaseCard key={l._id} lease={l} />)}
+                {active.map(l => (
+                  <LeaseCard key={l._id} lease={l} />
+                ))}
               </div>
             </section>
           )}
@@ -272,7 +377,9 @@ export default function MyLease () {
             <section>
               <h2 className='ml-section-title'>Past Leases</h2>
               <div className='ml-list'>
-                {past.map(l => <LeaseCard key={l._id} lease={l} />)}
+                {past.map(l => (
+                  <LeaseCard key={l._id} lease={l} />
+                ))}
               </div>
             </section>
           )}

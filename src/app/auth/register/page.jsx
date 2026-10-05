@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Eye, EyeOff, AlertCircle, Home as HomeIcon, Building2, Wrench, CheckCircle2, Mail, Lock } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle, Home as HomeIcon, Building2, /* Wrench, PHASE 3+ — artisan registration */ CheckCircle2, Mail, Lock } from 'lucide-react'
 import './register.scss'
 import { auth as authApi } from '@/libs/api'
 
@@ -16,7 +16,8 @@ const BUILDINGS = [
   { cls: 'rp-building--6', wins: [0,1,0, 1,1,0, 0,0,1] },
 ]
 
-const ARTISAN_SPECS = ['Plumbing','Electrical','Carpentry','Painting','HVAC','Roofing','Masonry','Landscaping','Cleaning','General Maintenance']
+// PHASE 3+ — artisan specialization list. Restore when artisan marketplace launches.
+// const ARTISAN_SPECS = ['Plumbing','Electrical','Carpentry','Painting','HVAC','Roofing','Masonry','Landscaping','Cleaning','General Maintenance']
 const PROPERTY_INTERESTS = ['Apartment','House','Land','Commercial','Shortlet / Vacation','Hotel Room']
 const NIGERIAN_CITIES = ['Lagos','Abuja','Port Harcourt','Ibadan','Kano','Enugu','Benin City','Kaduna','Owerri','Uyo']
 
@@ -111,9 +112,8 @@ export default function Register () {
   }
 
   const leftFeatures = userType === 'PROPERTY_OWNER'
-    ? ['List and manage properties', 'Collect rent with escrow protection', 'Find & hire trusted artisans']
-    : userType === 'artisan'
-    ? ['Browse and bid on available jobs', 'Manage your schedule & earnings', 'Build your verified portfolio']
+    ? ['List and manage properties', 'Collect rent with escrow protection', 'Manage tenants with ease']
+    // PHASE 3+ — artisan features: ['Browse and bid on available jobs', 'Manage your schedule & earnings', 'Build your verified portfolio']
     : userType === 'user'
     ? ['Find your perfect home to rent or buy', 'Book inspections instantly', 'Secure payments & lease contracts']
     : ['Find properties to rent or buy', 'Book inspections instantly', 'Secure payments & contracts']
@@ -158,8 +158,7 @@ export default function Register () {
             <h2>
               {userType === 'PROPERTY_OWNER'
                 ? 'Your Property Empire Starts Here'
-                : userType === 'artisan'
-                ? 'Build Your Professional Legacy'
+                // PHASE 3+ — artisan: userType === 'artisan' ? 'Build Your Professional Legacy' :
                 : userType === 'user'
                 ? 'Find Your Perfect Home'
                 : 'Join Nigeria\'s Smartest Property Platform'}
@@ -167,8 +166,7 @@ export default function Register () {
             <p>
               {userType === 'PROPERTY_OWNER'
                 ? 'AI-powered tools that help you manage, grow, and monetise your property portfolio.'
-                : userType === 'artisan'
-                ? 'Connect with property owners, earn consistently, and build a verified track record.'
+                // PHASE 3+ — artisan: userType === 'artisan' ? 'Connect with property owners, earn consistently, and build a verified track record.' :
                 : userType === 'user'
                 ? 'Search thousands of verified properties, book inspections, and move in with confidence.'
                 : 'Buy, rent, and discover properties powered by AI, escrow, and real-time data.'}
@@ -195,10 +193,10 @@ export default function Register () {
 
             <div className='rp-header'>
               <h1 className='rp-h1'>
-                {!userType ? 'Create your account' : userType === 'PROPERTY_OWNER' ? 'Property Owner Registration' : userType === 'user' ? 'Create Your Account' : 'Artisan Registration'}
+                {!userType ? 'Create your account' : userType === 'PROPERTY_OWNER' ? 'Property Owner Registration' : 'Create Your Account'}
               </h1>
               <p className='rp-sub'>
-                {!userType ? 'Choose your account type to get started' : userType === 'PROPERTY_OWNER' ? 'Register as a Property Owner' : userType === 'user' ? 'Start your property search journey' : 'Register as a Professional Artisan'}
+                {!userType ? 'Choose your account type to get started' : userType === 'PROPERTY_OWNER' ? 'Register as a Property Owner' : 'Start your property search journey'}
               </p>
             </div>
 
@@ -219,11 +217,12 @@ export default function Register () {
                     <div className='rp-type__icon'><Building2 size={26} /></div>
                     <div className='rp-type__text'>
                       <h3>Property Owner</h3>
-                      <p>Manage properties and find trusted artisans</p>
+                      <p>Manage properties, tenants and collect rent</p>
                     </div>
                     <svg className='rp-type__arrow' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'><path d='M9 18l6-6-6-6'/></svg>
                   </button>
 
+                  {/* PHASE 3+ — artisan registration type. Restore when artisan marketplace launches.
                   <button className='rp-type' onClick={() => { setUserType('artisan'); setStep(1) }}>
                     <div className='rp-type__icon'><Wrench size={26} /></div>
                     <div className='rp-type__text'>
@@ -232,6 +231,7 @@ export default function Register () {
                     </div>
                     <svg className='rp-type__arrow' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'><path d='M9 18l6-6-6-6'/></svg>
                   </button>
+                  */}
                 </div>
 
                 <div className='rp-footer'>
@@ -244,8 +244,8 @@ export default function Register () {
             {userType && !authMethod && (
               <>
                 <div className='rp-badge'>
-                  <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? <Building2 size={15} /> : userType === 'user' ? <HomeIcon size={15} /> : <Wrench size={15} />}</span>
-                  <span className='rp-badge__label'>{userType === 'PROPERTY_OWNER' ? 'Property Owner' : userType === 'user' ? 'Tenant / Buyer' : 'Artisan'}</span>
+                  <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? <Building2 size={15} /> : <HomeIcon size={15} />}</span>
+                  <span className='rp-badge__label'>{userType === 'PROPERTY_OWNER' ? 'Property Owner' : 'Tenant / Buyer'}</span>
                   <button className='rp-badge__change' onClick={() => { setUserType(null); setAuthMethod(null); setStep(1); setError('') }}>Change</button>
                 </div>
 
@@ -282,8 +282,8 @@ export default function Register () {
             {userType && authMethod && (
               <>
                 <div className='rp-badge'>
-                  <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? <Building2 size={15} /> : userType === 'user' ? <HomeIcon size={15} /> : <Wrench size={15} />}</span>
-                  <span className='rp-badge__label'>{userType === 'PROPERTY_OWNER' ? 'Property Owner' : userType === 'user' ? 'Tenant / Buyer' : 'Artisan'}</span>
+                  <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? <Building2 size={15} /> : <HomeIcon size={15} />}</span>
+                  <span className='rp-badge__label'>{userType === 'PROPERTY_OWNER' ? 'Property Owner' : 'Tenant / Buyer'}</span>
                   <button className='rp-badge__change' onClick={() => { setUserType(null); setAuthMethod(null); setStep(1); setError('') }}>Change</button>
                 </div>
 
@@ -363,7 +363,7 @@ export default function Register () {
                   {step === 2 && (
                     <div className='rp-form-step'>
                       <p className='rp-step-title'>
-                        {userType === 'PROPERTY_OWNER' ? 'Business Information' : userType === 'user' ? 'Housing Preferences' : 'Professional Information'}
+                        {userType === 'PROPERTY_OWNER' ? 'Business Information' : 'Housing Preferences'}
                       </p>
 
                       {userType === 'user' && (

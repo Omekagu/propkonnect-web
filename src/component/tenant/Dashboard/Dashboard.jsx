@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { api } from '@/libs/api-client'
 import Link from 'next/link'
+import { encodeId } from '@/libs/propId'
 import './Dashboard.scss'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -171,7 +172,7 @@ function BrowsePropCard ({ p }) {
                  : 'For Rent'
 
   return (
-    <Link href={`/property/${p._id}`} className='td-bprop'>
+    <Link href={`/property/${encodeId(p._id)}`} className='td-bprop'>
       <div className='td-bprop__img'>
         {img && !err
           ? <img src={img} alt={p.title} onError={() => setErr(true)} loading='lazy' />

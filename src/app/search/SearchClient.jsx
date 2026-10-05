@@ -31,6 +31,7 @@ import {
   Eye
 } from 'lucide-react'
 import './search.scss'
+import { encodeId } from '@/libs/propId'
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || ''
 
@@ -125,7 +126,7 @@ function PropertyCard ({ property, view }) {
 
   const card = (
     <Link
-      href={`/property/${property._id}`}
+      href={`/property/${encodeId(property._id)}`}
       className={`prop-card ${view === 'list' ? 'prop-card--list' : ''}`}
     >
       <div className='prop-card__img'>

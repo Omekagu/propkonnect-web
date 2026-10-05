@@ -7,6 +7,7 @@ import {
   Phone, Mail, User, Building2, CalendarDays, AlertCircle
 } from 'lucide-react'
 import { properties as propertiesApi } from '@/libs/api'
+import { encodeId } from '@/libs/propId'
 import './MyApplications.scss'
 
 const STATUS = {
@@ -180,7 +181,7 @@ function ApplicationCard ({ app, onChat }) {
             {property._id && (
               <a
                 className='ma-btn ma-btn--view'
-                href={`/property/${property._id}`}
+                href={`/property/${encodeId(property._id)}`}
                 target='_blank'
                 rel='noopener noreferrer'
               >

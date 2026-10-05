@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { api } from '@/libs/api-client'
+import { encodeId } from '@/libs/propId'
 import './Dashboard.scss'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
@@ -524,7 +525,7 @@ function PropertyRow ({ property, onEdit }) {
         <button className='od-prop-row__btn' title='Edit' onClick={() => onEdit?.(property)}>
           <Icon.Edit />
         </button>
-        <button className='od-prop-row__btn' title='View' onClick={() => window.open(`/property/${property._id}`, '_blank')}>
+        <button className='od-prop-row__btn' title='View' onClick={() => window.open(`/property/${encodeId(property._id)}`, '_blank')}>
           <Icon.ExternalLink />
         </button>
       </div>

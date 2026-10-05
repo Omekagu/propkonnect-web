@@ -445,6 +445,9 @@ $blue:    #58a6ff;
     .pm-pin-approve { background: rgba(63,185,80,0.9);   color: #fff; }
     .pm-pin-reject  { background: rgba(210,153,34,0.9);  color: #fff; }
     .pm-pin-del     { background: rgba(248,81,73,0.88);  color: #fff; }
+    .pm-pin-verify  { background: rgba(11,61,40,0.88);   color: #7d8590;
+      &--on { color: #C4E53C; box-shadow: 0 0 0 1px rgba(196,229,60,0.5); }
+    }
   }
 }
 
@@ -716,9 +719,40 @@ $blue:    #58a6ff;
     border: none;
   }
 
-  .pm-foot-cancel { background: transparent; border: 1px solid $border2 !important; color: $muted; &:hover { border-color: $text !important; color: $text; } }
-  .pm-foot-danger { background: $danger; color: #fff; &:hover { opacity: 0.85; } }
-  .pm-foot-submit { background: $accent; color: $green; &:hover { opacity: 0.88; } }
+  .pm-foot-cancel  { background: transparent; border: 1px solid $border2 !important; color: $muted; &:hover { border-color: $text !important; color: $text; } }
+  .pm-foot-danger  { background: $danger; color: #fff; &:hover { opacity: 0.85; } }
+  .pm-foot-submit  { background: $accent; color: $green; &:hover { opacity: 0.88; } }
+  .pm-foot-verify  { background: rgba(11,61,40,0.95); color: #C4E53C; border: 1px solid rgba(196,229,60,0.4) !important; &:hover { opacity: 0.88; } }
+}
+
+.pm-verified-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(11,61,40,0.92);
+  color: #C4E53C;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(196,229,60,0.4);
+  backdrop-filter: blur(4px);
+}
+
+.pm-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  color: #e6edf3;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  &:focus { border-color: rgba(196,229,60,0.4); }
 }
 
 .pm-detail-view {

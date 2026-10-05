@@ -20,20 +20,20 @@ import UploadProperty from '@/component/UploadProperty/UploadProperty'
 import PropertyOwnerDashboard from '@/component/property-owner/Dashboard/Dashboard'
 import MyProperties from '@/component/property-owner/Properties/MyProperties'
 import SiteKeys from '@/component/property-owner/SiteKeys/SiteKeys'
-import FindArtisan from '@/component/property-owner/Artisan/FindArtisan'
+// PHASE 3+ — import FindArtisan from '@/component/property-owner/Artisan/FindArtisan'
 import PropertyOwnerPayments from '@/component/property-owner/Payments/PropertyOwnerPayments'
 import Applicants from '@/component/property-owner/Applicants/Applicants'
 
-// Artisan Components
-import ArtisanDashboard from '@/component/artisan/Dashboard/Dashboard'
-import AvailableJobs from '@/component/artisan/Jobs/AvailableJobs/AvailableJobs'
-import ActiveJobs from '@/component/artisan/Jobs/ActiveJobs/ActiveJobs'
-import JobHistory from '@/component/artisan/Jobs/JobHistory/JobHistory'
-import Earnings from '@/component/artisan/Earnings/Earnings'
-import Schedule from '@/component/artisan/Schedule/Schedule'
-import Portfolio from '@/component/artisan/Portfolio/Portfolio'
-import Certifications from '@/component/artisan/Certifications/Certifications'
-import BidNegotiations from '@/component/artisan/Negotiations/BidNegotiations'
+// PHASE 3+ — Artisan Components. Restore imports when artisan marketplace launches.
+// import ArtisanDashboard from '@/component/artisan/Dashboard/Dashboard'
+// import AvailableJobs from '@/component/artisan/Jobs/AvailableJobs/AvailableJobs'
+// import ActiveJobs from '@/component/artisan/Jobs/ActiveJobs/ActiveJobs'
+// import JobHistory from '@/component/artisan/Jobs/JobHistory/JobHistory'
+// import Earnings from '@/component/artisan/Earnings/Earnings'
+// import Schedule from '@/component/artisan/Schedule/Schedule'
+// import Portfolio from '@/component/artisan/Portfolio/Portfolio'
+// import Certifications from '@/component/artisan/Certifications/Certifications'
+// import BidNegotiations from '@/component/artisan/Negotiations/BidNegotiations'
 
 // Tenant Components
 import MyApplications    from '@/component/tenant/MyApplications/MyApplications'
@@ -555,8 +555,7 @@ export default function AdminLayout ({ children }) {
           return <Report />
         case 'Maintenance':
           return <Maintenance />
-        case 'ActiveJobs':
-          return <ActiveJobs />
+        // PHASE 3+ — case 'ActiveJobs': return <ActiveJobs /> (artisan jobs admin view)
         case 'UserManagement':
           return <UserManagement />
         case 'Analytics':
@@ -623,9 +622,9 @@ export default function AdminLayout ({ children }) {
         case 'Dashboard':
           return <PropertyOwnerDashboard onRouteChange={ownerNavigate} />
         case 'MyProperties':
-          return gated(<MyProperties />)
+          return gated(<MyProperties onUpgrade={() => ownerNavigate('Payments')} />)
         case 'PropertyUpload':
-          return gated(<MyProperties initialView='tier-select' />)
+          return gated(<MyProperties initialView='tier-select' onUpgrade={() => ownerNavigate('Payments')} />)
         case 'Tenants':
           return gated(<Tenant />)
         case 'Applicants':
@@ -638,8 +637,7 @@ export default function AdminLayout ({ children }) {
           return gated(<Document />)
         case 'Reports':
           return <Report />
-        case 'FindArtisan':
-          return gated(<FindArtisan />)
+        // PHASE 3+ — case 'FindArtisan': return gated(<FindArtisan />)
         case 'Messages':
           return gated(<Messages />)
         case 'Bookings':
@@ -681,61 +679,25 @@ export default function AdminLayout ({ children }) {
       }
     }
 
-    // Artisan Pages
-    if (userRole === 'artisan') {
-      switch (activePage) {
-        case 'Dashboard':
-          return <ArtisanDashboard />
-        case 'AvailableJobs':
-          return gated(<AvailableJobs />)
-        case 'ActiveJobs':
-          return gated(<ActiveJobs />)
-        case 'JobHistory':
-          return gated(<JobHistory />)
-        case 'Earnings':
-          return gated(<Earnings />)
-        case 'Schedule':
-          return gated(<Schedule />)
-        case 'Portfolio':
-          return gated(<Portfolio />)
-        case 'Certifications':
-          return gated(<Certifications />)
-        case 'Negotiations':
-          return gated(<BidNegotiations />)
-        case 'ArtisanReviews':
-          return gated(<Comments />)
-        case 'Profile':
-          return <Settings />
-        case 'Settings':
-          return <Settings />
-        case 'KYCVerification':
-          return (
-            <KYCForm
-              userRole={user?.role}
-              existingKyc={user?.kyc}
-              status={kycStatus}
-              onSuccess={() => {
-                setKycStatus('pending')
-                sessionStorage.removeItem('ep_kyc_skipped')
-                setActivePage('Dashboard')
-                localStorage.setItem('ep_activePage', 'Dashboard')
-              }}
-              onSkip={() => {
-                sessionStorage.setItem('ep_kyc_skipped', '1')
-                setActivePage('Dashboard')
-                localStorage.setItem('ep_activePage', 'Dashboard')
-              }}
-              onCancel={() => {
-                sessionStorage.setItem('ep_kyc_skipped', '1')
-                setActivePage('Dashboard')
-                localStorage.setItem('ep_activePage', 'Dashboard')
-              }}
-            />
-          )
-        default:
-          return <ArtisanDashboard />
-      }
-    }
+    // PHASE 3+ — Artisan role pages. Restore when artisan marketplace launches.
+    // if (userRole === 'artisan') {
+    //   switch (activePage) {
+    //     case 'Dashboard':     return <ArtisanDashboard />
+    //     case 'AvailableJobs': return gated(<AvailableJobs />)
+    //     case 'ActiveJobs':    return gated(<ActiveJobs />)
+    //     case 'JobHistory':    return gated(<JobHistory />)
+    //     case 'Earnings':      return gated(<Earnings />)
+    //     case 'Schedule':      return gated(<Schedule />)
+    //     case 'Portfolio':     return gated(<Portfolio />)
+    //     case 'Certifications':return gated(<Certifications />)
+    //     case 'Negotiations':  return gated(<BidNegotiations />)
+    //     case 'ArtisanReviews':return gated(<Comments />)
+    //     case 'Profile':
+    //     case 'Settings':      return <Settings />
+    //     case 'KYCVerification': return <KYCForm ... />
+    //     default:              return <ArtisanDashboard />
+    //   }
+    // }
 
     // Tenant Pages
     if (userRole === 'user' || userRole === 'tenant') {
@@ -810,8 +772,7 @@ export default function AdminLayout ({ children }) {
         case 'MyBookings':     return <BookingsHub />
         case 'BookingCart':    return <BookingsHub />
         case 'History':        return <BookingsHub />
-        case 'FindArtisan':
-        case 'findArtisan':    return gated(<ServicesHub />)
+        // PHASE 3+ — case 'FindArtisan': case 'findArtisan': return gated(<ServicesHub />)
         case 'Maintenance':    return gated(<ServicesHub />)
 
         default:

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { api } from '@/libs/api-client'
+import { encodeId } from '@/libs/propId'
 import './MyProperties.scss'
 import UploadPropertyWizard from '@/component/UploadProperty/UploadProperty'
 import BatchUpload from '@/component/UploadProperty/BatchUpload'
@@ -677,7 +678,7 @@ function PropertyCard ({ property: p, listView, onEdit, onDeleteRequest, onView 
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
-export default function MyProperties ({ initialView = 'list' }) {
+export default function MyProperties ({ initialView = 'list', onUpgrade = () => {} }) {
   // ── View orchestration ───────────────────────────────────────────────────
   // 'list' | 'tier-select' | 'wizard' | 'batch' | 'project'
   const [pageView, setPageView] = useState(initialView)
@@ -790,7 +791,7 @@ export default function MyProperties ({ initialView = 'list' }) {
   }
 
   const handleView = useCallback(property => {
-    window.open(`/property/${property.uid || property._id}`, '_blank', 'noopener,noreferrer')
+    window.open(`/property/${encodeId(property.uid || property._id)}`, '_blank', 'noopener,noreferrer')
   }, [])
 
   const handleWizardBack = () => {
@@ -922,6 +923,7 @@ export default function MyProperties ({ initialView = 'list' }) {
         creationTier={selectedTier}
         onBack={handleWizardBack}
         onSaved={handleWizardSaved}
+        onUpgrade={onUpgrade}
       />
     )
   }

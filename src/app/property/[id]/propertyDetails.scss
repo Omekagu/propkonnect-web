@@ -491,6 +491,20 @@ $success: #22c55e;
     color: #60a5fa;
     border: 1px solid rgba(59, 130, 246, 0.2);
   }
+  &--verified {
+    background: rgba(11, 61, 40, 0.85);
+    color: #C4E53C;
+    border: 1px solid rgba(196, 229, 60, 0.4);
+    font-size: 12px;
+    padding: 5px 13px;
+    gap: 6px;
+
+    .pd-badge-date {
+      font-weight: 500;
+      opacity: 0.85;
+      font-size: 11px;
+    }
+  }
   &--purple {
     background: rgba(139, 92, 246, 0.1);
     color: #a78bfa;
@@ -1809,6 +1823,18 @@ $success: #22c55e;
     &:hover:not(:disabled) {
       background: $light;
       border-color: rgba(196, 229, 60, 0.2);
+      color: $text;
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    border-color: transparent;
+    color: $muted;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px;
+    &:hover:not(:disabled) {
       color: $text;
     }
   }

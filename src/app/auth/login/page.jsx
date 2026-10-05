@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { auth as authApi } from '@/libs/api'
 import { useRouter } from 'next/navigation'
-import { Building2, Wrench, Home as HomeIcon, Star as StarIcon } from 'lucide-react'
+import { Building2, /* Wrench, PHASE 3+ — artisan login */ Home as HomeIcon, Star as StarIcon } from 'lucide-react'
 import './login.scss'
 
 const APP = process.env.NEXT_PUBLIC_APP_NAME
@@ -351,15 +351,13 @@ export default function AuthPage () {
             <h2>
               {selectedRole === 'PROPERTY_OWNER'
                 ? 'Your Property Empire Starts Here'
-                : selectedRole === 'artisan'
-                ? 'Build Your Professional Legacy'
+                // PHASE 3+ — artisan: selectedRole === 'artisan' ? 'Build Your Professional Legacy' :
                 : 'AI-Powered Property Intelligence'}
             </h2>
             <p>
               {selectedRole === 'PROPERTY_OWNER'
                 ? 'Manage listings, track tenants, collect rent and grow your portfolio — all from one intelligent dashboard.'
-                : selectedRole === 'artisan'
-                ? 'Find quality jobs, manage your schedule, get paid on time. The platform that works as hard as you do.'
+                // PHASE 3+ — artisan: selectedRole === 'artisan' ? 'Find quality jobs, manage your schedule, get paid on time. The platform that works as hard as you do.' :
                 : 'The smartest way to buy, sell, rent and manage real estate in Nigeria. Powered by AI, built for everyone.'}
             </p>
           </div>
@@ -414,7 +412,7 @@ export default function AuthPage () {
                     <div className='lp-role__icon'><Building2 size={26} /></div>
                     <div className='lp-role__text'>
                       <h3>Property Owner</h3>
-                      <p>Manage properties and find trusted artisans</p>
+                      <p>Manage properties, tenants and collect rent</p>
                     </div>
                     <svg
                       className='lp-role__arrow'
@@ -431,6 +429,7 @@ export default function AuthPage () {
                     </svg>
                   </button>
 
+                  {/* PHASE 3+ — artisan login role. Restore when artisan marketplace launches.
                   <button
                     className='lp-role'
                     onClick={() => handleSelectRole('artisan')}
@@ -440,20 +439,11 @@ export default function AuthPage () {
                       <h3>Professional / Artisan</h3>
                       <p>Find jobs and build your professional profile</p>
                     </div>
-                    <svg
-                      className='lp-role__arrow'
-                      width='18'
-                      height='18'
-                      viewBox='0 0 24 24'
-                      fill='none'
-                      stroke='currentColor'
-                      strokeWidth='2.5'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    >
+                    <svg className='lp-role__arrow' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
                       <path d='M9 18l6-6-6-6' />
                     </svg>
                   </button>
+                  */}
 
                   <button
                     className='lp-role'
@@ -496,15 +486,11 @@ export default function AuthPage () {
                   <span className='lp-badge__icon'>
                     {selectedRole === 'PROPERTY_OWNER'
                       ? <Building2 size={16} />
-                      : selectedRole === 'artisan'
-                      ? <Wrench size={16} />
                       : <HomeIcon size={16} />}
                   </span>
                   <span className='lp-badge__label'>
                     {selectedRole === 'PROPERTY_OWNER'
                       ? 'Property Owner'
-                      : selectedRole === 'artisan'
-                      ? 'Professional'
                       : 'Tenant / Buyer'}
                   </span>
                   <button

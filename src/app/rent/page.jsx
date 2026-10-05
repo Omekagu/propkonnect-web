@@ -5,6 +5,7 @@ import { properties as propertiesApi } from '@/libs/api'
 import './rent.scss'
 import { Bath, BedDouble, MapPin, Ruler, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { encodeId } from '@/libs/propId'
 
 const PROPERTY_TYPES = [
   'All',
@@ -205,6 +206,11 @@ export default function BuyPropertyList () {
                 >
                   {prop.saleInfo?.marketAvail?.toUpperCase() || 'AVAILABLE'}
                 </div>
+                {prop.compliance?.verified && (
+                  <span style={{ position:'absolute', bottom:10, right:10, background:'rgba(11,61,40,0.92)', color:'#C4E53C', padding:'3px 9px', borderRadius:20, fontSize:10, fontWeight:700, backdropFilter:'blur(4px)', border:'1px solid rgba(196,229,60,0.4)', letterSpacing:'0.01em' }}>
+                    ✓ PropNekt Verified
+                  </span>
+                )}
               </div>
 
               <div className='details'>
@@ -224,7 +230,7 @@ export default function BuyPropertyList () {
                 </div>
                 <button
                   className='view-btn'
-                  onClick={() => router.push(`/property/${prop.uid || prop._id}`)}
+                  onClick={() => router.push(`/property/${encodeId(prop.uid || prop._id)}`)}
                 >
                   View Details
                 </button>

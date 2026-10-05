@@ -11,6 +11,7 @@ import {
   Grid3X3, List, Heart, Eye
 } from 'lucide-react'
 import './properties.scss'
+import { encodeId } from '@/libs/propId'
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || ''
 
@@ -96,7 +97,7 @@ function PropertyCard ({ property, view }) {
   const baths = property.baths ?? property.bathrooms ?? property.apartment?.bathrooms
 
   const card = (
-    <Link href={`/property/${property._id}`} className={`prop-card ${view === 'list' ? 'prop-card--list' : ''}`}>
+    <Link href={`/property/${encodeId(property._id)}`} className={`prop-card ${view === 'list' ? 'prop-card--list' : ''}`}>
       <div className='prop-card__img'>
         {img && !imgError ? (
           <img src={img} alt={property.title} onError={() => setImgError(true)} loading='lazy' />

@@ -382,7 +382,8 @@ export default function UploadPropertyWizard ({
   editPropertyId = null,
   creationTier = 'single',
   onBack,
-  onSaved
+  onSaved,
+  onUpgrade = () => {}
 }) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState(mkBlankForm)
@@ -1275,7 +1276,7 @@ export default function UploadPropertyWizard ({
                 </div>
               )}
               {(isFull || isWarn) && (
-                <button className='wz-upgrade-btn'>Upgrade</button>
+                <button className='wz-upgrade-btn' onClick={onUpgrade}>Upgrade</button>
               )}
             </div>
           ))}

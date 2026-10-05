@@ -3,9 +3,10 @@ import {
   Search, Home, FileText, TrendingUp, Clock, CheckCircle,
   XCircle, Eye, Trash2, ChevronDown, MapPin, Bed, Bath,
   SquareArrowOutUpRight, AlertTriangle, X, RefreshCw,
-  Building2, DollarSign, BarChart3, ArrowUpRight
+  Building2, DollarSign, BarChart3, ArrowUpRight, Shield
 } from 'lucide-react'
 import './PropertyManagementDashboard.scss'
+import { encodeId } from '@/libs/propId'
 import usePropertyManagement from '../../../hooks/UsePropertyManagement'
 
 const ADMIN_ROLES = ['SUPER_ADMIN', 'SUB_ADMIN', 'property-admin', 'sub-property-admin']
@@ -56,6 +57,46 @@ export default function PropertyManagementDashboard ({ backend, authToken, userR
 
   const [sortBy, setSortBy] = useState('recent')
   const [refreshing, setRefreshing] = useState(false)
+  const [verifyModal, setVerifyModal] = useState(null) // { propId, currentVerified }
+  const [verifyDate, setVerifyDate] = useState('')
+  const [verifyNotes, setVerifyNotes] = useState('')
+  const [verifying, setVerifying] = useState(false)
+
+  const openVerifyModal = (propId, currentVerified) => {
+    setVerifyModal({ propId, currentVerified })
+    setVerifyDate(new Date().toISOString().slice(0, 10))
+    setVerifyNotes('')
+  }
+
+  const handleVerifyConfirm = async () => {
+    if (!verifyModal) return
+    setVerifying(true)
+    try {
+      const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4001'
+      const res = await fetch(`${API}/api/properties/${verifyModal.propId}/compliance`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+        body: JSON.stringify({
+          verified: !verifyModal.currentVerified,
+          inspectedAt: verifyDate || undefined,
+          inspectorNotes: verifyNotes || undefined,
+          score: !verifyModal.currentVerified ? 90 : 0
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        showNotice?.(`Property ${!verifyModal.currentVerified ? 'verified' : 'unverified'} successfully`)
+        fetchProperties?.()
+      } else {
+        showNotice?.(data.msg || 'Failed to update', 'error')
+      }
+    } catch {
+      showNotice?.('Request failed', 'error')
+    } finally {
+      setVerifying(false)
+      setVerifyModal(null)
+    }
+  }
 
   const doRefresh = async () => {
     setRefreshing(true)
@@ -218,13 +259,19 @@ export default function PropertyManagementDashboard ({ backend, authToken, userR
                       <div className='pm-pin-hover-veil' />
                       <span className={`pm-status-badge ${sm.cls}`}>{sm.label}</span>
 
+                      {p.compliance?.verified && (
+                        <span className='pm-verified-badge'>
+                          <Shield size={9} /> Verified
+                        </span>
+                      )}
+
                       <div className='pm-pin-price'>
                         {fmtCurrency(p.price || p.rentPrice)}
                         {p.rentFrequency && <span className='pm-freq'>/{p.rentFrequency}</span>}
                       </div>
 
                       <div className='pm-pin-actions'>
-                        <a className='pm-pin-view' href={`/property/${p.uid || p._id}`}
+                        <a className='pm-pin-view' href={`/property/${encodeId(p.uid || p._id)}`}
                           target='_blank' rel='noreferrer' title='Preview'>
                           <SquareArrowOutUpRight size={13} />
                         </a>
@@ -240,6 +287,15 @@ export default function PropertyManagementDashboard ({ backend, authToken, userR
                               <XCircle size={13} />
                             </button>
                           </>
+                        )}
+                        {isAdmin && (
+                          <button
+                            className={`pm-pin-verify${p.compliance?.verified ? ' pm-pin-verify--on' : ''}`}
+                            onClick={() => openVerifyModal(p._id, !!p.compliance?.verified)}
+                            title={p.compliance?.verified ? 'Verified · Click to revoke' : 'Mark as PropNekt Verified'}
+                          >
+                            <Shield size={13} />
+                          </button>
                         )}
                         <button className='pm-pin-del' onClick={() => handleDeleteProperty(p._id)} title='Delete'>
                           <Trash2 size={13} />
@@ -355,7 +411,7 @@ export default function PropertyManagementDashboard ({ backend, authToken, userR
               <h3>Reject Property</h3>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {rejectTargetId && (
-                  <a href={`/property/${rejectTargetId}`} target='_blank' rel='noreferrer'
+                  <a href={`/property/${encodeId(rejectTargetId)}`} target='_blank' rel='noreferrer'
                     className='pm-act-btn view' style={{ textDecoration: 'none', fontSize: 12 }}>
                     <SquareArrowOutUpRight size={12} /> Preview
                   </a>
@@ -376,6 +432,58 @@ export default function PropertyManagementDashboard ({ backend, authToken, userR
             <div className='pm-modal-foot'>
               <button className='pm-foot-cancel' onClick={() => setRejectModal(false)}>Cancel</button>
               <button className='pm-foot-danger' onClick={handleRejectConfirm}>Confirm Reject</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Verify modal ─────────────────────────────────────────────────── */}
+      {verifyModal && (
+        <div className='pm-overlay' onClick={() => setVerifyModal(null)}>
+          <div className='pm-modal' onClick={e => e.stopPropagation()}>
+            <div className='pm-modal-head'>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Shield size={16} color='#C4E53C' />
+                {verifyModal.currentVerified ? 'Revoke Verification' : 'Mark as PropNekt Verified'}
+              </h3>
+              <button className='pm-modal-close' onClick={() => setVerifyModal(null)}><X size={15} /></button>
+            </div>
+            <div className='pm-modal-body'>
+              {!verifyModal.currentVerified && (
+                <>
+                  <label className='pm-label'>Inspection date</label>
+                  <input
+                    type='date'
+                    className='pm-input'
+                    value={verifyDate}
+                    onChange={e => setVerifyDate(e.target.value)}
+                    style={{ marginBottom: 14 }}
+                  />
+                  <label className='pm-label'>Inspector notes (optional)</label>
+                  <textarea
+                    className='pm-textarea'
+                    rows={3}
+                    placeholder='e.g. Ownership confirmed via C of O, property matches listing photos…'
+                    value={verifyNotes}
+                    onChange={e => setVerifyNotes(e.target.value)}
+                  />
+                </>
+              )}
+              {verifyModal.currentVerified && (
+                <p style={{ fontSize: 13, color: '#7d8590', margin: 0 }}>
+                  This will remove the PropNekt Verified badge from this listing. The badge will no longer appear to tenants.
+                </p>
+              )}
+            </div>
+            <div className='pm-modal-foot'>
+              <button className='pm-foot-cancel' onClick={() => setVerifyModal(null)}>Cancel</button>
+              <button
+                className={verifyModal.currentVerified ? 'pm-foot-danger' : 'pm-foot-verify'}
+                onClick={handleVerifyConfirm}
+                disabled={verifying}
+              >
+                {verifying ? '…' : verifyModal.currentVerified ? 'Revoke Verification' : 'Confirm Verification'}
+              </button>
             </div>
           </div>
         </div>

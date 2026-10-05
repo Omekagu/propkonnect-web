@@ -105,11 +105,11 @@ export default function Sidebar ({
             label: 'Finance',
             icon: <WalletMinimal strokeWidth={0.75} />
           },
-          {
-            key: 'Maintenance',
-            label: 'Maintenance',
-            icon: <Drill strokeWidth={0.75} />
-          },
+          // // {
+          // //   key: 'Maintenance',
+          // //   label: 'Maintenance',
+          // //   icon: <Drill strokeWidth={0.75} />
+          // // },
           {
             key: 'Reports',
             label: 'Reports & Analytics',
@@ -194,11 +194,11 @@ export default function Sidebar ({
             label: 'Bookings',
             icon: <Calendar strokeWidth={0.75} />
           },
-          {
-            key: 'Maintenance',
-            label: 'Maintenance',
-            icon: <Drill strokeWidth={0.75} />
-          },
+          // {
+          //   key: 'Maintenance',
+          //   label: 'Maintenance',
+          //   icon: <Drill strokeWidth={0.75} />
+          // },
           {
             key: 'Payments',
             label: 'Payments',
@@ -214,11 +214,12 @@ export default function Sidebar ({
             label: 'Messages',
             icon: <MessageSquare strokeWidth={0.75} />
           },
-          {
-            key: 'FindArtisan',
-            label: 'Find Artisans',
-            icon: <Wrench strokeWidth={0.75} />
-          },
+          // PHASE 3+ — artisan marketplace. Uncomment when artisan features launch.
+          // {
+          //   key: 'FindArtisan',
+          //   label: 'Find Artisans',
+          //   icon: <Wrench strokeWidth={0.75} />
+          // },
           {
             key: 'OwnerComments',
             label: 'Reviews & Comments',
@@ -273,11 +274,11 @@ export default function Sidebar ({
             label: 'Tenants',
             icon: <Users strokeWidth={0.75} />
           },
-          {
-            key: 'Maintenance',
-            label: 'Maintenance',
-            icon: <Drill strokeWidth={0.75} />
-          },
+          // {
+          //   key: 'Maintenance',
+          //   label: 'Maintenance',
+          //   icon: <Drill strokeWidth={0.75} />
+          // },
           {
             key: 'Finance',
             label: 'Finances',
@@ -308,138 +309,46 @@ export default function Sidebar ({
         ]
       },
 
-      // Artisan
-      artisan: {
-        brand: `${process.env.NEXT_PUBLIC_APP_NAME}`,
-        nav: [
-          {
-            key: 'Dashboard',
-            label: 'Dashboard',
-            icon: <LayoutDashboard strokeWidth={0.75} />
-          },
-          {
-            key: 'KYCVerification',
-            label: 'Identity Verification',
-            icon: <ScanFace strokeWidth={0.75} />
-          },
-          {
-            key: 'AvailableJobs',
-            label: 'Available Jobs',
-            icon: <Briefcase strokeWidth={0.75} />
-          },
-          {
-            key: 'ActiveJobs',
-            label: 'Active Jobs',
-            icon: <CheckSquare strokeWidth={0.75} />
-          },
-          {
-            key: 'Negotiations',
-            label: 'My Bids & Negotiations',
-            icon: <MessageSquare strokeWidth={0.75} />
-          },
-          {
-            key: 'JobHistory',
-            label: 'Job History',
-            icon: <ClipboardList strokeWidth={0.75} />
-          },
-          {
-            key: 'Earnings',
-            label: 'Earnings',
-            icon: <DollarSign strokeWidth={0.75} />
-          },
-          {
-            key: 'Schedule',
-            label: 'Schedule',
-            icon: <Calendar strokeWidth={0.75} />
-          },
-          {
-            key: 'Portfolio',
-            label: 'Portfolio',
-            icon: <Star strokeWidth={0.75} />
-          },
-          {
-            key: 'Certifications',
-            label: 'Certifications',
-            icon: <Award strokeWidth={0.75} />
-          },
-          {
-            key: 'ArtisanReviews',
-            label: 'My Reviews',
-            icon: <Star strokeWidth={0.75} />
-          }
-        ],
-        account: [
-          {
-            key: 'Profile',
-            label: 'Profile',
-            icon: <UserCircle strokeWidth={0.75} />
-          },
-          {
-            key: 'Settings',
-            label: 'Settings',
-            icon: <Cog strokeWidth={0.75} />
-          },
-          {
-            key: 'Help',
-            label: 'Help & Support',
-            icon: <HeartHandshake strokeWidth={0.75} />
-          }
-        ]
-      },
+      // PHASE 3+ — Artisan marketplace role. Uncomment when artisan features launch.
+      // artisan: {
+      //   brand: `${process.env.NEXT_PUBLIC_APP_NAME}`,
+      //   nav: [
+      //     { key: 'Dashboard',        label: 'Dashboard',             icon: <LayoutDashboard strokeWidth={0.75} /> },
+      //     { key: 'KYCVerification',  label: 'Identity Verification', icon: <ScanFace strokeWidth={0.75} /> },
+      //     { key: 'AvailableJobs',    label: 'Available Jobs',        icon: <Briefcase strokeWidth={0.75} /> },
+      //     { key: 'ActiveJobs',       label: 'Active Jobs',           icon: <CheckSquare strokeWidth={0.75} /> },
+      //     { key: 'Negotiations',     label: 'My Bids & Negotiations',icon: <MessageSquare strokeWidth={0.75} /> },
+      //     { key: 'JobHistory',       label: 'Job History',           icon: <ClipboardList strokeWidth={0.75} /> },
+      //     { key: 'Earnings',         label: 'Earnings',              icon: <DollarSign strokeWidth={0.75} /> },
+      //     { key: 'Schedule',         label: 'Schedule',              icon: <Calendar strokeWidth={0.75} /> },
+      //     { key: 'Portfolio',        label: 'Portfolio',             icon: <Star strokeWidth={0.75} /> },
+      //     { key: 'Certifications',   label: 'Certifications',        icon: <Award strokeWidth={0.75} /> },
+      //     { key: 'ArtisanReviews',   label: 'My Reviews',            icon: <Star strokeWidth={0.75} /> }
+      //   ],
+      //   account: [
+      //     { key: 'Profile',  label: 'Profile',       icon: <UserCircle strokeWidth={0.75} /> },
+      //     { key: 'Settings', label: 'Settings',      icon: <Cog strokeWidth={0.75} /> },
+      //     { key: 'Help',     label: 'Help & Support', icon: <HeartHandshake strokeWidth={0.75} /> }
+      //   ]
+      // },
 
-      // Artisan Admin
-      'artisan-admin': {
-        brand: `${process.env.NEXT_PUBLIC_APP_NAME} ARTISAN ADMIN`,
-        nav: [
-          {
-            key: 'Dashboard',
-            label: 'Dashboard',
-            icon: <LayoutDashboard strokeWidth={0.75} />
-          },
-          {
-            key: 'AllArtisans',
-            label: 'All Artisans',
-            icon: <Users strokeWidth={0.75} />
-          },
-          {
-            key: 'JobManagement',
-            label: 'Job Management',
-            icon: <Briefcase strokeWidth={0.75} />
-          },
-          {
-            key: 'ActiveJobs',
-            label: 'Active Jobs',
-            icon: <CheckSquare strokeWidth={0.75} />
-          },
-          {
-            key: 'Payments',
-            label: 'Payments',
-            icon: <DollarSign strokeWidth={0.75} />
-          },
-          {
-            key: 'History',
-            label: 'History',
-            icon: <Star strokeWidth={0.75} />
-          },
-          {
-            key: 'Reports',
-            label: 'Reports',
-            icon: <BarChart3 strokeWidth={0.75} />
-          }
-        ],
-        account: [
-          {
-            key: 'Settings',
-            label: 'Settings',
-            icon: <Cog strokeWidth={0.75} />
-          },
-          {
-            key: 'Help',
-            label: 'Help & Support',
-            icon: <HeartHandshake strokeWidth={0.75} />
-          }
-        ]
-      },
+      // PHASE 3+ — Artisan admin role. Uncomment when artisan features launch.
+      // 'artisan-admin': {
+      //   brand: `${process.env.NEXT_PUBLIC_APP_NAME} ARTISAN ADMIN`,
+      //   nav: [
+      //     { key: 'Dashboard',     label: 'Dashboard',      icon: <LayoutDashboard strokeWidth={0.75} /> },
+      //     { key: 'AllArtisans',   label: 'All Artisans',   icon: <Users strokeWidth={0.75} /> },
+      //     { key: 'JobManagement', label: 'Job Management', icon: <Briefcase strokeWidth={0.75} /> },
+      //     { key: 'ActiveJobs',    label: 'Active Jobs',    icon: <CheckSquare strokeWidth={0.75} /> },
+      //     { key: 'Payments',      label: 'Payments',       icon: <DollarSign strokeWidth={0.75} /> },
+      //     { key: 'History',       label: 'History',        icon: <Star strokeWidth={0.75} /> },
+      //     { key: 'Reports',       label: 'Reports',        icon: <BarChart3 strokeWidth={0.75} /> }
+      //   ],
+      //   account: [
+      //     { key: 'Settings', label: 'Settings', icon: <Cog strokeWidth={0.75} /> },
+      //     { key: 'Help',     label: 'Help & Support', icon: <HeartHandshake strokeWidth={0.75} /> }
+      //   ]
+      // },
 
       // Tenant / User
       user: {
@@ -475,12 +384,12 @@ export default function Sidebar ({
             icon: <FileText strokeWidth={0.75} />
           },
           // ── Services ──────────────────────────────────────────────
-          {
-            key: 'ServicesHub',
-            label: 'Services',
-            icon: <Wrench strokeWidth={0.75} />,
-            sectionTitle: 'Services'
-          },
+          // {
+          //   key: 'ServicesHub',
+          //   label: 'Maintenance',
+          //   icon: <Wrench strokeWidth={0.75} />,
+          //   sectionTitle: 'Services'
+          // },
           {
             key: 'Messages',
             label: 'Messages',
@@ -609,10 +518,7 @@ export default function Sidebar ({
                     activeKey === item.key ? 'active' : ''
                   ].join(' ')}
                 >
-                  <p
-                    className='nav-link'
-                    onClick={() => handleClick(item.key)}
-                  >
+                  <p className='nav-link' onClick={() => handleClick(item.key)}>
                     <span className='icon'>{item.icon}</span>
                     {!collapsed && <span className='label'>{item.label}</span>}
                     <span className='nav-tooltip'>{item.label}</span>
@@ -635,10 +541,7 @@ export default function Sidebar ({
                   activeKey === item.key ? 'active' : ''
                 ].join(' ')}
               >
-                <p
-                  className='nav-link'
-                  onClick={() => handleClick(item.key)}
-                >
+                <p className='nav-link' onClick={() => handleClick(item.key)}>
                   <span className='icon'>{item.icon}</span>
                   {!collapsed && <span className='label'>{item.label}</span>}
                   <span className='nav-tooltip'>{item.label}</span>
@@ -704,8 +607,8 @@ export default function Sidebar ({
               'SUPER_ADMIN',
               'SUB_ADMIN',
               'SUPPORT_ADMIN',
-              'property-admin',
-              'artisan-admin'
+              'property-admin'
+              // 'artisan-admin' // PHASE 3+ — re-add when artisan role is active
             ]
             if (ADMIN_ROLES.includes(userRole)) return null
 
@@ -822,7 +725,13 @@ export default function Sidebar ({
                     showUpgrade ? () => handleClick('Settings') : undefined
                   }
                 >
-                  {isUrgent ? <Clock size={18} /> : isWarning ? <AlertTriangle size={18} /> : meta.icon}
+                  {isUrgent ? (
+                    <Clock size={18} />
+                  ) : isWarning ? (
+                    <AlertTriangle size={18} />
+                  ) : (
+                    meta.icon
+                  )}
                 </div>
               )
             }
@@ -839,8 +748,17 @@ export default function Sidebar ({
                 }}
               >
                 {/* Plan badge + name */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 8
+                  }}
+                >
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 7 }}
+                  >
                     <div
                       style={{
                         width: 26,
@@ -858,12 +776,29 @@ export default function Sidebar ({
                       {meta.icon}
                     </div>
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.2 }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: '#f1f5f9',
+                          lineHeight: 1.2
+                        }}
+                      >
                         {meta.label} Plan
                       </div>
                       {trialLive && (
-                        <div style={{ fontSize: 10, color: accentColor, fontWeight: 600, marginTop: 1 }}>
-                          {isUrgent ? '⚠ ' : ''}{daysLeft === 0 ? 'Expires today' : `${daysLeft}d trial left`}
+                        <div
+                          style={{
+                            fontSize: 10,
+                            color: accentColor,
+                            fontWeight: 600,
+                            marginTop: 1
+                          }}
+                        >
+                          {isUrgent ? '⚠ ' : ''}
+                          {daysLeft === 0
+                            ? 'Expires today'
+                            : `${daysLeft}d trial left`}
                         </div>
                       )}
                     </div>
@@ -911,40 +846,112 @@ export default function Sidebar ({
                 )}
 
                 {/* Plan limits */}
-                {(plan.listingLimit != null || plan.aiCredits != null || plan.mediaPerListing != null) && (
-                  <div style={{ display: 'flex', gap: 5, marginBottom: showUpgrade ? 9 : 0 }}>
+                {(plan.listingLimit != null ||
+                  plan.aiCredits != null ||
+                  plan.mediaPerListing != null) && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 5,
+                      marginBottom: showUpgrade ? 9 : 0
+                    }}
+                  >
                     {plan.listingLimit != null && (
                       <div style={{ flex: 1, textAlign: 'center' }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: '#f1f5f9', lineHeight: 1 }}>
+                        <div
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 800,
+                            color: '#f1f5f9',
+                            lineHeight: 1
+                          }}
+                        >
                           {plan.listingLimit}
                         </div>
-                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>
+                        <div
+                          style={{
+                            fontSize: 9,
+                            color: 'rgba(255,255,255,0.4)',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.04em',
+                            marginTop: 2
+                          }}
+                        >
                           Listings
                         </div>
                       </div>
                     )}
-                    {plan.listingLimit != null && (plan.aiCredits != null || plan.mediaPerListing != null) && (
-                      <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', alignSelf: 'stretch', margin: '2px 0' }} />
-                    )}
+                    {plan.listingLimit != null &&
+                      (plan.aiCredits != null ||
+                        plan.mediaPerListing != null) && (
+                        <div
+                          style={{
+                            width: 1,
+                            background: 'rgba(255,255,255,0.08)',
+                            alignSelf: 'stretch',
+                            margin: '2px 0'
+                          }}
+                        />
+                      )}
                     {plan.aiCredits != null && (
                       <div style={{ flex: 1, textAlign: 'center' }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: '#f1f5f9', lineHeight: 1 }}>
+                        <div
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 800,
+                            color: '#f1f5f9',
+                            lineHeight: 1
+                          }}
+                        >
                           {plan.aiCredits}
                         </div>
-                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>
+                        <div
+                          style={{
+                            fontSize: 9,
+                            color: 'rgba(255,255,255,0.4)',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.04em',
+                            marginTop: 2
+                          }}
+                        >
                           AI Credits
                         </div>
                       </div>
                     )}
                     {plan.aiCredits != null && plan.mediaPerListing != null && (
-                      <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', alignSelf: 'stretch', margin: '2px 0' }} />
+                      <div
+                        style={{
+                          width: 1,
+                          background: 'rgba(255,255,255,0.08)',
+                          alignSelf: 'stretch',
+                          margin: '2px 0'
+                        }}
+                      />
                     )}
                     {plan.mediaPerListing != null && (
                       <div style={{ flex: 1, textAlign: 'center' }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: '#f1f5f9', lineHeight: 1 }}>
+                        <div
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 800,
+                            color: '#f1f5f9',
+                            lineHeight: 1
+                          }}
+                        >
                           {plan.mediaPerListing}
                         </div>
-                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>
+                        <div
+                          style={{
+                            fontSize: 9,
+                            color: 'rgba(255,255,255,0.4)',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.04em',
+                            marginTop: 2
+                          }}
+                        >
                           Photos
                         </div>
                       </div>
@@ -955,7 +962,7 @@ export default function Sidebar ({
                 {/* Upgrade CTA */}
                 {showUpgrade && (
                   <button
-                    onClick={() => handleClick('Settings')}
+                    onClick={() => handleClick('Payments')}
                     style={{
                       width: '100%',
                       background: tier === 'free' ? '#C4E53C' : accentColor,

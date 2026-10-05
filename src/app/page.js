@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './Landing.scss'
 import { useRouter } from 'next/navigation'
+import { encodeId } from '@/libs/propId'
 import axios from 'axios'
 import {
   Building2,
@@ -12,7 +13,7 @@ import {
   Bath,
   Layers,
   Store,
-  Wrench,
+  // Wrench, // PHASE 3+ — artisan marketplace
   MapPin,
   Tag,
   Star as StarIcon,
@@ -20,14 +21,14 @@ import {
   FileEdit,
   MessageSquare,
   Shield,
-  Play,
+  // Play, // PHASE 3+ — TikTok feed
   Key as KeyIcon,
   Calendar,
   Info as InfoIcon,
   Lightbulb,
   CheckCircle2,
   Lock,
-  Hammer,
+  // Hammer, // PHASE 3+ — artisan marketplace
   Search as SearchIcon
 } from 'lucide-react'
 
@@ -36,35 +37,13 @@ const APP_NAME_FALLBACK = process.env.NEXT_PUBLIC_APP_NAME || 'propnekt'
 
 // ── Static fallback data ────────────────────────────────────────────────────
 
+/* PHASE 3+ — artisan fallback data. Restore when artisan marketplace launches.
 const FALLBACK_ARTISANS = [
-  {
-    _id: 'a1',
-    firstName: 'Chukwuemeka',
-    lastName: 'P.',
-    artisanProfile: { specialization: 'Master Electrician' },
-    stats: { averageRating: 4.9, completedJobs: 312 },
-    status: { verified: true },
-    plan: { name: 'pro' }
-  },
-  {
-    _id: 'a2',
-    firstName: 'Aminu',
-    lastName: 'D.',
-    artisanProfile: { specialization: 'Plumbing Specialist' },
-    stats: { averageRating: 4.8, completedJobs: 201 },
-    status: { verified: true },
-    plan: { name: 'pro' }
-  },
-  {
-    _id: 'a3',
-    firstName: 'Ngozi',
-    lastName: 'A.',
-    artisanProfile: { specialization: 'Interior Painter' },
-    stats: { averageRating: 4.9, completedJobs: 178 },
-    status: { verified: true },
-    plan: { name: 'pro' }
-  }
+  { _id: 'a1', firstName: 'Chukwuemeka', lastName: 'P.', artisanProfile: { specialization: 'Master Electrician' }, stats: { averageRating: 4.9, completedJobs: 312 }, status: { verified: true }, plan: { name: 'pro' } },
+  { _id: 'a2', firstName: 'Aminu', lastName: 'D.', artisanProfile: { specialization: 'Plumbing Specialist' }, stats: { averageRating: 4.8, completedJobs: 201 }, status: { verified: true }, plan: { name: 'pro' } },
+  { _id: 'a3', firstName: 'Ngozi', lastName: 'A.', artisanProfile: { specialization: 'Interior Painter' }, stats: { averageRating: 4.9, completedJobs: 178 }, status: { verified: true }, plan: { name: 'pro' } }
 ]
+*/
 
 const CATEGORIES = [
   { Icon: Building2, label: 'Apartments', query: 'apartment' },
@@ -72,8 +51,8 @@ const CATEGORIES = [
   { Icon: Hotel, label: 'Hotels', query: 'hotel' },
   { Icon: BedDouble, label: 'Shortlets', query: 'shortlet' },
   { Icon: Layers, label: 'Land', query: 'land' },
-  { Icon: Store, label: 'Commercial', query: 'commercial' },
-  { Icon: Wrench, label: 'Artisans', query: 'artisan' }
+  { Icon: Store, label: 'Commercial', query: 'commercial' }
+  // PHASE 3+ — { Icon: Wrench, label: 'Artisans', query: 'artisan' }
 ]
 
 const LOCATIONS = [
@@ -112,14 +91,9 @@ const TESTIMONIALS = [
     stars: 5,
     text: 'Found my dream duplex in Lekki within a week. The platform is incredibly smooth and the team was super responsive throughout.'
   },
-  {
-    name: 'Emeka Eze',
-    role: 'Verified Artisan – Electrician',
-    initials: 'EE',
-    avatarColor: '#4ade80',
-    stars: 5,
-    text: 'My bookings tripled after joining. The escrow payment system gives both me and my clients peace of mind on every job.'
-  },
+  /* PHASE 3+ — artisan testimonial. Restore when artisan marketplace launches.
+  { name: 'Emeka Eze', role: 'Verified Artisan – Electrician', initials: 'EE', avatarColor: '#4ade80', stars: 5, text: 'My bookings tripled after joining. The escrow payment system gives both me and my clients peace of mind on every job.' },
+  */
   {
     name: 'Fatima Abdullahi',
     role: 'Property Owner',
@@ -135,7 +109,7 @@ const HOW_IT_WORKS = [
     step: '01',
     Icon: FileEdit,
     title: 'Create Your Profile',
-    desc: 'Sign up in seconds as a buyer, renter, owner, or artisan — no paperwork upfront.'
+    desc: 'Sign up in seconds as a buyer, renter, or owner — no paperwork upfront.'
   },
   {
     step: '02',
@@ -180,6 +154,7 @@ function purposeLabel (purpose) {
   return { label: purpose || 'Listing', type: 'other' }
 }
 
+/* PHASE 3+ — artisan trade icon helper. Restore when artisan marketplace launches.
 function artisanTradeIcon (spec) {
   const s = (spec || '').toLowerCase()
   if (s.includes('electric')) return <Zap size={20} />
@@ -188,6 +163,7 @@ function artisanTradeIcon (spec) {
   if (s.includes('til') || s.includes('mason')) return <Layers size={20} />
   return <Wrench size={20} />
 }
+*/
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -204,9 +180,9 @@ export default function LandingPage () {
   // Data from API
   const [branding, setBranding] = useState(null)
   const [properties, setProperties] = useState([])
-  const [artisans, setArtisans] = useState([])
+  // PHASE 3+ — const [artisans, setArtisans] = useState([])
   const [loadingProps, setLoadingProps] = useState(true)
-  const [loadingArtisans, setLoadingArtisans] = useState(true)
+  // PHASE 3+ — const [loadingArtisans, setLoadingArtisans] = useState(true)
 
   const heroRef = useRef(null)
   const mobileMenuRef = useRef(null)
@@ -232,6 +208,7 @@ export default function LandingPage () {
 
     fetchProperties()
 
+    /* PHASE 3+ — artisan API fetch. Restore when artisan marketplace launches.
     axios
       .get(`${API}/api/artisan?topRated=true&limit=4`)
       .then(r => {
@@ -240,6 +217,7 @@ export default function LandingPage () {
       })
       .catch(() => setArtisans(FALLBACK_ARTISANS))
       .finally(() => setLoadingArtisans(false))
+    */
   }, [fetchProperties])
 
   useEffect(() => {
@@ -356,13 +334,8 @@ export default function LandingPage () {
           <div className='home-nav__links'>
             <a onClick={() => scrollTo('listings')}>Buy &amp; Rent</a>
             <a href='/search?intent=shortlet'>Book</a>
-            <a onClick={() => scrollTo('artisans')}>Artisans</a>
-            <a href='/feed' className='home-nav__link--feed'>
-              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.2' style={{marginRight:4}}>
-                <rect x='2' y='3' width='20' height='14' rx='2'/><path d='M8 21h8M12 17v4'/>
-              </svg>
-              Feed
-            </a>
+            {/* PHASE 3+ — artisan marketplace nav: <a onClick={() => scrollTo('artisans')}>Artisans</a> */}
+            {/* PHASE 3+ — TikTok feed nav: <a href='/feed' className='home-nav__link--feed'>Feed</a> */}
             <a onClick={() => scrollTo('how-it-works')}>How It Works</a>
             <a href='/about'>About</a>
           </div>
@@ -438,9 +411,7 @@ export default function LandingPage () {
           </div>
 
           <nav className='home-nav__drawer-links'>
-            <a href='/feed' onClick={closeMobile} className='home-nav__drawer-link--feed'>
-              <Play size={16} className='home-nav__drawer-icon' /> Browse Feed
-            </a>
+            {/* PHASE 3+ — TikTok feed mobile link: <a href='/feed' onClick={closeMobile} className='home-nav__drawer-link--feed'><Play size={16} className='home-nav__drawer-icon' /> Browse Feed</a> */}
             <a href='/buy' onClick={closeMobile}>
               <HomeIcon size={16} className='home-nav__drawer-icon' /> Buy
             </a>
@@ -450,14 +421,7 @@ export default function LandingPage () {
             <a href='/search?intent=shortlet' onClick={closeMobile}>
               <Calendar size={16} className='home-nav__drawer-icon' /> Book
             </a>
-            <a
-              onClick={() => {
-                scrollTo('artisans')
-                closeMobile()
-              }}
-            >
-              <Wrench size={16} className='home-nav__drawer-icon' /> Artisans
-            </a>
+            {/* PHASE 3+ — artisan marketplace mobile link: <a onClick={() => { scrollTo('artisans'); closeMobile() }}><Wrench size={16} className='home-nav__drawer-icon' /> Artisans</a> */}
             <a
               onClick={() => {
                 scrollTo('how-it-works')
@@ -530,8 +494,8 @@ export default function LandingPage () {
               {[
                 { key: 'buy', label: 'Buy' },
                 { key: 'rent', label: 'Rent' },
-                { key: 'booking', label: 'Booking' },
-                { key: 'artisan', label: 'Artisans' }
+                { key: 'booking', label: 'Booking' }
+                // PHASE 3+ — { key: 'artisan', label: 'Artisans' }
               ].map(t => (
                 <button
                   key={t.key}
@@ -549,18 +513,10 @@ export default function LandingPage () {
               <div className='home-search__field home-search__field--location'>
                 <span className='home-search__icon'><MapPin size={18} /></span>
                 <div className='home-search__field-inner'>
-                  <label>
-                    {searchTab === 'artisan'
-                      ? 'Where do you need help?'
-                      : 'Where do you want to stay?'}
-                  </label>
+                  <label>Where do you want to stay?</label>
                   <input
                     type='text'
-                    placeholder={
-                      searchTab === 'artisan'
-                        ? 'Lagos, Abuja, Port Harcourt...'
-                        : 'City, neighbourhood or address...'
-                    }
+                    placeholder='City, neighbourhood or address...'
                     value={location}
                     onChange={e => setLocation(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSearch()}
@@ -569,38 +525,23 @@ export default function LandingPage () {
               </div>
 
               <div className='home-search__field home-search__field--type'>
-                <span className='home-search__icon'>
-                  {searchTab === 'artisan' ? <Wrench size={18} /> : <HomeIcon size={18} />}
-                </span>
+                <span className='home-search__icon'><HomeIcon size={18} /></span>
                 <div className='home-search__field-inner'>
-                  <label>
-                    {searchTab === 'artisan' ? 'Service Type' : 'Property Type'}
-                  </label>
+                  <label>Property Type</label>
                   <select
                     value={propertyType}
                     onChange={e => setPropertyType(e.target.value)}
                   >
-                    {searchTab === 'artisan' ? (
-                      <>
-                        <option value=''>Any Service</option>
-                        <option value='plumbing'>Plumbing</option>
-                        <option value='electrical'>Electrical</option>
-                        <option value='painting'>Painting</option>
-                        <option value='cleaning'>Cleaning</option>
-                        <option value='carpentry'>Carpentry</option>
-                        <option value='tiling'>Tiling</option>
-                      </>
-                    ) : (
-                      <>
-                        <option value=''>Any Type</option>
-                        <option value='apartment'>Apartment</option>
-                        <option value='house'>House / Duplex</option>
-                        <option value='land'>Land</option>
-                        <option value='commercial'>Commercial</option>
-                        <option value='shortlet'>Shortlet</option>
-                        <option value='booking'>Hotels</option>
-                      </>
-                    )}
+                    {/* PHASE 3+ — artisan service options: searchTab === 'artisan' ? (<option value=''>Any Service</option>...) : */}
+                    <>
+                      <option value=''>Any Type</option>
+                      <option value='apartment'>Apartment</option>
+                      <option value='house'>House / Duplex</option>
+                      <option value='land'>Land</option>
+                      <option value='commercial'>Commercial</option>
+                      <option value='shortlet'>Shortlet</option>
+                      <option value='booking'>Hotels</option>
+                    </>
                   </select>
                 </div>
               </div>
@@ -621,20 +562,17 @@ export default function LandingPage () {
               </button>
             </div>
 
-            {/* Mobile feed CTA */}
+            {/* PHASE 3+ — TikTok feed mobile CTA. Restore when feed launches.
             <div className='home-search__feed-hint'>
               <span>or</span>
-              <button
-                className='home-search__feed-btn'
-                onClick={() => router.push('/feed')}
-              >
+              <button className='home-search__feed-btn' onClick={() => router.push('/feed')}>
                 <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.2'>
-                  <rect x='2' y='3' width='20' height='14' rx='2'/>
-                  <path d='M8 21h8M12 17v4'/>
+                  <rect x='2' y='3' width='20' height='14' rx='2'/><path d='M8 21h8M12 17v4'/>
                 </svg>
                 Browse Feed
               </button>
             </div>
+            */}
           </div>
         </div>
       </section>
@@ -687,7 +625,7 @@ export default function LandingPage () {
                     [listing.city, listing.state].filter(Boolean).join(', ') ||
                     listing.location ||
                     ''
-                  const id = listing._id || listing.id
+                  const id = encodeId(listing._id || listing.id)
                   return (
                     <div
                       key={id}
@@ -817,82 +755,40 @@ export default function LandingPage () {
         </div>
       </section>
 
-      {/* ── Artisan Marketplace ── */}
+      {/* PHASE 3+ — Artisan Marketplace section. Restore when artisan marketplace launches.
       <section id='artisans' className='home-artisan'>
         <div className='home-artisan__inner'>
           <div className='home-artisan__text'>
             <span className='home-tag'>Service Marketplace</span>
-            <h2>
-              Find Trusted Artisans
-              <br />
-              for Any Job
-            </h2>
-            <p>
-              Hire verified plumbers, electricians, painters, cleaners, and 20+
-              more trades — with rated profiles, upfront quotes, and
-              escrow-protected payments.
-            </p>
+            <h2>Find Trusted Artisans<br />for Any Job</h2>
+            <p>Hire verified plumbers, electricians, painters, cleaners, and 20+ more trades — with rated profiles, upfront quotes, and escrow-protected payments.</p>
             <ul className='home-artisan__perks'>
               <li>Background-checked &amp; certified</li>
               <li>Read reviews before you book</li>
               <li>Escrow payment — pay on completion</li>
               <li>Real-time messaging &amp; scheduling</li>
             </ul>
-            <button
-              className='home-btn-lime'
-              onClick={() => router.push('/search?type=artisan')}
-            >
-              Find an Artisan →
-            </button>
+            <button className='home-btn-lime' onClick={() => router.push('/search?type=artisan')}>Find an Artisan →</button>
           </div>
-
           <div className='home-artisan__cards'>
             {(loadingArtisans ? [] : artisans).map(a => {
-              const name =
-                a.name ||
-                `${a.firstName || ''} ${(a.lastName || '').charAt(0)}.`.trim()
-              const spec =
-                a.specialization ||
-                a.artisanProfile?.specialization ||
-                'Artisan'
+              const name = a.name || `${a.firstName || ''} ${(a.lastName || '').charAt(0)}.`.trim()
+              const spec = a.specialization || a.artisanProfile?.specialization || 'Artisan'
               const rating = a.rating ?? a.stats?.averageRating ?? 0
               const jobs = a.completedJobs ?? a.stats?.completedJobs ?? 0
               const isVerified = a.verified ?? a.status?.verified ?? false
-              const isTopRated =
-                rating >= 4.8 ||
-                a.plan?.name === 'pro' ||
-                a.plan?.name === 'enterprise'
+              const isTopRated = rating >= 4.8 || a.plan?.name === 'pro' || a.plan?.name === 'enterprise'
               return (
-                <div
-                  key={a._id}
-                  className='home-artisan-card'
-                  onClick={() => router.push('/search?type=artisan')}
-                >
+                <div key={a._id} className='home-artisan-card' onClick={() => router.push('/search?type=artisan')}>
                   <div className='home-artisan-card__head'>
-                    <span className='home-artisan-card__avatar'>
-                      {artisanTradeIcon(spec)}
-                    </span>
-                    <div>
-                      <h4>{name}</h4>
-                      <p>{spec}</p>
-                    </div>
-                    <span className='home-artisan-card__badge'>
-                      {isTopRated ? 'Top Rated' : 'Verified'}
-                    </span>
+                    <span className='home-artisan-card__avatar'>{artisanTradeIcon(spec)}</span>
+                    <div><h4>{name}</h4><p>{spec}</p></div>
+                    <span className='home-artisan-card__badge'>{isTopRated ? 'Top Rated' : 'Verified'}</span>
                   </div>
                   <div className='home-artisan-card__foot'>
-                    {rating > 0 && (
-                      <span>
-                        <StarIcon size={12} fill='#fbbf24' stroke='none' style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
-                        {rating.toFixed(1)}
-                      </span>
-                    )}
+                    {rating > 0 && <span><StarIcon size={12} fill='#fbbf24' stroke='none' style={{ display:'inline', verticalAlign:'middle', marginRight:3 }} />{rating.toFixed(1)}</span>}
                     {jobs > 0 && <span>{jobs} jobs</span>}
-                    {isVerified && (
-                      <span className='home-artisan-card__verified'>
-                        ✓ Verified
-                      </span>
-                    )}
+                    {isVerified && <span className='home-artisan-card__verified'>✓ Verified</span>}
                   </div>
                 </div>
               )
@@ -900,6 +796,7 @@ export default function LandingPage () {
           </div>
         </div>
       </section>
+      */}
 
       {/* ── How It Works ── */}
       <section id='how-it-works' className='home-hiw'>

@@ -55,22 +55,84 @@ const STATUS_COLOR = {
   rejected:   { bg: '#fee2e2', color: '#991b1b' }
 }
 
-const PLAN_ICONS = {
-  free: <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z'/><path d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12'/></svg>,
-  basic: <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>,
-  pro: <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><circle cx='12' cy='8' r='6'/><path d='M15.477 12.89L17 22l-5-3-5 3 1.523-9.11'/></svg>,
-  enterprise: <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M9 22V12h6v10M9 7h1M14 7h1M9 12h1M14 12h1'/></svg>
+const PLAN_COLORS = {
+  free:       { accent: '#7d8590', glow: 'rgba(125,133,144,0.15)', btn: '#7d8590' },
+  basic:      { accent: '#3b82f6', glow: 'rgba(59,130,246,0.15)',  btn: '#3b82f6' },
+  pro:        { accent: '#C4E53C', glow: 'rgba(196,229,60,0.18)',  btn: '#C4E53C' },
+  enterprise: { accent: '#f59e0b', glow: 'rgba(245,158,11,0.15)', btn: '#f59e0b' },
 }
-const PLAN_COLORS = { free: '#64748b', basic: '#0071c2', pro: '#7c3aed', enterprise: '#059669' }
+
+const TIER_TAGLINES = {
+  free:       'Get started with your first listing',
+  basic:      'Grow your rental portfolio',
+  pro:        'Scale with professional tools',
+  enterprise: 'Full-power property management',
+}
+
 const FEATURE_LABELS = {
-  analytics:        'Analytics & Reports',
-  priority_support: 'Priority Support',
-  featured_badge:   'Featured Badge',
-  escrow_access:    'Escrow Payments',
-  document_upload:  'Document Upload',
-  bnpl:             'Buy-Now-Pay-Later',
-  api_access:       'API Access',
-  white_label:      'White Label'
+  // Core listing
+  analytics:             'Analytics & conversion reports',
+  priority_support:      'Priority customer support',
+  featured_badge:        'Featured placement in search results',
+  escrow_access:         'Secure escrow payment processing',
+  document_upload:       'Property document upload (C of O, survey)',
+  bnpl:                  'Buy-Now-Pay-Later for buyers',
+  api_access:            'API access & integrations',
+  white_label:           'White-label tenant portal',
+  // Extra meaningful features
+  verified_badge:        'Verified Landlord badge on listings',
+  inspection_scheduling: 'Inspection scheduling & calendar',
+  application_mgmt:      'Tenant application shortlisting',
+  instant_booking:       'Instant booking (no manual approval)',
+  tenant_screening:      'Tenant KYC & background screening',
+  lease_management:      'Digital lease creation & e-signing',
+  maintenance_mgmt:      'Maintenance request management',
+  sms_notifications:     'SMS alerts for bookings & payments',
+  revenue_insights:      'Revenue & occupancy insights',
+  bulk_upload:           'Bulk property import',
+  sub_accounts:          'Team sub-accounts (up to 5 users)',
+  dedicated_manager:     'Dedicated account manager',
+  top_placement:         'Guaranteed top search placement',
+}
+
+// Static per-tier highlights shown on plan cards regardless of backend features
+const TIER_HIGHLIGHTS = {
+  free: [
+    'Standard search visibility',
+    'Inspection request inbox',
+    'Tenant application inbox',
+    'Basic property analytics',
+    'Email support',
+  ],
+  basic: [
+    'Verified Landlord badge',
+    'Priority search placement',
+    'Inspection scheduling calendar',
+    'Application shortlisting tools',
+    'Digital lease drafts',
+    'Analytics & conversion reports',
+    'Priority email support',
+  ],
+  pro: [
+    'Featured placement (top of search)',
+    'Escrow payment processing',
+    'Instant booking — no approval wait',
+    'Tenant KYC & background screening',
+    'Revenue & occupancy insights',
+    'Maintenance request management',
+    'SMS alerts for bookings & payments',
+    'Custom digital lease templates',
+  ],
+  enterprise: [
+    'Unlimited listings & media',
+    'Team sub-accounts (5 users)',
+    'Bulk property import',
+    'API access & integrations',
+    'White-label tenant portal',
+    'Guaranteed top placement',
+    'Dedicated account manager',
+    'Advanced revenue forecasting',
+  ],
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -105,127 +167,129 @@ function PlanTab ({ setupStatus, plans, onUpgrade, subscribing }) {
   const trialActive = current.trialActive
   const trialEndsAt = current.trialEndsAt
   const payout = setupStatus?.paymentSetup || {}
+  const colors = PLAN_COLORS[tier] || PLAN_COLORS.free
 
   return (
     <div className='pop-section'>
 
-      {/* Current Plan Card */}
-      <div className='pop-card pop-current-plan'>
-        <div className='pop-cp-left'>
-          <div className='pop-cp-icon'>{PLAN_ICONS[tier] || <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg>}</div>
-          <div>
-            <div className='pop-cp-label'>Current Plan</div>
-            <div className='pop-cp-name' style={{ color: PLAN_COLORS[tier] || '#1d4ed8' }}>
-              {tier.charAt(0).toUpperCase() + tier.slice(1)}
-              {trialActive && <span className='pop-trial-badge'>Trial Active</span>}
-            </div>
-            <div className='pop-cp-limits'>
-              {current.listingLimit === -1 ? 'Unlimited' : current.listingLimit} listings
-              &nbsp;·&nbsp;
-              {current.features?.length || 0} premium features
-            </div>
+      {/* ── Current Plan Banner ── */}
+      <div className='pop-current-banner' style={{ borderColor: colors.accent, background: colors.glow }}>
+        <div className='pop-current-banner__left'>
+          <span className='pop-current-banner__label'>Active Plan</span>
+          <span className='pop-current-banner__tier' style={{ color: colors.accent }}>
+            {tier.charAt(0).toUpperCase() + tier.slice(1)}
+          </span>
+          <span className='pop-current-banner__tagline'>{TIER_TAGLINES[tier]}</span>
+        </div>
+        <div className='pop-current-banner__stats'>
+          <div className='pop-current-banner__stat'>
+            <span>{current.listingLimit === -1 ? '∞' : (current.listingLimit ?? '—')}</span>
+            <label>Listings</label>
+          </div>
+          <div className='pop-current-banner__divider' />
+          <div className='pop-current-banner__stat'>
+            <span>{current.mediaPerListing === -1 ? '∞' : (current.mediaPerListing ?? '—')}</span>
+            <label>Photos/listing</label>
+          </div>
+          <div className='pop-current-banner__divider' />
+          <div className='pop-current-banner__stat'>
+            <span>{current.aiCredits === -1 ? '∞' : (current.aiCredits ?? 0)}</span>
+            <label>AI credits/mo</label>
           </div>
         </div>
-        <div className='pop-cp-right'>
+        <div className='pop-current-banner__right'>
           {trialActive && trialEndsAt && (
-            <div className='pop-trial-info'>
-              Trial ends <strong>{fmtDate(trialEndsAt)}</strong>
-            </div>
+            <span className='pop-trial-pill'>🎁 Trial · ends {fmtDate(trialEndsAt)}</span>
           )}
           {!trialActive && current.expiresAt && (
-            <div className='pop-trial-info'>
-              Renews <strong>{fmtDate(current.expiresAt)}</strong>
-            </div>
+            <span className='pop-renew-pill'>Renews {fmtDate(current.expiresAt)}</span>
           )}
         </div>
       </div>
 
-      {/* What's Included */}
-      {(current.features?.length > 0 || current.listingLimit) && (
-        <div className='pop-card'>
-          <div className='pop-card-title'>What's Included</div>
-          <div className='pop-limits-grid'>
-            <div className='pop-limit-item'>
-              <div className='pop-limit-val'>{current.listingLimit === -1 ? '∞' : current.listingLimit}</div>
-              <div className='pop-limit-key'>Listings</div>
-            </div>
-            <div className='pop-limit-item'>
-              <div className='pop-limit-val'>{current.mediaPerListing === -1 ? '∞' : (current.mediaPerListing || '—')}</div>
-              <div className='pop-limit-key'>Photos / Listing</div>
-            </div>
-            <div className='pop-limit-item'>
-              <div className='pop-limit-val'>{current.aiCredits === -1 ? '∞' : (current.aiCredits || 0)}</div>
-              <div className='pop-limit-key'>AI Credits</div>
-            </div>
-          </div>
-          {current.features?.length > 0 && (
-            <div className='pop-feat-list'>
-              {current.features.map(f => (
-                <span key={f} className='pop-feat-chip pop-feat-chip--on'>
-                  ✓ {FEATURE_LABELS[f] || f}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Available Plans */}
-      <div className='pop-card-title pop-section-heading'>Available Plans</div>
+      {/* ── Plan Cards ── */}
+      <p className='pop-plans-heading'>Choose your plan</p>
       <div className='pop-plans-grid'>
         {plans.map(plan => {
           const isCurrent = plan.id === (current.tier || 'free')
-          const color = PLAN_COLORS[plan.id] || '#1d4ed8'
+          const isPro     = plan.id === 'pro'
+          const c         = PLAN_COLORS[plan.id] || PLAN_COLORS.free
           const isLoading = subscribing === plan.id
+          const highlights = TIER_HIGHLIGHTS[plan.id] || []
+          // Merge backend features into display list
+          const extraFromBackend = (plan.features || [])
+            .filter(f => !highlights.some(h => h.toLowerCase().includes((FEATURE_LABELS[f] || '').toLowerCase().slice(0, 10))))
+            .map(f => FEATURE_LABELS[f] || f)
+
           return (
-            <div key={plan.id} className={`pop-plan-card${isCurrent ? ' pop-plan-card--current' : ''}`} style={{ borderTopColor: color }}>
-              <div className='pop-plan-top'>
-                <span className='pop-plan-icon'>{PLAN_ICONS[plan.id] || <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg>}</span>
+            <div
+              key={plan.id}
+              className={`pop-plan-card${isCurrent ? ' pop-plan-card--current' : ''}${isPro ? ' pop-plan-card--popular' : ''}`}
+              style={{ '--plan-accent': c.accent }}
+            >
+              {isPro && <div className='pop-plan-popular'>Most Popular</div>}
+              {isCurrent && <div className='pop-plan-active-dot' style={{ background: c.accent }} />}
+
+              <div className='pop-plan-head'>
                 <div>
-                  <div className='pop-plan-name'>{plan.name}</div>
-                  <div className='pop-plan-price'>
-                    {plan.price === 0 ? 'Free' : `${fmt(plan.price)}/mo`}
-                  </div>
+                  <div className='pop-plan-name' style={{ color: c.accent }}>{plan.name}</div>
+                  <div className='pop-plan-tagline'>{TIER_TAGLINES[plan.id] || ''}</div>
+                </div>
+                <div className='pop-plan-price-wrap'>
+                  <span className='pop-plan-price'>
+                    {plan.price === 0 ? 'Free' : fmt(plan.price)}
+                  </span>
+                  {plan.price > 0 && <span className='pop-plan-period'>/mo</span>}
                 </div>
               </div>
 
-              <div className='pop-plan-limits'>
-                <div>{plan.listingLimit === -1 ? 'Unlimited' : plan.listingLimit} listings</div>
-                <div>{plan.mediaPerListing === -1 ? 'Unlimited' : plan.mediaPerListing} photos/listing</div>
-                <div>{plan.aiCredits === -1 ? 'Unlimited' : plan.aiCredits} AI credits/mo</div>
+              <div className='pop-plan-quotas'>
+                <span>{plan.listingLimit === -1 ? 'Unlimited' : plan.listingLimit} listings</span>
+                <span className='pop-plan-quota-dot'>·</span>
+                <span>{plan.mediaPerListing === -1 ? '∞' : plan.mediaPerListing} photos</span>
+                <span className='pop-plan-quota-dot'>·</span>
+                <span>{plan.aiCredits === -1 ? '∞' : plan.aiCredits} AI credits</span>
               </div>
 
-              {plan.features?.length > 0 && (
-                <div className='pop-plan-feats'>
-                  {plan.features.slice(0, 4).map(f => (
-                    <div key={f} className='pop-plan-feat'>✓ {FEATURE_LABELS[f] || f}</div>
-                  ))}
-                  {plan.features.length > 4 && (
-                    <div className='pop-plan-feat pop-plan-feat--more'>+{plan.features.length - 4} more</div>
-                  )}
-                </div>
-              )}
+              <div className='pop-plan-divider' />
+
+              <ul className='pop-plan-feats'>
+                {highlights.map((h, i) => (
+                  <li key={i}><span className='pop-feat-check' style={{ color: c.accent }}>✓</span>{h}</li>
+                ))}
+                {extraFromBackend.map((f, i) => (
+                  <li key={`b${i}`}><span className='pop-feat-check' style={{ color: c.accent }}>✓</span>{f}</li>
+                ))}
+              </ul>
 
               <button
                 className={`pop-plan-btn${isCurrent ? ' pop-plan-btn--current' : ''}`}
-                style={!isCurrent ? { background: color } : {}}
+                style={!isCurrent ? { background: c.btn, color: plan.id === 'pro' ? '#0B3D28' : '#fff' } : {}}
                 onClick={() => !isCurrent && onUpgrade(plan)}
                 disabled={isCurrent || isLoading}
               >
-                {isLoading ? <Spinner /> : isCurrent ? 'Current Plan' : plan.price === 0 ? 'Downgrade' : tier === 'free' || !current.tier ? 'Get Started' : 'Upgrade'}
+                {isLoading
+                  ? <Spinner />
+                  : isCurrent
+                    ? '✓ Current Plan'
+                    : plan.price === 0
+                      ? 'Downgrade to Free'
+                      : tier === 'free' || !current.tier
+                        ? `Get ${plan.name} →`
+                        : `Upgrade to ${plan.name} →`}
               </button>
             </div>
           )
         })}
       </div>
 
-      {/* Payout Account Summary */}
-      <div className='pop-card-title pop-section-heading'>Payout Account</div>
+      {/* ── Payout Account Summary ── */}
+      <p className='pop-plans-heading' style={{ marginTop: 8 }}>Payout Account</p>
       <div className='pop-card pop-payout-card'>
         {payout.completed ? (
           <>
             <div className='pop-payout-icon'>
-              <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M9 22V12h6v10M9 7h1M14 7h1M9 12h1M14 12h1'/></svg>
+              <svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#C4E53C' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M9 22V12h6v10M9 7h1M14 7h1M9 12h1M14 12h1'/></svg>
             </div>
             <div className='pop-payout-info'>
               <div className='pop-payout-bank'>{payout.bankName || 'Bank Account'}</div>
@@ -236,13 +300,13 @@ function PlanTab ({ setupStatus, plans, onUpgrade, subscribing }) {
         ) : (
           <div className='pop-payout-empty'>
             <span>
-              <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+              <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#f59e0b' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
                 <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12' y2='17.01'/>
               </svg>
             </span>
             <div>
               <strong>No payout account set up</strong>
-              <p>Complete account setup to receive payments from tenants.</p>
+              <p>Complete account setup to receive payments from tenants and buyers.</p>
             </div>
           </div>
         )}
