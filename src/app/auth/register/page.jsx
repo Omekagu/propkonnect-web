@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Eye, EyeOff, AlertCircle, Home as HomeIcon, Building2, Wrench, CheckCircle2 } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle, Home as HomeIcon, Building2, Wrench, CheckCircle2, Mail, Lock } from 'lucide-react'
 import './register.scss'
 import { auth as authApi } from '@/libs/api'
 
@@ -22,6 +22,7 @@ const NIGERIAN_CITIES = ['Lagos','Abuja','Port Harcourt','Ibadan','Kano','Enugu'
 
 export default function Register () {
   const [userType, setUserType] = useState(null)
+  const [authMethod, setAuthMethod] = useState(null) // 'otp' | 'password'
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -54,8 +55,10 @@ export default function Register () {
     if (!formData.firstName.trim())                             { setError('First name is required'); return false }
     if (!formData.lastName.trim())                              { setError('Last name is required'); return false }
     if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/))   { setError('Invalid email address'); return false }
-    if (formData.password.length < 8)                           { setError('Password must be at least 8 characters'); return false }
-    if (formData.password !== formData.confirmPassword)         { setError('Passwords do not match'); return false }
+    if (authMethod === 'password') {
+      if (formData.password.length < 8)                         { setError('Password must be at least 8 characters'); return false }
+      if (formData.password !== formData.confirmPassword)       { setError('Passwords do not match'); return false }
+    }
     if (!formData.phone.trim())                                 { setError('Phone number is required'); return false }
     if (!formData.agreeToTerms)                                 { setError('You must agree to the terms and conditions'); return false }
     return true
@@ -89,12 +92,15 @@ export default function Register () {
     setError(''); setLoading(true)
     try {
       let res
+      // Strip password fields for OTP-only accounts
+      const { password: _pw, confirmPassword: _cpw, ...formWithoutPassword } = formData
+      const baseData = authMethod === 'otp' ? { ...formWithoutPassword, authMethod: 'otp' } : { ...formData, authMethod: 'password' }
       if (userType === 'PROPERTY_OWNER') {
-        res = await authApi.registerPropertyOwner({ ...formData, ...propertyOwnerData })
+        res = await authApi.registerPropertyOwner({ ...baseData, ...propertyOwnerData })
       } else if (userType === 'artisan') {
-        res = await authApi.registerArtisan({ ...formData, businessName: artisanData.businessName, specialization: artisanData.specialization, yearsOfExperience: artisanData.yearsOfExperience })
+        res = await authApi.registerArtisan({ ...baseData, businessName: artisanData.businessName, specialization: artisanData.specialization, yearsOfExperience: artisanData.yearsOfExperience })
       } else {
-        res = await authApi.register({ ...formData, userType: 'user' })
+        res = await authApi.register({ ...baseData, userType: 'user' })
       }
       const userId = res.data?.userId || res.data?.data?.userId || res.data?._id
       setSuccess(true)
@@ -234,13 +240,51 @@ export default function Register () {
               </>
             )}
 
-            {/* ── Multi-step form ────────────────────────── */}
-            {userType && (
+            {/* ── Auth method selection ──────────────────── */}
+            {userType && !authMethod && (
               <>
                 <div className='rp-badge'>
                   <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? <Building2 size={15} /> : userType === 'user' ? <HomeIcon size={15} /> : <Wrench size={15} />}</span>
                   <span className='rp-badge__label'>{userType === 'PROPERTY_OWNER' ? 'Property Owner' : userType === 'user' ? 'Tenant / Buyer' : 'Artisan'}</span>
-                  <button className='rp-badge__change' onClick={() => { setUserType(null); setStep(1); setError('') }}>Change</button>
+                  <button className='rp-badge__change' onClick={() => { setUserType(null); setAuthMethod(null); setStep(1); setError('') }}>Change</button>
+                </div>
+
+                <p className='rp-step-title' style={{ marginBottom: 6, marginTop: 8 }}>How would you like to sign in?</p>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 20, marginTop: 0 }}>You can always switch methods later in settings.</p>
+
+                <div className='rp-types'>
+                  <button className='rp-type' onClick={() => setAuthMethod('otp')}>
+                    <div className='rp-type__icon'><Mail size={22} /></div>
+                    <div className='rp-type__text'>
+                      <h3>Email Code (OTP)</h3>
+                      <p>Receive a one-time code each time you sign in — no password needed</p>
+                    </div>
+                    <svg className='rp-type__arrow' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'><path d='M9 18l6-6-6-6'/></svg>
+                  </button>
+
+                  <button className='rp-type' onClick={() => setAuthMethod('password')}>
+                    <div className='rp-type__icon'><Lock size={22} /></div>
+                    <div className='rp-type__text'>
+                      <h3>Set a Password</h3>
+                      <p>Create a password to sign in directly without waiting for codes</p>
+                    </div>
+                    <svg className='rp-type__arrow' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'><path d='M9 18l6-6-6-6'/></svg>
+                  </button>
+                </div>
+
+                <div className='rp-footer'>
+                  <p>Already have an account? <a href='/auth/login'>Sign in here</a></p>
+                </div>
+              </>
+            )}
+
+            {/* ── Multi-step form ────────────────────────── */}
+            {userType && authMethod && (
+              <>
+                <div className='rp-badge'>
+                  <span className='rp-badge__icon'>{userType === 'PROPERTY_OWNER' ? <Building2 size={15} /> : userType === 'user' ? <HomeIcon size={15} /> : <Wrench size={15} />}</span>
+                  <span className='rp-badge__label'>{userType === 'PROPERTY_OWNER' ? 'Property Owner' : userType === 'user' ? 'Tenant / Buyer' : 'Artisan'}</span>
+                  <button className='rp-badge__change' onClick={() => { setUserType(null); setAuthMethod(null); setStep(1); setError('') }}>Change</button>
                 </div>
 
                 <div className='rp-progress'>
@@ -282,25 +326,29 @@ export default function Register () {
                         <input className='rp-input' type='tel' name='phone' value={formData.phone} onChange={handle} placeholder='+234 800 000 0000' />
                       </div>
 
-                      <div className='rp-field'>
-                        <label className='rp-label'>Password *</label>
-                        <div className='rp-input-wrap'>
-                          <input className='rp-input rp-input--pw' type={showPassword ? 'text' : 'password'} name='password' value={formData.password} onChange={handle} placeholder='At least 8 characters' />
-                          <button type='button' className='rp-pw-toggle' onClick={() => setShowPassword(p => !p)}>
-                            {showPassword ? <EyeOff size={17}/> : <Eye size={17}/>}
-                          </button>
-                        </div>
-                      </div>
+                      {authMethod === 'password' && (
+                        <>
+                          <div className='rp-field'>
+                            <label className='rp-label'>Password *</label>
+                            <div className='rp-input-wrap'>
+                              <input className='rp-input rp-input--pw' type={showPassword ? 'text' : 'password'} name='password' value={formData.password} onChange={handle} placeholder='At least 8 characters' />
+                              <button type='button' className='rp-pw-toggle' onClick={() => setShowPassword(p => !p)}>
+                                {showPassword ? <EyeOff size={17}/> : <Eye size={17}/>}
+                              </button>
+                            </div>
+                          </div>
 
-                      <div className='rp-field'>
-                        <label className='rp-label'>Confirm Password *</label>
-                        <div className='rp-input-wrap'>
-                          <input className='rp-input rp-input--pw' type={showConfirmPassword ? 'text' : 'password'} name='confirmPassword' value={formData.confirmPassword} onChange={handle} placeholder='Confirm your password' />
-                          <button type='button' className='rp-pw-toggle' onClick={() => setShowConfirmPassword(p => !p)}>
-                            {showConfirmPassword ? <EyeOff size={17}/> : <Eye size={17}/>}
-                          </button>
-                        </div>
-                      </div>
+                          <div className='rp-field'>
+                            <label className='rp-label'>Confirm Password *</label>
+                            <div className='rp-input-wrap'>
+                              <input className='rp-input rp-input--pw' type={showConfirmPassword ? 'text' : 'password'} name='confirmPassword' value={formData.confirmPassword} onChange={handle} placeholder='Confirm your password' />
+                              <button type='button' className='rp-pw-toggle' onClick={() => setShowConfirmPassword(p => !p)}>
+                                {showConfirmPassword ? <EyeOff size={17}/> : <Eye size={17}/>}
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
 
                       <div className='rp-check'>
                         <input type='checkbox' id='agreeToTerms' name='agreeToTerms' checked={formData.agreeToTerms} onChange={handle} />
@@ -504,7 +552,7 @@ export default function Register () {
                   )}
                 </form>
 
-                <button className='rp-back-link' onClick={() => { setUserType(null); setStep(1); setError('') }}>
+                <button className='rp-back-link' onClick={() => { setUserType(null); setAuthMethod(null); setStep(1); setError('') }}>
                   ← Choose a different account type
                 </button>
               </>

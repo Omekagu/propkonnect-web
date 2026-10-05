@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { api } from '@/libs/api-client'
+import Link from 'next/link'
 import './Dashboard.scss'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -116,6 +117,186 @@ function Skeleton () {
         <div className='td-skel-row' />
         <div className='td-skel-row' />
         <div className='td-skel-row' />
+      </div>
+    </div>
+  )
+}
+
+// ── Browse Properties ────────────────────────────────────────────────────────
+const BROWSE_CATS = [
+  { value: '',           label: 'All' },
+  { value: 'Apartment',  label: 'Apartment' },
+  { value: 'House',      label: 'House' },
+  { value: 'Shortlet',   label: 'Shortlet' },
+  { value: 'Hotel',      label: 'Hotel' },
+  { value: 'Land',       label: 'Land' },
+  { value: 'Commercial', label: 'Commercial' },
+]
+
+function getPropImage (p) {
+  const media = p.media || p.images
+  if (Array.isArray(media) && media.length) {
+    const f = media[0]
+    if (typeof f === 'string') return f
+    return f?.url || f?.cloudinaryUrl || null
+  }
+  return p.coverImage || null
+}
+function getPropPrice (p) {
+  const n = v => `₦${Number(v).toLocaleString()}`
+  if (p.purpose === 'For Sale' && p.price)    return n(p.price)
+  if (p.rentPrice)                            return `${n(p.rentPrice)}/mo`
+  if (p.pricePerNight)                        return `${n(p.pricePerNight)}/night`
+  if (p.price)                                return n(p.price)
+  return 'Price on request'
+}
+function getPropLoc (p) {
+  const parts = [p.location?.city || p.city, p.location?.state || p.state]
+  return parts.filter(Boolean).join(', ') || p.location?.address || 'Nigeria'
+}
+
+function BrowsePropCard ({ p }) {
+  const [err, setErr] = useState(false)
+  const img   = getPropImage(p)
+  const price = getPropPrice(p)
+  const loc   = getPropLoc(p)
+  const beds  = p.beds ?? p.bedrooms ?? p.apartment?.bedrooms
+  const baths = p.baths ?? p.bathrooms ?? p.apartment?.bathrooms
+  const tag   = p.purpose === 'For Sale' ? 'sale'
+              : p.category === 'Shortlet' || p.category === 'Hotel' ? 'short'
+              : 'rent'
+  const tagLabel = p.purpose === 'For Sale' ? 'For Sale'
+                 : p.category === 'Shortlet' ? 'Shortlet'
+                 : p.category === 'Hotel' ? 'Hotel'
+                 : 'For Rent'
+
+  return (
+    <Link href={`/property/${p._id}`} className='td-bprop'>
+      <div className='td-bprop__img'>
+        {img && !err
+          ? <img src={img} alt={p.title} onError={() => setErr(true)} loading='lazy' />
+          : <div className='td-bprop__img-fb'>
+              <svg width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>
+            </div>
+        }
+        <span className={`td-bprop__tag td-bprop__tag--${tag}`}>{tagLabel}</span>
+      </div>
+      <div className='td-bprop__body'>
+        <div className='td-bprop__price'>{price}</div>
+        <div className='td-bprop__title'>{p.title}</div>
+        <div className='td-bprop__loc'>
+          <svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/><circle cx='12' cy='10' r='3'/></svg>
+          {loc}
+        </div>
+        {(beds != null || baths != null) && (
+          <div className='td-bprop__meta'>
+            {beds  != null && <span><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M2 4v16'/><path d='M2 8h18a2 2 0 0 1 2 2v10'/><path d='M2 17h20'/><path d='M6 8v9'/></svg>{beds} bed{beds !== 1 ? 's' : ''}</span>}
+            {baths != null && <span><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5'/><line x1='10' y1='5' x2='8' y2='7'/><line x1='2' y1='12' x2='22' y2='12'/></svg>{baths} bath{baths !== 1 ? 's' : ''}</span>}
+          </div>
+        )}
+      </div>
+    </Link>
+  )
+}
+
+function BrowseProperties () {
+  const [q,        setQ]        = useState('')
+  const [cat,      setCat]      = useState('')
+  const [props,    setProps]    = useState([])
+  const [loading,  setLoading]  = useState(true)
+  const [inputVal, setInputVal] = useState('')
+
+  const fetchProps = useCallback(async (query = '', category = '') => {
+    setLoading(true)
+    try {
+      const params = { limit: 8, status: 'active' }
+      if (query)    params.q        = query
+      if (category) params.category = category
+      const res = await api.get('/api/properties/search', { params })
+      const list = res.data?.properties || res.data?.data || res.data || []
+      setProps(Array.isArray(list) ? list : [])
+    } catch {
+      setProps([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { fetchProps(q, cat) }, [q, cat, fetchProps])
+
+  // Debounced search
+  useEffect(() => {
+    const t = setTimeout(() => setQ(inputVal.trim()), 400)
+    return () => clearTimeout(t)
+  }, [inputVal])
+
+  return (
+    <div className='td-browse'>
+      <div className='td-browse__hd'>
+        <div className='td-browse__hd-left'>
+          <span className='td-section-label' style={{ marginBottom: 0 }}>Browse Properties</span>
+          <span className='td-browse__count'>{loading ? '…' : `${props.length} shown`}</span>
+        </div>
+        <Link href='/search' className='td-browse__all'>See all →</Link>
+      </div>
+
+      {/* Search + filter row */}
+      <div className='td-browse__controls'>
+        <div className='td-browse__search'>
+          <svg width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>
+          <input
+            type='text'
+            placeholder='Search by title, city…'
+            value={inputVal}
+            onChange={e => setInputVal(e.target.value)}
+          />
+          {inputVal && (
+            <button onClick={() => { setInputVal(''); setQ('') }}>
+              <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>
+            </button>
+          )}
+        </div>
+        <div className='td-browse__cats'>
+          {BROWSE_CATS.map(c => (
+            <button
+              key={c.value}
+              className={`td-browse__cat${cat === c.value ? ' active' : ''}`}
+              onClick={() => setCat(c.value)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid */}
+      {loading ? (
+        <div className='td-browse__grid'>
+          {[1,2,3,4,5,6,7,8].map(i => (
+            <div key={i} className='td-bprop-skel'>
+              <div className='td-bprop-skel__img' />
+              <div className='td-bprop-skel__body'>
+                <div className='td-bprop-skel__line' style={{ width: '55%' }} />
+                <div className='td-bprop-skel__line' style={{ width: '80%', height: 14 }} />
+                <div className='td-bprop-skel__line' style={{ width: '65%' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : props.length === 0 ? (
+        <div className='td-browse__empty'>
+          <svg width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>
+          <p>No properties found{q ? ` for "${q}"` : ''}.</p>
+          <Link href='/search'>Browse all listings →</Link>
+        </div>
+      ) : (
+        <div className='td-browse__grid'>
+          {props.map(p => <BrowsePropCard key={p._id} p={p} />)}
+        </div>
+      )}
+
+      <div className='td-browse__footer'>
+        <Link href='/search' className='td-browse__footer-btn'>Browse all properties →</Link>
       </div>
     </div>
   )
@@ -258,6 +439,9 @@ export default function TenantDashboard () {
             </div>
           </>
         )}
+
+        {/* ── Browse Properties ── */}
+        <BrowseProperties />
 
         {/* ── Upcoming timeline ── */}
         {upcomingCount > 0 && (

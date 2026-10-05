@@ -17,6 +17,7 @@ export const auth = {
   register: data => api.post('/api/auth/register', data),
   registerArtisan: data => api.post('/api/auth/register/artisan', data),
   login: data => api.post('/api/auth/login', data),
+  loginWithPassword: data => api.post('/api/auth/login/password', data),
   logout: () => api.post('/api/auth/logout'),
   verifyOtp: data => api.post('/api/auth/verify-otp', data),
   resendOtp: data => api.post('/api/auth/resend-otp', data),

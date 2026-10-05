@@ -37,6 +37,9 @@ export default function AuthPage () {
   const [selectedRole, setSelectedRole] = useState(null)
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
+  const [loginMethod, setLoginMethod] = useState('otp') // 'otp' | 'password'
+  const [loginPassword, setLoginPassword] = useState('')
+  const [showLoginPassword, setShowLoginPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -155,9 +158,39 @@ export default function AuthPage () {
     setSelectedRole(role)
     setStep('email')
     setError('')
+    setLoginMethod('otp')
+    setLoginPassword('')
   }
 
   // ── Step actions ───────────────────────────────────────────
+  const handlePasswordLogin = async () => {
+    if (!email) { setError('Please enter your email'); return }
+    if (!loginPassword) { setError('Please enter your password'); return }
+    try {
+      setLoading(true)
+      setError('')
+      setStatus('')
+      const norm = email.trim().toLowerCase()
+      const res = await authApi.loginWithPassword({ email: norm, password: loginPassword })
+      const data = res.data
+      const deviceId = getOrCreateDeviceId()
+      if (data.token) {
+        localStorage.setItem('authToken', data.token)
+        localStorage.setItem('deviceId', deviceId)
+      }
+      if (data.data) localStorage.setItem('userData', JSON.stringify(data.data))
+      window.dispatchEvent(new CustomEvent('authStatusChanged', {
+        detail: { status: 'login', token: data.token, userData: data.data, deviceId }
+      }))
+      setSuccess(true)
+      setTimeout(redirectBasedOnRole, 1800)
+    } catch (err) {
+      setError(err.response?.data?.msg || err.message || 'Invalid email or password')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleContinue = async () => {
     if (!email) {
       setError('Please enter your email')
@@ -487,7 +520,7 @@ export default function AuthPage () {
 
                 <h2 className='lp-h1'>Sign in to your account</h2>
                 <p className='lp-sub'>
-                  Enter your email to receive a verification code
+                  {loginMethod === 'otp' ? 'Enter your email to receive a verification code' : 'Enter your email and password to sign in'}
                 </p>
 
                 <div className='lp-field'>
@@ -523,6 +556,70 @@ export default function AuthPage () {
                   </div>
                 </div>
 
+                {/* ── Sign-in method toggle ─────────────────── */}
+                <div className='lp-method-toggle'>
+                  <button
+                    type='button'
+                    className={`lp-method-btn${loginMethod === 'otp' ? ' active' : ''}`}
+                    onClick={() => { setLoginMethod('otp'); setError('') }}
+                  >
+                    Email Code
+                  </button>
+                  <button
+                    type='button'
+                    className={`lp-method-btn${loginMethod === 'password' ? ' active' : ''}`}
+                    onClick={() => { setLoginMethod('password'); setError('') }}
+                  >
+                    Password
+                  </button>
+                </div>
+
+                {loginMethod === 'password' && (
+                  <div className='lp-field'>
+                    <label className='lp-label'>Password</label>
+                    <div className={`lp-input-wrap lp-input-wrap--pw${codeFocused ? ' focused' : ''}`}>
+                      <svg
+                        className='lp-icon'
+                        width='18'
+                        height='18'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        stroke='currentColor'
+                        strokeWidth='1.8'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                      >
+                        <rect x='3' y='11' width='18' height='11' rx='2' ry='2'/>
+                        <path d='M7 11V7a5 5 0 0 1 10 0v4'/>
+                      </svg>
+                      <input
+                        className='lp-input'
+                        type={showLoginPassword ? 'text' : 'password'}
+                        autoComplete='current-password'
+                        placeholder='Your password'
+                        value={loginPassword}
+                        onChange={e => setLoginPassword(e.target.value)}
+                        onFocus={() => setCodeFocused(true)}
+                        onBlur={() => setCodeFocused(false)}
+                      />
+                      <button
+                        type='button'
+                        className='lp-pw-toggle'
+                        onClick={() => setShowLoginPassword(p => !p)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: '0 12px' }}
+                      >
+                        {showLoginPassword
+                          ? <svg width='17' height='17' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round'><path d='M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24'/><line x1='1' y1='1' x2='23' y2='23'/></svg>
+                          : <svg width='17' height='17' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round'><path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/><circle cx='12' cy='12' r='3'/></svg>
+                        }
+                      </button>
+                    </div>
+                    <div style={{ marginTop: 6, textAlign: 'right' }}>
+                      <a href='/auth/forgot-password' style={{ fontSize: 12, color: 'rgba(196,229,60,0.7)', textDecoration: 'none' }}>Forgot password?</a>
+                    </div>
+                  </div>
+                )}
+
                 {error && (
                   <div className='lp-alert lp-alert--err'>
                     <svg
@@ -557,20 +654,26 @@ export default function AuthPage () {
                     <span>{status}</span>
                   </div>
                 )}
+                {success && (
+                  <div className='lp-alert lp-alert--ok'>
+                    <svg width='16' height='16' viewBox='0 0 20 20' fill='currentColor'>
+                      <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd'/>
+                    </svg>
+                    <span>Signed in! Redirecting...</span>
+                  </div>
+                )}
 
                 <div className='lp-btn-group'>
                   <button
                     className='lp-btn lp-btn--primary'
-                    onClick={handleContinue}
-                    disabled={loading || !email}
+                    onClick={loginMethod === 'password' ? handlePasswordLogin : handleContinue}
+                    disabled={loading || !email || (loginMethod === 'password' && !loginPassword)}
                   >
                     {loading ? (
                       <>
-                        <span className='lp-spinner' /> Sending code...
+                        <span className='lp-spinner' /> {loginMethod === 'password' ? 'Signing in...' : 'Sending code...'}
                       </>
-                    ) : (
-                      'Continue →'
-                    )}
+                    ) : loginMethod === 'password' ? 'Sign In →' : 'Continue →'}
                   </button>
                 </div>
 

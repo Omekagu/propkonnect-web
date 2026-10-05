@@ -997,3 +997,37 @@
   height: 1px;
   overflow: hidden;
 }
+
+// ── Sign-in method toggle ─────────────────────────────────────
+.lp-method-toggle {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.lp-method-btn {
+  flex: 1;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &.active {
+    background: rgba(196, 229, 60, 0.14);
+    color: #c4e53c;
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
