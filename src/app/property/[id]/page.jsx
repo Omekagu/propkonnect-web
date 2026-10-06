@@ -2,7 +2,13 @@
 
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { properties as propertiesApi, bookings as bookingsApi, inspections as inspectionsApi, platformConfig as platformConfigApi, payments as paymentsApi } from '@/libs/api'
+import {
+  properties as propertiesApi,
+  bookings as bookingsApi,
+  inspections as inspectionsApi,
+  platformConfig as platformConfigApi,
+  payments as paymentsApi
+} from '@/libs/api'
 import { decodeId, encodeId } from '@/libs/propId'
 import {
   MapPin,
@@ -97,7 +103,7 @@ function FeatureIcon ({ name }) {
 
 export default function PropertyDetails () {
   const { id: rawSlug } = useParams()
-  const id = decodeId(rawSlug)   // URL-safe base64 slug → real ObjectId
+  const id = decodeId(rawSlug) // URL-safe base64 slug → real ObjectId
   const router = useRouter()
 
   const [property, setProperty] = useState(null)
@@ -244,14 +250,35 @@ export default function PropertyDetails () {
     if (!raw) return
     try {
       const u = JSON.parse(raw)
-      const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || u.name || ''
+      const name =
+        [u.firstName, u.lastName].filter(Boolean).join(' ') || u.name || ''
       const email = u.email || ''
       const phone = u.phone || u.phoneNumber || ''
       if (!name && !email) return
-      setRentForm(f => ({ ...f, renterName: f.renterName || name, renterEmail: f.renterEmail || email, renterPhone: f.renterPhone || phone }))
-      setInspForm(f => ({ ...f, requesterName: f.requesterName || name, requesterEmail: f.requesterEmail || email, requesterPhone: f.requesterPhone || phone }))
-      setPurchForm(f => ({ ...f, buyerName: f.buyerName || name, buyerEmail: f.buyerEmail || email, buyerPhone: f.buyerPhone || phone }))
-      setBookForm(f => ({ ...f, guestName: f.guestName || name, guestEmail: f.guestEmail || email, guestPhone: f.guestPhone || phone }))
+      setRentForm(f => ({
+        ...f,
+        renterName: f.renterName || name,
+        renterEmail: f.renterEmail || email,
+        renterPhone: f.renterPhone || phone
+      }))
+      setInspForm(f => ({
+        ...f,
+        requesterName: f.requesterName || name,
+        requesterEmail: f.requesterEmail || email,
+        requesterPhone: f.requesterPhone || phone
+      }))
+      setPurchForm(f => ({
+        ...f,
+        buyerName: f.buyerName || name,
+        buyerEmail: f.buyerEmail || email,
+        buyerPhone: f.buyerPhone || phone
+      }))
+      setBookForm(f => ({
+        ...f,
+        guestName: f.guestName || name,
+        guestEmail: f.guestEmail || email,
+        guestPhone: f.guestPhone || phone
+      }))
     } catch {}
   }, [])
 
@@ -294,7 +321,11 @@ export default function PropertyDetails () {
     const cat = (property.category || '').toLowerCase()
     if (!['hotel', 'shortlet'].includes(cat)) return
     bookingsApi
-      .checkAvailability({ propertyId: id, checkIn: bookingStart, checkOut: bookingEnd })
+      .checkAvailability({
+        propertyId: id,
+        checkIn: bookingStart,
+        checkOut: bookingEnd
+      })
       .then(r => setLiveAvail(r.data || null))
       .catch(() => setLiveAvail(null))
   }, [id, property, bookingStart, bookingEnd])
@@ -518,6 +549,23 @@ export default function PropertyDetails () {
     }
   }
 
+  const openPaystackPopup = async (accessCode, { onSuccess, onCancel } = {}) => {
+    if (!window.PaystackPop) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script')
+        s.src = 'https://js.paystack.co/v1/inline.js'
+        s.onload = resolve
+        s.onerror = reject
+        document.head.appendChild(s)
+      })
+    }
+    const popup = new window.PaystackPop()
+    popup.resumeTransaction(accessCode, {
+      onSuccess: (txn) => onSuccess?.(txn),
+      onCancel:  () => onCancel?.()
+    })
+  }
+
   const startRent = async () => {
     setRentErr(null)
     const { renterName, renterEmail, renterPhone, moveInDate, message } =
@@ -539,8 +587,11 @@ export default function PropertyDetails () {
         roomQty,
         paymentPlanIdx: selectedPlanIdx >= 0 ? selectedPlanIdx : undefined
       })
-      if (res.data?.authorizationUrl) {
-        window.location.href = res.data.authorizationUrl
+      if (res.data?.accessCode) {
+        openPaystackPopup(res.data.accessCode, {
+          onSuccess: () => { setRentOpen(false) },
+          onCancel:  () => {}
+        })
       } else {
         setRentErr(res.data?.msg || 'Could not initialise payment')
       }
@@ -584,8 +635,11 @@ export default function PropertyDetails () {
         guestEmail: guestEmail.trim().toLowerCase(),
         guestPhone: guestPhone.trim() || undefined
       })
-      if (res.data?.authorizationUrl) {
-        window.location.href = res.data.authorizationUrl
+      if (res.data?.accessCode) {
+        openPaystackPopup(res.data.accessCode, {
+          onSuccess: () => { setBookOpen(false) },
+          onCancel:  () => {}
+        })
       } else {
         setBookErr(res.data?.msg || 'Could not initialise payment')
       }
@@ -626,9 +680,18 @@ export default function PropertyDetails () {
         preferredTime: preferredTime || undefined,
         notes: notes || undefined
       })
-      if (res.data?.authorizationUrl)
-        window.location.href = res.data.authorizationUrl
-      else setInspErr(res.data?.msg || 'Could not initialise payment')
+      if (res.data?.accessCode) {
+        openPaystackPopup(res.data.accessCode, {
+          onSuccess: () => {
+            if (rentOpen)       setRentStep('payment')
+            else if (purchOpen) setPurchStep('payment')
+            else                setInspOpen(false)
+          },
+          onCancel: () => {}
+        })
+      } else {
+        setInspErr(res.data?.msg || 'Could not initialise payment')
+      }
     } catch (e) {
       setInspErr(e.response?.data?.msg || 'Failed — please try again')
     } finally {
@@ -666,8 +729,11 @@ export default function PropertyDetails () {
         roomTypeName: selectedRoomType?.name || undefined,
         roomQty
       })
-      if (res.data?.authorizationUrl) {
-        window.location.href = res.data.authorizationUrl
+      if (res.data?.accessCode) {
+        openPaystackPopup(res.data.accessCode, {
+          onSuccess: () => { setPurchOpen(false) },
+          onCancel:  () => {}
+        })
       } else {
         setPurchErr(res.data?.msg || 'Could not initialise payment')
       }
@@ -688,7 +754,10 @@ export default function PropertyDetails () {
     setSubmittingComment(true)
     setCommentStatus(null)
     try {
-      await propertiesApi.addComment(id, { comment: commentText.trim(), rating: commentRating || undefined })
+      await propertiesApi.addComment(id, {
+        comment: commentText.trim(),
+        rating: commentRating || undefined
+      })
       setCommentText('')
       setCommentRating(0)
       setCommentStatus('pending')
@@ -991,7 +1060,14 @@ export default function PropertyDetails () {
                   <Shield size={11} /> PropNekt Verified
                   {property.compliance?.lastChecked && (
                     <span className='pd-badge-date'>
-                      · Inspected {new Date(property.compliance.lastChecked).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      · Inspected{' '}
+                      {new Date(
+                        property.compliance.lastChecked
+                      ).toLocaleDateString('en-NG', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                      })}
                     </span>
                   )}
                 </span>
@@ -2792,88 +2868,92 @@ export default function PropertyDetails () {
               </div>
             )}
 
-            {isPerNight ? (
-              <div className='pd-booking-dates'>
-                <div className='pd-booking-dates__row'>
-                  <div className='pd-booking-dates__field'>
-                    <label>Check-in</label>
-                    <input
-                      type='date'
-                      value={bookingStart}
-                      onChange={e => setBookingStart(e.target.value)}
-                    />
-                  </div>
-                  <div className='pd-booking-dates__field'>
-                    <label>Check-out</label>
-                    <input
-                      type='date'
-                      value={bookingEnd}
-                      onChange={e => setBookingEnd(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className='pd-booking-field'>
-                  <label>Guests</label>
-                  <input
-                    type='number'
-                    min='1'
-                    value={guests}
-                    onChange={e => setGuests(Number(e.target.value) || 1)}
-                  />
-                </div>
-                {nights > 0 && (
-                  <div className='pd-booking-summary'>
-                    <div>
-                      <span>Nights</span>
-                      <strong>{nights}</strong>
+            {
+              isPerNight ? (
+                <div className='pd-booking-dates'>
+                  <div className='pd-booking-dates__row'>
+                    <div className='pd-booking-dates__field'>
+                      <label>Check-in</label>
+                      <input
+                        type='date'
+                        value={bookingStart}
+                        onChange={e => setBookingStart(e.target.value)}
+                      />
                     </div>
-                    {roomQty > 1 && (
+                    <div className='pd-booking-dates__field'>
+                      <label>Check-out</label>
+                      <input
+                        type='date'
+                        value={bookingEnd}
+                        onChange={e => setBookingEnd(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className='pd-booking-field'>
+                    <label>Guests</label>
+                    <input
+                      type='number'
+                      min='1'
+                      value={guests}
+                      onChange={e => setGuests(Number(e.target.value) || 1)}
+                    />
+                  </div>
+                  {nights > 0 && (
+                    <div className='pd-booking-summary'>
                       <div>
-                        <span>Rooms</span>
-                        <strong>{roomQty}</strong>
+                        <span>Nights</span>
+                        <strong>{nights}</strong>
                       </div>
-                    )}
-                    <div>
-                      <span>Per night</span>
-                      <strong>
-                        {fmt(bookingTotal?.perNight || activePrice, currency)}
-                      </strong>
-                    </div>
-                    <div>
-                      <span>Subtotal</span>
-                      <strong>{fmt(bookingTotal?.total || 0, currency)}</strong>
-                    </div>
-                    {cautionFee && (
+                      {roomQty > 1 && (
+                        <div>
+                          <span>Rooms</span>
+                          <strong>{roomQty}</strong>
+                        </div>
+                      )}
                       <div>
-                        <span>
-                          Caution fee{' '}
-                          <em style={{ fontSize: 10, fontWeight: 400 }}>
-                            (refundable)
-                          </em>
-                        </span>
+                        <span>Per night</span>
+                        <strong>
+                          {fmt(bookingTotal?.perNight || activePrice, currency)}
+                        </strong>
+                      </div>
+                      <div>
+                        <span>Subtotal</span>
+                        <strong>
+                          {fmt(bookingTotal?.total || 0, currency)}
+                        </strong>
+                      </div>
+                      {cautionFee && (
+                        <div>
+                          <span>
+                            Caution fee{' '}
+                            <em style={{ fontSize: 10, fontWeight: 400 }}>
+                              (refundable)
+                            </em>
+                          </span>
+                          <strong>
+                            {fmt(
+                              cautionFee.amount,
+                              cautionFee.currency || currency
+                            )}
+                          </strong>
+                        </div>
+                      )}
+                      <div className='pd-booking-summary__total'>
+                        <span>Total charged</span>
                         <strong>
                           {fmt(
-                            cautionFee.amount,
-                            cautionFee.currency || currency
+                            (bookingTotal?.total || 0) +
+                              (cautionFee ? cautionFee.amount : 0),
+                            currency
                           )}
                         </strong>
                       </div>
-                    )}
-                    <div className='pd-booking-summary__total'>
-                      <span>Total charged</span>
-                      <strong>
-                        {fmt(
-                          (bookingTotal?.total || 0) +
-                            (cautionFee ? cautionFee.amount : 0),
-                          currency
-                        )}
-                      </strong>
                     </div>
-                  </div>
-                )}
-              </div>
-            // PHASE 4+ — payment plan selector in booking widget. Restore when rent financing via lender is live.
-            ) : null /* property.paymentPlans?.length > 0 && (...) */ }
+                  )}
+                </div>
+              ) : // PHASE 4+ — payment plan selector in booking widget. Restore when rent financing via lender is live.
+              null /* property.paymentPlans?.length > 0 && (...) */
+            }
 
             {/* ── Not-actionable banner ─────────────────────────────── */}
             {notActionableMsg && (
@@ -2910,7 +2990,10 @@ export default function PropertyDetails () {
               ) : isRent ? (
                 <button
                   className='pd-cta-btn pd-cta-btn--primary'
-                  onClick={() => { setRentStep('inspection'); setRentOpen(true) }}
+                  onClick={() => {
+                    setRentStep('inspection')
+                    setRentOpen(true)
+                  }}
                   disabled={!isActionable}
                 >
                   <CreditCard size={14} /> Rent Now
@@ -2919,7 +3002,10 @@ export default function PropertyDetails () {
                 /* For sale / commercial / land */
                 <button
                   className='pd-cta-btn pd-cta-btn--primary'
-                  onClick={() => { setPurchStep('inspection'); setPurchOpen(true) }}
+                  onClick={() => {
+                    setPurchStep('inspection')
+                    setPurchOpen(true)
+                  }}
                   disabled={!isActionable}
                 >
                   <CreditCard size={14} /> Buy / Pay Now
@@ -3062,21 +3148,92 @@ export default function PropertyDetails () {
       {/* ── Rent Now Modal ───────────────────────────────────────────── */}
       {rentOpen && (
         <div className='pd-modal-backdrop' onClick={() => setRentOpen(false)}>
-          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
-            <button className='pd-modal__close' onClick={() => setRentOpen(false)}><X size={16} /></button>
+          <div
+            className='pd-modal pd-modal--booking'
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className='pd-modal__close'
+              onClick={() => setRentOpen(false)}
+            >
+              <X size={16} />
+            </button>
 
             {/* Step indicator */}
-            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:16, fontSize:13 }}>
-              <span style={{ display:'flex', alignItems:'center', gap:5, fontWeight: rentStep === 'inspection' ? 700 : 400 }}>
-                <span style={{ width:20, height:20, borderRadius:'50%', background:'#C4E53C', color:'#0B3D28', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:800, flexShrink:0 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 16,
+                fontSize: 13
+              }}
+            >
+              <span
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontWeight: rentStep === 'inspection' ? 700 : 400
+                }}
+              >
+                <span
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: '#C4E53C',
+                    color: '#0B3D28',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 10,
+                    fontWeight: 800,
+                    flexShrink: 0
+                  }}
+                >
                   {rentStep === 'payment' ? '✓' : '1'}
                 </span>
-                <span style={{ color: rentStep === 'payment' ? '#C4E53C' : '#fff' }}>Inspection</span>
+                <span
+                  style={{ color: rentStep === 'payment' ? '#C4E53C' : '#fff' }}
+                >
+                  Inspection
+                </span>
               </span>
-              <span style={{ color:'#7d8590' }}>→</span>
-              <span style={{ display:'flex', alignItems:'center', gap:5, fontWeight: rentStep === 'payment' ? 700 : 400 }}>
-                <span style={{ width:20, height:20, borderRadius:'50%', background: rentStep === 'payment' ? '#C4E53C' : 'rgba(255,255,255,0.15)', color: rentStep === 'payment' ? '#0B3D28' : '#7d8590', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:800, flexShrink:0 }}>2</span>
-                <span style={{ color: rentStep === 'payment' ? '#fff' : '#7d8590' }}>Payment</span>
+              <span style={{ color: '#7d8590' }}>→</span>
+              <span
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontWeight: rentStep === 'payment' ? 700 : 400
+                }}
+              >
+                <span
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background:
+                      rentStep === 'payment'
+                        ? '#C4E53C'
+                        : 'rgba(255,255,255,0.15)',
+                    color: rentStep === 'payment' ? '#0B3D28' : '#7d8590',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 10,
+                    fontWeight: 800,
+                    flexShrink: 0
+                  }}
+                >
+                  2
+                </span>
+                <span
+                  style={{ color: rentStep === 'payment' ? '#fff' : '#7d8590' }}
+                >
+                  Payment
+                </span>
               </span>
             </div>
 
@@ -3087,40 +3244,106 @@ export default function PropertyDetails () {
                 <p className='pd-modal__sub'>{property.title}</p>
                 {platformInspFee?.amount > 0 && (
                   <div className='pd-modal__row'>
-                    <span><Shield size={13} /> Inspection fee: <strong>{fmt(platformInspFee.amount, platformInspFee.currency || currency)}</strong></span>
-                    <span style={{ color:'#c53030', fontSize:12 }}>Non-refundable</span>
+                    <span>
+                      <Shield size={13} /> Inspection fee:{' '}
+                      <strong>
+                        {fmt(
+                          platformInspFee.amount,
+                          platformInspFee.currency || currency
+                        )}
+                      </strong>
+                    </span>
+                    <span style={{ color: '#c53030', fontSize: 12 }}>
+                      Non-refundable
+                    </span>
                   </div>
                 )}
                 {inspErr && <p className='pd-modal__err'>{inspErr}</p>}
                 <label>Full name *</label>
-                <input type='text' placeholder='Your full name' value={inspForm.requesterName} onChange={e => setInspForm(f => ({ ...f, requesterName: e.target.value }))} />
+                <input
+                  type='text'
+                  placeholder='Your full name'
+                  value={inspForm.requesterName}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, requesterName: e.target.value }))
+                  }
+                />
                 <label>Email *</label>
-                <input type='email' placeholder='your@email.com' value={inspForm.requesterEmail} onChange={e => setInspForm(f => ({ ...f, requesterEmail: e.target.value }))} />
+                <input
+                  type='email'
+                  placeholder='your@email.com'
+                  value={inspForm.requesterEmail}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, requesterEmail: e.target.value }))
+                  }
+                />
                 <label>Phone</label>
-                <input type='tel' placeholder='+234 800 000 0000' value={inspForm.requesterPhone} onChange={e => setInspForm(f => ({ ...f, requesterPhone: e.target.value }))} />
+                <input
+                  type='tel'
+                  placeholder='+234 800 000 0000'
+                  value={inspForm.requesterPhone}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, requesterPhone: e.target.value }))
+                  }
+                />
                 <label>Preferred inspection date *</label>
-                <input type='date' value={inspForm.preferredDate} min={today} onChange={e => setInspForm(f => ({ ...f, preferredDate: e.target.value }))} />
+                <input
+                  type='date'
+                  value={inspForm.preferredDate}
+                  min={today}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, preferredDate: e.target.value }))
+                  }
+                />
                 <label>Preferred time</label>
-                <input type='time' value={inspForm.preferredTime} onChange={e => setInspForm(f => ({ ...f, preferredTime: e.target.value }))} />
+                <input
+                  type='time'
+                  value={inspForm.preferredTime}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, preferredTime: e.target.value }))
+                  }
+                />
                 <label>Notes for the owner (optional)</label>
-                <textarea rows={2} placeholder='Any specific areas you want to inspect?' value={inspForm.notes} onChange={e => setInspForm(f => ({ ...f, notes: e.target.value }))}
-                  style={{ width:'100%', padding:'8px 10px', border:'1.5px solid rgba(255,255,255,0.18)', borderRadius:8, fontFamily:'inherit', fontSize:14, boxSizing:'border-box', background:'rgba(255,255,255,0.09)', color:'#dff0e4', colorScheme:'dark', display:'block' }} />
+                <textarea
+                  rows={3}
+                  placeholder='Any specific areas you want to inspect?'
+                  value={inspForm.notes}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, notes: e.target.value }))
+                  }
+                />
                 <p className='pd-modal__note'>
-                  <AlertCircle size={11} /> An inspection confirms the property's condition before you commit. Pay the fee to secure your viewing slot.
+                  <AlertCircle size={11} /> An inspection confirms the
+                  property's condition before you commit. Pay the fee to secure
+                  your viewing slot.
                 </p>
                 <div className='pd-modal__actions'>
-                  <button className='pd-cta-btn pd-cta-btn--primary' onClick={startInspection} disabled={inspLoading}>
-                    {inspLoading ? 'Redirecting…' : platformInspFee?.amount > 0 ? `Book Inspection & Pay ${fmt(platformInspFee.amount, platformInspFee.currency || currency)}` : 'Book Inspection'}
+                  <button
+                    className='pd-cta-btn pd-cta-btn--primary'
+                    onClick={startInspection}
+                    disabled={inspLoading}
+                  >
+                    {inspLoading
+                      ? 'Redirecting…'
+                      : platformInspFee?.amount > 0
+                      ? `Book Inspection & Pay ${fmt(
+                          platformInspFee.amount,
+                          platformInspFee.currency || currency
+                        )}`
+                      : 'Book Inspection'}
                   </button>
-                  <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => {
-                    setRentForm(f => ({
-                      ...f,
-                      renterName: f.renterName || inspForm.requesterName,
-                      renterEmail: f.renterEmail || inspForm.requesterEmail,
-                      renterPhone: f.renterPhone || inspForm.requesterPhone
-                    }))
-                    setRentStep('payment')
-                  }}>
+                  <button
+                    className='pd-cta-btn pd-cta-btn--outline'
+                    onClick={() => {
+                      setRentForm(f => ({
+                        ...f,
+                        renterName: f.renterName || inspForm.requesterName,
+                        renterEmail: f.renterEmail || inspForm.requesterEmail,
+                        renterPhone: f.renterPhone || inspForm.requesterPhone
+                      }))
+                      setRentStep('payment')
+                    }}
+                  >
                     Already had an inspection →
                   </button>
                 </div>
@@ -3130,29 +3353,97 @@ export default function PropertyDetails () {
             {/* ── Step 2: Payment ── */}
             {rentStep === 'payment' && (
               <>
-                <h3>{(property?.purpose || '').toLowerCase().includes('lease') ? 'Lease Property' : 'Rent Property'}</h3>
+                <h3>
+                  {(property?.purpose || '').toLowerCase().includes('lease')
+                    ? 'Lease Property'
+                    : 'Rent Property'}
+                </h3>
                 <p className='pd-modal__sub'>{property.title}</p>
                 {rentErr && <p className='pd-modal__err'>{rentErr}</p>}
                 <label>Full name *</label>
-                <input type='text' placeholder='Your full name' value={rentForm.renterName} onChange={e => setRentForm(f => ({ ...f, renterName: e.target.value }))} />
+                <input
+                  type='text'
+                  placeholder='Your full name'
+                  value={rentForm.renterName}
+                  onChange={e =>
+                    setRentForm(f => ({ ...f, renterName: e.target.value }))
+                  }
+                />
                 <label>Email address *</label>
-                <input type='email' placeholder='your@email.com' value={rentForm.renterEmail} onChange={e => setRentForm(f => ({ ...f, renterEmail: e.target.value }))} />
+                <input
+                  type='email'
+                  placeholder='your@email.com'
+                  value={rentForm.renterEmail}
+                  onChange={e =>
+                    setRentForm(f => ({ ...f, renterEmail: e.target.value }))
+                  }
+                />
                 <label>Phone number</label>
-                <input type='tel' placeholder='+234 800 000 0000' value={rentForm.renterPhone} onChange={e => setRentForm(f => ({ ...f, renterPhone: e.target.value }))} />
+                <input
+                  type='tel'
+                  placeholder='+234 800 000 0000'
+                  value={rentForm.renterPhone}
+                  onChange={e =>
+                    setRentForm(f => ({ ...f, renterPhone: e.target.value }))
+                  }
+                />
                 <label>Preferred move-in date</label>
-                <input type='date' value={rentForm.moveInDate} min={today} onChange={e => setRentForm(f => ({ ...f, moveInDate: e.target.value }))} />
+                <input
+                  type='date'
+                  value={rentForm.moveInDate}
+                  min={today}
+                  onChange={e =>
+                    setRentForm(f => ({ ...f, moveInDate: e.target.value }))
+                  }
+                />
                 <label>Message to landlord (optional)</label>
-                <textarea rows={4} placeholder='Introduce yourself…' value={rentForm.message} onChange={e => setRentForm(f => ({ ...f, message: e.target.value }))}
-                  style={{ width:'100%', minHeight:90, padding:'11px 13px', border:'1.5px solid rgba(255,255,255,0.18)', borderRadius:11, fontSize:14, fontFamily:'inherit', resize:'vertical', boxSizing:'border-box', background:'rgba(255,255,255,0.09)', color:'#dff0e4', colorScheme:'dark', display:'block' }} />
+                <textarea
+                  rows={4}
+                  placeholder='Introduce yourself…'
+                  value={rentForm.message}
+                  onChange={e =>
+                    setRentForm(f => ({ ...f, message: e.target.value }))
+                  }
+                  style={{
+                    width: '100%',
+                    minHeight: 90,
+                    padding: '11px 13px',
+                    border: '1.5px solid rgba(255,255,255,0.18)',
+                    borderRadius: 11,
+                    fontSize: 14,
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    boxSizing: 'border-box',
+                    background: 'rgba(255,255,255,0.09)',
+                    color: '#dff0e4',
+                    colorScheme: 'dark',
+                    display: 'block'
+                  }}
+                />
                 <div className='pd-booking-summary pd-booking-summary--modal'>
                   <div>
-                    <span>Rent ({property.rentFrequency || 'monthly'}){roomQty > 1 ? ` × ${roomQty}` : ''}</span>
-                    <strong>{fmt((activePrice || 0) * roomQty, currency)}</strong>
+                    <span>
+                      Rent ({property.rentFrequency || 'monthly'})
+                      {roomQty > 1 ? ` × ${roomQty}` : ''}
+                    </span>
+                    <strong>
+                      {fmt((activePrice || 0) * roomQty, currency)}
+                    </strong>
                   </div>
                   {property.cautionFee?.required && (
                     <div>
-                      <span>Security deposit <em style={{ fontSize:10, fontWeight:400 }}>(refundable)</em></span>
-                      <strong>{fmt(property.cautionFee.amount, property.cautionFee.currency || currency)}</strong>
+                      <span>
+                        Security deposit{' '}
+                        <em style={{ fontSize: 10, fontWeight: 400 }}>
+                          (refundable)
+                        </em>
+                      </span>
+                      <strong>
+                        {fmt(
+                          property.cautionFee.amount,
+                          property.cautionFee.currency || currency
+                        )}
+                      </strong>
                     </div>
                   )}
                   <div className='pd-booking-summary__total'>
@@ -3161,13 +3452,33 @@ export default function PropertyDetails () {
                   </div>
                 </div>
                 <p className='pd-modal__note'>
-                  <Shield size={11} /> Secured by propnekt Escrow · Funds released to landlord after move-in confirmed
+                  <Shield size={11} /> Secured by propnekt Escrow · Funds
+                  released to landlord after move-in confirmed
                 </p>
                 <div className='pd-modal__actions'>
-                  <button className='pd-cta-btn pd-cta-btn--primary' onClick={startRent} disabled={renting}>
-                    {renting ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Redirecting…</> : `Pay ${fmt(planDisplayPrice, currency)} Now`}
+                  <button
+                    className='pd-cta-btn pd-cta-btn--primary'
+                    onClick={startRent}
+                    disabled={renting}
+                  >
+                    {renting ? (
+                      <>
+                        <Loader2
+                          size={14}
+                          style={{ animation: 'spin 1s linear infinite' }}
+                        />{' '}
+                        Redirecting…
+                      </>
+                    ) : (
+                      `Pay ${fmt(planDisplayPrice, currency)} Now`
+                    )}
                   </button>
-                  <button className='pd-cta-btn pd-cta-btn--ghost' onClick={() => setRentStep('inspection')}>← Back to Inspection</button>
+                  <button
+                    className='pd-cta-btn pd-cta-btn--ghost'
+                    onClick={() => setRentStep('inspection')}
+                  >
+                    ← Back to Inspection
+                  </button>
                 </div>
               </>
             )}
@@ -3251,21 +3562,12 @@ export default function PropertyDetails () {
             />
             <label>Notes for the owner</label>
             <textarea
-              rows={2}
+              rows={3}
               placeholder='Any specific areas you want to inspect?'
               value={inspForm.notes}
               onChange={e =>
                 setInspForm(f => ({ ...f, notes: e.target.value }))
               }
-              style={{
-                width: '100%',
-                padding: '8px 10px',
-                border: '1.5px solid #e5e7eb',
-                borderRadius: 8,
-                fontFamily: 'inherit',
-                fontSize: 14,
-                boxSizing: 'border-box'
-              }}
             />
             <p className='pd-modal__note'>
               <AlertCircle size={11} /> The{' '}
@@ -3305,21 +3607,96 @@ export default function PropertyDetails () {
       {/* ── Purchase Modal (for-sale / commercial properties) ────────── */}
       {purchOpen && (
         <div className='pd-modal-backdrop' onClick={() => setPurchOpen(false)}>
-          <div className='pd-modal pd-modal--booking' onClick={e => e.stopPropagation()}>
-            <button className='pd-modal__close' onClick={() => setPurchOpen(false)}><X size={16} /></button>
+          <div
+            className='pd-modal pd-modal--booking'
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className='pd-modal__close'
+              onClick={() => setPurchOpen(false)}
+            >
+              <X size={16} />
+            </button>
 
             {/* Step indicator */}
-            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:16, fontSize:13 }}>
-              <span style={{ display:'flex', alignItems:'center', gap:5, fontWeight: purchStep === 'inspection' ? 700 : 400 }}>
-                <span style={{ width:20, height:20, borderRadius:'50%', background:'#C4E53C', color:'#0B3D28', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:800, flexShrink:0 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 16,
+                fontSize: 13
+              }}
+            >
+              <span
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontWeight: purchStep === 'inspection' ? 700 : 400
+                }}
+              >
+                <span
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: '#C4E53C',
+                    color: '#0B3D28',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 10,
+                    fontWeight: 800,
+                    flexShrink: 0
+                  }}
+                >
                   {purchStep === 'payment' ? '✓' : '1'}
                 </span>
-                <span style={{ color: purchStep === 'payment' ? '#C4E53C' : '#fff' }}>Inspection</span>
+                <span
+                  style={{
+                    color: purchStep === 'payment' ? '#C4E53C' : '#fff'
+                  }}
+                >
+                  Inspection
+                </span>
               </span>
-              <span style={{ color:'#7d8590' }}>→</span>
-              <span style={{ display:'flex', alignItems:'center', gap:5, fontWeight: purchStep === 'payment' ? 700 : 400 }}>
-                <span style={{ width:20, height:20, borderRadius:'50%', background: purchStep === 'payment' ? '#C4E53C' : 'rgba(255,255,255,0.15)', color: purchStep === 'payment' ? '#0B3D28' : '#7d8590', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:800, flexShrink:0 }}>2</span>
-                <span style={{ color: purchStep === 'payment' ? '#fff' : '#7d8590' }}>Payment</span>
+              <span style={{ color: '#7d8590' }}>→</span>
+              <span
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontWeight: purchStep === 'payment' ? 700 : 400
+                }}
+              >
+                <span
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background:
+                      purchStep === 'payment'
+                        ? '#C4E53C'
+                        : 'rgba(255,255,255,0.15)',
+                    color: purchStep === 'payment' ? '#0B3D28' : '#7d8590',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 10,
+                    fontWeight: 800,
+                    flexShrink: 0
+                  }}
+                >
+                  2
+                </span>
+                <span
+                  style={{
+                    color: purchStep === 'payment' ? '#fff' : '#7d8590'
+                  }}
+                >
+                  Payment
+                </span>
               </span>
             </div>
 
@@ -3330,40 +3707,105 @@ export default function PropertyDetails () {
                 <p className='pd-modal__sub'>{property.title}</p>
                 {platformInspFee?.amount > 0 && (
                   <div className='pd-modal__row'>
-                    <span><Shield size={13} /> Inspection fee: <strong>{fmt(platformInspFee.amount, platformInspFee.currency || currency)}</strong></span>
-                    <span style={{ color:'#c53030', fontSize:12 }}>Non-refundable</span>
+                    <span>
+                      <Shield size={13} /> Inspection fee:{' '}
+                      <strong>
+                        {fmt(
+                          platformInspFee.amount,
+                          platformInspFee.currency || currency
+                        )}
+                      </strong>
+                    </span>
+                    <span style={{ color: '#c53030', fontSize: 12 }}>
+                      Non-refundable
+                    </span>
                   </div>
                 )}
                 {inspErr && <p className='pd-modal__err'>{inspErr}</p>}
                 <label>Full name *</label>
-                <input type='text' placeholder='Your full name' value={inspForm.requesterName} onChange={e => setInspForm(f => ({ ...f, requesterName: e.target.value }))} />
+                <input
+                  type='text'
+                  placeholder='Your full name'
+                  value={inspForm.requesterName}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, requesterName: e.target.value }))
+                  }
+                />
                 <label>Email *</label>
-                <input type='email' placeholder='your@email.com' value={inspForm.requesterEmail} onChange={e => setInspForm(f => ({ ...f, requesterEmail: e.target.value }))} />
+                <input
+                  type='email'
+                  placeholder='your@email.com'
+                  value={inspForm.requesterEmail}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, requesterEmail: e.target.value }))
+                  }
+                />
                 <label>Phone</label>
-                <input type='tel' placeholder='+234 800 000 0000' value={inspForm.requesterPhone} onChange={e => setInspForm(f => ({ ...f, requesterPhone: e.target.value }))} />
+                <input
+                  type='tel'
+                  placeholder='+234 800 000 0000'
+                  value={inspForm.requesterPhone}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, requesterPhone: e.target.value }))
+                  }
+                />
                 <label>Preferred inspection date *</label>
-                <input type='date' value={inspForm.preferredDate} min={today} onChange={e => setInspForm(f => ({ ...f, preferredDate: e.target.value }))} />
+                <input
+                  type='date'
+                  value={inspForm.preferredDate}
+                  min={today}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, preferredDate: e.target.value }))
+                  }
+                />
                 <label>Preferred time</label>
-                <input type='time' value={inspForm.preferredTime} onChange={e => setInspForm(f => ({ ...f, preferredTime: e.target.value }))} />
+                <input
+                  type='time'
+                  value={inspForm.preferredTime}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, preferredTime: e.target.value }))
+                  }
+                />
                 <label>Notes for the owner (optional)</label>
-                <textarea rows={2} placeholder='Any specific areas you want to inspect?' value={inspForm.notes} onChange={e => setInspForm(f => ({ ...f, notes: e.target.value }))}
-                  style={{ width:'100%', padding:'8px 10px', border:'1.5px solid rgba(255,255,255,0.18)', borderRadius:8, fontFamily:'inherit', fontSize:14, boxSizing:'border-box', background:'rgba(255,255,255,0.09)', color:'#dff0e4', colorScheme:'dark', display:'block' }} />
+                <textarea
+                  rows={3}
+                  placeholder='Any specific areas you want to inspect?'
+                  value={inspForm.notes}
+                  onChange={e =>
+                    setInspForm(f => ({ ...f, notes: e.target.value }))
+                  }
+                />
                 <p className='pd-modal__note'>
-                  <AlertCircle size={11} /> Inspect the property in person before purchasing. Pay the fee to confirm your viewing slot.
+                  <AlertCircle size={11} /> Inspect the property in person
+                  before purchasing. Pay the fee to confirm your viewing slot.
                 </p>
                 <div className='pd-modal__actions'>
-                  <button className='pd-cta-btn pd-cta-btn--primary' onClick={startInspection} disabled={inspLoading}>
-                    {inspLoading ? 'Redirecting…' : platformInspFee?.amount > 0 ? `Book Inspection & Pay ${fmt(platformInspFee.amount, platformInspFee.currency || currency)}` : 'Book Inspection'}
+                  <button
+                    className='pd-cta-btn pd-cta-btn--primary'
+                    onClick={startInspection}
+                    disabled={inspLoading}
+                  >
+                    {inspLoading
+                      ? 'Redirecting…'
+                      : platformInspFee?.amount > 0
+                      ? `Book Inspection & Pay ${fmt(
+                          platformInspFee.amount,
+                          platformInspFee.currency || currency
+                        )}`
+                      : 'Book Inspection'}
                   </button>
-                  <button className='pd-cta-btn pd-cta-btn--outline' onClick={() => {
-                    setPurchForm(f => ({
-                      ...f,
-                      buyerName: f.buyerName || inspForm.requesterName,
-                      buyerEmail: f.buyerEmail || inspForm.requesterEmail,
-                      buyerPhone: f.buyerPhone || inspForm.requesterPhone
-                    }))
-                    setPurchStep('payment')
-                  }}>
+                  <button
+                    className='pd-cta-btn pd-cta-btn--outline'
+                    onClick={() => {
+                      setPurchForm(f => ({
+                        ...f,
+                        buyerName: f.buyerName || inspForm.requesterName,
+                        buyerEmail: f.buyerEmail || inspForm.requesterEmail,
+                        buyerPhone: f.buyerPhone || inspForm.requesterPhone
+                      }))
+                      setPurchStep('payment')
+                    }}
+                  >
                     Already had an inspection →
                   </button>
                 </div>
@@ -3371,110 +3813,139 @@ export default function PropertyDetails () {
             )}
 
             {/* ── Step 2: Payment ── */}
-            {purchStep === 'payment' && (<>
-            <h3>Purchase Property</h3>
-            <p className='pd-modal__sub'>{property.title}</p>
+            {purchStep === 'payment' && (
+              <>
+                <h3>Purchase Property</h3>
+                <p className='pd-modal__sub'>{property.title}</p>
 
-            {/* PHASE 4+ — Payment plan selector for purchase. Restore when installment purchase feature is active. */}
-            {false && property.paymentPlans?.length > 0 && (
-              <div style={{ marginBottom: 14 }}>
-                <label>Payment plan</label>
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: 8,
-                    flexWrap: 'wrap',
-                    marginTop: 6
-                  }}
-                >
-                  {property.paymentPlans.map((p, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setPurchPlanIdx(i)}
+                {/* PHASE 4+ — Payment plan selector for purchase. Restore when installment purchase feature is active. */}
+                {false && property.paymentPlans?.length > 0 && (
+                  <div style={{ marginBottom: 14 }}>
+                    <label>Payment plan</label>
+                    <div
                       style={{
-                        flex: '1 1 auto',
-                        padding: '8px 12px',
-                        borderRadius: 8,
-                        border: `2px solid ${
-                          purchPlanIdx === i
-                            ? 'var(--color-primary)'
-                            : '#e5e7eb'
-                        }`,
-                        background: purchPlanIdx === i ? '#e8f5e9' : '#fafafa',
-                        cursor: 'pointer',
-                        fontSize: 13,
-                        fontWeight: purchPlanIdx === i ? 700 : 500,
-                        color:
-                          purchPlanIdx === i ? 'var(--color-primary)' : '#444',
-                        textAlign: 'center'
+                        display: 'flex',
+                        gap: 8,
+                        flexWrap: 'wrap',
+                        marginTop: 6
                       }}
                     >
-                      <div>{p.name || `Plan ${i + 1}`}</div>
-                      {(p.priceSnapshot?.total || p.price) && (
-                        <div style={{ fontSize: 12, marginTop: 2 }}>
-                          {fmt(p.priceSnapshot?.total || p.price, currency)}
-                        </div>
-                      )}
-                      {p.installments?.length > 0 && (
-                        <div style={{ fontSize: 10, opacity: 0.7 }}>
-                          {p.installments
-                            .map((inst, j) => `${inst.percent}%`)
-                            .join(' · ')}
-                        </div>
-                      )}
-                    </button>
-                  ))}
+                      {property.paymentPlans.map((p, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setPurchPlanIdx(i)}
+                          style={{
+                            flex: '1 1 auto',
+                            padding: '8px 12px',
+                            borderRadius: 8,
+                            border: `2px solid ${
+                              purchPlanIdx === i
+                                ? 'var(--color-primary)'
+                                : '#e5e7eb'
+                            }`,
+                            background:
+                              purchPlanIdx === i ? '#e8f5e9' : '#fafafa',
+                            cursor: 'pointer',
+                            fontSize: 13,
+                            fontWeight: purchPlanIdx === i ? 700 : 500,
+                            color:
+                              purchPlanIdx === i
+                                ? 'var(--color-primary)'
+                                : '#444',
+                            textAlign: 'center'
+                          }}
+                        >
+                          <div>{p.name || `Plan ${i + 1}`}</div>
+                          {(p.priceSnapshot?.total || p.price) && (
+                            <div style={{ fontSize: 12, marginTop: 2 }}>
+                              {fmt(p.priceSnapshot?.total || p.price, currency)}
+                            </div>
+                          )}
+                          {p.installments?.length > 0 && (
+                            <div style={{ fontSize: 10, opacity: 0.7 }}>
+                              {p.installments
+                                .map((inst, j) => `${inst.percent}%`)
+                                .join(' · ')}
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {purchErr && <p className='pd-modal__err'>{purchErr}</p>}
+                <label>Full name *</label>
+                <input
+                  type='text'
+                  placeholder='Your full name'
+                  value={purchForm.buyerName}
+                  onChange={e =>
+                    setPurchForm(f => ({ ...f, buyerName: e.target.value }))
+                  }
+                />
+                <label>Email address *</label>
+                <input
+                  type='email'
+                  placeholder='your@email.com'
+                  value={purchForm.buyerEmail}
+                  onChange={e =>
+                    setPurchForm(f => ({ ...f, buyerEmail: e.target.value }))
+                  }
+                />
+                <label>Phone number</label>
+                <input
+                  type='tel'
+                  placeholder='+234 800 000 0000'
+                  value={purchForm.buyerPhone}
+                  onChange={e =>
+                    setPurchForm(f => ({ ...f, buyerPhone: e.target.value }))
+                  }
+                />
+
+                {/* Price summary */}
+                <div className='pd-booking-summary pd-booking-summary--modal'>
+                  {/* PHASE 4+ — installment plan breakdown. For now always show full price. */}
+                  <div className='pd-booking-summary__total'>
+                    <span>Purchase price</span>
+                    <strong>{fmt(effectivePrice, currency)}</strong>
+                  </div>
                 </div>
-              </div>
+                <p className='pd-modal__note'>
+                  <Shield size={11} /> Secured by propnekt Escrow · Payment held
+                  until ownership transfer confirmed
+                </p>
+                <div className='pd-modal__actions'>
+                  <button
+                    className='pd-cta-btn pd-cta-btn--primary'
+                    onClick={startPurchase}
+                    disabled={purchasing}
+                  >
+                    {purchasing ? (
+                      <>
+                        <Loader2
+                          size={14}
+                          style={{ animation: 'spin 1s linear infinite' }}
+                        />{' '}
+                        Redirecting…
+                      </>
+                    ) : (
+                      `Proceed to Pay ${fmt(
+                        property.paymentPlans?.[purchPlanIdx]?.priceSnapshot
+                          ?.total || effectivePrice,
+                        currency
+                      )}`
+                    )}
+                  </button>
+                  <button
+                    className='pd-cta-btn pd-cta-btn--ghost'
+                    onClick={() => setPurchStep('inspection')}
+                  >
+                    ← Back to Inspection
+                  </button>
+                </div>
+              </>
             )}
-
-            {purchErr && <p className='pd-modal__err'>{purchErr}</p>}
-            <label>Full name *</label>
-            <input
-              type='text'
-              placeholder='Your full name'
-              value={purchForm.buyerName}
-              onChange={e =>
-                setPurchForm(f => ({ ...f, buyerName: e.target.value }))
-              }
-            />
-            <label>Email address *</label>
-            <input
-              type='email'
-              placeholder='your@email.com'
-              value={purchForm.buyerEmail}
-              onChange={e =>
-                setPurchForm(f => ({ ...f, buyerEmail: e.target.value }))
-              }
-            />
-            <label>Phone number</label>
-            <input
-              type='tel'
-              placeholder='+234 800 000 0000'
-              value={purchForm.buyerPhone}
-              onChange={e =>
-                setPurchForm(f => ({ ...f, buyerPhone: e.target.value }))
-              }
-            />
-
-            {/* Price summary */}
-            <div className='pd-booking-summary pd-booking-summary--modal'>
-              {/* PHASE 4+ — installment plan breakdown. For now always show full price. */}
-              <div className='pd-booking-summary__total'>
-                <span>Purchase price</span>
-                <strong>{fmt(effectivePrice, currency)}</strong>
-              </div>
-            </div>
-            <p className='pd-modal__note'>
-              <Shield size={11} /> Secured by propnekt Escrow · Payment held until ownership transfer confirmed
-            </p>
-            <div className='pd-modal__actions'>
-              <button className='pd-cta-btn pd-cta-btn--primary' onClick={startPurchase} disabled={purchasing}>
-                {purchasing ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Redirecting…</> : `Proceed to Pay ${fmt(property.paymentPlans?.[purchPlanIdx]?.priceSnapshot?.total || effectivePrice, currency)}`}
-              </button>
-              <button className='pd-cta-btn pd-cta-btn--ghost' onClick={() => setPurchStep('inspection')}>← Back to Inspection</button>
-            </div>
-            </>)}
           </div>
         </div>
       )}
@@ -3687,7 +4158,10 @@ export default function PropertyDetails () {
         ) : isRent ? (
           <button
             className='pd-cta-btn pd-cta-btn--primary'
-            onClick={() => { setRentStep('inspection'); setRentOpen(true) }}
+            onClick={() => {
+              setRentStep('inspection')
+              setRentOpen(true)
+            }}
             disabled={!isActionable}
           >
             <CreditCard size={14} /> Rent Now
@@ -3695,7 +4169,10 @@ export default function PropertyDetails () {
         ) : (
           <button
             className='pd-cta-btn pd-cta-btn--primary'
-            onClick={() => { setPurchStep('inspection'); setPurchOpen(true) }}
+            onClick={() => {
+              setPurchStep('inspection')
+              setPurchOpen(true)
+            }}
             disabled={!isActionable}
           >
             <CreditCard size={14} /> Buy Now
