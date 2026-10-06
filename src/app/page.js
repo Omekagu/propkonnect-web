@@ -170,11 +170,11 @@ function artisanTradeIcon (spec) {
 export default function LandingPage () {
   const router = useRouter()
 
-  useEffect(() => {
-    if (localStorage.getItem('authToken')) {
-      window.location.href = '/admin/dashboard'
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (localStorage.getItem('authToken')) {
+  //     window.location.href = '/admin/dashboard'
+  //   }
+  // }, [])
 
   const [scrolled, setScrolled] = useState(false)
   const [searchTab, setSearchTab] = useState('rent')
@@ -207,7 +207,7 @@ export default function LandingPage () {
 
   useEffect(() => {
     axios
-      .get(`${API}/api/platform-config`) 
+      .get(`${API}/api/platform-config`)
       .then(r => {
         if (r.data?.config?.branding) setBranding(r.data.config.branding)
       })
@@ -435,7 +435,8 @@ export default function LandingPage () {
                 closeMobile()
               }}
             >
-              <Lightbulb size={16} className='home-nav__drawer-icon' /> How It Works
+              <Lightbulb size={16} className='home-nav__drawer-icon' /> How It
+              Works
             </a>
             <a href='/about' onClick={closeMobile}>
               <InfoIcon size={16} className='home-nav__drawer-icon' /> About
@@ -518,7 +519,9 @@ export default function LandingPage () {
 
             <div className='home-search__body'>
               <div className='home-search__field home-search__field--location'>
-                <span className='home-search__icon'><MapPin size={18} /></span>
+                <span className='home-search__icon'>
+                  <MapPin size={18} />
+                </span>
                 <div className='home-search__field-inner'>
                   <label>Where do you want to stay?</label>
                   <input
@@ -532,7 +535,9 @@ export default function LandingPage () {
               </div>
 
               <div className='home-search__field home-search__field--type'>
-                <span className='home-search__icon'><HomeIcon size={18} /></span>
+                <span className='home-search__icon'>
+                  <HomeIcon size={18} />
+                </span>
                 <div className='home-search__field-inner'>
                   <label>Property Type</label>
                   <select
@@ -655,26 +660,56 @@ export default function LandingPage () {
                         <h3 className='home-card__title'>{listing.title}</h3>
                         {loc && (
                           <p className='home-card__loc'>
-                            <MapPin size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                            <MapPin
+                              size={12}
+                              style={{
+                                display: 'inline',
+                                verticalAlign: 'middle',
+                                marginRight: 3
+                              }}
+                            />
                             {loc}
                           </p>
                         )}
                         <div className='home-card__stats'>
                           {listing.bedrooms != null && (
                             <span>
-                              <BedDouble size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
-                              {listing.bedrooms} bed{listing.bedrooms !== 1 ? 's' : ''}
+                              <BedDouble
+                                size={12}
+                                style={{
+                                  display: 'inline',
+                                  verticalAlign: 'middle',
+                                  marginRight: 3
+                                }}
+                              />
+                              {listing.bedrooms} bed
+                              {listing.bedrooms !== 1 ? 's' : ''}
                             </span>
                           )}
                           {listing.bathrooms != null && (
                             <span>
-                              <Bath size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
-                              {listing.bathrooms} bath{listing.bathrooms !== 1 ? 's' : ''}
+                              <Bath
+                                size={12}
+                                style={{
+                                  display: 'inline',
+                                  verticalAlign: 'middle',
+                                  marginRight: 3
+                                }}
+                              />
+                              {listing.bathrooms} bath
+                              {listing.bathrooms !== 1 ? 's' : ''}
                             </span>
                           )}
                           {listing.category && (
                             <span>
-                              <Tag size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                              <Tag
+                                size={12}
+                                style={{
+                                  display: 'inline',
+                                  verticalAlign: 'middle',
+                                  marginRight: 3
+                                }}
+                              />
                               {listing.category}
                             </span>
                           )}
@@ -685,7 +720,15 @@ export default function LandingPage () {
                           </div>
                           {listing.stats?.averageRating > 0 && (
                             <div className='home-card__rating'>
-                              <StarIcon size={12} fill='#fbbf24' stroke='none' style={{ display: 'inline', verticalAlign: 'middle' }} />{' '}
+                              <StarIcon
+                                size={12}
+                                fill='#fbbf24'
+                                stroke='none'
+                                style={{
+                                  display: 'inline',
+                                  verticalAlign: 'middle'
+                                }}
+                              />{' '}
                               <strong>
                                 {listing.stats.averageRating.toFixed(1)}
                               </strong>
@@ -713,11 +756,37 @@ export default function LandingPage () {
       {/* ── Trust Strip ── */}
       <div className='home-trust'>
         <div className='home-trust__inner'>
-          <div className='home-trust__item'><CheckCircle2 size={18} /><span><strong>Verified</strong> listings only</span></div>
-          <div className='home-trust__item'><Lock size={18} /><span><strong>Escrow</strong> on all payments</span></div>
-          <div className='home-trust__item'><StarIcon size={18} fill='#C4E53C' stroke='none' /><span><strong>{stats.avgRating || '4.9/5'}</strong> avg rating</span></div>
-          <div className='home-trust__item'><Building2 size={18} /><span><strong>{stats.activeListings || '10,000+'}</strong> active listings</span></div>
-          <div className='home-trust__item'><Zap size={18} /><span><strong>Real-time</strong> chat &amp; booking</span></div>
+          <div className='home-trust__item'>
+            <CheckCircle2 size={18} />
+            <span>
+              <strong>Verified</strong> listings only
+            </span>
+          </div>
+          <div className='home-trust__item'>
+            <Lock size={18} />
+            <span>
+              <strong>Escrow</strong> on all payments
+            </span>
+          </div>
+          <div className='home-trust__item'>
+            <StarIcon size={18} fill='#C4E53C' stroke='none' />
+            <span>
+              <strong>{stats.avgRating || '4.9/5'}</strong> avg rating
+            </span>
+          </div>
+          <div className='home-trust__item'>
+            <Building2 size={18} />
+            <span>
+              <strong>{stats.activeListings || '10,000+'}</strong> active
+              listings
+            </span>
+          </div>
+          <div className='home-trust__item'>
+            <Zap size={18} />
+            <span>
+              <strong>Real-time</strong> chat &amp; booking
+            </span>
+          </div>
         </div>
       </div>
 
@@ -727,8 +796,14 @@ export default function LandingPage () {
           <h2 className='home-cats__title'>What are you looking for?</h2>
           <div className='home-cats__grid'>
             {CATEGORIES.map(cat => (
-              <button key={cat.query} className='home-cat' onClick={() => router.push(`/search?type=${cat.query}`)}>
-                <span className='home-cat__icon'><cat.Icon size={28} /></span>
+              <button
+                key={cat.query}
+                className='home-cat'
+                onClick={() => router.push(`/search?type=${cat.query}`)}
+              >
+                <span className='home-cat__icon'>
+                  <cat.Icon size={28} />
+                </span>
                 <span className='home-cat__label'>{cat.label}</span>
               </button>
             ))}
@@ -814,7 +889,9 @@ export default function LandingPage () {
             {HOW_IT_WORKS.map((s, i) => (
               <div key={s.step} className='home-step'>
                 <div className='home-step__num'>{s.step}</div>
-                <div className='home-step__icon'><s.Icon size={32} /></div>
+                <div className='home-step__icon'>
+                  <s.Icon size={32} />
+                </div>
                 <h3>{s.title}</h3>
                 <p>{s.desc}</p>
                 {i < HOW_IT_WORKS.length - 1 && (
