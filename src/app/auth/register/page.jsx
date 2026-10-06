@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Eye, EyeOff, AlertCircle, Home as HomeIcon, Building2, /* Wrench, PHASE 3+ — artisan registration */ CheckCircle2, Mail, Lock } from 'lucide-react'
 import './register.scss'
 import { auth as authApi } from '@/libs/api'
+import { useRouter } from 'next/navigation'
 
 const APP = process.env.NEXT_PUBLIC_APP_NAME
 
@@ -22,6 +23,14 @@ const PROPERTY_INTERESTS = ['Apartment','House','Land','Commercial','Shortlet / 
 const NIGERIAN_CITIES = ['Lagos','Abuja','Port Harcourt','Ibadan','Kano','Enugu','Benin City','Kaduna','Owerri','Uyo']
 
 export default function Register () {
+  const router = useRouter()
+
+  useEffect(() => {
+    if (localStorage.getItem('authToken')) {
+      window.location.href = '/admin/dashboard'
+    }
+  }, [])
+
   const [userType, setUserType] = useState(null)
   const [authMethod, setAuthMethod] = useState(null) // 'otp' | 'password'
   const [step, setStep] = useState(1)
