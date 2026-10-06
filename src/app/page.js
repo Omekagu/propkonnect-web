@@ -170,11 +170,11 @@ function artisanTradeIcon (spec) {
 export default function LandingPage () {
   const router = useRouter()
 
-  // useEffect(() => {
-  //   if (localStorage.getItem('authToken')) {
-  //     window.location.href = '/admin/dashboard'
-  //   }
-  // }, [])
+  useEffect(() => {
+    if (localStorage.getItem('authToken')) {
+      window.location.href = '/admin/dashboard'
+    }
+  }, [])
 
   const [scrolled, setScrolled] = useState(false)
   const [searchTab, setSearchTab] = useState('rent')
