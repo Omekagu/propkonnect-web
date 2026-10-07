@@ -1005,6 +1005,17 @@ export default function AdminLayout ({ children }) {
         <main className='admin-content' role='main'>
           {renderPage()}
         </main>
+
+        <footer className='admin-footer'>
+          <span>© {new Date().getFullYear()} Propnekt. All rights reserved.</span>
+          <span>
+            <a href='/about' target='_blank' rel='noopener noreferrer'>About</a>
+            {' · '}
+            <a href='/contact' target='_blank' rel='noopener noreferrer'>Support</a>
+            {' · '}
+            <a href='#' rel='noopener noreferrer'>Privacy Policy</a>
+          </span>
+        </footer>
       </div>
 
       {/* Mobile bottom tab bar — replaces sidebar on small screens */}

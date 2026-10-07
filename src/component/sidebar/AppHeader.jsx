@@ -108,7 +108,6 @@ export default function AppHeader ({
   }
 
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Propnekt'
-  const initials = appName.slice(0, 1).toUpperCase()
 
   return (
     <header className='app-header'>
@@ -135,8 +134,8 @@ export default function AppHeader ({
 
       {/* Workspace Switcher */}
       <div className='workspace-switcher'>
-        <div className='workspace-dot'>{initials}</div>
-        <span className='workspace-name'>{appName}</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src='/Propnekt_logo.png' alt={appName} className='workspace-logo' />
         <svg
           className='workspace-chevron'
           viewBox='0 0 24 24'

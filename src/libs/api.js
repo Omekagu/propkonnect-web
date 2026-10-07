@@ -70,7 +70,8 @@ export const users = {
   remove: userId => api.delete(`/api/user/${userId}`),
   bulkDelete: data => api.post('/api/user/bulk-delete', data),
   changeRole: (userId, role) => api.patch(`/api/user/${userId}/role`, { role }),
-  verify: (userId, data) => api.put(`/api/user/${userId}/verify`, data)
+  verify: (userId, data) => api.put(`/api/user/${userId}/verify`, data),
+  adminResetPassword: (userId, data) => api.patch(`/api/user/${userId}/reset-password`, data)
 }
 
 // ─── Properties ───────────────────────────────────────────────────────────────

@@ -1,10 +1,11 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { users as usersApi } from '@/libs/api'
+import { users as usersApi, kyc as kycApi } from '@/libs/api'
 import {
   Search, RefreshCw, Plus, Edit2, Trash2, CheckCircle,
   XCircle, Eye, UserCheck, User, ArrowUp, ArrowDown,
-  Users, Activity, Shield, Wrench, Home, ChevronLeft, ChevronRight, X
+  Users, Activity, Shield, Wrench, Home, ChevronLeft, ChevronRight, X,
+  ScanFace, FileText, Camera, KeyRound
 } from 'lucide-react'
 import './UserManagement.scss'
 
@@ -87,6 +88,21 @@ export default function UserManagement () {
   const [showCreate, setShowCreate]   = useState(false)
 
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', phone: '', role: 'user', password: '' })
+
+  // reset password
+  const [resetPwUser, setResetPwUser] = useState(null)
+  const [resetPwForm, setResetPwForm] = useState({ newPassword: '', confirmPassword: '' })
+  const [resetPwLoading, setResetPwLoading] = useState(false)
+  const [resetPwError, setResetPwError]     = useState(null)
+
+  // KYC inline review
+  const [kycUser, setKycUser]         = useState(null)
+  const [kycDetail, setKycDetail]     = useState(null)
+  const [kycLoading, setKycLoading]   = useState(false)
+  const [kycReason, setKycReason]     = useState('')
+  const [kycNote, setKycNote]         = useState('')
+  const [kycActing, setKycActing]     = useState(false)
+  const [kycToast, setKycToast]       = useState(null)
 
   // ── fetch ──────────────────────────────────────────────────────────────────
   const fetchUsers = async (silent = false) => {
@@ -178,6 +194,76 @@ export default function UserManagement () {
   const doVerify = async () => {
     try { await usersApi.verify(verifyUser._id, { isVerified: !verifyUser.isVerified }); setVerifyUser(null); fetchUsers(true) }
     catch (e) { alert(e.response?.data?.message || 'Failed') }
+  }
+
+  const openResetPw = user => {
+    setResetPwForm({ newPassword: '', confirmPassword: '' })
+    setResetPwError(null)
+    setResetPwUser(user)
+  }
+
+  const doResetPassword = async e => {
+    e.preventDefault()
+    if (resetPwForm.newPassword.length < 8) {
+      setResetPwError('Password must be at least 8 characters.')
+      return
+    }
+    if (resetPwForm.newPassword !== resetPwForm.confirmPassword) {
+      setResetPwError('Passwords do not match.')
+      return
+    }
+    setResetPwLoading(true)
+    setResetPwError(null)
+    try {
+      await usersApi.adminResetPassword(resetPwUser._id, { new_password: resetPwForm.newPassword })
+      setResetPwUser(null)
+    } catch (err) {
+      setResetPwError(err.response?.data?.message || 'Failed to reset password.')
+    } finally {
+      setResetPwLoading(false)
+    }
+  }
+
+  const openKycReview = async user => {
+    setKycUser(user)
+    setKycReason('')
+    setKycNote('')
+    setKycDetail(null)
+    setKycLoading(true)
+    try {
+      const res = await kycApi.adminGetDetail(user._id)
+      setKycDetail(res.data.data || res.data)
+    } catch {
+      setKycDetail(user)
+    } finally {
+      setKycLoading(false)
+    }
+  }
+
+  const doKycDecision = async approved => {
+    if (!approved && !kycReason.trim()) {
+      setKycToast({ msg: 'Please provide a rejection reason.', type: 'error' })
+      setTimeout(() => setKycToast(null), 3500)
+      return
+    }
+    setKycActing(true)
+    try {
+      await kycApi.adminReview(kycUser._id, {
+        approved,
+        rejectionReason: approved ? undefined : kycReason,
+        verificationNote: kycNote
+      })
+      setKycToast({ msg: approved ? 'KYC approved.' : 'KYC rejected.', type: 'success' })
+      setTimeout(() => setKycToast(null), 3500)
+      setKycUser(null)
+      setKycDetail(null)
+      fetchUsers(true)
+    } catch (e) {
+      setKycToast({ msg: e?.response?.data?.message || 'Action failed.', type: 'error' })
+      setTimeout(() => setKycToast(null), 3500)
+    } finally {
+      setKycActing(false)
+    }
   }
 
   const doBulkDelete = async () => {
@@ -375,9 +461,14 @@ export default function UserManagement () {
                     <div className='um-row-actions'>
                       <button className='view' title='View' onClick={() => setDetailUser(u)}><Eye size={13} /></button>
                       <button className='edit' title='Edit' onClick={() => openEdit(u)}><Edit2 size={13} /></button>
-                      <button className='verify' title={u.isVerified ? 'Unverify' : 'Verify'} onClick={() => setVerifyUser(u)}>
-                        {u.isVerified ? <UserCheck size={13} /> : <User size={13} />}
-                      </button>
+                      {['pending', 'under_review'].includes(u.kycStatus) ? (
+                        <button className='kyc' title='Review KYC' onClick={() => openKycReview(u)}><ScanFace size={13} /></button>
+                      ) : (
+                        <button className='verify' title={u.isVerified ? 'Unverify' : 'Verify'} onClick={() => setVerifyUser(u)}>
+                          {u.isVerified ? <UserCheck size={13} /> : <User size={13} />}
+                        </button>
+                      )}
+                      <button className='reset-pw' title='Reset Password' onClick={() => openResetPw(u)}><KeyRound size={13} /></button>
                       <button className='del' title='Delete' onClick={() => setDeleteUser(u)}><Trash2 size={13} /></button>
                     </div>
                   </td>
@@ -408,6 +499,14 @@ export default function UserManagement () {
         <Modal title='User Details' onClose={() => setDetailUser(null)} size='lg'
           footer={<>
             <button className='um-foot-cancel' onClick={() => setDetailUser(null)}>Close</button>
+            {['pending', 'under_review'].includes(detailUser.kycStatus) && (
+              <button className='um-foot-kyc' onClick={() => { setDetailUser(null); openKycReview(detailUser) }}>
+                <ScanFace size={14} /> Review KYC
+              </button>
+            )}
+            <button className='um-foot-resetpw' onClick={() => { setDetailUser(null); openResetPw(detailUser) }}>
+              <KeyRound size={14} /> Reset Password
+            </button>
             <button className='um-foot-submit' onClick={() => { setDetailUser(null); openEdit(detailUser) }}>Edit User</button>
           </>}>
           <div className='um-detail-hero'>
@@ -496,6 +595,171 @@ export default function UserManagement () {
             <p>Permanently delete <strong>{deleteUser.firstName} {deleteUser.lastName}</strong> ({deleteUser.email})?</p>
             <p style={{ color: '#f85149', fontSize: '0.82rem', marginTop: 8 }}>This cannot be undone.</p>
           </div>
+        </Modal>
+      )}
+
+      {/* ── Reset Password Modal ─────────────────────────────────────────── */}
+      {resetPwUser && (
+        <Modal title={`Reset Password — ${resetPwUser.firstName} ${resetPwUser.lastName}`}
+          onClose={() => setResetPwUser(null)} size='sm'
+          footer={<>
+            <button className='um-foot-cancel' onClick={() => setResetPwUser(null)}>Cancel</button>
+            <button className='um-foot-resetpw' disabled={resetPwLoading} onClick={doResetPassword}>
+              <KeyRound size={14} /> {resetPwLoading ? 'Resetting…' : 'Reset Password'}
+            </button>
+          </>}>
+          <div className='um-form'>
+            <p style={{ fontSize: '0.85rem', color: 'rgba(230,237,243,0.55)', marginBottom: 14 }}>
+              Set a new password for <strong style={{ color: '#e6edf3' }}>{resetPwUser.email}</strong>. The user will need to use this password on their next login.
+            </p>
+            {resetPwError && (
+              <div className='um-rp-error'><XCircle size={13} /> {resetPwError}</div>
+            )}
+            <div className='um-field'>
+              <label>New Password</label>
+              <input
+                type='password'
+                placeholder='Min. 8 characters'
+                value={resetPwForm.newPassword}
+                onChange={e => setResetPwForm(p => ({ ...p, newPassword: e.target.value }))}
+                autoComplete='new-password'
+              />
+            </div>
+            <div className='um-field'>
+              <label>Confirm New Password</label>
+              <input
+                type='password'
+                placeholder='Repeat new password'
+                value={resetPwForm.confirmPassword}
+                onChange={e => setResetPwForm(p => ({ ...p, confirmPassword: e.target.value }))}
+                autoComplete='new-password'
+              />
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── KYC Review Modal ─────────────────────────────────────────────── */}
+      {kycUser && (
+        <Modal title={`KYC Review — ${kycUser.firstName} ${kycUser.lastName}`} onClose={() => { setKycUser(null); setKycDetail(null) }} size='lg'
+          footer={
+            kycDetail && ['pending', 'under_review'].includes(kycDetail?.kyc?.status || kycUser.kycStatus) ? <>
+              <button className='um-foot-cancel' onClick={() => { setKycUser(null); setKycDetail(null) }}>Cancel</button>
+              <button className='um-foot-danger' disabled={kycActing} onClick={() => doKycDecision(false)}>Reject</button>
+              <button className='um-foot-kyc' disabled={kycActing} onClick={() => doKycDecision(true)}>
+                <CheckCircle size={14} /> {kycActing ? 'Processing…' : 'Approve KYC'}
+              </button>
+            </> : <button className='um-foot-cancel' onClick={() => { setKycUser(null); setKycDetail(null) }}>Close</button>
+          }>
+          {kycToast && (
+            <div className={`um-kyc-toast ${kycToast.type}`}>
+              {kycToast.type === 'success' ? <CheckCircle size={14} /> : <XCircle size={14} />}
+              {kycToast.msg}
+            </div>
+          )}
+          {kycLoading ? (
+            <div className='um-state'><div className='um-spinner' /><p>Loading KYC details…</p></div>
+          ) : (
+            <div className='um-kyc-body'>
+              {/* Document info */}
+              <div className='um-kyc-section'>
+                <h4><FileText size={14} /> Identity Document</h4>
+                <div className='um-detail-grid' style={{ marginTop: 10 }}>
+                  <div className='um-detail-item'>
+                    <label>Type</label>
+                    <p>{kycDetail?.kyc?.documentType?.replace(/_/g, ' ') || '—'}</p>
+                  </div>
+                  <div className='um-detail-item'>
+                    <label>Number</label>
+                    <p>{kycDetail?.kyc?.documentNumber || '—'}</p>
+                  </div>
+                  <div className='um-detail-item'>
+                    <label>Submitted</label>
+                    <p>{kycDetail?.kyc?.submittedAt ? new Date(kycDetail.kyc.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</p>
+                  </div>
+                  <div className='um-detail-item'>
+                    <label>Status</label>
+                    <p><span className={`um-badge ${kycDetail?.kyc?.status === 'approved' ? 'verified' : kycDetail?.kyc?.status === 'rejected' ? 'unverified' : 'online'}`}>{kycDetail?.kyc?.status?.replace('_', ' ') || '—'}</span></p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Document images */}
+              <div className='um-kyc-section'>
+                <h4><Camera size={14} /> Document Images</h4>
+                <div className='um-kyc-docs'>
+                  {[
+                    { label: 'Front', url: kycDetail?.kyc?.documentFrontUrl || kycDetail?.kyc?.documentUrl },
+                    { label: 'Back',  url: kycDetail?.kyc?.documentBackUrl },
+                    { label: 'Selfie', url: kycDetail?.kyc?.selfieUrl }
+                  ].filter(d => d.url).map(doc => (
+                    <div className='um-kyc-doc' key={doc.label}>
+                      <p className='um-kyc-doc-label'>{doc.label}</p>
+                      {/\.(jpg|jpeg|png|gif|webp)$/i.test(doc.url) || doc.url.includes('/image/') ? (
+                        <a href={doc.url} target='_blank' rel='noreferrer'>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={doc.url} alt={doc.label} className='um-kyc-thumb' />
+                        </a>
+                      ) : (
+                        <a href={doc.url} target='_blank' rel='noreferrer' className='um-kyc-link'>
+                          <Eye size={13} /> View File
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                  {!kycDetail?.kyc?.documentFrontUrl && !kycDetail?.kyc?.documentUrl && (
+                    <p style={{ color: 'rgba(230,237,243,0.4)', fontSize: '0.85rem' }}>No documents uploaded yet.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Previous rejection */}
+              {kycDetail?.kyc?.rejectionReason && (
+                <div className='um-kyc-prev-rejection'>
+                  <XCircle size={13} /> Previous rejection: {kycDetail.kyc.rejectionReason}
+                </div>
+              )}
+
+              {/* Decision fields — only for actionable statuses */}
+              {['pending', 'under_review'].includes(kycDetail?.kyc?.status || kycUser.kycStatus) && (
+                <div className='um-kyc-section'>
+                  <h4>Decision</h4>
+                  <div className='um-field' style={{ marginTop: 10 }}>
+                    <label>Rejection Reason <span style={{ color: 'rgba(230,237,243,0.45)', fontWeight: 400 }}>(required if rejecting)</span></label>
+                    <textarea
+                      rows={3}
+                      placeholder='e.g. Document image is blurry, please resubmit…'
+                      value={kycReason}
+                      onChange={e => setKycReason(e.target.value)}
+                      style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: '#e6edf3', fontSize: '0.875rem', resize: 'vertical', marginTop: 6 }}
+                    />
+                  </div>
+                  <div className='um-field' style={{ marginTop: 10 }}>
+                    <label>Internal Note <span style={{ color: 'rgba(230,237,243,0.45)', fontWeight: 400 }}>(not shown to user)</span></label>
+                    <textarea
+                      rows={2}
+                      placeholder='Optional internal notes…'
+                      value={kycNote}
+                      onChange={e => setKycNote(e.target.value)}
+                      style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: '#e6edf3', fontSize: '0.875rem', resize: 'vertical', marginTop: 6 }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Already decided */}
+              {kycDetail?.kyc?.status === 'approved' && (
+                <div className='um-kyc-decided approved'>
+                  <CheckCircle size={15} /> KYC Approved{kycDetail.kyc.reviewedAt ? ` on ${new Date(kycDetail.kyc.reviewedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''}
+                </div>
+              )}
+              {kycDetail?.kyc?.status === 'rejected' && (
+                <div className='um-kyc-decided rejected'>
+                  <XCircle size={15} /> KYC Rejected — {kycDetail.kyc.rejectionReason || 'No reason given'}
+                </div>
+              )}
+            </div>
+          )}
         </Modal>
       )}
     </div>

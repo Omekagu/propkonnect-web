@@ -224,13 +224,18 @@ $font: var(--font);
   left: 0;
   right: 0;
   z-index: 1000;
-  background: transparent;
+  background: rgba(5, 30, 18, 0.72);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   transition: background 0.3s, box-shadow 0.3s, border-color 0.3s;
 
   &--scrolled {
-    background: rgba(2, 12, 6, 0.92);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+    background: rgba(2, 12, 6, 0.96);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 4px 28px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.10);
   }
 
   &__inner {
@@ -249,11 +254,13 @@ $font: var(--font);
     gap: 0.55rem;
     text-decoration: none;
     flex-shrink: 0;
+    transition: opacity 0.2s;
+    &:hover { opacity: 0.85; }
   }
 
   &__logo-icon {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     background: $accent;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     display: flex;
@@ -267,9 +274,11 @@ $font: var(--font);
   }
 
   &__logo-img {
-    height: 32px;
+    height: 38px;
     width: auto;
+    max-width: 160px;
     object-fit: contain;
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
   }
   &__logo-text {
     font-size: 1.25rem;
@@ -280,19 +289,23 @@ $font: var(--font);
 
   &__links {
     display: flex;
-    gap: 1.75rem;
+    gap: 0.25rem;
     align-items: center;
     flex: 1;
     margin-left: 0.5rem;
+    justify-content: center;
     a {
-      color: rgba(255, 255, 255, 0.65);
-      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.80);
+      font-size: 0.90rem;
       font-weight: 500;
       text-decoration: none;
       cursor: pointer;
-      transition: color 0.2s;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
       &:hover {
-        color: $accent;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.08);
       }
     }
     @media (max-width: 900px) {
@@ -338,16 +351,16 @@ $font: var(--font);
   &__btn-ghost {
     padding: 0.5rem 1.2rem;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.30);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.90);
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     font-family: $font;
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.10);
       border-color: rgba(255, 255, 255, 0.32);
       color: #fff;
     }
@@ -357,7 +370,7 @@ $font: var(--font);
     padding: 0.5rem 1.35rem;
     background: $accent;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     color: $green;
     font-size: 0.875rem;
     font-weight: 700;

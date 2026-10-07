@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './Landing.scss'
+import Footer from '@/component/footer/Footer'
 import { useRouter } from 'next/navigation'
 import { encodeId } from '@/libs/propId'
 import axios from 'axios'
@@ -323,18 +324,12 @@ export default function LandingPage () {
         <div className='home-nav__inner'>
           {/* Logo */}
           <a className='home-nav__logo' href='/'>
-            {branding?.logoUrl ? (
-              <img
-                src={branding.logoUrl}
-                alt={appName}
-                className='home-nav__logo-img'
-              />
-            ) : (
-              <>
-                <span className='home-nav__logo-icon'>P</span>
-                <span className='home-nav__logo-text'>{appName}</span>
-              </>
-            )}
+            <img
+              src={branding?.logoUrl || '/Propnekt_logo.png'}
+              alt={appName}
+              className='home-nav__logo-img'
+              style={{ height: 34, width: 'auto', objectFit: 'contain' }}
+            />
           </a>
 
           {/* Desktop links */}
@@ -386,18 +381,12 @@ export default function LandingPage () {
         <div className={`home-nav__drawer${mobileMenuOpen ? ' open' : ''}`}>
           <div className='home-nav__drawer-header'>
             <a className='home-nav__logo' href='/' onClick={closeMobile}>
-              {branding?.logoUrl ? (
-                <img
-                  src={branding.logoUrl}
-                  alt={appName}
-                  className='home-nav__logo-img'
-                />
-              ) : (
-                <>
-                  <span className='home-nav__logo-icon'>P</span>
-                  <span className='home-nav__logo-text'>{appName}</span>
-                </>
-              )}
+              <img
+                src={branding?.logoUrl || '/Propnekt_logo.png'}
+                alt={appName}
+                className='home-nav__logo-img'
+                style={{ height: 32, width: 'auto', objectFit: 'contain' }}
+              />
             </a>
             <button
               className='home-nav__drawer-close'
@@ -973,6 +962,8 @@ export default function LandingPage () {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   )
 }

@@ -274,6 +274,11 @@ export default function Sidebar ({
             label: 'Tenants',
             icon: <Users strokeWidth={0.75} />
           },
+          {
+            key: 'KYCQueue',
+            label: 'KYC Verification',
+            icon: <ScanFace strokeWidth={0.75} />
+          },
           // {
           //   key: 'Maintenance',
           //   label: 'Maintenance',
@@ -479,7 +484,8 @@ export default function Sidebar ({
             style={collapsed ? { cursor: 'pointer' } : undefined}
           >
             <div className='brand-logo' aria-hidden='true'>
-              <HousePlus strokeWidth={0.75} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src='/Propnekt_logo.png' alt='Propnekt' className='brand-logo-img' />
             </div>
             {!collapsed && (
               <div className='brand-text'>
