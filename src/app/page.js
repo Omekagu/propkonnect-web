@@ -84,12 +84,42 @@ const FALLBACK_ARTISANS = [
 */
 
 const CATEGORIES = [
-  { Icon: Building2, label: 'Apartments', desc: 'Studio to penthouse — verified apartments across every major city.', query: 'apartment' },
-  { Icon: HomeIcon, label: 'Houses', desc: 'Detached, semi-detached, bungalows, and duplexes available now.', query: 'house' },
-  { Icon: Hotel, label: 'Hotels', desc: 'Curated hotel rooms for business and leisure across Nigeria.', query: 'hotel' },
-  { Icon: BedDouble, label: 'Shortlets', desc: 'Fully furnished short-stay apartments from one night upwards.', query: 'shortlet' },
-  { Icon: Layers, label: 'Land', desc: 'Verified plots — residential, commercial, and agricultural land.', query: 'land' },
-  { Icon: Store, label: 'Commercial', desc: 'Offices, shops, warehouses, and co-working spaces nationwide.', query: 'commercial' }
+  {
+    Icon: Building2,
+    label: 'Apartments',
+    desc: 'Studio to penthouse — verified apartments across every major city.',
+    query: 'apartment'
+  },
+  {
+    Icon: HomeIcon,
+    label: 'Houses',
+    desc: 'Detached, semi-detached, bungalows, and duplexes available now.',
+    query: 'house'
+  },
+  {
+    Icon: Hotel,
+    label: 'Hotels',
+    desc: 'Curated hotel rooms for business and leisure across Nigeria.',
+    query: 'hotel'
+  },
+  {
+    Icon: BedDouble,
+    label: 'Shortlets',
+    desc: 'Fully furnished short-stay apartments from one night upwards.',
+    query: 'shortlet'
+  },
+  {
+    Icon: Layers,
+    label: 'Land',
+    desc: 'Verified plots — residential, commercial, and agricultural land.',
+    query: 'land'
+  },
+  {
+    Icon: Store,
+    label: 'Commercial',
+    desc: 'Offices, shops, warehouses, and co-working spaces nationwide.',
+    query: 'commercial'
+  }
   // PHASE 3+ — { Icon: Wrench, label: 'Artisans', query: 'artisan' }
 ]
 
@@ -390,7 +420,9 @@ export default function LandingPage () {
         </div>
 
         {/* Giant brand watermark */}
-        <div className='home-hero__display' aria-hidden='true'>PROPNEKT</div>
+        <div className='home-hero__display' aria-hidden='true'>
+          PROPNEKT
+        </div>
 
         {/* Stat cards — absolutely positioned top-right */}
         <div className='home-hero__stats-abs'>
@@ -411,12 +443,12 @@ export default function LandingPage () {
         {/* Main — flex:1, content pushed to bottom */}
         <div className='home-hero__main'>
           <div className='home-hero__copy'>
-            <div className='home-hero__ai-badge'>✦ Smart Property Search</div>
+            <div className='home-hero__ai-badge'></div>
+            <div className='home-hero__ai-badge'></div>
             <h1 className='home-hero__title'>
               {heroTitle.includes(' ') ? (
                 <>
-                  {heroTitle.split(' ').slice(0, 3).join(' ')}
-                  <br />
+                  {heroTitle.split(' ').slice(0, 3).join(' ')}{' '}
                   <span>{heroTitle.split(' ').slice(3).join(' ')}</span>
                 </>
               ) : (
@@ -435,7 +467,9 @@ export default function LandingPage () {
               ].map(t => (
                 <button
                   key={t.key}
-                  className={`home-search__tab${searchTab === t.key ? ' active' : ''}`}
+                  className={`home-search__tab${
+                    searchTab === t.key ? ' active' : ''
+                  }`}
                   onClick={() => setSearchTab(t.key)}
                 >
                   {t.label}
@@ -445,7 +479,9 @@ export default function LandingPage () {
 
             <div className='home-search__body'>
               <div className='home-search__field home-search__field--location'>
-                <span className='home-search__icon'><MapPin size={18} /></span>
+                <span className='home-search__icon'>
+                  <MapPin size={18} />
+                </span>
                 <div className='home-search__field-inner'>
                   <label>Where do you want to stay?</label>
                   <input
@@ -465,20 +501,27 @@ export default function LandingPage () {
                         setShowSuggestions(suggestions.length > 0)
                       }
                     }}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 160)}
+                    onBlur={() =>
+                      setTimeout(() => setShowSuggestions(false), 160)
+                    }
                     autoComplete='off'
                   />
                 </div>
                 {showSuggestions && (
                   <div className='home-suggestions'>
                     {location.trim() === '' && (
-                      <span className='home-suggestions__label'>Popular searches</span>
+                      <span className='home-suggestions__label'>
+                        Popular searches
+                      </span>
                     )}
                     {suggestions.map(s => (
                       <button
                         key={s}
                         className='home-suggestions__item'
-                        onMouseDown={() => { setLocation(s); setShowSuggestions(false) }}
+                        onMouseDown={() => {
+                          setLocation(s)
+                          setShowSuggestions(false)
+                        }}
                       >
                         <MapPin size={13} style={{ flexShrink: 0 }} />
                         {s}
@@ -489,10 +532,15 @@ export default function LandingPage () {
               </div>
 
               <div className='home-search__field home-search__field--type'>
-                <span className='home-search__icon'><HomeIcon size={18} /></span>
+                <span className='home-search__icon'>
+                  <HomeIcon size={18} />
+                </span>
                 <div className='home-search__field-inner'>
                   <label>Property Type</label>
-                  <select value={propertyType} onChange={e => setPropertyType(e.target.value)}>
+                  <select
+                    value={propertyType}
+                    onChange={e => setPropertyType(e.target.value)}
+                  >
                     <option value=''>Any Type</option>
                     <option value='apartment'>Apartment</option>
                     <option value='house'>House / Duplex</option>
@@ -505,7 +553,14 @@ export default function LandingPage () {
               </div>
 
               <button className='home-search__btn' onClick={handleSearch}>
-                <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5'>
+                <svg
+                  width='18'
+                  height='18'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2.5'
+                >
                   <circle cx='11' cy='11' r='8' />
                   <path d='m21 21-4.35-4.35' />
                 </svg>
@@ -516,12 +571,26 @@ export default function LandingPage () {
 
           <div className='home-hero__proof'>
             <div className='home-hero__proof-avatars'>
-              <span className='home-hero__proof-avatar' style={{ background: '#a78bfa' }} />
-              <span className='home-hero__proof-avatar' style={{ background: '#4ade80' }} />
-              <span className='home-hero__proof-avatar' style={{ background: '#fb923c' }} />
-              <span className='home-hero__proof-avatar' style={{ background: '#38bdf8' }} />
+              <span
+                className='home-hero__proof-avatar'
+                style={{ background: '#a78bfa' }}
+              />
+              <span
+                className='home-hero__proof-avatar'
+                style={{ background: '#4ade80' }}
+              />
+              <span
+                className='home-hero__proof-avatar'
+                style={{ background: '#fb923c' }}
+              />
+              <span
+                className='home-hero__proof-avatar'
+                style={{ background: '#38bdf8' }}
+              />
             </div>
-            <span className='home-hero__proof-text'><strong>50,000+</strong> verified users</span>
+            <span className='home-hero__proof-text'>
+              <strong>50,000+</strong> verified users
+            </span>
             <span className='home-hero__proof-sep' />
             <span className='home-hero__proof-rating'>★ 4.9 / 5</span>
           </div>
@@ -564,14 +633,15 @@ export default function LandingPage () {
           <div className='home-about__text'>
             <span className='home-tag'>Who We Are</span>
             <h2>
-              Built for Nigeria&apos;s<br />
+              Built for Nigeria&apos;s
+              <br />
               <span>property market.</span>
             </h2>
             <p>
-              We set out to solve a real problem: buying, renting, and managing property in
-              Nigeria was too slow, too opaque, and too risky. Propnekt changes that — with
-              verified listings, escrow-secured payments, and real-time connections between
-              owners and seekers.
+              We set out to solve a real problem: buying, renting, and managing
+              property in Nigeria was too slow, too opaque, and too risky.
+              Propnekt changes that — with verified listings, escrow-secured
+              payments, and real-time connections between owners and seekers.
             </p>
             <div className='home-about__pillars'>
               <div className='home-about__pillar'>
@@ -611,7 +681,11 @@ export default function LandingPage () {
             />
             <div className='home-about__badge'>
               <strong>&#8358;0 lost</strong>
-              <span>Escrow-protected<br />since launch</span>
+              <span>
+                Escrow-protected
+                <br />
+                since launch
+              </span>
             </div>
           </div>
         </div>
@@ -623,7 +697,9 @@ export default function LandingPage () {
           <div className='home-cats__header'>
             <span className='home-tag'>Our Services</span>
             <h2 className='home-cats__title'>
-              What are you<br />looking for?
+              What are you
+              <br />
+              looking for?
             </h2>
           </div>
           <div className='home-cats__grid'>
@@ -654,7 +730,9 @@ export default function LandingPage () {
             <div>
               <span className='home-tag'>Featured Work</span>
               <h2 className='home-listings__title'>
-                Verified properties.<br />Curated for you.
+                Verified properties.
+                <br />
+                Curated for you.
               </h2>
             </div>
             <div className='home-listings__tabs'>
@@ -839,7 +917,9 @@ export default function LandingPage () {
           <div className='home-reviews__head'>
             <span className='home-tag'>Testimonials</span>
             <h2 className='home-reviews__title'>
-              Clients love<br />our platform.
+              Clients love
+              <br />
+              our platform.
             </h2>
           </div>
           <div className='home-reviews__grid'>
@@ -883,7 +963,9 @@ export default function LandingPage () {
       <section className='home-cta reveal'>
         <div className='home-cta__inner'>
           <h2>
-            Ready to find your<br /><span>perfect property?</span>
+            Ready to find your
+            <br />
+            <span>perfect property?</span>
           </h2>
           <p>
             Join {stats.verifiedUsers || '50,000+'} users already buying,

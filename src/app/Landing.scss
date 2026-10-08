@@ -235,7 +235,7 @@ $font: var(--font);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     box-shadow: 0 4px 28px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
   &__inner {
@@ -255,7 +255,9 @@ $font: var(--font);
     text-decoration: none;
     flex-shrink: 0;
     transition: opacity 0.2s;
-    &:hover { opacity: 0.85; }
+    &:hover {
+      opacity: 0.85;
+    }
   }
 
   &__logo-icon {
@@ -278,7 +280,7 @@ $font: var(--font);
     width: auto;
     max-width: 160px;
     object-fit: contain;
-    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
   }
   &__logo-text {
     font-size: 1.25rem;
@@ -295,8 +297,8 @@ $font: var(--font);
     margin-left: 0.5rem;
     justify-content: center;
     a {
-      color: rgba(255, 255, 255, 0.80);
-      font-size: 0.90rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
       font-weight: 500;
       text-decoration: none;
       cursor: pointer;
@@ -318,21 +320,21 @@ $font: var(--font);
     align-items: center;
     padding: 4px 12px !important;
     border-radius: 20px;
-    border: 1.5px solid rgba(196,229,60,0.3);
+    border: 1.5px solid rgba(196, 229, 60, 0.3);
     color: $accent !important;
     font-size: 0.8rem !important;
     font-weight: 700 !important;
     transition: all 0.15s !important;
 
     &:hover {
-      background: rgba(196,229,60,0.1) !important;
+      background: rgba(196, 229, 60, 0.1) !important;
       border-color: $accent !important;
     }
   }
 
   &__drawer-link--feed {
-    background: rgba(196,229,60,0.08);
-    border: 1.5px solid rgba(196,229,60,0.25);
+    background: rgba(196, 229, 60, 0.08);
+    border: 1.5px solid rgba(196, 229, 60, 0.25);
     border-radius: 10px;
     color: $accent !important;
     font-weight: 700 !important;
@@ -351,16 +353,16 @@ $font: var(--font);
   &__btn-ghost {
     padding: 0.5rem 1.2rem;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.30);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 10px;
-    color: rgba(255, 255, 255, 0.90);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     font-family: $font;
     &:hover {
-      background: rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.1);
       border-color: rgba(255, 255, 255, 0.32);
       color: #fff;
     }
@@ -586,18 +588,21 @@ $font: var(--font);
 // ══════════════════════════════════════════════════════════════
 .home-hero {
   position: relative;
-  margin-top: -66px;
+  margin-top: -64px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 
-  @media (max-width: 640px) { margin-top: -58px; }
+  @media (max-width: 640px) {
+    margin-top: -56px;
+  }
 
   &__bg {
     position: absolute;
     inset: 0;
     z-index: 0;
+    pointer-events: none;
     img {
       width: 100%;
       height: 100%;
@@ -610,6 +615,7 @@ $font: var(--font);
   &__overlay {
     position: absolute;
     inset: 0;
+    pointer-events: none;
     background: linear-gradient(
       180deg,
       rgba(2, 12, 6, 0.18) 0%,
@@ -624,8 +630,10 @@ $font: var(--font);
     inset: -120px;
     z-index: 1;
     pointer-events: none;
-    background-image:
-      linear-gradient(rgba(196, 229, 60, 0.04) 1px, transparent 1px),
+    background-image: linear-gradient(
+        rgba(196, 229, 60, 0.04) 1px,
+        transparent 1px
+      ),
       linear-gradient(90deg, rgba(196, 229, 60, 0.04) 1px, transparent 1px);
     background-size: 64px 64px;
     animation: gridDrift 16s linear infinite;
@@ -658,7 +666,9 @@ $font: var(--font);
     flex-direction: column;
     gap: 0.75rem;
 
-    @media (max-width: 860px) { display: none; }
+    @media (max-width: 860px) {
+      display: none;
+    }
   }
 
   &__stat-card {
@@ -671,7 +681,9 @@ $font: var(--font);
     min-width: 152px;
     transition: border-color 0.2s;
 
-    &:hover { border-color: rgba(196, 229, 60, 0.22); }
+    &:hover {
+      border-color: rgba(196, 229, 60, 0.22);
+    }
 
     strong {
       display: block;
@@ -705,7 +717,9 @@ $font: var(--font);
     position: relative;
     z-index: 2;
 
-    @media (max-width: 640px) { padding: 0 1.25rem 2rem; }
+    @media (max-width: 640px) {
+      padding: 0 1.25rem 2rem;
+    }
   }
 
   // Badge + headline + sub wrapper
@@ -715,21 +729,21 @@ $font: var(--font);
   }
 
   &__title {
-    font-size: clamp(2.6rem, 4.5vw, 4.8rem);
+    font-size: clamp(2rem, 6vw, 4.8rem);
     font-weight: 900;
-    line-height: 1.08;
+    line-height: 1.1;
     color: #fff;
     margin-bottom: 1rem;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.03em;
     animation: home-fade-up 1s ease both;
 
+    @media (max-width: 640px) {
+      font-size: clamp(1.75rem, 8.5vw, 2.4rem);
+      letter-spacing: -0.02em;
+    }
+
     span {
-      background: linear-gradient(120deg, #fff 0%, #d4f56a 50%, $accent 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: shimmerText 5s linear infinite;
+      color: $accent;
     }
   }
 
@@ -767,7 +781,9 @@ $font: var(--font);
     margin-top: 1.5rem;
     flex-wrap: wrap;
 
-    &-avatars { display: flex; }
+    &-avatars {
+      display: flex;
+    }
 
     &-avatar {
       width: 30px;
@@ -776,13 +792,18 @@ $font: var(--font);
       border: 2.5px solid $bg;
       margin-left: -9px;
       flex-shrink: 0;
-      &:first-child { margin-left: 0; }
+      &:first-child {
+        margin-left: 0;
+      }
     }
 
     &-text {
       font-size: 0.82rem;
       color: $text-3;
-      strong { color: $text-2; font-weight: 700; }
+      strong {
+        color: $text-2;
+        font-weight: 700;
+      }
     }
 
     &-sep {
@@ -968,11 +989,11 @@ $font: var(--font);
   justify-content: center;
   gap: 10px;
   padding: 10px 16px 14px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 
   span {
     font-size: 12px;
-    color: rgba(223,240,228,0.35);
+    color: rgba(223, 240, 228, 0.35);
   }
 }
 
@@ -982,8 +1003,8 @@ $font: var(--font);
   gap: 6px;
   padding: 6px 16px;
   border-radius: 20px;
-  border: 1.5px solid rgba(196,229,60,0.35);
-  background: rgba(196,229,60,0.07);
+  border: 1.5px solid rgba(196, 229, 60, 0.35);
+  background: rgba(196, 229, 60, 0.07);
   color: $accent;
   font-size: 13px;
   font-weight: 600;
@@ -992,7 +1013,7 @@ $font: var(--font);
   font-family: $font;
 
   &:hover {
-    background: rgba(196,229,60,0.15);
+    background: rgba(196, 229, 60, 0.15);
     border-color: $accent;
   }
 }
@@ -1046,7 +1067,9 @@ $font: var(--font);
     text-align: center;
     padding: 0.5rem 3rem;
 
-    @media (max-width: 700px) { padding: 0.75rem 1.75rem; }
+    @media (max-width: 700px) {
+      padding: 0.75rem 1.75rem;
+    }
 
     strong {
       display: block;
@@ -1073,7 +1096,9 @@ $font: var(--font);
     background: $border;
     flex-shrink: 0;
 
-    @media (max-width: 600px) { display: none; }
+    @media (max-width: 600px) {
+      display: none;
+    }
   }
 }
 
@@ -1105,7 +1130,9 @@ $font: var(--font);
       letter-spacing: -0.035em;
       margin-bottom: 1.25rem;
 
-      span { color: $accent; }
+      span {
+        color: $accent;
+      }
     }
 
     > p {
@@ -1128,7 +1155,11 @@ $font: var(--font);
     align-items: flex-start;
     gap: 0.9rem;
 
-    svg { color: $accent; flex-shrink: 0; margin-top: 2px; }
+    svg {
+      color: $accent;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
 
     h4 {
       font-size: 0.95rem;
@@ -1137,7 +1168,11 @@ $font: var(--font);
       margin-bottom: 0.2rem;
     }
 
-    p { font-size: 0.85rem; color: $text-3; line-height: 1.55; }
+    p {
+      font-size: 0.85rem;
+      color: $text-3;
+      line-height: 1.55;
+    }
   }
 
   &__visual {
@@ -1151,7 +1186,9 @@ $font: var(--font);
       border-radius: 20px;
       display: block;
 
-      @media (max-width: 900px) { height: 340px; }
+      @media (max-width: 900px) {
+        height: 340px;
+      }
     }
   }
 
@@ -1174,7 +1211,11 @@ $font: var(--font);
       margin-bottom: 0.2rem;
     }
 
-    span { font-size: 0.7rem; font-weight: 600; line-height: 1.5; }
+    span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      line-height: 1.5;
+    }
   }
 }
 
@@ -1207,8 +1248,12 @@ $font: var(--font);
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
 
-    @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 560px) { grid-template-columns: 1fr; }
+    @media (max-width: 900px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 560px) {
+      grid-template-columns: 1fr;
+    }
   }
 }
 
@@ -1231,7 +1276,10 @@ $font: var(--font);
     transform: translateY(-4px);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 
-    .home-cat__arrow { color: $accent; transform: translateX(4px); }
+    .home-cat__arrow {
+      color: $accent;
+      transform: translateX(4px);
+    }
   }
 
   &__icon-box {
@@ -1480,7 +1528,9 @@ $font: var(--font);
     gap: 4px;
     font-size: 0.8rem;
     color: $text-3;
-    strong { color: $text-2; }
+    strong {
+      color: $text-2;
+    }
   }
 }
 
@@ -1538,8 +1588,12 @@ $font: var(--font);
     grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
 
-    @media (max-width: 1000px) { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 560px) { grid-template-columns: 1fr; }
+    @media (max-width: 1000px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 560px) {
+      grid-template-columns: 1fr;
+    }
   }
 }
 
@@ -1891,7 +1945,9 @@ $font: var(--font);
 
 // ── Scroll reveal — state applied via JS, not CSS default ────
 // (Initial opacity/transform set in page.js useEffect so SSR shows content)
-.reveal { /* placeholder — JS controls opacity/transform */ }
+.reveal {
+  /* placeholder — JS controls opacity/transform */
+}
 
 // ── Location autocomplete dropdown ───────────────────────────
 .home-suggestions {
@@ -1942,7 +1998,9 @@ $font: var(--font);
     &:hover {
       background: rgba(196, 229, 60, 0.07);
       color: $accent;
-      svg { opacity: 1; }
+      svg {
+        opacity: 1;
+      }
     }
 
     & + & {

@@ -11,27 +11,29 @@ export default function Footer () {
   useEffect(() => {
     fetch(`${API}/api/platform-config`)
       .then(r => r.json())
-      .then(d => { if (d?.config?.branding) setBranding(d.config.branding) })
+      .then(d => {
+        if (d?.config?.branding) setBranding(d.config.branding)
+      })
       .catch(() => {})
   }, [])
 
   const appName = branding?.appName || 'propnekt'
-  const tagline = branding?.footerTagline ||
+  const tagline =
+    branding?.footerTagline ||
     "Nigeria's most trusted platform for buying, renting, and booking properties."
   const social = branding?.socialLinks || {}
 
   const socialLinks = [
-    { key: 'twitter',   label: '𝕏',   href: social.twitter   },
-    { key: 'instagram', label: 'Ig',  href: social.instagram  },
-    { key: 'facebook',  label: 'Fb',  href: social.facebook   },
-    { key: 'linkedin',  label: 'in',  href: social.linkedin   },
-    { key: 'whatsapp',  label: 'Wa',  href: social.whatsapp   },
+    { key: 'twitter', label: '𝕏', href: social.twitter },
+    { key: 'instagram', label: 'Ig', href: social.instagram },
+    { key: 'facebook', label: 'Fb', href: social.facebook },
+    { key: 'linkedin', label: 'in', href: social.linkedin },
+    { key: 'whatsapp', label: 'Wa', href: social.whatsapp }
   ].filter(s => s.href)
 
   return (
     <footer className='pn-footer'>
       <div className='pn-footer__inner'>
-
         {/* ── Brand column */}
         <div className='pn-footer__brand'>
           <a href='/' className='pn-footer__logo'>
@@ -45,12 +47,15 @@ export default function Footer () {
           </a>
           <p className='pn-footer__tagline'>{tagline}</p>
           <div className='pn-footer__socials'>
-            {(socialLinks.length > 0 ? socialLinks : [
-              { key: 'x',  label: '𝕏',  href: '#' },
-              { key: 'ig', label: 'Ig', href: '#' },
-              { key: 'fb', label: 'Fb', href: '#' },
-              { key: 'li', label: 'in', href: '#' },
-            ]).map(s => (
+            {(socialLinks.length > 0
+              ? socialLinks
+              : [
+                  { key: 'x', label: '𝕏', href: '#' },
+                  { key: 'ig', label: 'Ig', href: '#' },
+                  { key: 'fb', label: 'Fb', href: '#' },
+                  { key: 'li', label: 'in', href: '#' }
+                ]
+            ).map(s => (
               <a
                 key={s.key}
                 className='pn-footer__social'
@@ -104,7 +109,9 @@ export default function Footer () {
       </div>
 
       <div className='pn-footer__bottom'>
-        <p>© {new Date().getFullYear()} {appName}. All rights reserved.</p>
+        <p>
+          © {new Date().getFullYear()} {appName}. All rights reserved.
+        </p>
         <p className='pn-footer__credit'>Built with ❤️ in Nigeria 🇳🇬</p>
       </div>
     </footer>

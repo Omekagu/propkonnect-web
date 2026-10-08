@@ -416,18 +416,18 @@ video {
 @media (prefers-color-scheme: dark) {
   :root {
     // Backgrounds
-    --color-background: #0f6040;
-    --color-surface: #0f6040;
-    --color-surface-hover: #1e293b;
-    --color-border: #1e293b;
-    --color-border-light: #0f6040;
+    --color-background: #020c06;
+    --color-surface: #0a1a10;
+    --color-surface-hover: #112218;
+    --color-border: #1a2e1f;
+    --color-border-light: #1a2e1f;
 
     // Legacy aliases
-    --bg: #0f6040;
-    --surface: #0f6040;
-    --surface-2: #1e293b;
-    --border: #1e293b;
-    --border-light: #0f6040;
+    --bg: #020c06;
+    --surface: #0a1a10;
+    --surface-2: #112218;
+    --border: #1a2e1f;
+    --border-light: #1a2e1f;
 
     // Text
     --color-text-primary: #f1f5f9;

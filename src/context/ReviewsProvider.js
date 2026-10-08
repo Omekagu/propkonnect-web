@@ -11,7 +11,7 @@ import { getReviews, postReview } from './ReviewsClient'
 const reviewsClient = { getReviews, postReview }
 const ReviewsContext = createContext(null)
 
-export function ReviewsProvider ({ children, defaultSection = 'overview' }) {
+export function ReviewsProvider ({ children, defaultSection = 'overview', lazy = false }) {
   const [currentSection, setCurrentSection] = useState(defaultSection)
   const [reviews, setReviews] = useState([])
   const [avgRating, setAvgRating] = useState(null)
@@ -37,11 +37,12 @@ export function ReviewsProvider ({ children, defaultSection = 'overview' }) {
   )
 
   useEffect(() => {
+    if (lazy) return
     fetchReviews(currentSection).catch(err => {
       console.error('Failed to fetch reviews for', currentSection, err)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSection])
+  }, [currentSection, lazy])
 
   // submitReview attaches the currentSection and handles optimistic update
   const submitReview = useCallback(

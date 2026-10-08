@@ -222,6 +222,9 @@ $font:     var(--font);
   border-radius: $radius;
   overflow: hidden;
   cursor: pointer;
+  text-decoration: none;
+  display: block;
+  color: inherit;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
   &:hover {

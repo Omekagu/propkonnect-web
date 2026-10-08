@@ -271,16 +271,16 @@ export default function FeedPage () {
                     <span className='pf-rail__label'>Share</span>
                   </button>
 
-                  <button
+                  <a
                     className='pf-rail__btn pf-rail__btn--view'
-                    onClick={() => router.push(`/property/${id}`)}
+                    href={`/property/${id}`}
                     title='View property'
                   >
                     <div className='pf-rail__icon'>
                       <Eye size={22} />
                     </div>
                     <span className='pf-rail__label'>View</span>
-                  </button>
+                  </a>
                 </div>
 
                 <div
@@ -338,12 +338,13 @@ export default function FeedPage () {
                           {prop.description.slice(0, 200)}{prop.description.length > 200 ? '…' : ''}
                         </p>
                       )}
-                      <button
+                      <a
                         className='pf-info__cta'
-                        onClick={e => { e.stopPropagation(); router.push(`/property/${id}`) }}
+                        href={`/property/${id}`}
+                        onClick={e => e.stopPropagation()}
                       >
                         View Full Listing →
-                      </button>
+                      </a>
                     </div>
                   )}
                 </div>

@@ -136,7 +136,9 @@ export const metadata = {
   // ─── Icons ──────────────────────────────────────────────────────────────────
   icons: {
     icon: [
-      { url: 'https://i.postimg.cc/Z5KDSpvb/propnekt-mark.png' },
+      {
+        url: 'https://i.postimg.cc/Z5KDSpvb/propnekt-mark.png'
+      },
       {
         url: 'https://i.postimg.cc/Z5KDSpvb/propnekt-mark.png',
         sizes: '16x16',
@@ -201,7 +203,7 @@ export default function RootLayout ({ children }) {
         />
       </head>
       <body>
-        <ReviewsProvider>
+        <ReviewsProvider lazy>
           <HeaderLayout>{children}</HeaderLayout>
         </ReviewsProvider>
 

@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { properties as propertiesApi } from '@/libs/api'
 import { encodeId } from '@/libs/propId'
 import { Bath, BedDouble, MapPin, Ruler, Search, X } from 'lucide-react'
@@ -11,7 +10,6 @@ const TYPES = ['All', 'Apartment', 'House', 'Duplex', 'Bungalow', 'Villa', 'Mans
 const BEDS  = ['Any', '1', '2', '3', '4', '5+']
 
 export default function BuyPage () {
-  const router = useRouter()
   const [properties, setProperties] = useState([])
   const [loading, setLoading]       = useState(true)
   const [search, setSearch]         = useState('')
@@ -117,7 +115,7 @@ export default function BuyPage () {
                          || prop.city || ''
               const id   = encodeId(prop.uid || prop._id)
               return (
-                <div key={id} className='pn-prop-card' onClick={() => router.push(`/property/${id}`)}>
+                <a key={id} href={`/property/${id}`} className='pn-prop-card'>
                   <div className='pn-prop-card__img'>
                     <img src={img} alt={prop.title} loading='lazy' />
                     {prop.compliance?.verified && (
@@ -142,7 +140,7 @@ export default function BuyPage () {
                       ₦{prop.price ? Number(prop.price).toLocaleString() : '—'}
                     </div>
                   </div>
-                </div>
+                </a>
               )
             })}
           </div>

@@ -1,164 +1,295 @@
-// ── Contact page — dark green/lime brand theme ────────────────
+// ── Contact page ─────────────────────────────────────────────
 $bg:      #020c06;
+$bg-alt:  #040f08;
 $accent:  #c4e53c;
 $green:   #0b3d28;
 $text:    #e8f5ee;
 $text-2:  rgba(223, 240, 228, 0.65);
 $text-3:  rgba(223, 240, 228, 0.38);
 $border:  rgba(255, 255, 255, 0.07);
+$border-2:rgba(255, 255, 255, 0.11);
 $surface: rgba(255, 255, 255, 0.03);
 $font:    var(--font);
 
+@keyframes pn-contact-grid {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(60px, 60px); }
+}
 @keyframes pn-contact-fadein {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes pn-spin {
+  to { transform: rotate(360deg); }
+}
 
-.contact-page {
-  min-height: 100vh;
+.pn-contact {
   background: $bg;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6rem 1.5rem;
-  font-family: $font;
-}
-
-.contact-container {
-  width: 100%;
-  max-width: 960px;
-  background: rgba(4, 15, 8, 0.9);
-  border: 1px solid $border;
-  border-radius: 20px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
-  display: flex;
-  overflow: hidden;
-
-  @media (max-width: 900px) {
-    flex-direction: column;
-  }
-}
-
-/* Left panel */
-.contact-info {
-  flex: 1;
-  background: linear-gradient(150deg, rgba(11, 61, 40, 0.9) 0%, rgba(2, 12, 6, 0.98) 100%);
-  border-right: 1px solid $border;
   color: $text;
-  padding: 3rem 2.25rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 260px;
+  font-family: $font;
+  min-height: 100vh;
 
-  .contact-illus { margin-bottom: 1.5rem; }
+  // ── Hero ─────────────────────────────────────────────────────
+  &__hero {
+    position: relative;
+    padding: 7rem 2rem 5rem;
+    text-align: center;
+    background: linear-gradient(160deg,
+      rgba(2, 12, 6, 0.97) 0%,
+      rgba(11, 61, 40, 0.45) 100%
+    );
+    overflow: hidden;
 
-  h2 {
-    font-size: 1.65rem;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.75rem;
-    line-height: 1.2;
-  }
+    @media (max-width: 640px) { padding: 6rem 1.25rem 3.5rem; }
 
-  p {
-    font-size: 0.92rem;
-    color: $text-2;
-    line-height: 1.75;
-    margin-bottom: 1rem;
-
-    a {
-      color: $accent;
-      text-decoration: none;
-      &:hover { text-decoration: underline; }
+    &-grid {
+      position: absolute;
+      inset: -80px;
+      background-image:
+        linear-gradient(rgba(196, 229, 60, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196, 229, 60, 0.04) 1px, transparent 1px);
+      background-size: 64px 64px;
+      animation: pn-contact-grid 20s linear infinite;
+      pointer-events: none;
     }
 
-    .contact-highlight {
-      font-weight: 600;
+    &-content {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.75rem);
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+
+      span {
+        background: linear-gradient(120deg, #fff 0%, #d4f56a 50%, $accent 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    p {
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.52);
+      line-height: 1.7;
+    }
+  }
+
+  &__badge {
+    display: inline-block;
+    padding: 0.28rem 0.85rem;
+    background: rgba(196, 229, 60, 0.09);
+    border: 1px solid rgba(196, 229, 60, 0.22);
+    border-radius: 100px;
+    color: $accent;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    margin-bottom: 1.25rem;
+  }
+
+  // ── Body ─────────────────────────────────────────────────────
+  &__body {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2rem 7rem;
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 4rem;
+    align-items: start;
+
+    @media (max-width: 860px) {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      padding: 3rem 1.25rem 5rem;
+    }
+  }
+
+  // ── Info panel ───────────────────────────────────────────────
+  &__info {
+    position: sticky;
+    top: 88px;
+
+    @media (max-width: 860px) { position: static; }
+
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
       color: $text;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
     }
   }
 
-  .contact-socials {
+  &__info-sub {
+    font-size: 0.875rem;
+    color: $text-3;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  &__info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
     display: flex;
-    gap: 0.75rem;
-    margin-top: 1.25rem;
+    flex-direction: column;
+    gap: 1.25rem;
 
-    a {
+    li {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid $border;
-      border-radius: 10px;
-      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      align-items: flex-start;
+      gap: 1rem;
+    }
 
-      &:hover {
-        background: rgba(196, 229, 60, 0.12);
-        border-color: rgba(196, 229, 60, 0.3);
-        transform: translateY(-2px);
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+
+      strong {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: $text-3;
       }
 
-      svg { width: 18px; height: 18px; }
+      a, span {
+        font-size: 0.93rem;
+        color: $text-2;
+        text-decoration: none;
+        transition: color 0.18s;
+        &:hover { color: $accent; }
+      }
     }
   }
 
-  @media (max-width: 900px) {
-    border-right: none;
-    border-bottom: 1px solid $border;
-    padding: 2.25rem 1.75rem;
-  }
-}
-
-/* Right panel — form */
-.contact-form {
-  flex: 1.5;
-  background: rgba(2, 12, 6, 0.97);
-  padding: 3rem 2.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  @media (max-width: 900px) { padding: 2rem 1.75rem; }
-  @media (max-width: 600px) { padding: 1.5rem 1.25rem; }
-
-  .form-title {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: $text;
-    margin-bottom: 1.5rem;
-    letter-spacing: -0.01em;
+  &__info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(196, 229, 60, 0.07);
+    border: 1px solid rgba(196, 229, 60, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $accent;
+    flex-shrink: 0;
   }
 
-  .form-group {
+  &__socials {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+
+  &__social {
+    width: 38px;
+    height: 38px;
+    background: $surface;
+    border: 1px solid $border-2;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-3;
+    text-decoration: none;
+    transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.18s;
+
+    &:hover {
+      background: rgba(196, 229, 60, 0.1);
+      border-color: rgba(196, 229, 60, 0.28);
+      color: $accent;
+      transform: translateY(-2px);
+    }
+  }
+
+  &__hours {
+    padding: 1rem 1.25rem;
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    strong {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: $text-3;
+    }
+
+    span {
+      font-size: 0.9rem;
+      color: $text-2;
+    }
+  }
+
+  // ── Form ─────────────────────────────────────────────────────
+  &__form {
+    background: rgba(4, 15, 8, 0.7);
+    border: 1px solid $border;
+    border-radius: 20px;
+    padding: 2.5rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    @media (max-width: 640px) { padding: 1.75rem 1.25rem; }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: $text;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.75rem;
+    }
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 560px) { grid-template-columns: 1fr; }
+  }
+
+  &__group {
     display: flex;
     flex-direction: column;
     margin-bottom: 1.1rem;
 
     label {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
+      letter-spacing: 0.08em;
       color: $text-3;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.45rem;
     }
 
-    input,
-    textarea {
+    input, textarea {
       padding: 0.8rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.04);
-      font-size: 0.95rem;
-      font-weight: 500;
       color: $text;
+      font-size: 0.93rem;
+      font-family: $font;
       outline: none;
       resize: none;
-      font-family: $font;
       transition: border-color 0.18s, background 0.18s;
 
       &::placeholder { color: $text-3; }
@@ -170,40 +301,56 @@ $font:    var(--font);
     }
   }
 
-  .submit-btn {
+  &__submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.9rem;
+    margin-top: 0.5rem;
     background: $accent;
     color: $green;
-    font-weight: 700;
-    font-size: 1rem;
     border: none;
     border-radius: 10px;
-    padding: 0.875rem 0;
-    margin-top: 0.5rem;
+    font-size: 0.97rem;
+    font-weight: 700;
+    font-family: $font;
     cursor: pointer;
     transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
     box-shadow: 0 4px 20px rgba(196, 229, 60, 0.28);
-    font-family: $font;
-    width: 100%;
 
-    &:hover {
+    &:hover:not(:disabled) {
       transform: translateY(-1px);
       box-shadow: 0 8px 32px rgba(196, 229, 60, 0.42);
       filter: brightness(1.05);
     }
 
-    &:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
   }
 
-  .form-success {
-    margin-top: 1.1rem;
-    color: $accent;
+  &__spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(11, 61, 40, 0.3);
+    border-top-color: $green;
+    border-radius: 50%;
+    animation: pn-spin 0.7s linear infinite;
+    display: inline-block;
+  }
+
+  &__success {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    padding: 0.8rem 1rem;
     background: rgba(196, 229, 60, 0.08);
-    border: 1px solid rgba(196, 229, 60, 0.2);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    font-weight: 600;
-    text-align: center;
+    border: 1px solid rgba(196, 229, 60, 0.22);
+    border-radius: 10px;
+    color: $accent;
     font-size: 0.9rem;
-    animation: pn-contact-fadein 0.5s ease;
+    font-weight: 600;
+    animation: pn-contact-fadein 0.4s ease;
   }
 }
