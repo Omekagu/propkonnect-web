@@ -59,6 +59,15 @@
   .admin-sidebar {
     display: none !important;
   }
+  .account-pending-banner {
+    top: 52px; // matches mobile AppHeader height
+  }
+}
+
+@media (max-width: 640px) {
+  .account-pending-banner {
+    top: 56px; // matches small-mobile AppHeader height
+  }
 }
 // ============================================================
 // ADMIN LAYOUT — Session modal, alert banner, loading
@@ -67,7 +76,7 @@
 // ── Account Pending Banner ────────────────────────────────────
 .account-pending-banner {
   position: sticky;
-  top: 0;
+  top: 64px; // sits below the 64px AppHeader — not on top of it
   z-index: 200;
   width: 100%;
   box-sizing: border-box;

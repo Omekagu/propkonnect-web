@@ -245,19 +245,11 @@
   margin-bottom: 64px;
   animation: fadeUp 600ms ease both;
 
-  &__hex {
-    width: 38px;
+  &__img {
     height: 38px;
-    background: var(--color-accent);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-
-    svg {
-      color: #0b3d28;
-    }
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(196, 229, 60, 0.25));
   }
 
   &__name {

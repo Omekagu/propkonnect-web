@@ -36,7 +36,7 @@ export default function Footer () {
         <div className='pn-footer__brand'>
           <a href='/' className='pn-footer__logo'>
             <Image
-              src='/Propnekt_logo.png'
+              src='https://i.postimg.cc/Z5KDSpvb/propnekt-mark.png'
               alt={appName}
               width={140}
               height={36}

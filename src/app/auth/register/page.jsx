@@ -140,13 +140,11 @@ export default function Register () {
         {/* ── LEFT panel ──────────────────────────────────── */}
         <div className='rp-visual'>
           <div className='rp-logo'>
-            <div className='rp-logo__hex'>
-              <svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor'>
-                <path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/>
-              </svg>
-            </div>
-            <span className='rp-logo__name'>{APP}</span>
-            <span className='rp-logo__tag'>AI</span>
+            <img
+              src='https://i.postimg.cc/Z5KDSpvb/propnekt-mark.png'
+              alt='Propnekt'
+              className='rp-logo__img'
+            />
           </div>
 
           <div className='rp-city'>

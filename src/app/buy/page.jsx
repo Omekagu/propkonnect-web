@@ -1,248 +1,158 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { properties as propertiesApi } from '@/libs/api'
-import './buy.scss'
-import { Bath, BedDouble, MapPin, Ruler, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { properties as propertiesApi } from '@/libs/api'
 import { encodeId } from '@/libs/propId'
+import { Bath, BedDouble, MapPin, Ruler, Search, X } from 'lucide-react'
+import './buy.scss'
 
-const PROPERTY_TYPES = [
-  'All',
-  'Apartment',
-  'House',
-  'Shortlet',
-  'Hotel',
-  'Duplex',
-  'Terraced',
-  'Bungalow',
-  'Villa',
-  'Mansion',
-  'Land',
-  'Commercial'
-]
+const TYPES = ['All', 'Apartment', 'House', 'Duplex', 'Bungalow', 'Villa', 'Mansion', 'Land', 'Commercial']
+const BEDS  = ['Any', '1', '2', '3', '4', '5+']
 
-export default function BuyPropertyList () {
-  const [properties, setProperties] = useState([])
-  const [filtered, setFiltered] = useState([])
-  const [search, setSearch] = useState('')
-  const [type, setType] = useState('All')
-  const [minPrice, setMinPrice] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
-  const [bedrooms, setBedrooms] = useState('Any')
-  const [loading, setLoading] = useState(true)
+export default function BuyPage () {
   const router = useRouter()
+  const [properties, setProperties] = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [search, setSearch]         = useState('')
+  const [type, setType]             = useState('All')
+  const [minPrice, setMinPrice]     = useState('')
+  const [maxPrice, setMaxPrice]     = useState('')
+  const [bedrooms, setBedrooms]     = useState('Any')
+
   useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        const res = await propertiesApi.getAll()
-        setProperties(Array.isArray(res.data?.properties) ? res.data.properties : Array.isArray(res.data) ? res.data : [])
-      } catch (error) {
-        setProperties([])
-        console.log('Error fetching properties:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchProperties()
+    propertiesApi.getAll()
+      .then(res => {
+        const raw = res.data?.properties ?? (Array.isArray(res.data) ? res.data : [])
+        setProperties(raw.filter(p => (p.purpose || '').toLowerCase().includes('sale')))
+      })
+      .catch(() => setProperties([]))
+      .finally(() => setLoading(false))
   }, [])
 
-  // Sale properties only
-  const filterForSale = props =>
-    props.filter(prop => (prop.purpose || '').toLowerCase() === 'for sale')
-
-  useEffect(() => {
-    let data = filterForSale(properties)
-
-    if (search) {
-      data = data.filter(
-        prop =>
-          (prop.title?.toLowerCase() || '').includes(search.toLowerCase()) ||
-          (prop.address?.toLowerCase() || '').includes(search.toLowerCase())
-      )
-    }
-
-    if (type !== 'All') {
-      data = data.filter(
-        prop =>
-          (prop.category || prop.propertyType || '').toLowerCase() ===
-          type.toLowerCase()
-      )
-    }
-
+  const filtered = properties.filter(p => {
+    const title = (p.title || '').toLowerCase()
+    const addr  = (p.address || p.city || '').toLowerCase()
+    if (search && !title.includes(search.toLowerCase()) && !addr.includes(search.toLowerCase())) return false
+    if (type !== 'All' && (p.category || p.propertyType || '').toLowerCase() !== type.toLowerCase()) return false
     if (bedrooms !== 'Any') {
-      data = data.filter(prop => Number(prop.beds) === parseInt(bedrooms))
+      const n = Number(p.beds)
+      if (bedrooms === '5+' ? n < 5 : n !== parseInt(bedrooms)) return false
     }
+    if (minPrice && Number(p.price) < Number(minPrice)) return false
+    if (maxPrice && Number(p.price) > Number(maxPrice)) return false
+    return true
+  })
 
-    if (minPrice)
-      data = data.filter(prop => Number(prop.price) >= Number(minPrice))
-    if (maxPrice)
-      data = data.filter(prop => Number(prop.price) <= Number(maxPrice))
-
-    setFiltered(data || [])
-  }, [search, type, bedrooms, minPrice, maxPrice, properties])
-
-  // Decide visible features for preview based on type/category
-  function renderFeatures (prop) {
-    const propertyType = (
-      prop.category ||
-      prop.propertyType ||
-      ''
-    ).toLowerCase()
-    if (propertyType === 'land') {
-      // Land: Show just area
-      return (
-        <span>
-          <Ruler size={15} />{' '}
-          {prop.area || prop.selectedPlotLabel || prop.selectedPlotPrice || '—'}
-        </span>
-      )
-    }
-    if (propertyType === 'commercial') {
-      // Commercial: Show area only (adapt if you want)
-      return (
-        <span>
-          <Ruler size={15} /> {prop.area || `${prop.sqft || '—'} sqft`}
-        </span>
-      )
-    }
-    // Default (apartment, house, mansion, ...)
-    return (
-      <>
-        <span>
-          <BedDouble size={15} /> {prop.beds || '—'} Beds
-        </span>
-        <span>
-          <Bath size={15} /> {prop.baths || '—'} Baths
-        </span>
-        <span>
-          <Ruler size={15} />{' '}
-          {prop.sqft ? `${prop.sqft} sqft` : prop.area || '—'}
-        </span>
-      </>
-    )
-  }
+  const clearFilters = () => { setSearch(''); setType('All'); setMinPrice(''); setMaxPrice(''); setBedrooms('Any') }
 
   return (
-    <section className='modern-buy-page'>
-      <div className='hero-section'>
-        <div className='overlay'>
-          <h1>Discover Your Perfect Home</h1>
-          <p>Browse thousands of premium properties across the world.</p>
+    <div className='pn-props'>
+      {/* Hero */}
+      <section className='pn-props__hero'>
+        <div className='pn-props__hero-grid' />
+        <div className='pn-props__hero-content'>
+          <span className='pn-props__hero-badge'>For Sale</span>
+          <h1>Buy Property in Nigeria</h1>
+          <p>
+            {loading ? 'Loading listings…' : `${properties.length.toLocaleString()} verified homes, land & commercial spaces`}
+          </p>
+        </div>
+      </section>
+
+      {/* Filter bar */}
+      <div className='pn-props__bar'>
+        <div className='pn-props__bar-inner'>
+          <div className='pn-props__search'>
+            <Search size={15} />
+            <input
+              type='text'
+              placeholder='Search location or title…'
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              onKeyDown={e => e.key === 'Escape' && setSearch('')}
+            />
+            {search && (
+              <button className='pn-props__search-clear' onClick={() => setSearch('')}>
+                <X size={13} />
+              </button>
+            )}
+          </div>
+
+          <select value={type} onChange={e => setType(e.target.value)}>
+            {TYPES.map(t => <option key={t}>{t}</option>)}
+          </select>
+
+          <select value={bedrooms} onChange={e => setBedrooms(e.target.value)}>
+            {BEDS.map(b => (
+              <option key={b} value={b}>
+                {b === 'Any' ? 'Any Beds' : `${b} bed${b === '1' ? '' : 's'}`}
+              </option>
+            ))}
+          </select>
+
+          <input type='number' placeholder='Min ₦' value={minPrice} onChange={e => setMinPrice(e.target.value)} />
+          <input type='number' placeholder='Max ₦' value={maxPrice} onChange={e => setMaxPrice(e.target.value)} />
         </div>
       </div>
 
-      <div className='filters'>
-        <input
-          type='text'
-          placeholder='Search location or title...'
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <select value={type} onChange={e => setType(e.target.value)}>
-          {PROPERTY_TYPES.map(t => (
-            <option key={t}>{t}</option>
-          ))}
-        </select>
-        <select value={bedrooms} onChange={e => setBedrooms(e.target.value)}>
-          <option value='Any'>Any Beds</option>
-          {[1, 2, 3, 4, 5].map(b => (
-            <option key={b} value={b}>
-              {b} bed{b > 1 ? 's' : ''}
-            </option>
-          ))}
-        </select>
-        <input
-          type='number'
-          placeholder='Min Price (₦)'
-          value={minPrice}
-          onChange={e => setMinPrice(e.target.value)}
-        />
-        <input
-          type='number'
-          placeholder='Max Price (₦)'
-          value={maxPrice}
-          onChange={e => setMaxPrice(e.target.value)}
-        />
-      </div>
+      {/* Results */}
+      <section className='pn-props__main'>
+        <p className='pn-props__count'>
+          {loading ? 'Fetching properties…' : `${filtered.length.toLocaleString()} propert${filtered.length !== 1 ? 'ies' : 'y'} found`}
+        </p>
 
-      {loading ? (
-        <div className='loading'>Fetching beautiful homes...</div>
-      ) : filtered.length ? (
-        <div className='property-grid'>
-          {filtered.map(prop => (
-            <div className='property-card' key={prop._id}>
-              <div className='image-container'>
-                {prop.media && prop.media.length > 0 ? (
-                  prop.media[0].type === 'video' ? (
-                    <video
-                      src={prop.media[0].url}
-                      controls
-                      autoPlay={false}
-                      loop
-                      muted
-                      playsInline
-                      className='media'
-                    />
-                  ) : (
-                    <img
-                      src={prop.media[0].url}
-                      alt={prop.title || 'media-preview'}
-                      className='media'
-                    />
-                  )
-                ) : (
-                  <img
-                    src='https://via.placeholder.com/800x500?text=No+Media'
-                    alt='No media available'
-                    className='media'
-                  />
-                )}
-
-                <div
-                  className={`status-badge ${
-                    prop.saleInfo?.marketAvail || 'available'
-                  }`}
-                >
-                  {prop.saleInfo?.marketAvail?.toUpperCase() || 'AVAILABLE'}
+        {loading ? (
+          <div className='pn-props__grid'>
+            {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className='pn-prop-card pn-prop-card--skeleton' />)}
+          </div>
+        ) : filtered.length ? (
+          <div className='pn-props__grid'>
+            {filtered.map(prop => {
+              const img  = prop.media?.[0]?.url || prop.images?.[0]?.url || prop.images?.[0]
+                         || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80'
+              const addr = prop.address
+                         || (typeof prop.location === 'string' ? prop.location
+                           : [prop.location?.city, prop.location?.state].filter(Boolean).join(', '))
+                         || prop.city || ''
+              const id   = encodeId(prop.uid || prop._id)
+              return (
+                <div key={id} className='pn-prop-card' onClick={() => router.push(`/property/${id}`)}>
+                  <div className='pn-prop-card__img'>
+                    <img src={img} alt={prop.title} loading='lazy' />
+                    {prop.compliance?.verified && (
+                      <span className='pn-prop-card__verified'>✓ Verified</span>
+                    )}
+                  </div>
+                  <div className='pn-prop-card__body'>
+                    <h3>{prop.title}</h3>
+                    {addr && (
+                      <p className='pn-prop-card__loc'>
+                        <MapPin size={12} /> {addr}
+                      </p>
+                    )}
+                    <div className='pn-prop-card__stats'>
+                      {prop.beds  && <span><BedDouble size={12} /> {prop.beds} bed{prop.beds !== '1' ? 's' : ''}</span>}
+                      {prop.baths && <span><Bath size={12} /> {prop.baths} bath{prop.baths !== '1' ? 's' : ''}</span>}
+                      {(prop.sqft || prop.area) && (
+                        <span><Ruler size={12} /> {prop.sqft ? `${prop.sqft} sqft` : prop.area}</span>
+                      )}
+                    </div>
+                    <div className='pn-prop-card__price'>
+                      ₦{prop.price ? Number(prop.price).toLocaleString() : '—'}
+                    </div>
+                  </div>
                 </div>
-                {prop.compliance?.verified && (
-                  <span style={{ position:'absolute', bottom:10, right:10, background:'rgba(11,61,40,0.92)', color:'#C4E53C', padding:'3px 9px', borderRadius:20, fontSize:10, fontWeight:700, backdropFilter:'blur(4px)', border:'1px solid rgba(196,229,60,0.4)', letterSpacing:'0.01em' }}>
-                    ✓ PropNekt Verified
-                  </span>
-                )}
-              </div>
-
-              <div className='details'>
-                <h2>{prop.title}</h2>
-                <p className='location'>
-                  <MapPin size={14} /> {prop.address || (typeof prop.location === 'string' ? prop.location : [prop.location?.address, prop.location?.city, prop.location?.state].filter(Boolean).join(', ')) || prop.city || ''}
-                </p>
-                <div className='features'>{renderFeatures(prop)}</div>
-
-                <div className='price'>
-                  ₦{prop.price ? Number(prop.price).toLocaleString() : '—'}
-                  <span className='tag'>{prop.status || ''}</span>
-                </div>
-                <div className='rating'>
-                  {/* <Star size={15} fill='#FFD700' stroke='none' />
-                  {prop.rating?.toFixed(1) || '4.0'} */}
-                </div>
-                <button
-                  className='view-btn'
-                  onClick={() => router.push(`/property/${encodeId(prop.uid || prop._id)}`)}
-                >
-                  View Details
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className='no-results'>
-          No properties found with current filters.
-        </div>
-      )}
-    </section>
+              )
+            })}
+          </div>
+        ) : (
+          <div className='pn-props__empty'>
+            <p>No properties match your filters.</p>
+            <button onClick={clearFilters}>Clear Filters</button>
+          </div>
+        )}
+      </section>
+    </div>
   )
 }

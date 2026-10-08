@@ -1,23 +1,41 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { ChevronDown, Menu, X, Home, Key, Search, Info, Phone } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
+import { Menu, X, Home, Key, Calendar, Search, Info, Phone } from 'lucide-react'
 import './header.scss'
 
+const NAV_LINKS = [
+  { label: 'Buy',      href: '/buy'                    },
+  { label: 'Rent',     href: '/rent'                   },
+  { label: 'Shortlets',href: '/search?intent=shortlet' },
+  { label: 'Search',   href: '/search'                 },
+  { label: 'About',    href: '/about'                  },
+  { label: 'Contact',  href: '/contact'                },
+]
+
+const MOBILE_NAV = [
+  { label: 'Buy',      href: '/buy',                    Icon: Home     },
+  { label: 'Rent',     href: '/rent',                   Icon: Key      },
+  { label: 'Shortlets',href: '/search?intent=shortlet', Icon: Calendar },
+  { label: 'Search',   href: '/search',                 Icon: Search   },
+  { label: 'About',    href: '/about',                  Icon: Info     },
+  { label: 'Contact',  href: '/contact',                Icon: Phone    },
+]
+
 export default function Header () {
-  const router = useRouter()
+  const router   = useRouter()
+  const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [activeDropdown, setActiveDropdown] = useState(null)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll)
+    const onScroll = () => setScrolled(window.scrollY > 10)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Close mobile menu on outside click
   useEffect(() => {
     if (!menuOpen) return
     const handle = e => {
@@ -27,47 +45,50 @@ export default function Header () {
     return () => document.removeEventListener('mousedown', handle)
   }, [menuOpen])
 
-  // Lock body scroll when mobile menu open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [menuOpen])
 
-  const NAV_LINKS = [
-    { label: 'Buy',      href: '/buy'                   },
-    { label: 'Rent',     href: '/rent'                  },
-    { label: 'Shortlets',href: '/search?intent=shortlet'},
-    { label: 'Search',   href: '/search'                },
-    { label: 'About',    href: '/about'                 },
-    { label: 'Contact',  href: '/contact'               },
-  ]
+  // Close drawer on route change
+  useEffect(() => { setMenuOpen(false) }, [pathname])
+
+  const isActive = href => {
+    if (href.startsWith('/search')) return pathname?.startsWith('/search')
+    return pathname === href
+  }
 
   return (
     <header className={`pn-header${scrolled ? ' pn-header--scrolled' : ''}`}>
       <div className='pn-header__inner'>
 
-        {/* ── Logo ── */}
-        <a href='/' className='pn-header__logo' aria-label='propnekt home'>
+        {/* Logo */}
+        <a href='/' className='pn-header__logo' aria-label='Propnekt home'>
           <Image
-            src='/Propnekt_logo.png'
-            alt='propnekt'
-            width={140}
-            height={36}
+            src='https://i.postimg.cc/Z5KDSpvb/propnekt-mark.png'
+            alt=''
+            width={32}
+            height={32}
             priority
-            style={{ objectFit: 'contain', height: 36, width: 'auto' }}
+            className='pn-header__logo-mark'
           />
+          <span className='pn-header__logo-name'>propnekt</span>
         </a>
 
-        {/* ── Desktop nav ── */}
+        {/* Desktop nav */}
         <nav className='pn-header__nav' aria-label='Main navigation'>
           {NAV_LINKS.map(l => (
-            <a key={l.label} href={l.href} className='pn-header__nav-link'>
+            <a
+              key={l.label}
+              href={l.href}
+              className={`pn-header__nav-link${isActive(l.href) ? ' active' : ''}`}
+            >
               {l.label}
             </a>
           ))}
         </nav>
 
-        {/* ── Desktop actions ── */}
+        {/* Desktop actions */}
         <div className='pn-header__actions'>
           <button
             className='pn-header__btn-ghost'
@@ -83,45 +104,42 @@ export default function Header () {
           </button>
         </div>
 
-        {/* ── Hamburger ── */}
+        {/* Hamburger */}
         <button
           className={`pn-header__burger${menuOpen ? ' open' : ''}`}
           onClick={() => setMenuOpen(o => !o)}
-          aria-label='Toggle menu'
+          aria-label='Toggle navigation menu'
           aria-expanded={menuOpen}
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {/* ── Mobile drawer ── */}
-      <div className={`pn-header__drawer${menuOpen ? ' open' : ''}`} aria-hidden={!menuOpen}>
+      {/* Mobile drawer */}
+      <div
+        className={`pn-header__drawer${menuOpen ? ' open' : ''}`}
+        aria-hidden={!menuOpen}
+      >
         <div className='pn-header__drawer-logo'>
           <Image
-            src='/Propnekt_logo.png'
-            alt='propnekt'
-            width={130}
-            height={34}
-            style={{ objectFit: 'contain', height: 34, width: 'auto' }}
+            src='https://i.postimg.cc/Z5KDSpvb/propnekt-mark.png'
+            alt=''
+            width={30}
+            height={30}
+            className='pn-header__drawer-logo-mark'
           />
+          <span className='pn-header__drawer-logo-name'>propnekt</span>
         </div>
 
         <nav className='pn-header__drawer-nav'>
-          {[
-            { label: 'Buy Properties',  href: '/buy',                    Icon: Home  },
-            { label: 'Rent a Property', href: '/rent',                   Icon: Key   },
-            { label: 'Book Shortlet',   href: '/search?intent=shortlet', Icon: Search},
-            { label: 'Search',          href: '/search',                 Icon: Search},
-            { label: 'About Us',        href: '/about',                  Icon: Info  },
-            { label: 'Contact',         href: '/contact',                Icon: Phone },
-          ].map(({ label, href, Icon }) => (
+          {MOBILE_NAV.map(({ label, href, Icon }) => (
             <a
               key={label}
               href={href}
-              className='pn-header__drawer-link'
+              className={`pn-header__drawer-link${isActive(href) ? ' active' : ''}`}
               onClick={() => setMenuOpen(false)}
             >
-              <Icon size={16} className='pn-header__drawer-icon' />
+              <Icon size={17} className='pn-header__drawer-icon' />
               {label}
             </a>
           ))}
@@ -149,7 +167,11 @@ export default function Header () {
 
       {/* Backdrop */}
       {menuOpen && (
-        <div className='pn-header__backdrop' onClick={() => setMenuOpen(false)} />
+        <div
+          className='pn-header__backdrop'
+          onClick={() => setMenuOpen(false)}
+          aria-hidden='true'
+        />
       )}
     </header>
   )

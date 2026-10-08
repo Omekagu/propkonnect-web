@@ -7,9 +7,8 @@ import Footer from '@/component/footer/Footer'
 export default function HeaderLayout ({ children }) {
   const pathname = usePathname()
 
-  // Pages with their own full-screen nav or no chrome needed
+  // Pages that should NOT show the global header/footer
   const hideLayout =
-    pathname === '/' ||
     pathname?.startsWith('/user') ||
     pathname?.startsWith('/docs') ||
     pathname?.startsWith('/admin') ||
